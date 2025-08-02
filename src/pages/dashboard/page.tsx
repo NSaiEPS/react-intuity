@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { Grid, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
 
 // import GaugeChart from '@/components/dashboard/overview/billing-needle-chart';
 import { Budget } from "@/components/dashboard/overview/budget";

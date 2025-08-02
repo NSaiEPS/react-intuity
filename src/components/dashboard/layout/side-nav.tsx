@@ -72,7 +72,7 @@ export function SideNav(): React.JSX.Element {
         }}
       >
         <Box
-          component={RouterLink}
+
           href={paths.dashboard.overview()}
           sx={{ display: "inline-flex" }}
         >

@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Divider,
   Grid,
-  Link,
   Stack,
   Typography,
 } from "@mui/material";
@@ -24,7 +23,7 @@ import { Logo } from "../core/logo";
 import { ResetPasswordForm } from "./reset-password-form";
 import { SignInForm } from "./sign-in-form";
 import { SignUpForm } from "./sign-up-form";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 
 export default function PaymentInfoSection() {
   const dispatch = useDispatch();
@@ -271,9 +270,8 @@ export default function PaymentInfoSection() {
                       <Typography variant="body1" marginTop={3}>
                         <strong>To view your account details</strong>, use the{" "}
                         <Link
-                          href="/sign-up"
-                          fontWeight="bold"
-                          style={{ color: colors.blue }}
+                          to="/sign-up"
+                          style={{ color: colors.blue, fontWeight: 600 }}
                         >
                           Register Now
                         </Link>{" "}

@@ -7,8 +7,7 @@ import Alert from "@mui/material/Alert";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
-// import Link from 'next/link';
-import Link from "@mui/material/Link";
+
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -21,6 +20,7 @@ import { authClient } from "@/lib/auth/client";
 import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
 import { paths } from "@/utils/paths";
 import Button from "../CommonComponents/Button";
+import { Link } from "react-router";
 
 const schema = zod.object({
   email: zod.string().min(1, { message: "Email is required" }).email(),
@@ -85,14 +85,15 @@ export function ResetPasswordForm(): React.JSX.Element {
 
           <div>
             <Link
-              underline="hover"
-              variant="subtitle2"
-              href={paths.auth.newLogin()}
-              sx={{
+              to={paths.auth.newLogin()}
+              style={{
                 color: colors.blue,
-                "&:hover": {
-                  borderColor: colors["blue.1"],
-                },
+                textDecoration: "underline",
+                fontSize: "0.875rem", // corresponds to subtitle2 usually
+                borderColor: "transparent",
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.borderColor = colors["blue.1"];
               }}
             >
               Sign in

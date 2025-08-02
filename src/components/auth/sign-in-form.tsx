@@ -11,7 +11,7 @@ import Alert from "@mui/material/Alert";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import InputLabel from "@mui/material/InputLabel";
-import Link from "@mui/material/Link";
+
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -29,7 +29,7 @@ import { useUser } from "@/hooks/use-user";
 
 import Button from "../CommonComponents/Button";
 import QuickActionsBox from "./register-actions";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -187,8 +187,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
           {!user && (
             <div>
               <Link
-                component={RouterLink}
-                href={paths.auth.resetPassword()}
+                to={paths.auth.resetPassword()}
                 variant="subtitle2"
                 sx={{
                   color: colors.blue,
@@ -204,8 +203,8 @@ export function SignInForm({ user = false }): React.JSX.Element {
           {!user && (
             <div>
               <Link
-                // href={user ? paths.auth.signUp() : paths.auth.register()}
-                href={user ? paths.auth.signUp() : paths.auth.newLogin()}
+                // to={user ? paths.auth.signUp() : paths.auth.register()}
+                to={user ? paths.auth.signUp() : paths.auth.newLogin()}
                 variant="subtitle2"
                 sx={{
                   color: colors.blue,
@@ -254,17 +253,21 @@ export function SignInForm({ user = false }): React.JSX.Element {
               </Button>
 
               <Link
-                href={paths.auth.resetPassword()}
-                variant="subtitle2"
-                sx={{
+                to={paths.auth.resetPassword()}
+                style={{
                   color: colors.blue,
-                  "&:hover": {
-                    borderColor: colors["blue.1"],
-                  },
                   justifyContent: "center",
                   marginTop: "auto",
                   marginBottom: "auto",
                   marginLeft: "15px",
+                  textDecoration: "none",
+                  borderColor: "transparent",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = colors["blue.1"];
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = "transparent";
                 }}
               >
                 Forgot password?
@@ -294,11 +297,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
           {user && (
             <Typography variant="subtitle2" marginTop={1}>
               Don't have an account {` `}
-              <Link
-                href="/sign-up"
-                fontWeight="bold"
-                style={{ color: colors.blue }}
-              >
+              <Link to="/sign-up" style={{ color: colors.blue }}>
                 Register Now
               </Link>{" "}
               to view your account details

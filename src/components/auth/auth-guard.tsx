@@ -4,6 +4,8 @@ import Alert from "@mui/material/Alert";
 
 import { logger } from "@/lib/default-logger";
 import { useUser } from "@/hooks/use-user";
+import { paths } from "@/utils/paths";
+import { useNavigate } from "react-router";
 
 export interface AuthGuardProps {
   children: React.ReactNode;
@@ -15,6 +17,8 @@ export function AuthGuard({
   // const { company } = useParams() as { company: string };
 
   // const router = useRouter();
+  const navigate = useNavigate();
+
   const { user, error, isLoading } = useUser();
   console.log(user, error, isLoading, "checking");
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
@@ -36,6 +40,7 @@ export function AuthGuard({
       // router.replace(paths.auth.signIn);
       // router.replace(paths.auth.newLogin(company));
       // router.replace(paths.auth.newLogin(company == 'intuityfe' ? '' : company));
+      navigate(paths.auth.newLogin());
 
       return;
     }
