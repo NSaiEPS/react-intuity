@@ -1,0 +1,34 @@
+definitions:
+  services:
+    docker:
+      memory: 7128
+image: atlassian/default-image:4
+
+pipelines:
+  branches:
+    '{test,test-*}':
+      - step:
+          size: 2x
+          name: Build & Push Docker Image for Test Env.
+          services:
+             - docker
+          script:
+              - export BITBUCKET_COMMIT_SHORT="${BITBUCKET_COMMIT::7}"
+              - ls -l
+              - export IMAGE_NAME=creativetechusa/intuity:test-fe-$BITBUCKET_COMMIT_SHORT       
+              - docker build -t $IMAGE_NAME -f Dockerfile .
+              - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+              - docker push $IMAGE_NAME
+      - step:
+          name: Update Image Tag to be picked up by ArgoCD
+          script:
+              - git config --global user.email "hvkataria12@gmail.com"
+              - git clone https://harssssshh:$APP_PASSWORD@bitbucket.org/creativetechusa/intuity-deployment.git
+              - cd intuity-deployment/
+              - export BITBUCKET_COMMIT_SHORT="${BITBUCKET_COMMIT::7}"
+              - export IMAGE_NAME=creativetechusa/intuity:test-fe-$BITBUCKET_COMMIT_SHORT
+              - echo $IMAGE_NAME
+              - sed -i "s|creativetechusa/intuity.*$|$IMAGE_NAME|" test/intuity-fe/deployments/intuity-fe.yaml
+              - git add .
+              - git commit -m "$IMAGE_NAME tag"
+              - git push
