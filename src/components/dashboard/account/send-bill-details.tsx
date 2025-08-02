@@ -1,10 +1,8 @@
-'use client';
-
-import * as React from 'react';
-import { stopTransferService } from '@/state/features/accountSlice';
-import { boarderRadius, colors } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import { zodResolver } from '@hookform/resolvers/zod';
+import * as React from "react";
+import { stopTransferService } from "@/state/features/accountSlice";
+import { boarderRadius, colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   Card,
@@ -22,40 +20,48 @@ import {
   RadioGroup,
   Stack,
   Typography,
-} from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { XSquare } from '@phosphor-icons/react/dist/ssr/XSquare';
-import dayjs, { Dayjs } from 'dayjs';
-import { Controller, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
-import { z } from 'zod';
+} from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
+import dayjs, { Dayjs } from "dayjs";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { z } from "zod";
 
 const schema = z.object({
-  name: z.string().min(1, 'Required'),
+  name: z.string().min(1, "Required"),
   // phone: z.string().min(1, 'Required'),
-  phone: z.string().min(6, 'Phone must be at least 6 digits').regex(/^\d+$/, 'Phone must contain only numbers'),
-  requestedStopDate: z.date({ required_error: 'Required' }),
+  phone: z
+    .string()
+    .min(6, "Phone must be at least 6 digits")
+    .regex(/^\d+$/, "Phone must contain only numbers"),
+  requestedStopDate: z.date({ required_error: "Required" }),
   reading: z
     .preprocess(
-      (val) => (val === '' ? undefined : Number(val)),
-      z.number({ invalid_type_error: 'Must be a number' }).nonnegative('Reading must be a non-negative number')
+      (val) => (val === "" ? undefined : Number(val)),
+      z
+        .number({ invalid_type_error: "Must be a number" })
+        .nonnegative("Reading must be a non-negative number")
     )
     .optional(),
-  address: z.string().min(1, 'Required'),
+  address: z.string().min(1, "Required"),
   addressTwo: z.string().optional(),
   unit: z.string().optional(),
-  city: z.string().min(1, 'Required'),
-  zip: z.string().min(1, 'Required'),
-  preferredOwnerMethod: z.enum(['Owner', 'Tenant']),
-  comment: z.string().min(1, 'Required'),
+  city: z.string().min(1, "Required"),
+  zip: z.string().min(1, "Required"),
+  preferredOwnerMethod: z.enum(["Owner", "Tenant"]),
+  comment: z.string().min(1, "Required"),
   applicableField: z.string().optional(),
   files: z
     .any()
-    .refine((files) => files instanceof FileList || Array.isArray(files), 'Invalid file list')
+    .refine(
+      (files) => files instanceof FileList || Array.isArray(files),
+      "Invalid file list"
+    )
     .optional(),
 });
 
@@ -73,18 +79,18 @@ export function SendBillDetailsForm(): React.JSX.Element {
   } = useForm<FormDataContent>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: '',
-      phone: '',
+      name: "",
+      phone: "",
       requestedStopDate: new Date(),
       reading: 0,
-      address: '',
-      addressTwo: '',
-      unit: '',
-      city: '',
-      zip: '',
-      preferredOwnerMethod: 'Owner',
-      comment: '',
-      applicableField: '',
+      address: "",
+      addressTwo: "",
+      unit: "",
+      city: "",
+      zip: "",
+      preferredOwnerMethod: "Owner",
+      comment: "",
+      applicableField: "",
       files: [],
     },
   });
@@ -104,26 +110,30 @@ export function SendBillDetailsForm(): React.JSX.Element {
         token?: string;
       };
     };
-    const raw = getLocalStorage('intuity-user');
+    const raw = getLocalStorage("intuity-user");
 
-    const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+    const stored: IntuityUser | null =
+      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
     let roleId = stored?.body?.acl_role_id;
     let customer_id = stored?.body?.customer_id;
     let token = stored?.body?.token;
     // console.log(data, 'hhhhhhh');
     const formData = new FormData();
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', customer_id);
-    formData.append('is_form', '1');
-    formData.append('meterReading', String(data?.reading || ''));
-    formData.append('amthe', data?.preferredOwnerMethod);
-    formData.append('zip', data?.zip);
-    formData.append('city', data?.city);
-    formData.append('apartment', data?.unit);
-    formData.append('streetName', data?.addressTwo);
-    formData.append('streetAddress', data?.address);
-    formData.append('stopDate', dayjs(data?.requestedStopDate).format('DD/MM/YYYY'));
-    formData.append('attorneys_contact', data?.applicableField);
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", customer_id);
+    formData.append("is_form", "1");
+    formData.append("meterReading", String(data?.reading || ""));
+    formData.append("amthe", data?.preferredOwnerMethod);
+    formData.append("zip", data?.zip);
+    formData.append("city", data?.city);
+    formData.append("apartment", data?.unit);
+    formData.append("streetName", data?.addressTwo);
+    formData.append("streetAddress", data?.address);
+    formData.append(
+      "stopDate",
+      dayjs(data?.requestedStopDate).format("DD/MM/YYYY")
+    );
+    formData.append("attorneys_contact", data?.applicableField);
     files.forEach((file, index) => {
       formData.append(`upload_file`, file);
     });
@@ -136,20 +146,22 @@ export function SendBillDetailsForm(): React.JSX.Element {
   const successCallBack = () => {
     reset();
   };
-  const rawFiles = watch('files');
-  const files: File[] = Array.isArray(rawFiles) ? rawFiles : Array.from(rawFiles || []);
+  const rawFiles = watch("files");
+  const files: File[] = Array.isArray(rawFiles)
+    ? rawFiles
+    : Array.from(rawFiles || []);
 
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
-    setValue('files', [...files, ...selectedFiles], { shouldValidate: true });
-    e.target.value = '';
+    setValue("files", [...files, ...selectedFiles], { shouldValidate: true });
+    e.target.value = "";
   };
 
   const handleFileRemove = (index: number) => {
     const updatedFiles = [...files];
     updatedFiles.splice(index, 1);
-    setValue('files', updatedFiles, { shouldValidate: true });
+    setValue("files", updatedFiles, { shouldValidate: true });
   };
 
   return (
@@ -163,8 +175,10 @@ export function SendBillDetailsForm(): React.JSX.Element {
             <Grid md={6} xs={12}>
               <FormControl fullWidth required error={!!errors.name}>
                 <InputLabel>Contact Name</InputLabel>
-                <OutlinedInput label="Contact Name" {...register('name')} />
-                {errors.name && <FormHelperText>{errors.name.message}</FormHelperText>}
+                <OutlinedInput label="Contact Name" {...register("name")} />
+                {errors.name && (
+                  <FormHelperText>{errors.name.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
 
@@ -175,10 +189,12 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   label="Contact Phone"
                   // type="tel"
                   type="text" // instead of tel
-                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                  {...register('phone')}
+                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                  {...register("phone")}
                 />
-                {errors.phone && <FormHelperText>{errors.phone.message}</FormHelperText>}
+                {errors.phone && (
+                  <FormHelperText>{errors.phone.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
 
@@ -193,7 +209,9 @@ export function SendBillDetailsForm(): React.JSX.Element {
                       value={dayjs(field.value)}
                       minDate={dayjs()}
                       disablePast
-                      onChange={(date: Dayjs | null) => field.onChange(date?.toDate())}
+                      onChange={(date: Dayjs | null) =>
+                        field.onChange(date?.toDate())
+                      }
                       slotProps={{
                         textField: {
                           fullWidth: true,
@@ -216,61 +234,80 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   type="number"
                   inputProps={{ min: 0 }}
                   label="Final Meter Reading"
-                  {...register('reading')}
+                  {...register("reading")}
                 />
-                {errors.reading && <FormHelperText>{errors.reading.message}</FormHelperText>}
+                {errors.reading && (
+                  <FormHelperText>{errors.reading.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
               <FormControl fullWidth required error={!!errors.address}>
                 <InputLabel>Street Address</InputLabel>
-                <OutlinedInput label="Street Address" {...register('address')} />
-                {errors.address && <FormHelperText>{errors.address.message}</FormHelperText>}
+                <OutlinedInput
+                  label="Street Address"
+                  {...register("address")}
+                />
+                {errors.address && (
+                  <FormHelperText>{errors.address.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Street Address 2</InputLabel>
-                <OutlinedInput label="Street Address 2" {...register('addressTwo')} />
+                <OutlinedInput
+                  label="Street Address 2"
+                  {...register("addressTwo")}
+                />
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
               <FormControl fullWidth>
                 <InputLabel>Apartment/Unit</InputLabel>
-                <OutlinedInput label="Apartment/Unit" {...register('unit')} />
+                <OutlinedInput label="Apartment/Unit" {...register("unit")} />
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
               <FormControl fullWidth required error={!!errors.city}>
                 <InputLabel>City</InputLabel>
-                <OutlinedInput label="City" {...register('city')} />
-                {errors.city && <FormHelperText>{errors.city.message}</FormHelperText>}
+                <OutlinedInput label="City" {...register("city")} />
+                {errors.city && (
+                  <FormHelperText>{errors.city.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
               <FormControl fullWidth required error={!!errors.zip}>
                 <InputLabel>Zip Code</InputLabel>
-                <OutlinedInput label="Zip Code" {...register('zip')} />
-                {errors.zip && <FormHelperText>{errors.zip.message}</FormHelperText>}
+                <OutlinedInput label="Zip Code" {...register("zip")} />
+                {errors.zip && (
+                  <FormHelperText>{errors.zip.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
               <FormControl fullWidth error={!!errors.applicableField}>
                 <InputLabel shrink>
-                  If applicable, enter the closing attorney’s contact details (name, phone, email)
+                  If applicable, enter the closing attorney’s contact details
+                  (name, phone, email)
                 </InputLabel>
                 <OutlinedInput
                   notched
                   label="If applicable, enter the closing attorney’s contact details (name, phone, email)"
-                  {...register('applicableField')}
+                  {...register("applicableField")}
                 />
-                {errors.applicableField && <FormHelperText>{errors.applicableField.message}</FormHelperText>}
+                {errors.applicableField && (
+                  <FormHelperText>
+                    {errors.applicableField.message}
+                  </FormHelperText>
+                )}
               </FormControl>
             </Grid>
           </Grid>
@@ -284,8 +321,16 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   control={control}
                   render={({ field }) => (
                     <RadioGroup row {...field}>
-                      <FormControlLabel value="Owner" control={<Radio />} label="Owner" />
-                      <FormControlLabel value="Tenant" control={<Radio />} label="Tenant" />
+                      <FormControlLabel
+                        value="Owner"
+                        control={<Radio />}
+                        label="Owner"
+                      />
+                      <FormControlLabel
+                        value="Tenant"
+                        control={<Radio />}
+                        label="Tenant"
+                      />
                     </RadioGroup>
                   )}
                 />
@@ -295,8 +340,14 @@ export function SendBillDetailsForm(): React.JSX.Element {
             <Grid md={12} xs={12} pt={3}>
               <FormControl fullWidth required error={!!errors.comment}>
                 <InputLabel>Comment</InputLabel>
-                <OutlinedInput multiline label="Comment" {...register('comment')} />
-                {errors.comment && <FormHelperText>{errors.comment.message}</FormHelperText>}
+                <OutlinedInput
+                  multiline
+                  label="Comment"
+                  {...register("comment")}
+                />
+                {errors.comment && (
+                  <FormHelperText>{errors.comment.message}</FormHelperText>
+                )}
               </FormControl>
             </Grid>
           </Grid>
@@ -306,8 +357,16 @@ export function SendBillDetailsForm(): React.JSX.Element {
               <Typography variant="body1" mb={1}>
                 Please upload any supporting documents or photos:
               </Typography>
-              <OutlinedInput type="file" inputProps={{ multiple: true }} onChange={handleFilesChange} />
-              {!!errors.files && <FormHelperText>{errors.files.message as string}</FormHelperText>}
+              <OutlinedInput
+                type="file"
+                inputProps={{ multiple: true }}
+                onChange={handleFilesChange}
+              />
+              {!!errors.files && (
+                <FormHelperText>
+                  {errors.files.message as string}
+                </FormHelperText>
+              )}
             </FormControl>
 
             {files.length > 0 && (
@@ -330,15 +389,22 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
         <Divider />
 
-        <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button onClick={() => reset()} variant="outlined" sx={{ color: colors.blue, borderColor: colors.blue }}>
+        <CardActions sx={{ justifyContent: "flex-end" }}>
+          <Button
+            onClick={() => reset()}
+            variant="outlined"
+            sx={{ color: colors.blue, borderColor: colors.blue }}
+          >
             Cancel
           </Button>
 
           <Button
             type="submit"
             variant="contained"
-            sx={{ backgroundColor: colors.blue, '&:hover': { backgroundColor: colors['blue.3'] } }}
+            sx={{
+              backgroundColor: colors.blue,
+              "&:hover": { backgroundColor: colors["blue.3"] },
+            }}
           >
             Save
           </Button>

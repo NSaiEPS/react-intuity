@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation"; // Correct hook for App Router
+import { useNavigate } from "react-router-dom"; // Correct hook for App Router
 
 import { getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
@@ -35,7 +35,7 @@ export function Budget({
   userInfo = false,
   icons = false,
 }: BudgetProps): React.JSX.Element {
-  const router = useRouter();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { dashBoardInfo, dashboardLoader } = useSelector(
     (state: RootState) => state?.DashBoard
@@ -170,7 +170,7 @@ export function Budget({
               >
                 <Button
                   onClick={() => {
-                    router.push(paths.dashboard.payNow());
+                    navigate(paths.dashboard.payNow());
                   }}
                   sx={{
                     width: "100%",

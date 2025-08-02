@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import "@/styles/global.css";
-
 import Providers from "@/state/Provider";
 import { ToastContainer } from "react-toastify";
 
@@ -16,22 +15,18 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps): React.JSX.Element {
   return (
-    <html lang="en">
-      <body>
-        <ToastContainer position="top-right" />
-
-        <LocalizationProvider>
-          <UserProvider>
-            <ThemeProvider>
-              <Providers>
-                {/* <RouteLoader /> */}
-
-                {children}
-              </Providers>
-            </ThemeProvider>
-          </UserProvider>
-        </LocalizationProvider>
-      </body>
-    </html>
+    <>
+      <ToastContainer position="top-right" />
+      <LocalizationProvider>
+        <UserProvider>
+          <ThemeProvider>
+            <Providers>
+              {/* <RouteLoader /> */}
+              {children}
+            </Providers>
+          </ThemeProvider>
+        </UserProvider>
+      </LocalizationProvider>
+    </>
   );
 }

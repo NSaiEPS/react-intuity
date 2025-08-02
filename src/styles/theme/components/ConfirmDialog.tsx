@@ -1,9 +1,13 @@
-'use client';
-
-import * as React from 'react';
-import { colors } from '@/utils';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { Button } from 'nsaicomponents';
+import * as React from "react";
+import { colors } from "@/utils";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
+import { Button } from "nsaicomponents";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -18,10 +22,10 @@ type ConfirmDialogProps = {
 
 export function ConfirmDialog({
   open,
-  title = 'Are you sure?',
-  message = 'This action cannot be undone.',
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  title = "Are you sure?",
+  message = "This action cannot be undone.",
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   onConfirm,
   onCancel,
   loader = false,
@@ -31,7 +35,7 @@ export function ConfirmDialog({
       <DialogTitle>{title}</DialogTitle>
       <DialogContent
         sx={{
-          minWidth: '400px',
+          minWidth: "400px",
         }}
       >
         <DialogContentText>{message}</DialogContentText>
@@ -50,8 +54,8 @@ export function ConfirmDialog({
           style={{
             color: colors.blue,
             borderColor: colors.blue,
-            borderRadius: '12px',
-            height: '41px',
+            borderRadius: "12px",
+            height: "41px",
           }}
           disabled={loader}
         >
@@ -64,13 +68,13 @@ export function ConfirmDialog({
           variant="contained"
           textTransform="none"
           bgColor={colors.blue}
-          hoverBackgroundColor={colors['blue.3']}
+          hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
           style={{
-            borderRadius: '12px',
-            height: '41px',
+            borderRadius: "12px",
+            height: "41px",
             backgroundColor: colors.blue,
-            color: 'white',
+            color: "white",
             // backgroundColor: 'red',
           }}
         >

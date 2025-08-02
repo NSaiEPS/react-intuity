@@ -1,20 +1,29 @@
-'use client';
-
-import React, { useEffect, useMemo, useState } from 'react';
-import { getUsageGraph, usageUtilityFilters } from '@/state/features/dashBoardSlice';
-import { RootState } from '@/state/store';
-import { colorPalette } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
-import { ChartLineUp } from '@phosphor-icons/react';
-import Chart from 'react-apexcharts';
-import { useDispatch, useSelector } from 'react-redux';
-import secureLocalStorage from 'react-secure-storage';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  getUsageGraph,
+  usageUtilityFilters,
+} from "@/state/features/dashBoardSlice";
+import { RootState } from "@/state/store";
+import { colorPalette } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import {
+  Box,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
+import { ChartLineUp } from "@phosphor-icons/react";
+import Chart from "react-apexcharts";
+import { useDispatch, useSelector } from "react-redux";
+import secureLocalStorage from "react-secure-storage";
 
 const HeaderSection = ({ setUamType }) => {
-  const [utilityType, setUtilityType] = useState('WATER');
-  const [unitMeasure, setUnitMeasure] = useState('');
-  const [meterNo, setMeterNo] = useState('');
+  const [utilityType, setUtilityType] = useState("WATER");
+  const [unitMeasure, setUnitMeasure] = useState("");
+  const [meterNo, setMeterNo] = useState("");
   const dispatch = useDispatch();
 
   type IntuityUser = {
@@ -27,17 +36,22 @@ const HeaderSection = ({ setUamType }) => {
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
   // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   let roleId = stored?.body?.acl_role_id;
   let userId = stored?.body?.customer_id;
   let token = stored?.body?.token;
 
-  const dropdownDetailes = secureLocalStorage.getItem('intuity-meterDetails');
-  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
-  const updatedMeterDetails = dashBoardInfo?.meterDetails ? dashBoardInfo?.meterDetails : dropdownDetailes;
+  const dropdownDetailes = secureLocalStorage.getItem("intuity-meterDetails");
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+  const updatedMeterDetails = dashBoardInfo?.meterDetails
+    ? dashBoardInfo?.meterDetails
+    : dropdownDetailes;
 
   // const meterDetails = useMemo(() => {
   //   if (!updatedMeterDetails) return [];
@@ -56,10 +70,10 @@ const HeaderSection = ({ setUamType }) => {
   }, [updatedMeterDetails]);
 
   useEffect(() => {
-    setUtilityType('');
+    setUtilityType("");
     setUtiltyType();
-    setUnitMeasure('');
-    setMeterNo('');
+    setUnitMeasure("");
+    setMeterNo("");
   }, [userId]);
   const setUtiltyType = () => {
     setTimeout(() => {
@@ -69,14 +83,14 @@ const HeaderSection = ({ setUamType }) => {
   const [filterList, setFilterList] = useState({
     type: [
       {
-        label: 'WATER',
-        value: 'WATER',
+        label: "WATER",
+        value: "WATER",
       },
     ],
     ums: [
       {
-        label: 'gallons',
-        value: 'gallons',
+        label: "gallons",
+        value: "gallons",
       },
     ],
     meterNum: [],
@@ -120,17 +134,17 @@ const HeaderSection = ({ setUamType }) => {
     if (utilityType) {
       const formData = new FormData();
 
-      formData.append('acl_role_id', roleId);
-      formData.append('customer_id', userId);
+      formData.append("acl_role_id", roleId);
+      formData.append("customer_id", userId);
 
-      formData.append('utility_type', utilityType);
+      formData.append("utility_type", utilityType);
 
       dispatch(usageUtilityFilters(formData, token, successCallBack));
     }
   }, [utilityType]);
 
   const successCallBack = (data, isMeter = false) => {
-    console.log(data, 'datadatadatadata');
+    console.log(data, "datadatadatadata");
 
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
       let type = [...filterList.type];
@@ -180,12 +194,12 @@ const HeaderSection = ({ setUamType }) => {
   const onSubmit = (unitMeasure) => {
     const formData = new FormData();
 
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', userId);
-    formData.append('utility_type', utilityType);
-    formData.append('utility_um', unitMeasure);
-    formData.append('billed_usage', '1');
-    formData.append('usage_history', '1');
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("utility_type", utilityType);
+    formData.append("utility_um", unitMeasure);
+    formData.append("billed_usage", "1");
+    formData.append("usage_history", "1");
 
     dispatch(getUsageGraph(formData, token));
   };
@@ -193,15 +207,28 @@ const HeaderSection = ({ setUamType }) => {
     <Box sx={{ p: 2, mt: 2 }}>
       {/* Title Row */}
       <Box display="flex" alignItems="center" mb={1}>
-        <Typography variant="h6" fontWeight="bold" mb={2} display="flex" alignItems="center">
-          <ChartLineUp size={28} weight="duotone" color="#5e7ba8" style={{ marginRight: 8 }} />
-          <span role="img" aria-label="icon" style={{ marginRight: 8 }}></span> BILLED USAGE
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          mb={2}
+          display="flex"
+          alignItems="center"
+        >
+          <ChartLineUp
+            size={28}
+            weight="duotone"
+            color="#5e7ba8"
+            style={{ marginRight: 8 }}
+          />
+          <span role="img" aria-label="icon" style={{ marginRight: 8 }}></span>{" "}
+          BILLED USAGE
         </Typography>
       </Box>
 
       {/* Subtext */}
-      <Typography variant="h6" color={'#000'} mb={2}>
-        Usage shown is based on the billing date. Refer to the Usage History graph for usage by read dates.
+      <Typography variant="h6" color={"#000"} mb={2}>
+        Usage shown is based on the billing date. Refer to the Usage History
+        graph for usage by read dates.
       </Typography>
 
       {/* Dropdowns */}
@@ -218,7 +245,9 @@ const HeaderSection = ({ setUamType }) => {
               }}
               sx={{ height: 40 }}
             >
-              {filterList.type?.map((item) => <MenuItem value={item?.value}>{item?.label}</MenuItem>)}
+              {filterList.type?.map((item) => (
+                <MenuItem value={item?.value}>{item?.label}</MenuItem>
+              ))}
 
               {/* not using now */}
               {/* <MenuItem value="ELECTRIC">ELECTRIC</MenuItem>
@@ -248,7 +277,9 @@ const HeaderSection = ({ setUamType }) => {
               <MenuItem value="Cubic-Mtr">Cubic-Mtr</MenuItem>
               <MenuItem value="Cubic-Ft">Cubic-Ft</MenuItem>
               <MenuItem value="ML">ML</MenuItem> */}
-              {filterList.ums?.map((item) => <MenuItem value={item?.value}>{item?.label}</MenuItem>)}
+              {filterList.ums?.map((item) => (
+                <MenuItem value={item?.value}>{item?.label}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>
@@ -263,7 +294,7 @@ const BarChart = () => {
     dates: [],
     colors: [],
   });
-  const [uamType, setUamType] = useState('gallons');
+  const [uamType, setUamType] = useState("gallons");
 
   // const chartData: any = {
   //   series: [
@@ -340,10 +371,12 @@ const BarChart = () => {
   // };
 
   //   secureLocalStorage.setItem('intuity-bar-chart', res?.body?.dashboard);
-  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.usageGraph);
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.usageGraph
+  );
 
   const barData: any = dashBoardInfo;
-  console.log(dashBoardInfo, 'barData');
+  console.log(dashBoardInfo, "barData");
 
   const getBarChartData = () => {
     const gallons: any[] = [];
@@ -351,13 +384,15 @@ const BarChart = () => {
     const dates: string[] = [];
     const colors: string[] = [];
     if (barData.bar_chart_data) {
-      Object?.entries(barData.bar_chart_data).forEach(([key, values], index) => {
-        gallons.push(values?.[0]);
+      Object?.entries(barData.bar_chart_data).forEach(
+        ([key, values], index) => {
+          gallons.push(values?.[0]);
 
-        dollars.push(values?.[1]);
-        dates.push(key?.split(',')[0]);
-        colors.push(colorPalette[index]);
-      });
+          dollars.push(values?.[1]);
+          dates.push(key?.split(",")[0]);
+          colors.push(colorPalette[index]);
+        }
+      );
     }
 
     setBarGraphData({ gallons, dollars, dates, colors });
@@ -373,37 +408,42 @@ const BarChart = () => {
     () => ({
       series: [
         {
-          name: 'gallons',
+          name: "gallons",
           data: barGraphData.gallons,
         },
       ],
       options: {
         chart: {
-          type: 'bar',
+          type: "bar",
           height: 400,
           toolbar: { show: false },
         },
         colors: [...barGraphData.colors],
         plotOptions: {
           bar: {
-            columnWidth: '40%',
+            columnWidth: "40%",
             distributed: true,
-            startingShape: 'flat',
+            startingShape: "flat",
             dataLabels: {
-              position: 'top',
+              position: "top",
             },
           },
         },
         dataLabels: {
           enabled: true,
           formatter: function (val, { dataPointIndex }) {
-            console.log(barGraphData.gallons[dataPointIndex], dataPointIndex, barGraphData, 'dataPointIndex');
+            console.log(
+              barGraphData.gallons[dataPointIndex],
+              dataPointIndex,
+              barGraphData,
+              "dataPointIndex"
+            );
             return `${barGraphData.gallons[dataPointIndex]} ${uamType}`;
           },
           offsetY: -25,
           style: {
-            fontSize: '14px',
-            colors: ['#6b7280'],
+            fontSize: "14px",
+            colors: ["#6b7280"],
           },
         },
         xaxis: {
@@ -417,7 +457,9 @@ const BarChart = () => {
               let dollar = barGraphData.dollars[Dateindex];
               const dollarVal = barGraphData.dollars[index];
               const isNegative = dollarVal < 0;
-              const dollarFormatted = `${isNegative ? '-' : ''}$${Math.abs(dollarVal).toFixed(2)}`;
+              const dollarFormatted = `${isNegative ? "-" : ""}$${Math.abs(
+                dollarVal
+              ).toFixed(2)}`;
               const date = barGraphData.dates[index];
               // return `${dollarFormatted}\n${date}`;
               // return `$ ${dollar}\n ${index}`;
@@ -425,8 +467,8 @@ const BarChart = () => {
               return label;
             },
             style: {
-              fontSize: '14px',
-              colors: ['#000'],
+              fontSize: "14px",
+              colors: ["#000"],
               fontWeight: 600,
             },
           },
@@ -452,7 +494,7 @@ const BarChart = () => {
         options={chartData.options}
         series={chartData.series}
         type="bar"
-        key={`${uamType}-${barGraphData.gallons.join('-')}`}
+        key={`${uamType}-${barGraphData.gallons.join("-")}`}
         height={400}
       />
     </>

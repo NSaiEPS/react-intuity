@@ -1,12 +1,14 @@
 // pages/invoice.js (or any component file)
-'use client';
 
-import * as React from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
-import { getInvoiceDetails, setDashboardLoader } from '@/state/features/dashBoardSlice';
-import { RootState } from '@/state/store';
-import { colors, formatToMMDDYYYY } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
+import * as React from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import {
+  getInvoiceDetails,
+  setDashboardLoader,
+} from "@/state/features/dashBoardSlice";
+import { RootState } from "@/state/store";
+import { colors, formatToMMDDYYYY } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
   Card,
@@ -21,19 +23,19 @@ import {
   TableHead,
   TableRow,
   Typography,
-} from '@mui/material';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { CustomBackdrop, Loader } from 'nsaicomponents';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+} from "@mui/material";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { CustomBackdrop, Loader } from "nsaicomponents";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-import Button from '@/components/CommonComponents/Button';
+import Button from "@/components/CommonComponents/Button";
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
+  const id = searchParams.get("id");
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
@@ -42,13 +44,18 @@ export default function InvoiceDetails() {
     };
   };
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
-  const invoiceDetails = useSelector((state: RootState) => state.DashBoard.invoiceDetails);
-  const dashboardLoader = useSelector((state: RootState) => state.DashBoard.dashboardLoader);
+  const invoiceDetails = useSelector(
+    (state: RootState) => state.DashBoard.invoiceDetails
+  );
+  const dashboardLoader = useSelector(
+    (state: RootState) => state.DashBoard.dashboardLoader
+  );
 
   // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   let roleId = stored?.body?.acl_role_id;
   let userId = stored?.body?.customer_id;
@@ -56,13 +63,13 @@ export default function InvoiceDetails() {
 
   React.useEffect(() => {
     if (!id) {
-      toast.error('Invalid ID');
+      toast.error("Invalid ID");
     } else {
       const formData = new FormData();
 
-      formData.append('acl_role_id', roleId);
-      formData.append('customer_id', userId);
-      formData.append('id', id ?? '');
+      formData.append("acl_role_id", roleId);
+      formData.append("customer_id", userId);
+      formData.append("id", id ?? "");
 
       dispatch(getInvoiceDetails(formData, token));
     }
@@ -122,14 +129,14 @@ export default function InvoiceDetails() {
     const clone = original.cloneNode(true) as HTMLElement;
 
     // Force desktop look (disable breakpoints)
-    clone.style.width = '1024px';
-    clone.style.maxWidth = '1024px';
-    clone.style.padding = '24px';
-    clone.style.background = '#fff';
-    clone.style.position = 'fixed';
-    clone.style.top = '-9999px'; // hide offscreen
-    clone.style.left = '0';
-    clone.style.zIndex = '-1';
+    clone.style.width = "1024px";
+    clone.style.maxWidth = "1024px";
+    clone.style.padding = "24px";
+    clone.style.background = "#fff";
+    clone.style.position = "fixed";
+    clone.style.top = "-9999px"; // hide offscreen
+    clone.style.left = "0";
+    clone.style.zIndex = "-1";
 
     document.body.appendChild(clone);
 
@@ -144,12 +151,12 @@ export default function InvoiceDetails() {
     document.body.removeChild(clone);
 
     // Create PDF
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('invoice.pdf');
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("invoice.pdf");
 
     dispatch(setDashboardLoader(false));
   };
@@ -199,8 +206,8 @@ export default function InvoiceDetails() {
       </Button> */}
       <div
         style={{
-          marginLeft: 'auto',
-          maxWidth: '180px',
+          marginLeft: "auto",
+          maxWidth: "180px",
         }}
       >
         <Button
@@ -210,11 +217,11 @@ export default function InvoiceDetails() {
           textTransform="none"
           bgColor={colors.blue}
           // onClick={onSubmit}
-          hoverBackgroundColor={colors['blue.3']}
+          hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
           style={{
-            borderRadius: '12px',
-            height: '41px',
+            borderRadius: "12px",
+            height: "41px",
           }}
         >
           Download Invoice PDF
@@ -222,32 +229,45 @@ export default function InvoiceDetails() {
       </div>
 
       <div ref={pdfRef} id="print-section">
-        <Box sx={{ mx: 'auto', my: 4, p: { xs: 1.5, sm: 2 }, bgcolor: '#F7F7F7' }}>
+        <Box
+          sx={{ mx: "auto", my: 4, p: { xs: 1.5, sm: 2 }, bgcolor: "#F7F7F7" }}
+        >
           {/* Header */}
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <Typography sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 }, letterSpacing: 0.4 }}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  fontSize: { xs: 18, sm: 20, md: 18 },
+                  letterSpacing: 0.4,
+                }}
+              >
                 {company?.company_name}
               </Typography>
-              <Typography variant="subtitle2" sx={{ color: '#999' }}>
+              <Typography variant="subtitle2" sx={{ color: "#999" }}>
                 {company_settings?.invoice_subheadline}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              sx={{ textAlign: { xs: "left", sm: "right" } }}
+            >
               <Stack
-                direction={{ xs: 'column', sm: 'row' }}
+                direction={{ xs: "column", sm: "row" }}
                 spacing={2}
                 justifyContent="flex-end"
-                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                alignItems={{ xs: "flex-start", sm: "center" }}
                 sx={{ mb: 1 }}
               >
-                <Typography sx={{ fontSize: 14, color: '#888' }}>
+                <Typography sx={{ fontSize: 14, color: "#888" }}>
                   {company_settings?.invoice_text_header_email}
                 </Typography>
-                <Typography sx={{ fontSize: 14, color: '#888' }}>
+                <Typography sx={{ fontSize: 14, color: "#888" }}>
                   {company_settings?.invoice_text_header_open}
                 </Typography>
-                <Typography sx={{ fontSize: 14, color: '#888' }}>
+                <Typography sx={{ fontSize: 14, color: "#888" }}>
                   {company_settings?.invoice_text_header_web}
                   <br />
                   {company_settings?.direct_debit}
@@ -260,8 +280,10 @@ export default function InvoiceDetails() {
           {/* Invoice + Total Due Row */}
           <Grid container spacing={2} mt={3} alignItems="center">
             <Grid item xs={12} sm={7}>
-              <Typography sx={{ mb: 1, color: '#777' }}>INVOICE TO</Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>{customer?.customer_name}</Typography>
+              <Typography sx={{ mb: 1, color: "#777" }}>INVOICE TO</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>
+                {customer?.customer_name}
+              </Typography>
               <Typography variant="body2">
                 Billing address: {customer?.address}, {customer?.city}
               </Typography>
@@ -272,21 +294,34 @@ export default function InvoiceDetails() {
                 Phone: {customer?.phone}
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={5} textAlign={{ xs: 'left', sm: 'right' }} alignSelf="center">
-              <Typography sx={{ fontSize: { xs: 32, sm: 44 }, color: '#aaa', fontWeight: 700, letterSpacing: 1 }}>
+            <Grid
+              item
+              xs={12}
+              sm={5}
+              textAlign={{ xs: "left", sm: "right" }}
+              alignSelf="center"
+            >
+              <Typography
+                sx={{
+                  fontSize: { xs: 32, sm: 44 },
+                  color: "#aaa",
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                }}
+              >
                 INVOICE
               </Typography>
               <Box
                 sx={{
-                  bgcolor: '#38699C',
-                  color: 'white',
+                  bgcolor: "#38699C",
+                  color: "white",
                   borderRadius: 1,
-                  textAlign: 'left',
+                  textAlign: "left",
                   p: 2,
                   mt: 1,
-                  width: '100%',
+                  width: "100%",
                   maxWidth: 300,
-                  ml: { xs: 0, sm: 'auto' },
+                  ml: { xs: 0, sm: "auto" },
                 }}
               >
                 <Grid container>
@@ -295,7 +330,12 @@ export default function InvoiceDetails() {
                   </Grid>
                   <Grid item xs={6} textAlign="right">
                     <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
-                      {formatToMMDDYYYY(last_bill?.[0]?.billing_date, false, false, true)}
+                      {formatToMMDDYYYY(
+                        last_bill?.[0]?.billing_date,
+                        false,
+                        false,
+                        true
+                      )}
                       {/* {last_bill?.[0]?.billing_date} */}
                     </Typography>
                   </Grid>
@@ -303,7 +343,9 @@ export default function InvoiceDetails() {
                     <Typography sx={{ fontSize: 15 }}>Total Due:</Typography>
                   </Grid>
                   <Grid item xs={6} textAlign="right">
-                    <Typography sx={{ fontSize: 20, fontWeight: 600 }}>${last_bill?.[0]?.amount}</Typography>
+                    <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
+                      ${last_bill?.[0]?.amount}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Box>
@@ -312,29 +354,46 @@ export default function InvoiceDetails() {
 
           {/* Item Descriptions */}
           {Object?.entries(unique_by_utility).map(([key, items]: any) => {
-            const [utilityName, , meterNumber, ...addressParts] = key.split(';');
-            const serviceAddress = addressParts.join(';');
+            const [utilityName, , meterNumber, ...addressParts] =
+              key.split(";");
+            const serviceAddress = addressParts.join(";");
             const utilityDetails = items?.[0] ?? {};
 
             return (
               <Box key={key}>
-                <Typography sx={{ mt: 4, mb: 0.3, fontWeight: 700, color: colors.darkBlue }}>
+                <Typography
+                  sx={{
+                    mt: 4,
+                    mb: 0.3,
+                    fontWeight: 700,
+                    color: colors.darkBlue,
+                  }}
+                >
                   Item Description
                 </Typography>
                 <Typography sx={{ mb: 1, fontWeight: 700, color: colors.blue }}>
-                  <strong>{utilityName}</strong> - {meterNumber} - {serviceAddress}
+                  <strong>{utilityName}</strong> - {meterNumber} -{" "}
+                  {serviceAddress}
                 </Typography>
-                <TableContainer component={Paper} sx={{ mb: 2, boxShadow: 0, overflowX: 'auto' }}>
+                <TableContainer
+                  component={Paper}
+                  sx={{ mb: 2, boxShadow: 0, overflowX: "auto" }}
+                >
                   <Table>
                     <TableBody>
                       {items.map((item, index) => (
                         <TableRow
                           key={item.item}
                           sx={{
-                            bgcolor: index % 2 !== 0 ? colors['blue.4'] : 'white',
+                            bgcolor:
+                              index % 2 !== 0 ? colors["blue.4"] : "white",
                           }}
                         >
-                          <TableCell sx={{ fontWeight: 600, fontSize: 16, border: 0 }}>{item.product_id}</TableCell>
+                          <TableCell
+                            sx={{ fontWeight: 600, fontSize: 16, border: 0 }}
+                          >
+                            {item.product_id}
+                          </TableCell>
                           <TableCell align="right" sx={{ border: 0 }}>
                             ${item.amount.toFixed(2)}
                           </TableCell>
@@ -346,30 +405,54 @@ export default function InvoiceDetails() {
                             sx={{
                               mt: 3,
                               p: 2,
-                              border: '1px solid #ddd',
+                              border: "1px solid #ddd",
                               borderRadius: 2,
-                              backgroundColor: '#f9f9f9',
+                              backgroundColor: "#f9f9f9",
                             }}
                           >
                             <Grid container spacing={3}>
                               {/* Service Address + Dates */}
                               <Grid item xs={12} sm={3}>
-                                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="text.secondary"
+                                  gutterBottom
+                                >
                                   {utilityName} Service at
                                 </Typography>
-                                <Typography variant="body1" fontWeight={500} gutterBottom>
+                                <Typography
+                                  variant="body1"
+                                  fontWeight={500}
+                                  gutterBottom
+                                >
                                   {utilityDetails.service_address}
                                 </Typography>
                                 <Typography variant="body2" fontWeight={600}>
-                                  From: {formatToMMDDYYYY(utilityDetails?.start_date, false, false, true)}
+                                  From:{" "}
+                                  {formatToMMDDYYYY(
+                                    utilityDetails?.start_date,
+                                    false,
+                                    false,
+                                    true
+                                  )}
                                   <br />
-                                  To: {formatToMMDDYYYY(utilityDetails?.end_date, false, false, true)}
+                                  To:{" "}
+                                  {formatToMMDDYYYY(
+                                    utilityDetails?.end_date,
+                                    false,
+                                    false,
+                                    true
+                                  )}
                                 </Typography>
                               </Grid>
 
                               {/* Number of Days */}
                               <Grid item xs={12} sm={2}>
-                                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="text.secondary"
+                                  gutterBottom
+                                >
                                   Number of Days
                                 </Typography>
                                 <Typography variant="h6" fontWeight={600}>
@@ -379,7 +462,11 @@ export default function InvoiceDetails() {
 
                               {/* Meter Readings */}
                               <Grid item xs={12} sm={4}>
-                                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="text.secondary"
+                                  gutterBottom
+                                >
                                   Meter Readings
                                 </Typography>
                                 <Typography variant="body2" fontWeight={600}>
@@ -391,7 +478,11 @@ export default function InvoiceDetails() {
 
                               {/* Usage Info */}
                               <Grid item xs={12} sm={3}>
-                                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="text.secondary"
+                                  gutterBottom
+                                >
                                   Usage in Gallons
                                 </Typography>
                                 <Typography variant="body2" fontWeight={600}>
@@ -414,9 +505,20 @@ export default function InvoiceDetails() {
 
           {/* Previous Balance */}
           {extra_params?.map((item, index) => (
-            <Box key={index} display="flex" justifyContent="space-between" mb={3} pt={0} pb={0}>
-              <Typography sx={{ fontWeight: 700, color: '#666' }}>PREVIOUS BALANCE</Typography>
-              <Typography sx={{ fontWeight: 700, color: '#666' }}>${item?.amount}</Typography>
+            <Box
+              key={index}
+              display="flex"
+              justifyContent="space-between"
+              mb={3}
+              pt={0}
+              pb={0}
+            >
+              <Typography sx={{ fontWeight: 700, color: "#666" }}>
+                PREVIOUS BALANCE
+              </Typography>
+              <Typography sx={{ fontWeight: 700, color: "#666" }}>
+                ${item?.amount}
+              </Typography>
             </Box>
           ))}
 
@@ -424,13 +526,13 @@ export default function InvoiceDetails() {
           <Box
             textAlign="right"
             sx={{
-              bgcolor: '#38699C',
-              color: 'white',
+              bgcolor: "#38699C",
+              color: "white",
               borderRadius: 1,
               p: 2,
               // width: '100%',
               maxWidth: 250,
-              ml: 'auto',
+              ml: "auto",
               mb: 2,
             }}
           >
@@ -442,7 +544,7 @@ export default function InvoiceDetails() {
           {/* Do Not Pay Text */}
           {customer?.autopay ? (
             <Box textAlign="right">
-              <Typography sx={{ fontWeight: 700, fontSize: 22, color: 'red' }}>
+              <Typography sx={{ fontWeight: 700, fontSize: 22, color: "red" }}>
                 {invoiceDetails?.autopay_do_not_pay_text}
               </Typography>
             </Box>
@@ -452,8 +554,13 @@ export default function InvoiceDetails() {
           {last_bill?.map((item, index) => (
             <Grid container spacing={2} sx={{ mb: 2 }} key={index}>
               <Grid item xs={12}>
-                <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 1 }}>{customer?.name}</Typography>
-                <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'auto' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 1 }}>
+                  {customer?.name}
+                </Typography>
+                <TableContainer
+                  component={Paper}
+                  sx={{ boxShadow: 0, overflowX: "auto" }}
+                >
                   <Table>
                     <TableBody>
                       <TableRow>
@@ -461,10 +568,17 @@ export default function InvoiceDetails() {
                         <TableCell>Due Date</TableCell>
                         <TableCell>Amount Due</TableCell>
                       </TableRow>
-                      <TableRow sx={{ bgcolor: colors['blue.4'] }}>
+                      <TableRow sx={{ bgcolor: colors["blue.4"] }}>
                         <TableCell>{customer?.acctnum}</TableCell>
                         <TableCell>
-                          {item?.due_date ? formatToMMDDYYYY(item?.due_date, false, false, true) : ''}
+                          {item?.due_date
+                            ? formatToMMDDYYYY(
+                                item?.due_date,
+                                false,
+                                false,
+                                true
+                              )
+                            : ""}
 
                           {/* {item?.due_date} */}
                         </TableCell>
@@ -475,18 +589,34 @@ export default function InvoiceDetails() {
                         <TableCell>On/After</TableCell>
                         <TableCell>Late Amount</TableCell>
                       </TableRow>
-                      <TableRow sx={{ bgcolor: colors['blue.4'] }}>
+                      <TableRow sx={{ bgcolor: colors["blue.4"] }}>
                         <TableCell>
-                          {item?.billing_date ? formatToMMDDYYYY(item?.billing_date, false, false, true) : ''}
+                          {item?.billing_date
+                            ? formatToMMDDYYYY(
+                                item?.billing_date,
+                                false,
+                                false,
+                                true
+                              )
+                            : ""}
 
                           {/* {item?.billing_date} */}
                         </TableCell>
                         <TableCell>
-                          {item?.late_date ? formatToMMDDYYYY(item?.late_date, false, false, true) : ''}
+                          {item?.late_date
+                            ? formatToMMDDYYYY(
+                                item?.late_date,
+                                false,
+                                false,
+                                true
+                              )
+                            : ""}
 
                           {/* {item?.late_date} */}
                         </TableCell>
-                        <TableCell>${(item?.amount + item?.late_date_amount).toFixed(2)}</TableCell>
+                        <TableCell>
+                          ${(item?.amount + item?.late_date_amount).toFixed(2)}
+                        </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -499,16 +629,21 @@ export default function InvoiceDetails() {
           <Divider sx={{ my: 2 }} />
           <Grid container p={3} pt={0} pb={0}>
             <Grid item xs={12} sm={6}>
-              <Typography sx={{ color: '#444', fontSize: 14 }}>{last_bill?.[0]?.last_payment_info}</Typography>
+              <Typography sx={{ color: "#444", fontSize: 14 }}>
+                {last_bill?.[0]?.last_payment_info}
+              </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography align="right" sx={{ color: '#444', fontSize: 14 }}>
+              <Typography align="right" sx={{ color: "#444", fontSize: 14 }}>
                 {company_settings?.invoice_footer_column_3}
               </Typography>
             </Grid>
           </Grid>
 
-          <CustomBackdrop open={dashboardLoader} style={{ zIndex: 1300, color: '#fff' }}>
+          <CustomBackdrop
+            open={dashboardLoader}
+            style={{ zIndex: 1300, color: "#fff" }}
+          >
             <Loader />
           </CustomBackdrop>
         </Box>

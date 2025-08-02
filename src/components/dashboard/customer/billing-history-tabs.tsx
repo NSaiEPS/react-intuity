@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
@@ -39,7 +39,7 @@ export default function InvoiceTransactionTabs({
   colors,
 }) {
   const [currentTab, setCurrentTab] = useState("invoice");
-  const router = useRouter();
+  const navigate = useNavigate();
 
   // Demo filtering, adjust as per your data
   const displayedData =

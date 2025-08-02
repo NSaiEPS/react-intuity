@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { getUsageGraph } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colorPalette, colors } from "@/utils";
@@ -38,7 +38,7 @@ export function Sales({
   path,
   dashboard = false,
 }: SalesProps): React.JSX.Element {
-  const router = useRouter();
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:750px)");
   const chartOptions = useChartOptions();
@@ -525,7 +525,7 @@ export function Sales({
             px: isMobile ? 2 : 3,
             py: 1,
           }}
-          onClick={() => router.push(paths.dashboard.usageHistory())}
+          onClick={() => navigate(paths.dashboard.usageHistory())}
         >
           <Button
             color="inherit"

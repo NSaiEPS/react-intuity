@@ -1,23 +1,21 @@
-'use client';
+import * as React from "react";
+import { boarderRadius } from "@/utils";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Checkbox from "@mui/material/Checkbox";
+import Divider from "@mui/material/Divider";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import dayjs from "dayjs";
 
-import * as React from 'react';
-import { boarderRadius } from '@/utils';
-import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
-import dayjs from 'dayjs';
-
-import { useSelection } from '@/hooks/use-selection';
+import { useSelection } from "@/hooks/use-selection";
 
 function noop(): void {
   // do nothing
@@ -54,9 +52,11 @@ export function CustomersTable({
     return rows.map((customer) => customer.id);
   }, [rows]);
 
-  const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
+  const { selectAll, deselectAll, selectOne, deselectOne, selected } =
+    useSelection(rowIds);
 
-  const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
+  const selectedSome =
+    (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
 
   return (
@@ -65,8 +65,8 @@ export function CustomersTable({
         borderRadius: boarderRadius.card,
       }}
     >
-      <Box sx={{ overflowX: 'auto' }}>
-        <Table sx={{ minWidth: '800px' }}>
+      <Box sx={{ overflowX: "auto" }}>
+        <Table sx={{ minWidth: "800px" }}>
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
@@ -108,17 +108,24 @@ export function CustomersTable({
                     />
                   </TableCell>
                   <TableCell>
-                    <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
+                    <Stack
+                      sx={{ alignItems: "center" }}
+                      direction="row"
+                      spacing={2}
+                    >
                       <Avatar src={row.avatar} />
                       <Typography variant="subtitle2">{row.name}</Typography>
                     </Stack>
                   </TableCell>
                   <TableCell>{row.email}</TableCell>
                   <TableCell>
-                    {row.address.city}, {row.address.state}, {row.address.country}
+                    {row.address.city}, {row.address.state},{" "}
+                    {row.address.country}
                   </TableCell>
                   <TableCell>{row.phone}</TableCell>
-                  <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
+                  <TableCell>
+                    {dayjs(row.createdAt).format("MMM D, YYYY")}
+                  </TableCell>
                 </TableRow>
               );
             })}

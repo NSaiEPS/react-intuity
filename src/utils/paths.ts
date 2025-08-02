@@ -16,7 +16,9 @@ export const paths = {
     //   company ? `/confirm-information` : '/confirm-information',
     // confirmInfo: '/auth/confirm-information',
     confirmInfo: (company?: string) =>
-      company ? `/confirm-information` : "/confirm-information",
+      company
+        ? `/${company}/confirm-information`
+        : "/intuityfe/confirm-information",
 
     register: (company?: string) =>
       company ? `/register` : "/RiverPark-1/auth/register",

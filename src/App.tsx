@@ -4,6 +4,7 @@ import { getLocalStorage } from "./utils/auth";
 import { SignInPage } from "./components/auth/sign-in-page";
 import DashboardLayout from "./pages/dashboard/layout";
 import ConfirmInformation from "./pages/auth/confirm-information/page";
+import DashBoardPage from "./pages/dashboard/page";
 // import { getLoggedInUserType, getToken, USERS } from "../utils";
 
 const ProtectedRoute = ({ element }) =>
@@ -26,7 +27,9 @@ export const router = createBrowserRouter([
     element: <Authorization element={<SignInPage />} />,
   },
   {
-    path: "/login-:company",
+    // path: "/login-:company/",
+    path: "/login-RiverPark-1/",
+
     element: <Authorization element={<SignInPage />} />,
   },
 
@@ -35,13 +38,13 @@ export const router = createBrowserRouter([
     element: <ConfirmInformation />,
   },
   {
-    path: "/:company",
+    path: "/:company/dashboard",
     element: <DashboardLayout />,
     children: [
       {
         index: true,
         // element: <ProtectedRoute element={<SignInPage />} />,
-        element: <SignInPage />,
+        element: <DashBoardPage />,
       },
     ],
   },

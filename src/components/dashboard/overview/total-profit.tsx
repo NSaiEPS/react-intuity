@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation"; // Correct hook for App Router
+import { useNavigate } from "react-router-dom"; // Correct hook for App Router
 
 import { RootState } from "@/state/store";
 import { boarderRadius, formatToMMDDYYYY } from "@/utils";
@@ -21,7 +21,7 @@ export function TotalProfit({
   value,
   sx,
 }: TotalProfitProps): React.JSX.Element {
-  const router = useRouter(); // Use the hook from next/navigation
+  const navigate = useNavigate(); // Use the hook from next/navigation
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
@@ -32,7 +32,7 @@ export function TotalProfit({
     <Card
       onClick={() => {
         if (value === "history") {
-          router.push(paths.dashboard.usageHistory());
+          navigate(paths.dashboard.usageHistory());
         }
       }}
       sx={{

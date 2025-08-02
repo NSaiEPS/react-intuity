@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { linkAnotherAccount } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
@@ -31,7 +31,7 @@ import { paths } from "@/utils/paths";
 import Button from "@/components/CommonComponents/Button";
 
 export default function AddAccountPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const page1Schema = z.object({
     // accountNumber: z.string().min(2, 'Account number must be at least 2 characters'),
@@ -156,7 +156,7 @@ export default function AddAccountPage() {
           token,
           formData,
 
-          router.push(paths.dashboard.overview()),
+          navigate(paths.dashboard.overview()),
 
           setLoading
         )

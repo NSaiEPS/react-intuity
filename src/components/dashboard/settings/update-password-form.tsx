@@ -1,11 +1,9 @@
-'use client';
-
-import * as React from 'react';
-import { updateAccountInfo } from '@/state/features/accountSlice';
-import { RootState } from '@/state/store';
-import { boarderRadius, colors } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import { zodResolver } from '@hookform/resolvers/zod';
+import * as React from "react";
+import { updateAccountInfo } from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
+import { boarderRadius, colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
   Card,
@@ -21,16 +19,18 @@ import {
   OutlinedInput,
   Stack,
   Tooltip,
-} from '@mui/material';
-import { Question } from '@phosphor-icons/react';
-import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
-import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
-import { Button } from 'nsaicomponents';
-import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
-import { z } from 'zod';
+} from "@mui/material";
+import { Question } from "@phosphor-icons/react";
+import { Eye as EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
+import { Button } from "nsaicomponents";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { z } from "zod";
 
-const passwordSchema = z.string().min(5, 'Password must be at least 5 characters');
+const passwordSchema = z
+  .string()
+  .min(5, "Password must be at least 5 characters");
 
 const schema = z
   .object({
@@ -40,7 +40,7 @@ const schema = z
   })
   .refine((data) => data.new_password === data.repassword, {
     message: "Passwords don't match",
-    path: ['repassword'],
+    path: ["repassword"],
   });
 
 type FormData = z.infer<typeof schema>;
@@ -64,9 +64,9 @@ export function UpdatePasswordForm(): React.JSX.Element {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      password: '',
-      new_password: '',
-      repassword: '',
+      password: "",
+      new_password: "",
+      repassword: "",
     },
   });
   const dispatch = useDispatch();
@@ -77,21 +77,22 @@ export function UpdatePasswordForm(): React.JSX.Element {
       token?: string;
     };
   };
-  const raw = getLocalStorage('intuity-user');
+  const raw = getLocalStorage("intuity-user");
 
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const onSubmit = (data: FormData) => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
     let token = stored?.body?.token;
     const formData = new FormData();
 
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', userId);
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
     // formData.append('step', '2');
-    formData.append('new_password', data?.new_password);
-    formData.append('repassword', data?.repassword);
-    formData.append('password', data?.password);
+    formData.append("new_password", data?.new_password);
+    formData.append("repassword", data?.repassword);
+    formData.append("password", data?.password);
 
     dispatch(updateAccountInfo(token, formData, true));
   };
@@ -102,30 +103,39 @@ export function UpdatePasswordForm(): React.JSX.Element {
         <CardHeader subheader="Change Password" title="Password" />
         <Divider />
         <CardContent>
-          <Stack spacing={3} sx={{ maxWidth: 'sm' }}>
+          <Stack spacing={3} sx={{ maxWidth: "sm" }}>
             <FormControl fullWidth error={!!errors.password}>
               <InputLabel>Old Password</InputLabel>
               <OutlinedInput
                 label="Old Password"
-                type={show.password ? 'text' : 'password'}
-                {...register('password')}
+                type={show.password ? "text" : "password"}
+                {...register("password")}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton onClick={() => toggleVisibility('password')} edge="end">
-                      {show.password ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
+                    <IconButton
+                      onClick={() => toggleVisibility("password")}
+                      edge="end"
+                    >
+                      {show.password ? (
+                        <EyeSlashIcon size={20} />
+                      ) : (
+                        <EyeIcon size={20} />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
-              {errors.password && <FormHelperText>{errors.password.message}</FormHelperText>}
+              {errors.password && (
+                <FormHelperText>{errors.password.message}</FormHelperText>
+              )}
             </FormControl>
 
             <FormControl fullWidth error={!!errors.new_password}>
               <InputLabel htmlFor="new-password">New password</InputLabel>
               <OutlinedInput
                 label="New password"
-                type={show.new_password ? 'text' : 'password'}
-                {...register('new_password')}
+                type={show.new_password ? "text" : "password"}
+                {...register("new_password")}
                 endAdornment={
                   <InputAdornment position="end">
                     <Tooltip
@@ -137,40 +147,63 @@ export function UpdatePasswordForm(): React.JSX.Element {
                         <Question size={20} color="#90caf9" weight="fill" />
                       </IconButton>
                     </Tooltip>
-                    <IconButton onClick={() => toggleVisibility('new_password')} edge="end">
-                      {show.new_password ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
+                    <IconButton
+                      onClick={() => toggleVisibility("new_password")}
+                      edge="end"
+                    >
+                      {show.new_password ? (
+                        <EyeSlashIcon size={20} />
+                      ) : (
+                        <EyeIcon size={20} />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
-              {errors.new_password && <FormHelperText>{errors.new_password.message}</FormHelperText>}
+              {errors.new_password && (
+                <FormHelperText>{errors.new_password.message}</FormHelperText>
+              )}
             </FormControl>
 
             <FormControl fullWidth error={!!errors.repassword}>
               <InputLabel>Confirm password</InputLabel>
               <OutlinedInput
                 label="Confirm password"
-                type={show.repassword ? 'text' : 'password'}
-                {...register('repassword')}
+                type={show.repassword ? "text" : "password"}
+                {...register("repassword")}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton onClick={() => toggleVisibility('repassword')} edge="end">
-                      {show.repassword ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
+                    <IconButton
+                      onClick={() => toggleVisibility("repassword")}
+                      edge="end"
+                    >
+                      {show.repassword ? (
+                        <EyeSlashIcon size={20} />
+                      ) : (
+                        <EyeIcon size={20} />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
 
-              {errors.repassword && <FormHelperText>{errors.repassword.message}</FormHelperText>}
+              {errors.repassword && (
+                <FormHelperText>{errors.repassword.message}</FormHelperText>
+              )}
             </FormControl>
           </Stack>
         </CardContent>
         <Divider />
-        <CardActions sx={{ justifyContent: 'flex-end' }}>
+        <CardActions sx={{ justifyContent: "flex-end" }}>
           <Button
             variant="outlined"
             textTransform="none"
-            style={{ color: colors.blue, borderColor: colors.blue, borderRadius: '12px', height: '41px' }}
+            style={{
+              color: colors.blue,
+              borderColor: colors.blue,
+              borderRadius: "12px",
+              height: "41px",
+            }}
           >
             Cancel
           </Button>
@@ -190,11 +223,11 @@ export function UpdatePasswordForm(): React.JSX.Element {
             variant="contained"
             textTransform="none"
             bgColor={colors.blue}
-            hoverBackgroundColor={colors['blue.3']}
+            hoverBackgroundColor={colors["blue.3"]}
             hoverColor="white"
             style={{
-              borderRadius: '12px',
-              height: '41px',
+              borderRadius: "12px",
+              height: "41px",
             }}
           >
             Update

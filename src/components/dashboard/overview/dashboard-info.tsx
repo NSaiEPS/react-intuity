@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import {
   updateAccountInfo,
   updatePaperLessInfo,
@@ -130,7 +130,7 @@ export function DashboardInfo({
   typeofUser,
   apiCall = false,
 }: DashboardInfoProps): React.JSX.Element {
-  const router = useRouter();
+  const navigate = useNavigate();
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
@@ -319,11 +319,11 @@ export function DashboardInfo({
         }}
         onClick={() => {
           if (type === "paperLess") {
-            router.push(paths.dashboard.paperless());
+            navigate(paths.dashboard.paperless());
           } else if (type === "notification") {
-            router.push(paths.dashboard.notificationSettings());
+            navigate(paths.dashboard.notificationSettings());
           } else {
-            router.push(paths.dashboard.autoPay());
+            navigate(paths.dashboard.autoPay());
           }
         }}
       >

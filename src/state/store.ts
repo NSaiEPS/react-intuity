@@ -1,11 +1,9 @@
-'use client';
+import { Action, configureStore } from "@reduxjs/toolkit";
+import thunk, { ThunkAction, ThunkMiddleware } from "redux-thunk";
 
-import { Action, configureStore } from '@reduxjs/toolkit';
-import thunk, { ThunkAction, ThunkMiddleware } from 'redux-thunk';
-
-import accountSlice from './features/accountSlice';
-import dashBoardSlice from './features/dashBoardSlice';
-import paymentSlice from './features/paymentSlice';
+import accountSlice from "./features/accountSlice";
+import dashBoardSlice from "./features/dashBoardSlice";
+import paymentSlice from "./features/paymentSlice";
 
 export const store = configureStore({
   reducer: {

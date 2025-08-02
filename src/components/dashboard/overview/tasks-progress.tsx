@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation"; // Correct hook for App Router
+import { useNavigate } from "react-router-dom"; // Correct hook for App Router
 
 import { boarderRadius } from "@/utils";
 import Avatar from "@mui/material/Avatar";
@@ -18,7 +18,7 @@ export interface TasksProgressProps {
 }
 
 export function TasksProgress({ sx }: TasksProgressProps): React.JSX.Element {
-  const router = useRouter(); // Use the hook from next/navigation
+  const navigate = useNavigate(); // Use the hook from next/navigation
 
   return (
     <Card
@@ -28,7 +28,7 @@ export function TasksProgress({ sx }: TasksProgressProps): React.JSX.Element {
         borderRadius: boarderRadius.card,
       }}
       onClick={() => {
-        router.push(paths.dashboard.paperless());
+        navigate(paths.dashboard.paperless());
       }} // Navigate to the target path
     >
       <CardContent>

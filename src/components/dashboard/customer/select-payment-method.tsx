@@ -1,28 +1,32 @@
-'use client';
+import * as React from "react";
+import { colors } from "@/utils";
+import {
+  Button,
+  CardActions,
+  Dialog,
+  DialogActions,
+  Grid,
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Checkbox from "@mui/material/Checkbox";
+import Divider from "@mui/material/Divider";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import { Trash } from "@phosphor-icons/react";
+import dayjs from "dayjs";
 
-import * as React from 'react';
-import { colors } from '@/utils';
-import { Button, CardActions, Dialog, DialogActions, Grid } from '@mui/material';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
-import { Trash } from '@phosphor-icons/react';
-import dayjs from 'dayjs';
+import { useSelection } from "@/hooks/use-selection";
 
-import { useSelection } from '@/hooks/use-selection';
-
-import AddBankAccountModal from './add-bank-modal';
-import AddCardModal from './add-card-modal';
-import { PaymentMethods } from './payment-methods';
+import AddBankAccountModal from "./add-bank-modal";
+import AddCardModal from "./add-card-modal";
+import { PaymentMethods } from "./payment-methods";
 
 export interface CardDetails {
   name: string;
@@ -45,13 +49,13 @@ export function SelectPaymentMethod(): React.JSX.Element {
           // color: 'primary.main',
           color: colors.blue,
 
-          cursor: 'pointer',
-          display: 'inline-block',
-          transition: 'border-bottom 0.2s ease',
-          borderBottom: '2px solid transparent',
-          '&:hover': {
-            borderBottom: '2px solid',
-            borderColor: colors['blue.1'],
+          cursor: "pointer",
+          display: "inline-block",
+          transition: "border-bottom 0.2s ease",
+          borderBottom: "2px solid transparent",
+          "&:hover": {
+            borderBottom: "2px solid",
+            borderColor: colors["blue.1"],
           },
         }}
         onClick={() => setOpenPaymentModal(true)}
@@ -76,6 +80,10 @@ export function SelectPaymentMethod(): React.JSX.Element {
   );
 }
 
-function applyPagination(rows: CardDetails[], page: number, rowsPerPage: number): CardDetails[] {
+function applyPagination(
+  rows: CardDetails[],
+  page: number,
+  rowsPerPage: number
+): CardDetails[] {
   return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 }

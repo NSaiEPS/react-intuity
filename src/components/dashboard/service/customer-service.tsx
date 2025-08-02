@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { contactCustomerService } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
@@ -57,7 +57,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function CustomerDetailsForm(): React.JSX.Element {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
   const {

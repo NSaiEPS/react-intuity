@@ -1,17 +1,22 @@
-'use client';
-
-import * as React from 'react';
-import { boarderRadius, colors } from '@/utils';
-import { Button, CardActions, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import Divider from '@mui/material/Divider';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import Grid from '@mui/material/Unstable_Grid2';
-import { Stack } from '@mui/system';
+import * as React from "react";
+import { boarderRadius, colors } from "@/utils";
+import {
+  Button,
+  CardActions,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+} from "@mui/material";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardHeader from "@mui/material/CardHeader";
+import Divider from "@mui/material/Divider";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Grid from "@mui/material/Unstable_Grid2";
+import { Stack } from "@mui/system";
 
 export function NewDetailsForm(): React.JSX.Element {
   return (
@@ -29,7 +34,12 @@ export function NewDetailsForm(): React.JSX.Element {
             <Grid md={6} xs={12}>
               <FormControl fullWidth required variant="outlined">
                 <InputLabel htmlFor="account-name">Account name</InputLabel>
-                <OutlinedInput id="account-name" name="firstName" defaultValue="" label="Account name" />
+                <OutlinedInput
+                  id="account-name"
+                  name="firstName"
+                  defaultValue=""
+                  label="Account name"
+                />
               </FormControl>
             </Grid>
 
@@ -41,8 +51,8 @@ export function NewDetailsForm(): React.JSX.Element {
                   name="phone"
                   type="tel"
                   inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
+                    inputMode: "numeric",
+                    pattern: "[0-9]*",
                   }}
                 />
               </FormControl>
@@ -55,8 +65,8 @@ export function NewDetailsForm(): React.JSX.Element {
                   name="phone"
                   type="tel"
                   inputProps={{
-                    inputMode: 'numeric',
-                    pattern: '[0-9]*',
+                    inputMode: "numeric",
+                    pattern: "[0-9]*",
                   }}
                 />
               </FormControl>
@@ -68,9 +78,21 @@ export function NewDetailsForm(): React.JSX.Element {
               <Stack spacing={1}>
                 <Typography variant="h6">I am the *</Typography>
 
-                <RadioGroup row name="preferredOwnerMethod" defaultValue="Owner">
-                  <FormControlLabel value="Owner" control={<Radio />} label="Owner" />
-                  <FormControlLabel value="Tenant" control={<Radio />} label="Tenant" />
+                <RadioGroup
+                  row
+                  name="preferredOwnerMethod"
+                  defaultValue="Owner"
+                >
+                  <FormControlLabel
+                    value="Owner"
+                    control={<Radio />}
+                    label="Owner"
+                  />
+                  <FormControlLabel
+                    value="Tenant"
+                    control={<Radio />}
+                    label="Tenant"
+                  />
                 </RadioGroup>
               </Stack>
             </Grid>
@@ -78,12 +100,17 @@ export function NewDetailsForm(): React.JSX.Element {
           <Grid md={12} xs={12} p={0} pt={3}>
             <FormControl fullWidth required>
               <InputLabel>Comment</InputLabel>
-              <OutlinedInput defaultValue="" label="Comment" name="comment" multiline />
+              <OutlinedInput
+                defaultValue=""
+                label="Comment"
+                name="comment"
+                multiline
+              />
             </FormControl>
           </Grid>
         </CardContent>
         <Divider />
-        <CardActions sx={{ justifyContent: 'flex-end' }}>
+        <CardActions sx={{ justifyContent: "flex-end" }}>
           <Button
             variant="outlined"
             sx={{
@@ -98,8 +125,8 @@ export function NewDetailsForm(): React.JSX.Element {
             variant="contained"
             sx={{
               backgroundColor: colors.blue,
-              '&:hover': {
-                backgroundColor: colors['blue.3'], // or any other hover color
+              "&:hover": {
+                backgroundColor: colors["blue.3"], // or any other hover color
               },
             }}
           >

@@ -1,7 +1,5 @@
-'use client';
-
-import { FC, useState } from 'react';
-import { colors } from '@/utils';
+import { FC, useState } from "react";
+import { colors } from "@/utils";
 import {
   Box,
   Button,
@@ -20,18 +18,21 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from '@mui/material';
-import { Question, X } from '@phosphor-icons/react';
+} from "@mui/material";
+import { Question, X } from "@phosphor-icons/react";
 
 interface AddBankAccountModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) => {
-  const [routingNumber, setRoutingNumber] = useState<string>('');
-  const [accountNumber, setAccountNumber] = useState<string>('');
-  const [accountType, setAccountType] = useState<string>('');
+const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
+  open,
+  onClose,
+}) => {
+  const [routingNumber, setRoutingNumber] = useState<string>("");
+  const [accountNumber, setAccountNumber] = useState<string>("");
+  const [accountType, setAccountType] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -48,7 +49,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
 
   const handleContinue = () => {
     if (!agreed) {
-      alert('Please agree to the terms.');
+      alert("Please agree to the terms.");
       return;
     }
     console.log({ routingNumber, accountNumber, accountType });
@@ -56,9 +57,9 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
   };
 
   const handleReset = () => {
-    setRoutingNumber('');
-    setAccountNumber('');
-    setAccountType('');
+    setRoutingNumber("");
+    setAccountNumber("");
+    setAccountType("");
     setAgreed(false);
   };
 
@@ -71,7 +72,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
           aria-label="close"
           onClick={onClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 10,
             top: 8,
             pr: 1.5,
@@ -85,7 +86,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
       <DialogContent>
         <Box
           sx={{
-            border: '1px solid #cfd8dc',
+            border: "1px solid #cfd8dc",
             borderRadius: 1,
             padding: 3,
             mt: 1,
@@ -96,7 +97,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
             <Typography
               variant="h6"
               sx={{
-                fontSize: '1rem',
+                fontSize: "1rem",
                 color: colors.blue,
               }}
             >
@@ -117,7 +118,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
               componentsProps={{
                 tooltip: {
                   sx: {
-                    backgroundColor: '#fff', // white background
+                    backgroundColor: "#fff", // white background
                     boxShadow: 3, // subtle shadow
                     borderRadius: 2, // rounded corners
                     p: 1, // padding inside tooltip
@@ -125,7 +126,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
                 },
                 arrow: {
                   sx: {
-                    color: '#fff', // make the arrow white to match the background
+                    color: "#fff", // make the arrow white to match the background
                   },
                 },
               }}
@@ -153,24 +154,36 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
             />
             <FormControl variant="standard" fullWidth>
               <InputLabel id="account-type-label">Account Type</InputLabel>
-              <Select labelId="account-type-label" value={accountType} onChange={(e) => setAccountType(e.target.value)}>
+              <Select
+                labelId="account-type-label"
+                value={accountType}
+                onChange={(e) => setAccountType(e.target.value)}
+              >
                 <MenuItem value="checking">Checking</MenuItem>
                 <MenuItem value="savings">Savings</MenuItem>
               </Select>
             </FormControl>
 
             <FormControlLabel
-              control={<Checkbox checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />}
+              control={
+                <Checkbox
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                />
+              }
               label={
                 <Typography variant="body2" color="text.secondary">
-                  SANDBOX - I authorize Creative Technologies - Eldorado to store and enroll the bank account indicated
-                  in this form for payment of one-time and/or auto recurring transactions for amounts due on my utility
-                  account on or before the due date. I understand that the authorization will remain in effect until I
-                  cancel it and that payments may be withdrawn from my account on the same or next banking business day
-                  after it is originated.
+                  SANDBOX - I authorize Creative Technologies - Eldorado to
+                  store and enroll the bank account indicated in this form for
+                  payment of one-time and/or auto recurring transactions for
+                  amounts due on my utility account on or before the due date. I
+                  understand that the authorization will remain in effect until
+                  I cancel it and that payments may be withdrawn from my account
+                  on the same or next banking business day after it is
+                  originated.
                 </Typography>
               }
-              sx={{ alignItems: 'flex-start' }}
+              sx={{ alignItems: "flex-start" }}
             />
           </Box>
         </Box>
@@ -182,8 +195,8 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
           variant="contained"
           sx={{
             backgroundColor: colors.blue,
-            '&:hover': {
-              backgroundColor: colors['blue.3'], // or any other hover color
+            "&:hover": {
+              backgroundColor: colors["blue.3"], // or any other hover color
             },
           }}
         >

@@ -1,7 +1,5 @@
-'use client';
-
-import { FC, useState } from 'react';
-import { colors } from '@/utils';
+import { FC, useState } from "react";
+import { colors } from "@/utils";
 import {
   Box,
   Button,
@@ -15,8 +13,8 @@ import {
   IconButton,
   TextField,
   Typography,
-} from '@mui/material';
-import { X } from '@phosphor-icons/react';
+} from "@mui/material";
+import { X } from "@phosphor-icons/react";
 
 interface AddCardModalProps {
   open: boolean;
@@ -24,15 +22,15 @@ interface AddCardModalProps {
 }
 
 const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
-  const [cardNumber, setCardNumber] = useState<string>('');
-  const [cvv, setCvv] = useState<string>('');
-  const [expiryMonth, setExpiryMonth] = useState<string>('');
-  const [expiryYear, setExpiryYear] = useState<string>('');
+  const [cardNumber, setCardNumber] = useState<string>("");
+  const [cvv, setCvv] = useState<string>("");
+  const [expiryMonth, setExpiryMonth] = useState<string>("");
+  const [expiryYear, setExpiryYear] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
 
   const handleContinue = () => {
     if (!agreed) {
-      alert('Please agree to the terms.');
+      alert("Please agree to the terms.");
       return;
     }
     console.log({ cardNumber, cvv, expiryMonth, expiryYear });
@@ -40,10 +38,10 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
   };
 
   const handleReset = () => {
-    setCardNumber('');
-    setCvv('');
-    setExpiryMonth('');
-    setExpiryYear('');
+    setCardNumber("");
+    setCvv("");
+    setExpiryMonth("");
+    setExpiryYear("");
     setAgreed(false);
   };
 
@@ -55,7 +53,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           aria-label="close"
           onClick={onClose}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 10,
             top: 8,
             pr: 1.5,
@@ -68,7 +66,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
       <DialogContent>
         <Box
           sx={{
-            border: '1px solid #cfd8dc',
+            border: "1px solid #cfd8dc",
             borderRadius: 1,
             padding: 3,
             mt: 1,
@@ -86,10 +84,10 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
               fullWidth
               value={cardNumber}
               onChange={(e) => {
-                let value = e.target.value.replace(/\D/g, ''); // remove all non-digits
+                let value = e.target.value.replace(/\D/g, ""); // remove all non-digits
                 if (value.length > 16) value = value.slice(0, 16); // limit to 16 digits
                 const parts = value.match(/.{1,4}/g); // split every 4 digits
-                setCardNumber(parts ? parts.join('-') : '');
+                setCardNumber(parts ? parts.join("-") : "");
               }}
             />
             <TextField
@@ -98,7 +96,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
               sx={{ width: 100 }}
               value={cvv}
               onChange={(e) => {
-                let value = e.target.value.replace(/\D/g, '');
+                let value = e.target.value.replace(/\D/g, "");
                 if (value.length > 3) value = value.slice(0, 3);
                 setCvv(value);
               }}
@@ -131,17 +129,24 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           </Box>
 
           <FormControlLabel
-            control={<Checkbox checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />}
+            control={
+              <Checkbox
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+              />
+            }
             label={
               <Typography variant="body2" color="text.secondary">
-                Sandbox - I authorize Creative Technologies - Eldorado to store and enroll the credit card indicated in
-                this form for payment of one-time and/or auto recurring transactions for amounts due on my utility
-                account on or before the due date. I understand that the authorization will remain in effect until I
-                cancel it and that payments may be withdrawn from my account on the same or next banking business day
-                after it is originated.
+                Sandbox - I authorize Creative Technologies - Eldorado to store
+                and enroll the credit card indicated in this form for payment of
+                one-time and/or auto recurring transactions for amounts due on
+                my utility account on or before the due date. I understand that
+                the authorization will remain in effect until I cancel it and
+                that payments may be withdrawn from my account on the same or
+                next banking business day after it is originated.
               </Typography>
             }
-            sx={{ alignItems: 'flex-start' }}
+            sx={{ alignItems: "flex-start" }}
           />
         </Box>
       </DialogContent>
@@ -152,8 +157,8 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           variant="contained"
           sx={{
             backgroundColor: colors.blue,
-            '&:hover': {
-              backgroundColor: colors['blue.3'], // or any other hover color
+            "&:hover": {
+              backgroundColor: colors["blue.3"], // or any other hover color
             },
           }}
         >

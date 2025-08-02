@@ -23,6 +23,7 @@ import { useUser } from "@/hooks/use-user";
 
 import EmailDialog from "./confirm-email-modal";
 import PhoneModal from "./confirm-phone-modal";
+import { paths } from "@/utils/paths";
 
 export function ConfirmInfoDetails(): React.JSX.Element {
   // const router = useRouter();
@@ -206,7 +207,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
       <Grid container spacing={2} mt={2} alignItems="center">
         <Grid item xs={6}>
           <Link
-            // href={paths.dashboard.overview()}
+            href={paths.dashboard.overview()}
             underline="none"
             fontWeight="bold"
             sx={{

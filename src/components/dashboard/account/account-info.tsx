@@ -1,32 +1,30 @@
-'use client';
-
-import * as React from 'react';
-import { RootState } from '@/state/store';
-import { boarderRadius } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import { useSelector } from 'react-redux';
+import * as React from "react";
+import { RootState } from "@/state/store";
+import { boarderRadius } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Divider from "@mui/material/Divider";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { useSelector } from "react-redux";
 
 const user = {
-  name: 'Sofia Rivers',
-  avatar: '/assets/avatar.png',
-  jobTitle: 'Senior Developer',
-  country: 'USA',
-  city: 'Los Angeles',
-  timezone: 'GTM-7',
+  name: "Sofia Rivers",
+  avatar: "/assets/avatar.png",
+  jobTitle: "Senior Developer",
+  country: "USA",
+  city: "Los Angeles",
+  timezone: "GTM-7",
 } as const;
 
 export function AccountInfo(): React.JSX.Element {
   const { accountInfo } = useSelector((state: RootState) => state?.Account);
   const { customer_name, address } = accountInfo?.customer_data?.[0] || {};
-  const CustomerInfo = getLocalStorage('intuity-customerInfo');
+  const CustomerInfo = getLocalStorage("intuity-customerInfo");
 
   const { company_logo }: any = CustomerInfo || {};
   return (
@@ -36,11 +34,11 @@ export function AccountInfo(): React.JSX.Element {
       }}
     >
       <CardContent>
-        <Stack spacing={2} sx={{ alignItems: 'center' }}>
+        <Stack spacing={2} sx={{ alignItems: "center" }}>
           <div>
-            <Avatar src={company_logo} sx={{ height: '80px', width: '80px' }} />
+            <Avatar src={company_logo} sx={{ height: "80px", width: "80px" }} />
           </div>
-          <Stack spacing={1} sx={{ textAlign: 'center' }}>
+          <Stack spacing={1} sx={{ textAlign: "center" }}>
             <Typography variant="h5">{customer_name}</Typography>
             <Typography color="text.secondary" variant="body2">
               {address}

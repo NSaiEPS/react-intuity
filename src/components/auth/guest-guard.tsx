@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 
 import { paths } from "@/utils/paths";
@@ -13,7 +13,7 @@ export interface GuestGuardProps {
 export function GuestGuard({
   children,
 }: GuestGuardProps): React.JSX.Element | null {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { user, error, isLoading }: any = useUser();
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
 

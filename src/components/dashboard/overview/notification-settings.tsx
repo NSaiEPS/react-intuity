@@ -1,10 +1,8 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { updateAccountInfo } from '@/state/features/accountSlice';
-import { RootState } from '@/state/store';
-import { colors } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
+import React, { useEffect, useState } from "react";
+import { updateAccountInfo } from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
+import { colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -17,32 +15,36 @@ import {
   Select,
   Tooltip,
   Typography,
-} from '@mui/material';
-import { Question } from '@phosphor-icons/react';
-import { useDispatch, useSelector } from 'react-redux';
+} from "@mui/material";
+import { Question } from "@phosphor-icons/react";
+import { useDispatch, useSelector } from "react-redux";
 
 function NotificationsSettings() {
   // const CustomerInfo: any = getLocalStorage('intuity-customerInfo');
-  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
 
-  const CustomerInfo: any = dashBoardInfo?.customer ? dashBoardInfo?.customer : getLocalStorage('intuity-customerInfo');
+  const CustomerInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
   const TextToValueFormat = {
-    Text: '2',
-    Email: '1',
-    Both: '3',
-    None: '4',
+    Text: "2",
+    Email: "1",
+    Both: "3",
+    None: "4",
   };
   const billerTextToValueFormat = {
-    Text: '1',
-    Email: '0',
-    Both: '2',
-    None: '3',
+    Text: "1",
+    Email: "0",
+    Both: "2",
+    None: "3",
   };
   const [preferences, setPreferences] = useState({
-    new_bill: '1',
-    payment_confirmation: '1',
-    reminders: '1',
-    biller_announcements: '1',
+    new_bill: "1",
+    payment_confirmation: "1",
+    reminders: "1",
+    biller_announcements: "1",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -55,13 +57,14 @@ function NotificationsSettings() {
       token?: string;
     };
   };
-  const raw = getLocalStorage('intuity-user');
+  const raw = getLocalStorage("intuity-user");
   const dispatch = useDispatch();
 
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const handleSave = () => {
     // Add save logic here (e.g., API call)
-    console.log('Saved preferences:', preferences);
+    console.log("Saved preferences:", preferences);
 
     const formData = new FormData();
 
@@ -69,14 +72,14 @@ function NotificationsSettings() {
     let userId = stored?.body?.customer_id;
     let token = stored?.body?.token;
 
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', userId);
-    formData.append('id', userId);
-    formData.append('model_open', '3');
-    formData.append('notification_new_bill', preferences.new_bill);
-    formData.append('notification_payment', preferences.payment_confirmation);
-    formData.append('notification_reminder', preferences.reminders);
-    formData.append('notification_biller', preferences.biller_announcements);
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("model_open", "3");
+    formData.append("notification_new_bill", preferences.new_bill);
+    formData.append("notification_payment", preferences.payment_confirmation);
+    formData.append("notification_reminder", preferences.reminders);
+    formData.append("notification_biller", preferences.biller_announcements);
 
     dispatch(updateAccountInfo(token, formData, true, getPrefDetails));
   };
@@ -90,20 +93,22 @@ function NotificationsSettings() {
     let token = stored?.body?.token;
     const formData = new FormData();
 
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', userId);
-    formData.append('id', userId);
-    formData.append('model_open', '15');
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("model_open", "15");
 
     dispatch(updateAccountInfo(token, formData, true, successCallBack, true));
   };
   const successCallBack = (res) => {
     // console.log(res, 'successCallBack');
     setPreferences({
-      new_bill: TextToValueFormat[res?.new_bill?.selected] || '1',
-      payment_confirmation: TextToValueFormat[res?.payment_confirmation?.selected] || '1',
-      reminders: TextToValueFormat[res?.reminders?.selected] || '1',
-      biller_announcements: billerTextToValueFormat[res?.biller_announcements?.selected] || '1',
+      new_bill: TextToValueFormat[res?.new_bill?.selected] || "1",
+      payment_confirmation:
+        TextToValueFormat[res?.payment_confirmation?.selected] || "1",
+      reminders: TextToValueFormat[res?.reminders?.selected] || "1",
+      biller_announcements:
+        billerTextToValueFormat[res?.biller_announcements?.selected] || "1",
     });
   };
 
@@ -119,8 +124,16 @@ function NotificationsSettings() {
         />
 
         <CardHeader
-          subheader={<Typography variant="h6">Names :{CustomerInfo?.customer_name}</Typography>}
-          title={<Typography variant="h5">Account No :{CustomerInfo?.acctnum}</Typography>}
+          subheader={
+            <Typography variant="h6">
+              Names :{CustomerInfo?.customer_name}
+            </Typography>
+          }
+          title={
+            <Typography variant="h5">
+              Account No :{CustomerInfo?.acctnum}
+            </Typography>
+          }
         />
       </Grid>
 
@@ -136,7 +149,10 @@ function NotificationsSettings() {
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth>
-            <Select value={preferences.new_bill} onChange={(e) => handleChange('new_bill', e.target.value)}>
+            <Select
+              value={preferences.new_bill}
+              onChange={(e) => handleChange("new_bill", e.target.value)}
+            >
               <MenuItem value="2">Text</MenuItem>
               <MenuItem value="1">Email</MenuItem>
               <MenuItem value="3">Both</MenuItem>
@@ -153,7 +169,9 @@ function NotificationsSettings() {
           <FormControl fullWidth>
             <Select
               value={preferences.payment_confirmation}
-              onChange={(e) => handleChange('payment_confirmation', e.target.value)}
+              onChange={(e) =>
+                handleChange("payment_confirmation", e.target.value)
+              }
             >
               <MenuItem value="2">Text</MenuItem>
               <MenuItem value="1">Email</MenuItem>
@@ -181,7 +199,10 @@ function NotificationsSettings() {
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth>
-            <Select value={preferences.reminders} onChange={(e) => handleChange('reminders', e.target.value)}>
+            <Select
+              value={preferences.reminders}
+              onChange={(e) => handleChange("reminders", e.target.value)}
+            >
               <MenuItem value="2">Text</MenuItem>
               <MenuItem value="1">Email</MenuItem>
               <MenuItem value="3">Both</MenuItem>
@@ -209,7 +230,9 @@ function NotificationsSettings() {
           <FormControl fullWidth>
             <Select
               value={preferences.biller_announcements}
-              onChange={(e) => handleChange('biller_announcements', e.target.value)}
+              onChange={(e) =>
+                handleChange("biller_announcements", e.target.value)
+              }
             >
               <MenuItem value="1">Text</MenuItem>
               <MenuItem value="0">Email</MenuItem>
@@ -234,8 +257,8 @@ function NotificationsSettings() {
           variant="contained"
           sx={{
             backgroundColor: colors.blue,
-            '&:hover': {
-              backgroundColor: colors['blue.3'], // or any other hover color
+            "&:hover": {
+              backgroundColor: colors["blue.3"], // or any other hover color
             },
           }}
           color="primary"

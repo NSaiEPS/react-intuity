@@ -1,30 +1,36 @@
-'use client';
+import * as React from "react";
+import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
+import { getLastBillInfo } from "@/state/features/paymentSlice";
+import { RootState } from "@/state/store";
+import { boarderRadius, colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import {
+  CardHeader,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Divider from "@mui/material/Divider";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import { FileText, Minus, Plus } from "@phosphor-icons/react/dist/ssr";
+import dayjs from "dayjs";
+import { CustomBackdrop, Loader } from "nsaicomponents";
+import { useDispatch, useSelector } from "react-redux";
 
-import * as React from 'react';
-import { getInvoiceDetails } from '@/state/features/dashBoardSlice';
-import { getLastBillInfo } from '@/state/features/paymentSlice';
-import { RootState } from '@/state/store';
-import { boarderRadius, colors } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import { CardHeader, FormControl, Grid, IconButton, InputLabel, MenuItem, Select } from '@mui/material';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
-import { FileText, Minus, Plus } from '@phosphor-icons/react/dist/ssr';
-import dayjs from 'dayjs';
-import { CustomBackdrop, Loader } from 'nsaicomponents';
-import { useDispatch, useSelector } from 'react-redux';
-
-import PdfViewer from '../layout/invoice-pdf-view';
-import InvoiceTransactionTabs from './billing-history-tabs';
+import PdfViewer from "../layout/invoice-pdf-view";
+import InvoiceTransactionTabs from "./billing-history-tabs";
 
 function noop(): void {
   // do nothing
@@ -61,23 +67,25 @@ export function BillingHistory({
   const [pdfModal, setPdfModal] = React.useState<boolean>(false);
 
   const handleInvoiceToggle = (id: number): void => {
-    setIsInvoice((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+    setIsInvoice((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
   const dummyInvoice = [
     {
-      type: 'invoice',
-      date: dayjs().format('MMM D, YYYY'),
-      status: 'Success',
-      amount: '$ 130',
-      balance: '$ 130',
+      type: "invoice",
+      date: dayjs().format("MMM D, YYYY"),
+      status: "Success",
+      amount: "$ 130",
+      balance: "$ 130",
       id: 1,
     },
     {
-      type: 'invoice',
-      date: dayjs().format('MMM D, YYYY'),
-      status: 'Success',
-      amount: '$ 100',
-      balance: '$ 100',
+      type: "invoice",
+      date: dayjs().format("MMM D, YYYY"),
+      status: "Success",
+      amount: "$ 100",
+      balance: "$ 100",
       id: 2,
     },
   ];
@@ -89,12 +97,20 @@ export function BillingHistory({
   const handleChange = (event: any) => {
     setSelectedYear(event.target.value);
   };
-  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
-  const lastBillInfo = useSelector((state: RootState) => state?.Payment?.lastBillInfo);
-  const paymentLoader = useSelector((state: RootState) => state?.Payment?.paymentLoader);
-  console.log(lastBillInfo, 'lastBillInfo');
-  const CustomerInfo: any = dashBoardInfo?.customer ? dashBoardInfo?.customer : getLocalStorage('intuity-customerInfo');
+  const lastBillInfo = useSelector(
+    (state: RootState) => state?.Payment?.lastBillInfo
+  );
+  const paymentLoader = useSelector(
+    (state: RootState) => state?.Payment?.paymentLoader
+  );
+  console.log(lastBillInfo, "lastBillInfo");
+  const CustomerInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
   const dispatch = useDispatch();
   type IntuityUser = {
     body?: {
@@ -103,35 +119,55 @@ export function BillingHistory({
       token?: string;
     };
   };
-  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   React.useEffect(() => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
     let token = stored?.body?.token;
     const formData = new FormData();
 
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', userId);
-    formData.append('id', userId);
-    formData.append('year', String(selectedYear));
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("year", String(selectedYear));
 
     dispatch(getLastBillInfo(formData, token));
   }, [userInfo, selectedYear]);
   return (
     <Grid>
       <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader title={<Typography variant="h5">Payment & billing history</Typography>} />
+        <CardHeader
+          title={
+            <Typography variant="h5">Payment & billing history</Typography>
+          }
+        />
 
         <CardHeader
-          subheader={<Typography variant="h6">Name :{CustomerInfo?.customer_name}</Typography>}
-          title={<Typography variant="h5">Account No :{CustomerInfo?.acctnum}</Typography>}
+          subheader={
+            <Typography variant="h6">
+              Name :{CustomerInfo?.customer_name}
+            </Typography>
+          }
+          title={
+            <Typography variant="h5">
+              Account No :{CustomerInfo?.acctnum}
+            </Typography>
+          }
         />
       </Grid>
-      <Grid item sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+      <Grid
+        item
+        sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}
+      >
         <FormControl>
-          <Select value={selectedYear} onChange={handleChange} sx={{ height: 40, mb: 1 }}>
+          <Select
+            value={selectedYear}
+            onChange={handleChange}
+            sx={{ height: 40, mb: 1 }}
+          >
             {years.map((year) => (
               <MenuItem key={year} value={year}>
                 {year}
@@ -259,7 +295,10 @@ export function BillingHistory({
         />
       </Card> */}
 
-      <CustomBackdrop open={paymentLoader} style={{ zIndex: 1300, color: '#fff' }}>
+      <CustomBackdrop
+        open={paymentLoader}
+        style={{ zIndex: 1300, color: "#fff" }}
+      >
         <Loader />
       </CustomBackdrop>
       <PdfViewer

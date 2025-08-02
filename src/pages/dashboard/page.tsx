@@ -9,7 +9,7 @@ import { IconCards } from "@/components/dashboard/overview/Icon-cards";
 import { Sales } from "@/components/dashboard/overview/sales";
 import { TotalProfit } from "@/components/dashboard/overview/total-profit";
 
-export default function Page(): React.JSX.Element {
+export default function DashBoardPage(): React.JSX.Element {
   return (
     <Grid container spacing={2}>
       <Grid lg={12} xs={12}>

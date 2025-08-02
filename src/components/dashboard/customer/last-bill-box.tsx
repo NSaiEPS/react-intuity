@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 import { colors, formatToMMDDYYYY } from "@/utils";
@@ -26,7 +26,7 @@ export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
   const [pdfModal, setPdfModal] = React.useState<boolean>(false);
   const dispatch = useDispatch();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   type IntuityUser = {
     body?: {

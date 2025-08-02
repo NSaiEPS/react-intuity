@@ -9,6 +9,8 @@ import { SideNav } from "@/components/dashboard/layout/side-nav";
 import { Outlet } from "react-router";
 
 export default function DashboardLayout(): React.JSX.Element {
+  console.log("DashboardLayout rendered");
+
   return (
     <AuthGuard>
       <GlobalStyles

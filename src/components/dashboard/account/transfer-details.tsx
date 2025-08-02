@@ -1,27 +1,38 @@
-'use client';
-
-import * as React from 'react';
-import { transferService } from '@/app/api/dashboard';
-import { stopTransferService } from '@/state/features/accountSlice';
-import { RootState } from '@/state/store';
-import { boarderRadius } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Divider from '@mui/material/Divider';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import Grid from '@mui/material/Unstable_Grid2';
-import { CustomBackdrop, Loader } from 'nsaicomponents';
-import { useDispatch, useSelector } from 'react-redux';
+import * as React from "react";
+import { transferService } from "@/app/api/dashboard";
+import { stopTransferService } from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
+import { boarderRadius } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Divider from "@mui/material/Divider";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Grid from "@mui/material/Unstable_Grid2";
+import { CustomBackdrop, Loader } from "nsaicomponents";
+import { useDispatch, useSelector } from "react-redux";
 
 export function TransferDetailsForm(): React.JSX.Element {
   const dispatch = useDispatch();
-  const { transferInfo, accountLoading, userInfo } = useSelector((state: RootState) => state?.Account);
+  const { transferInfo, accountLoading, userInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
 
-  const { customer_name, acctnum, address, phone, email, role, comment, service_address, phone2, id, meterNumber } =
-    transferInfo?.customer_data?.[0] || {};
+  const {
+    customer_name,
+    acctnum,
+    address,
+    phone,
+    email,
+    role,
+    comment,
+    service_address,
+    phone2,
+    id,
+    meterNumber,
+  } = transferInfo?.customer_data?.[0] || {};
   // console.log(transferInfo, 'transferInfo');
   const getUserDetails = () => {
     type IntuityUser = {
@@ -31,10 +42,11 @@ export function TransferDetailsForm(): React.JSX.Element {
         token?: string;
       };
     };
-    const raw = getLocalStorage('intuity-user');
+    const raw = getLocalStorage("intuity-user");
 
-    const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
-    console.log(stored, 'stored');
+    const stored: IntuityUser | null =
+      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+    console.log(stored, "stored");
     // let roleId = stored?.user?.body?.acl_role_id;
     // let userId = stored?.user?.body?.id;
 
@@ -45,9 +57,9 @@ export function TransferDetailsForm(): React.JSX.Element {
 
     const formData = new FormData();
 
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', customer_id);
-    formData.append('is_form', '0');
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", customer_id);
+    formData.append("is_form", "0");
     dispatch(stopTransferService(token, formData, true));
   };
   React.useEffect(() => {
@@ -132,7 +144,10 @@ export function TransferDetailsForm(): React.JSX.Element {
           <Divider />
         </Card>
       </form>
-      <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
+      <CustomBackdrop
+        open={accountLoading}
+        style={{ zIndex: 1300, color: "#fff" }}
+      >
         <Loader />
       </CustomBackdrop>
     </>

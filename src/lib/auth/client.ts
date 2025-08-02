@@ -1,26 +1,24 @@
-'use client';
-
 // import api from '@/app/api/axios';
-import api from '@/app/api/axios';
-import secureLocalStorage from 'react-secure-storage';
-import { toast } from 'react-toastify';
+import api from "@/app/api/axios";
+import secureLocalStorage from "react-secure-storage";
+import { toast } from "react-toastify";
 
-import type { User } from '@/types/user';
+import type { User } from "@/types/user";
 
-import { removeLocalStorage, setLocalStorage } from '../../utils/auth';
+import { removeLocalStorage, setLocalStorage } from "../../utils/auth";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
   window.crypto.getRandomValues(arr);
-  return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
+  return Array.from(arr, (v) => v.toString(16).padStart(2, "0")).join("");
 }
 
 const user = {
-  id: 'USR-000',
-  avatar: '/assets/avatar.png',
-  firstName: 'Sofia',
-  lastName: 'Rivers',
-  email: 'sofia@devias.io',
+  id: "USR-000",
+  avatar: "/assets/avatar.png",
+  firstName: "Sofia",
+  lastName: "Rivers",
+  email: "sofia@devias.io",
 } satisfies User;
 
 export interface SignUpParams {
@@ -31,7 +29,7 @@ export interface SignUpParams {
 }
 
 export interface SignInWithOAuthParams {
-  provider: 'google' | 'discord';
+  provider: "google" | "discord";
 }
 
 export interface SignInWithPasswordParams {
@@ -50,13 +48,13 @@ class AuthClient {
     // We do not handle the API, so we'll just generate a token and store it in localStorage.
     const token = generateToken();
     // localStorage.setItem('custom-auth-token', token);
-    secureLocalStorage.setItem('custom-auth-token', token);
+    secureLocalStorage.setItem("custom-auth-token", token);
 
     return {};
   }
 
   async signInWithOAuth(_: SignInWithOAuthParams): Promise<{ error?: string }> {
-    return { error: 'Social authentication not implemented' };
+    return { error: "Social authentication not implemented" };
   }
 
   // async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
@@ -82,32 +80,38 @@ class AuthClient {
   //   }
   // }
 
-  async signInWithPassword(params: { email: string; password: string }, successCallBack): Promise<{ error?: string }> {
+  async signInWithPassword(
+    params: { email: string; password: string },
+    successCallBack
+  ): Promise<{ error?: string }> {
     const { email, password } = params;
     const formData = new FormData();
 
-    formData.append('email', email);
-    formData.append('password', password);
-    const res = await fetch('https://test-intuity-backend.pay.waterbill.com/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-      body: formData,
-    });
+    formData.append("email", email);
+    formData.append("password", password);
+    const res = await fetch(
+      "https://test-intuity-backend.pay.waterbill.com/login",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      }
+    );
 
     const data = await res.json();
-    console.log(data, 'errorerror');
+    console.log(data, "errorerror");
 
     if (!res.ok || data?.body?.errors?.[0]) {
-      return { error: data?.body?.errors?.[0] || 'Login failed' };
+      return { error: data?.body?.errors?.[0] || "Login failed" };
     }
 
     // Save user data (not token!) in localStorage
     // localStorage.setItem('intuity-user', JSON.stringify(data));
     // localStorage.setItem('custom-auth-token', data?.body?.token);
-    secureLocalStorage.setItem('intuity-user', data); // no need to JSON.stringify
-    secureLocalStorage.setItem('custom-auth-token', data?.body?.token);
+    secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
+    secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
     // Cookies.set('intuity-user', JSON.stringify(data.body), {
     //   expires: 7,
     //   secure: true,
@@ -124,29 +128,37 @@ class AuthClient {
     const { email } = params;
     const formData = new FormData();
 
-    formData.append('email', email);
+    formData.append("email", email);
 
-    const res = await fetch('https://test-intuity-backend.pay.waterbill.com/index/recover-password', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-      body: formData,
-    });
+    const res = await fetch(
+      "https://test-intuity-backend.pay.waterbill.com/index/recover-password",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      }
+    );
 
     const data = await res.json();
     if (data?.status) {
-      toast.success(data?.message ?? 'Email sent!');
+      toast.success(data?.message ?? "Email sent!");
     }
-    console.log(data, 'errorerror');
+    console.log(data, "errorerror");
     if (!res.ok || data?.status == false || data?.body?.errors?.[0]) {
-      return { error: data?.message?.[0] || data?.body?.errors?.[0] || 'Something went wrong !' };
+      return {
+        error:
+          data?.message?.[0] ||
+          data?.body?.errors?.[0] ||
+          "Something went wrong !",
+      };
     }
     return {};
   }
 
   async updatePassword(_: ResetPasswordParams): Promise<{ error?: string }> {
-    return { error: 'Update reset not implemented' };
+    return { error: "Update reset not implemented" };
   }
 
   async getUser(): Promise<{ data?: User | null; error?: string }> {
@@ -154,7 +166,7 @@ class AuthClient {
 
     // We do not handle the API, so just check if we have a token in localStorage.
     // const token = localStorage.getItem('custom-auth-token');
-    const token: any = secureLocalStorage.getItem('intuity-user');
+    const token: any = secureLocalStorage.getItem("intuity-user");
 
     if (!token) {
       return { data: null };
@@ -164,8 +176,8 @@ class AuthClient {
   }
 
   async signOut(): Promise<{ error?: string }> {
-    removeLocalStorage('custom-auth-token');
-    removeLocalStorage('intuity-user');
+    removeLocalStorage("custom-auth-token");
+    removeLocalStorage("intuity-user");
 
     return {};
   }

@@ -1,12 +1,10 @@
-'use client';
-
-import React, { useEffect, useMemo, useState } from 'react';
-import { getConfirmInfo } from '@/state/features/accountSlice';
-import { getNotificationList } from '@/state/features/dashBoardSlice';
-import { RootState } from '@/state/store';
-import { colors } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useEffect, useMemo, useState } from "react";
+import { getConfirmInfo } from "@/state/features/accountSlice";
+import { getNotificationList } from "@/state/features/dashBoardSlice";
+import { RootState } from "@/state/store";
+import { colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
   // Button,
@@ -21,17 +19,19 @@ import {
   Select,
   TextField,
   Typography,
-} from '@mui/material';
-import { X } from '@phosphor-icons/react';
+} from "@mui/material";
+import { X } from "@phosphor-icons/react";
 // import { Button } from 'nsaicomponents';
-import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
-import { z as zod } from 'zod';
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { z as zod } from "zod";
 
-import Button from '../CommonComponents/Button';
+import Button from "../CommonComponents/Button";
 
 export default function PhoneModal({ open, onClose, clickedDetails }) {
-  const { accountLoading, confirmInfo } = useSelector((state: RootState) => state?.Account);
+  const { accountLoading, confirmInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
   const [isPending, setIsPending] = useState(false);
   const [isOtpModal, setIsOtp] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState();
@@ -39,9 +39,19 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
     countryCode: zod.union([zod.string(), zod.number()]),
     phone: zod
       .string()
-      .min(isOtpModal ? 4 : 7, isOtpModal ? 'Otp is must be atleast of 4 digits' : 'Phone number is too short')
-      .max(15, isOtpModal ? 'Otp is too long' : 'Phone number is too long')
-      .regex(/^[0-9]+$/, isOtpModal ? 'Otp must contain only digits' : 'Phone number must contain only digits'),
+      .min(
+        isOtpModal ? 4 : 7,
+        isOtpModal
+          ? "Otp is must be atleast of 4 digits"
+          : "Phone number is too short"
+      )
+      .max(15, isOtpModal ? "Otp is too long" : "Phone number is too long")
+      .regex(
+        /^[0-9]+$/,
+        isOtpModal
+          ? "Otp must contain only digits"
+          : "Phone number must contain only digits"
+      ),
   });
   type FormData = zod.infer<typeof schema>;
 
@@ -53,8 +63,8 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      countryCode: '1',
-      phone: '',
+      countryCode: "1",
+      phone: "",
     },
   });
 
@@ -76,9 +86,10 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
       token?: string;
     };
   };
-  const raw = getLocalStorage('intuity-user');
+  const raw = getLocalStorage("intuity-user");
 
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const successCallBack = () => {
     setIsPending(false);
 
@@ -87,7 +98,7 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
     }
     if (!isOtpModal) {
       reset({
-        phone: '',
+        phone: "",
       });
       setIsOtp(true);
     }
@@ -97,14 +108,14 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
     let token = stored?.body?.token;
     const formData = new FormData();
 
-    formData.append('acl_role_id', role_id);
-    formData.append('customer_id', user_id);
+    formData.append("acl_role_id", role_id);
+    formData.append("customer_id", user_id);
     return;
     dispatch(getConfirmInfo(token, formData));
   };
 
   function toUSPhoneFormat(number) {
-    const cleaned = number.toString().replace(/\D/g, '');
+    const cleaned = number.toString().replace(/\D/g, "");
 
     if (cleaned.length === 10) {
       const part1 = cleaned.slice(0, 3);
@@ -112,13 +123,13 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
       const part3 = cleaned.slice(6);
       return `(${part1})-${part2}-${part3}`;
     } else {
-      return 'Invalid number';
+      return "Invalid number";
     }
   }
 
   const onSubmit = (data) => {
     setIsPending(true);
-    console.log('Saved email:', data.email);
+    console.log("Saved email:", data.email);
 
     let role_id = stored?.body?.acl_role_id;
     let user_id = stored?.body?.customer_id;
@@ -127,18 +138,29 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
       setPhoneNumber(data.phone);
     }
     const formData = new FormData();
-    formData.append('acl_role_id', role_id);
-    formData.append('customer_id', clickedDetails?.id);
-    formData.append('model_open', isOtpModal ? '4' : '2');
+    formData.append("acl_role_id", role_id);
+    formData.append("customer_id", clickedDetails?.id);
+    formData.append("model_open", isOtpModal ? "4" : "2");
     if (isOtpModal) {
-      formData.append('otp', data.phone);
+      formData.append("otp", data.phone);
     }
     // formData.append('phone_no', data.phone,'(949)-200-8103');
-    formData.append('phone_no', isOtpModal ? phoneNumber : toUSPhoneFormat(data.phone));
-    formData.append('id', clickedDetails?.id);
-    formData.append('country_code', data?.countryCode);
+    formData.append(
+      "phone_no",
+      isOtpModal ? phoneNumber : toUSPhoneFormat(data.phone)
+    );
+    formData.append("id", clickedDetails?.id);
+    formData.append("country_code", data?.countryCode);
 
-    dispatch(getNotificationList(token, formData, successCallBack, false, failureCallBack));
+    dispatch(
+      getNotificationList(
+        token,
+        formData,
+        successCallBack,
+        false,
+        failureCallBack
+      )
+    );
   };
   const failureCallBack = () => {
     setIsPending(false);
@@ -147,15 +169,21 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
   useEffect(() => {
     if (open) {
       reset({
-        countryCode: '1',
-        phone: '',
+        countryCode: "1",
+        phone: "",
       });
     }
   }, [open, reset]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Change Notification Phone No. (Account No. 1146)
         <IconButton onClick={onClose}>
           <X size={24} />
@@ -165,11 +193,11 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
       <DialogContent dividers>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           {isOtpModal
-            ? 'Enter Verification Code. '
+            ? "Enter Verification Code. "
             : " Enter your phone number and we'll text you a verification code."}
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: "flex", gap: 2 }}>
           <FormControl sx={{ minWidth: 150 }} error={!!errors.countryCode}>
             <InputLabel id="country-code-label">Country</InputLabel>
             <Controller
@@ -198,7 +226,7 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
             render={({ field }) => (
               <TextField
                 {...field}
-                label={isOtpModal ? 'Otp' : 'Phone No'}
+                label={isOtpModal ? "Otp" : "Phone No"}
                 variant="outlined"
                 fullWidth
                 error={!!errors.phone}
@@ -223,8 +251,8 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
           style={{
             color: colors.blue,
             borderColor: colors.blue,
-            borderRadius: '12px',
-            height: '41px',
+            borderRadius: "12px",
+            height: "41px",
           }}
         >
           Cancel
@@ -246,11 +274,11 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
           variant="contained"
           textTransform="none"
           bgColor={colors.blue}
-          hoverBackgroundColor={colors['blue.3']}
+          hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
           style={{
-            borderRadius: '12px',
-            height: '41px',
+            borderRadius: "12px",
+            height: "41px",
             // backgroundColor: 'red',
           }}
         >

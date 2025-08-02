@@ -98,21 +98,22 @@
 // }
 
 // export default GaugeChart;
-'use client';
 
-import React from 'react';
-import dynamic from 'next/dynamic';
-import { RootState } from '@/state/store';
-import { boarderRadius } from '@/utils';
-import { Box, Card, Typography } from '@mui/material';
-import { useSelector } from 'react-redux';
+import React from "react";
+import dynamic from "next/dynamic";
+import { RootState } from "@/state/store";
+import { boarderRadius } from "@/utils";
+import { Box, Card, Typography } from "@mui/material";
+import { useSelector } from "react-redux";
 
-import { TotalProfitProps } from './total-profit';
+import { TotalProfitProps } from "./total-profit";
 
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function GaugeChart({ sx }: TotalProfitProps) {
-  const usageGraph = useSelector((state: RootState) => state?.DashBoard.usageGraph);
+  const usageGraph = useSelector(
+    (state: RootState) => state?.DashBoard.usageGraph
+  );
   const value = usageGraph?.days_meter ?? 0;
   // const value = 30;
 
@@ -166,16 +167,16 @@ export default function GaugeChart({ sx }: TotalProfitProps) {
   const options: any = {
     chart: {
       height: 280,
-      type: 'radialBar',
+      type: "radialBar",
     },
     series: [percent],
-    colors: ['#20E647'],
+    colors: ["#20E647"],
     plotOptions: {
       radialBar: {
         startAngle: -135,
         endAngle: 135,
         track: {
-          background: '#ddd',
+          background: "#ddd",
           startAngle: -135,
           endAngle: 135,
         },
@@ -184,9 +185,9 @@ export default function GaugeChart({ sx }: TotalProfitProps) {
           // value: { show: false },
           value: {
             show: true,
-            fontSize: '20px',
+            fontSize: "20px",
             fontWeight: 700,
-            color: '#111',
+            color: "#111",
             formatter: function (val: number) {
               const daysUsed = Math.round((val * 30) / 100);
               return `${daysUsed} days`;
@@ -196,27 +197,27 @@ export default function GaugeChart({ sx }: TotalProfitProps) {
       },
     },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'light',
-        type: 'horizontal',
-        gradientToColors: ['#FF0000'], // to red
+        shade: "light",
+        type: "horizontal",
+        gradientToColors: ["#FF0000"], // to red
         stops: [0, 50, 100],
         colorStops: [
-          { offset: 0, color: '#20E647', opacity: 1 }, // green
-          { offset: 50, color: '#FFD700', opacity: 1 }, // yellow
-          { offset: 100, color: '#FF0000', opacity: 1 }, // red
+          { offset: 0, color: "#20E647", opacity: 1 }, // green
+          { offset: 50, color: "#FFD700", opacity: 1 }, // yellow
+          { offset: 100, color: "#FF0000", opacity: 1 }, // red
         ],
       },
     },
-    stroke: { lineCap: 'butt' },
+    stroke: { lineCap: "butt" },
     tooltip: {
       enabled: true,
       fillSeriesColor: false,
       y: {
         formatter: (val: number) => `${Math.round((val * 30) / 100)} days `,
         title: {
-          formatter: () => 'Billing',
+          formatter: () => "Billing",
         },
       },
     },
@@ -231,7 +232,12 @@ export default function GaugeChart({ sx }: TotalProfitProps) {
       }}
     >
       <Box textAlign="center">
-        <Chart options={options} series={[percent]} type="radialBar" height={280} />
+        <Chart
+          options={options}
+          series={[percent]}
+          type="radialBar"
+          height={280}
+        />
         <Typography variant="h6" sx={{ fontWeight: 500 }} m={1}>
           {usageGraph?.days_remaining_text} Estimated days remaining to pay
         </Typography>
