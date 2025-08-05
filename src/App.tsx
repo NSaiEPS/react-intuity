@@ -19,6 +19,7 @@ import AccountPage from "./pages/dashboard/account/page";
 import StopTransferServicePage from "./pages/dashboard/stop-service/page";
 import LinkAccountPage from "./pages/dashboard/link-account/page";
 import InvoiceDetailsPage from "./pages/dashboard/invoice-details/page";
+import NotFound from "./pages/not-found";
 // import { getLoggedInUserType, getToken, USERS } from "../utils";
 
 const Authorization = ({ element }) =>
@@ -38,8 +39,8 @@ export const router = createBrowserRouter([
     element: <Authorization element={<SignInPage />} />,
   },
   {
-    // path: "/login-:company/",
-    path: "/login-RiverPark-1/",
+    path: "/:logincompany/",
+    // path: "/login-RiverPark-1/",
 
     element: <Authorization element={<SignInPage />} />,
   },
@@ -170,5 +171,9 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

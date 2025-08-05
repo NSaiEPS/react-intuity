@@ -144,19 +144,16 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <div className="projects-section-line" style={{ marginTop: "20px" }}>
-          <iframe
-            id="iFrameBA"
-            name="iFrameBA"
-            src={iframeUrlForCard}
-            scrolling="no"
-            width="500"
-            height="500"
-            frameBorder="0"
-            title="ICG Payment"
-            style={{ border: "1px solid #ccc" }}
-          ></iframe>
-        </div>
+        <iframe
+          id="iFrameBA"
+          name="iFrameBA"
+          src={iframeUrlForCard}
+          scrolling="no"
+          width="100%"
+          height="500"
+          frameBorder="0"
+          title="ICG Payment"
+        ></iframe>
       </DialogContent>
       <CustomBackdrop
         open={accountLoading}

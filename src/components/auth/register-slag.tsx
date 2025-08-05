@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { getCompanyDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
@@ -23,17 +23,18 @@ import { Logo } from "../core/logo";
 import { ResetPasswordForm } from "./reset-password-form";
 import { SignInForm } from "./sign-in-form";
 import { SignUpForm } from "./sign-up-form";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 export default function PaymentInfoSection() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { accountLoading, companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
   const location = useLocation();
   const pathname = location.pathname;
-  console.log(pathname?.split("/"), "pathnamepathname");
+
   React.useEffect(() => {
     const formData = new FormData();
 
@@ -59,6 +60,17 @@ export default function PaymentInfoSection() {
       dispatch(getCompanyDetails(formData));
     }
   }, []);
+
+  useEffect(() => {
+    if (
+      pathname !== "/login" &&
+      pathname !== "/sign-up" &&
+      pathname !== "/reset-password" &&
+      !pathname?.includes("login")
+    ) {
+      navigate("/login");
+    }
+  }, [pathname]);
   const getRequiredForms = () => {
     const pathSplit = pathname?.split("/");
     if (pathSplit[1] == "reset-password") {

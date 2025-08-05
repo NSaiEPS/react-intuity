@@ -24,6 +24,7 @@ import { useUser } from "@/hooks/use-user";
 import EmailDialog from "./confirm-email-modal";
 import PhoneModal from "./confirm-phone-modal";
 import { paths } from "@/utils/paths";
+import { useNavigate } from "react-router";
 
 export function ConfirmInfoDetails(): React.JSX.Element {
   // const router = useRouter();
@@ -33,7 +34,8 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   const { accountLoading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
-  console.log("confirminfo", confirmInfo);
+
+  const navigate = useNavigate();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -79,7 +81,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     console.log("success");
     await checkSession?.();
 
-    // router.replace(paths.dashboard.overview());
+    navigate(paths.dashboard.overview());
     // router.refresh();
   };
   return (
