@@ -134,11 +134,7 @@ export function DashboardInfo({
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  console.log(
-    dashBoardInfo,
-    dashBoardInfo?.body?.customer?.payment_method,
-    "dashBoardInfo"
-  );
+
   const { allow_auto_payment, paperless, notification_reminder } =
     dashBoardInfo?.body?.company || {};
   const [checked, setChecked] = React.useState(

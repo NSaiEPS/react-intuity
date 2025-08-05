@@ -185,8 +185,6 @@ export const updateAccountInfo: any =
         res = await updatePassword({ token, formData });
       }
 
-      console.log(res, "resres");
-
       if (res.status) {
         if (!dataRequired) {
           toast.success(
@@ -229,7 +227,7 @@ export const updatePaperLessInfo: any =
     dispatch(setAccountLoading(true));
     try {
       const res = await paperLessUpdate({ token, formData, type });
-      console.log(res, "resresddd");
+
       if (res.status) {
         toast.success(
           res?.message
@@ -327,7 +325,7 @@ export const updateVoicePreference: any =
     dispatch(setAccountLoading(true));
     try {
       const res = await updateVoicePreferenceAPi({ token, formData });
-      console.log(res, "resresddd");
+
       if (res.status) {
         toast.success(res?.message ? res?.message : "Updated Voice Preference");
 

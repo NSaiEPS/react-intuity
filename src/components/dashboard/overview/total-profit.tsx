@@ -27,7 +27,7 @@ export function TotalProfit({
   );
   const { last_bill, next_bill_days, next_bill } =
     dashBoardInfo?.body?.customer || {};
-  console.log(dashBoardInfo, "dashBoardInfo");
+
   return (
     <Card
       onClick={() => {

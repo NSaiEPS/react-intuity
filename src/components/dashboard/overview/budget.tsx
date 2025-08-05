@@ -51,7 +51,7 @@ export function Budget({
     city,
   } = dashBoardInfo?.body?.customer || {};
   const { balance } = dashBoardInfo?.body?.dashboard || {};
-  console.log(dashBoardInfo, "dashBoardInfo");
+
   React.useEffect(() => {
     type IntuityUser = {
       body?: {

@@ -20,7 +20,7 @@ export function AuthGuard({
   const navigate = useNavigate();
 
   const { user, error, isLoading } = useUser();
-  console.log(user, error, isLoading, "checking");
+
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
 
   const checkPermissions = async (): Promise<void> => {

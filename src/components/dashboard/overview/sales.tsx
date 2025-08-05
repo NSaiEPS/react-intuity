@@ -252,7 +252,7 @@ export function Sales({
   const monthlyUsageGraph = useSelector(
     (state: RootState) => state?.DashBoard?.monthlyUsageGraph
   );
-  console.log(monthlyUsageGraph, "monthlyUsageGraph");
+
   const dashboardLoader = useSelector(
     (state: RootState) => state?.DashBoard?.dashboardLoader
   );

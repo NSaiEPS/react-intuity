@@ -184,7 +184,7 @@ function NavItem({
     }
     return "intuityfe";
   }, [pathnames]);
-  console.log(slug, "slugslug");
+
   // console.log(slug, pathnames.split('/'), 'slugslug');
 
   // const hrefs = pathFun(slug);
