@@ -1,8 +1,6 @@
 import * as React from "react";
-import { Link as RouterLink } from "react-router-dom";
 
-import { colors } from "@/utils";
-import { Divider, Grid, IconButton } from "@mui/material";
+import { Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -21,10 +19,7 @@ import {
 
 // import { paths } from '@/utils/paths'
 
-import { DynamicLogo } from "@/components/core/logo";
-
 import OneTimePaymentCard from "./register-slag";
-import { paths } from "@/utils/paths";
 
 export interface LayoutProps {
   reset?: boolean;
@@ -34,7 +29,7 @@ export interface LayoutProps {
 
 export function Layout({
   reset = false,
-  children,
+
   company = false,
 }: LayoutProps): React.JSX.Element {
   return (
@@ -46,103 +41,7 @@ export function Layout({
         minHeight: "100%",
       }}
     >
-      {false ? (
-        <Box>
-          <Box
-            sx={{ display: "flex", flex: "1 1 auto", flexDirection: "column" }}
-          >
-            <Box sx={{ p: 3 }}>
-              <Box
-                component={RouterLink}
-                href={paths.home()}
-                sx={{ display: "inline-block", fontSize: 0 }}
-              >
-                <DynamicLogo
-                  colorDark="light"
-                  colorLight="dark"
-                  height={50}
-                  width={140}
-                />
-              </Box>
-            </Box>
-            <Box
-              sx={{
-                alignItems: "center",
-                display: "flex",
-                flex: "1 1 auto",
-                justifyContent: "center",
-                p: 0,
-              }}
-            >
-              <Box sx={{ maxWidth: "450px", width: "100%" }}>{children}</Box>
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              borderRadius: 2,
-              maxWidth: "65%",
-
-              mx: "auto",
-
-              // boxShadow: 3,
-
-              mt: 1,
-            }}
-          >
-            <Grid container spacing={0}>
-              <Grid item xs={12} md={6}>
-                <Stack spacing={2}>
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    style={{
-                      color: colors.blue,
-                    }}
-                  >
-                    Contact Us
-                  </Typography>
-                  <Stack spacing={1}>
-                    <Typography variant="body1">
-                      📞 &nbsp; +1 234 567 8900
-                    </Typography>
-                    <Typography variant="body1">
-                      📧 &nbsp; info@intuity.com
-                    </Typography>
-                    <Typography variant="body1">
-                      🌐 &nbsp; www.intuity.com
-                    </Typography>
-                    <Typography variant="body1">
-                      📍 &nbsp; 1234 Water Ave, Suite 100
-                      <br />
-                      &nbsp; &nbsp; &nbsp; Springfield, IL 62701
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Stack spacing={2}>
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    style={{
-                      color: colors.blue,
-                    }}
-                  >
-                    Company Details
-                  </Typography>
-                  <Typography variant="body1">
-                    VAT No.: US123456789
-                    <br />
-                    Company Reg. No.: 98765432
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      ) : (
+      {/* {false ? null : (
         <Box
           sx={{ display: "flex", flex: "1 1 auto", flexDirection: "column" }}
         >
@@ -172,7 +71,7 @@ export function Layout({
             <Box sx={{ maxWidth: "450px", width: "100%" }}>{children}</Box>
           </Box>
         </Box>
-      )}
+      )} */}
 
       {company ? (
         <OneTimePaymentCard />

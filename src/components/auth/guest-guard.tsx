@@ -2,7 +2,6 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 
-import { paths } from "@/utils/paths";
 import { logger } from "@/lib/default-logger";
 import { useUser } from "@/hooks/use-user";
 
@@ -30,7 +29,7 @@ export function GuestGuard({
     if (user) {
       console.log(user, "setIsChecking");
       logger.debug("[GuestGuard]: User is logged in, redirecting to dashboard");
-      router.replace(paths.dashboard.overview(user?.body?.alias));
+      // router.replace(paths.dashboard.overview(user?.body?.alias));
 
       return;
     }

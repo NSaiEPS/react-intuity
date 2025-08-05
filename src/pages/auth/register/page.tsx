@@ -2,7 +2,7 @@ import * as React from "react";
 
 //import { companySlugs, config } from "@/config";
 import { GuestGuard } from "@/components/auth/guest-guard";
-import { Layout } from "@/components/auth/layout";
+
 // import OneTimePaymentCard from '@/components/auth/register-slag';
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { SignInPage } from "@/components/auth/sign-in-page";
