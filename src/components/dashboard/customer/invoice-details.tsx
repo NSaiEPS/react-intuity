@@ -1,7 +1,7 @@
 // pages/invoice.js (or any component file)
 
 import * as React from "react";
-import { useParams, useSearchParams } from "next/navigation";
+
 import {
   getInvoiceDetails,
   setDashboardLoader,
@@ -11,7 +11,6 @@ import { colors, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
-  Card,
   Divider,
   Grid,
   Paper,
@@ -20,7 +19,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Typography,
 } from "@mui/material";
@@ -31,10 +29,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import Button from "@/components/CommonComponents/Button";
+import { useSearchParams } from "react-router";
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
+
   const id = searchParams.get("id");
   type IntuityUser = {
     body?: {
@@ -57,9 +57,9 @@ export default function InvoiceDetails() {
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
 
   React.useEffect(() => {
     if (!id) {
@@ -80,8 +80,7 @@ export default function InvoiceDetails() {
     company_settings,
     customer,
     unique_by_utility = {},
-    bill_unit_start,
-    bill_unit_end,
+
     last_bill = [],
     extra_params = [],
     //   } = InvoiceDetails?.body ?? {};

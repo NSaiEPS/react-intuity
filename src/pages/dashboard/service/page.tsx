@@ -1,17 +1,19 @@
-import * as React from 'react';
-import type { Metadata } from 'next';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Unstable_Grid2';
+import * as React from "react";
 
-import { companySlugs, config } from '@/config';
-import { CustomerDetailsForm } from '@/components/dashboard/service/customer-service';
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Unstable_Grid2";
 
-export const metadata = { title: `Customer - ${config.site.name}` } satisfies Metadata;
-export async function generateStaticParams() {
-  return companySlugs.map((company) => ({ company }));
-}
-export default function Page(): React.JSX.Element {
+//import { companySlugs, config } from "@/config";
+import { CustomerDetailsForm } from "@/components/dashboard/service/customer-service";
+
+//export const metadata = {
+//   title: `Customer - ${config.site.name}`,
+// } satisfies Metadata;
+// export async function generateStaticParams() {
+//   return companySlugs.map((company) => ({ company }));
+// }
+export default function CustomerServicePage(): React.JSX.Element {
   return (
     <Stack spacing={3}>
       <div>

@@ -1,22 +1,24 @@
-import * as React from 'react';
-import type { Metadata } from 'next';
-import { boarderRadius, colors } from '@/utils';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardHeader from '@mui/material/CardHeader';
-import Divider from '@mui/material/Divider';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Unstable_Grid2';
+import * as React from "react";
 
-import { companySlugs, config } from '@/config';
-import PayerTermsConditionsModal from '@/components/dashboard/customer/payer-terms-conditions-modal';
+import { boarderRadius, colors } from "@/utils";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardHeader from "@mui/material/CardHeader";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Unstable_Grid2";
 
-export const metadata = { title: `Paper Less - ${config.site.name}` } satisfies Metadata;
-export async function generateStaticParams() {
-  return companySlugs.map((company) => ({ company }));
-}
-export default function Page(): React.JSX.Element {
+//import { companySlugs, config } from "@/config";
+import PayerTermsConditionsModal from "@/components/dashboard/customer/payer-terms-conditions-modal";
+
+//export const metadata = {
+//   title: `Paper Less - ${config.site.name}`,
+// } satisfies Metadata;
+// export async function generateStaticParams() {
+//   return companySlugs.map((company) => ({ company }));
+// }
+export default function PaperLessPage(): React.JSX.Element {
   return (
     <Card
       sx={{

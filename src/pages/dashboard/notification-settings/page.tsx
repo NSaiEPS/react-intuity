@@ -1,18 +1,20 @@
-import * as React from 'react';
-import type { Metadata } from 'next';
-import { boarderRadius } from '@/utils';
-import { Card, CardHeader, Divider, Grid, Typography } from '@mui/material';
-import Stack from '@mui/material/Stack';
+import * as React from "react";
 
-import { companySlugs, config } from '@/config';
-import NotificationsSettings from '@/components/dashboard/overview/notification-settings';
-import { Notifications } from '@/components/dashboard/settings/notifications';
+import { boarderRadius } from "@/utils";
+import { Card, CardHeader, Divider, Grid, Typography } from "@mui/material";
+import Stack from "@mui/material/Stack";
 
-export const metadata = { title: `Notification Settings - ${config.site.name}` } satisfies Metadata;
-export async function generateStaticParams() {
-  return companySlugs.map((company) => ({ company }));
-}
-export default function Page(): React.JSX.Element {
+//import { companySlugs, config } from "@/config";
+import NotificationsSettings from "@/components/dashboard/overview/notification-settings";
+import { Notifications } from "@/components/dashboard/settings/notifications";
+
+//export const metadata = {
+//   title: `Notification Settings - ${config.site.name}`,
+// } satisfies Metadata;
+// export async function generateStaticParams() {
+//   return companySlugs.map((company) => ({ company }));
+// }
+export default function NotificationSettingsPage(): React.JSX.Element {
   return (
     <Card
       sx={{

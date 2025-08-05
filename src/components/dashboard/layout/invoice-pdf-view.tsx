@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Dialog,
@@ -6,7 +6,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { Question, X } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { DownloadSimple } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
@@ -14,9 +14,9 @@ import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass"
 import { Minus } from "@phosphor-icons/react/dist/ssr/Minus";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Printer } from "@phosphor-icons/react/dist/ssr/Printer";
-import { Document, Page, pdfjs } from "react-pdf";
+// import { Document, Page, pdfjs } from "react-pdf";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface PdfViewProps {
   open: boolean;
@@ -41,15 +41,15 @@ export default function PdfViewer({ fileUrl, onClose, open }: PdfViewProps) {
   };
 
   // Memoize the Document component so that it doesn't re-render unnecessarily
-  const renderDocument = useMemo(() => {
-    return (
-      <Document file={{ url: "" }} onLoadSuccess={onDocumentLoadSuccess}>
-        <Box sx={{ overflow: "auto", maxHeight: "80vh" }}>
-          <Page pageNumber={pageNumber} scale={scale} width={800} />
-        </Box>
-      </Document>
-    );
-  }, [pageNumber, scale]);
+  // const renderDocument = useMemo(() => {
+  //   return (
+  //     <Document file={{ url: "" }} onLoadSuccess={onDocumentLoadSuccess}>
+  //       <Box sx={{ overflow: "auto", maxHeight: "80vh" }}>
+  //         <Page pageNumber={pageNumber} scale={scale} width={800} />
+  //       </Box>
+  //     </Document>
+  //   );
+  // }, [pageNumber, scale]);
 
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>

@@ -275,7 +275,7 @@ export function LastBill(): React.JSX.Element {
           <Typography
             onClick={() => {
               // setPdfModal(true);
-              router.replace(
+              navigate(
                 paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id)
               );
             }}

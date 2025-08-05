@@ -1,21 +1,23 @@
-import * as React from 'react';
-import type { Metadata } from 'next';
-import { RootState } from '@/state/store';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Unstable_Grid2';
-import { useSelector } from 'react-redux';
+import * as React from "react";
 
-import { companySlugs, config } from '@/config';
-import { AccountDetailsForm } from '@/components/dashboard/account/account-details-form';
-import { AccountInfo } from '@/components/dashboard/account/account-info';
-import { NewDetailsForm } from '@/components/dashboard/account/new-details-form';
+import { RootState } from "@/state/store";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Unstable_Grid2";
+import { useSelector } from "react-redux";
 
-export const metadata = { title: `Account  - ${config.site.name}` } satisfies Metadata;
-export async function generateStaticParams() {
-  return companySlugs.map((company) => ({ company }));
-}
-export default function Page(): React.JSX.Element {
+//import { companySlugs, config } from "@/config";
+import { AccountDetailsForm } from "@/components/dashboard/account/account-details-form";
+import { AccountInfo } from "@/components/dashboard/account/account-info";
+import { NewDetailsForm } from "@/components/dashboard/account/new-details-form";
+
+//export const metadata = {
+//   title: `Account  - ${config.site.name}`,
+// } satisfies Metadata;
+// export async function generateStaticParams() {
+//   return companySlugs.map((company) => ({ company }));
+// }
+export default function AccountPage(): React.JSX.Element {
   return (
     <Stack spacing={3}>
       <div>
