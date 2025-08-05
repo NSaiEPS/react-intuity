@@ -1,5 +1,10 @@
-import { FC, useState } from "react";
+"use client";
+
+import { FC, useEffect, useState } from "react";
+import { getPaymentDetails } from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
 import { colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -20,6 +25,8 @@ import {
   Typography,
 } from "@mui/material";
 import { Question, X } from "@phosphor-icons/react";
+import { CustomBackdrop, Loader } from "nsaicomponents";
+import { useDispatch, useSelector } from "react-redux";
 
 interface AddBankAccountModalProps {
   open: boolean;
@@ -34,6 +41,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   const [accountNumber, setAccountNumber] = useState<string>("");
   const [accountType, setAccountType] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
+  const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -64,6 +72,79 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   };
 
   const openPaper = Boolean(anchorEl);
+
+  useEffect(() => {
+    // Dynamically load the external iCG script
+    const script = document.createElement("script");
+    script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Clean up when component unmounts
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  //   const iframeUrl = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=hdkmckqqCn7GdocWNo3pJsmRACgaOEjx&appSecret=CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV&custId=0007.01&saveTokenDisabled=False&firstName=Grant+Schwartz&amp;street1=150+Willin=st1&street2=203&city=ft&custom1=customtext1&amount=0.8&salesTax=0.01&entryClassCode=WEB&css=body{background:%23F5F7FA;}payment{padding:0;max-width:none;background:%23F5F7FA;border:none;box-shadow:none;color:%23515151}paymentNumber{border:1px%20solid%20%23F0ECEC;}input[type='button'],input[type='reset'],input[type='submit']{background-color:%23678FDA;font-size:14px;height:40px;border-radius:8px;border:none;}`;
+
+  //For ACH (bank account)
+  const iframeUrlForBank =
+    "https://iframe.icheckdev.com/iFrameBA.aspx?appId=hdkmckqqCn7GdocWNo3pJsmRACgaOEjx&appSecret=CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV&custId=0007.01&firstName=Grant+Schwartz&amp;street1=150+Willington+Ave+&amount=1.00&entryClassCode=WEB&saveTokenDisabled=false";
+  //For New Card adding
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event?.data?.token) {
+        handleSaveDetails(event.data);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  type IntuityUser = {
+    body?: {
+      acl_role_id?: string;
+      customer_id?: string;
+      token?: string;
+    };
+  };
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const dispatch = useDispatch();
+
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
+  const handleSaveDetails = (data) => {
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append("model_open", "1");
+    formdata.append("token", data?.token);
+    formdata.append("bank_account_number", data?.accountNumber);
+    formdata.append("routing_number", data?.routingNumber);
+    formdata.append("account_type", data?.accountType);
+
+    dispatch(
+      getPaymentDetails(stored?.body?.token, formdata, true, () => {
+        const formdata = new FormData();
+        formdata.append("acl_role_id", stored?.body?.acl_role_id);
+        formdata.append("customer_id", stored?.body?.customer_id);
+
+        dispatch(
+          getPaymentDetails(stored?.body?.token, formdata, false, onClose)
+        );
+      })
+    );
+
+    //   bank_account_number:6789
+    // routing_number:083000056
+    // account_type:Personal Checking
+  };
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ m: 0, p: 2, pl: 3 }}>
@@ -84,119 +165,29 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Box
-          sx={{
-            border: "1px solid #cfd8dc",
-            borderRadius: 1,
-            padding: 3,
-            mt: 1,
-          }}
-        >
-          {/* Help Section */}
-          <Box display="flex" alignItems="center" gap={1}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontSize: "1rem",
-                color: colors.blue,
-              }}
-            >
-              Help me find my routing/account numbers
-            </Typography>
-
-            <Tooltip
-              title={
-                <Box
-                  component="img"
-                  src="/assets/cards_image.jpeg"
-                  alt="Routing and Account Help"
-                  sx={{ width: 270 }}
-                />
-              }
-              placement="bottom"
-              arrow
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    backgroundColor: "#fff", // white background
-                    boxShadow: 3, // subtle shadow
-                    borderRadius: 2, // rounded corners
-                    p: 1, // padding inside tooltip
-                  },
-                },
-                arrow: {
-                  sx: {
-                    color: "#fff", // make the arrow white to match the background
-                  },
-                },
-              }}
-            >
-              <IconButton sx={{ p: 0 }}>
-                <Question size={20} color="#90caf9" weight="fill" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-
-          <Box display="flex" flexDirection="column" gap={2}>
-            <TextField
-              label="Routing Number"
-              variant="standard"
-              fullWidth
-              value={routingNumber}
-              onChange={(e) => setRoutingNumber(e.target.value)}
-            />
-            <TextField
-              label="Account Number"
-              variant="standard"
-              fullWidth
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-            />
-            <FormControl variant="standard" fullWidth>
-              <InputLabel id="account-type-label">Account Type</InputLabel>
-              <Select
-                labelId="account-type-label"
-                value={accountType}
-                onChange={(e) => setAccountType(e.target.value)}
-              >
-                <MenuItem value="checking">Checking</MenuItem>
-                <MenuItem value="savings">Savings</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                />
-              }
-              label={
-                <Typography variant="body2" color="text.secondary">
-                  SANDBOX - I authorize Creative Technologies - Eldorado to
-                  store and enroll the bank account indicated in this form for
-                  payment of one-time and/or auto recurring transactions for
-                  amounts due on my utility account on or before the due date. I
-                  understand that the authorization will remain in effect until
-                  I cancel it and that payments may be withdrawn from my account
-                  on the same or next banking business day after it is
-                  originated.
-                </Typography>
-              }
-              sx={{ alignItems: "flex-start" }}
-            />
-          </Box>
-        </Box>
+        <div className="projects-section-line" style={{ marginTop: "20px" }}>
+          <iframe
+            id="iFrameBA"
+            name="iFrameBA"
+            src={iframeUrlForBank}
+            scrolling="no"
+            width="500"
+            height="500"
+            frameBorder="0"
+            title="ICG Payment"
+            style={{ border: "1px solid #ccc" }}
+          ></iframe>
+        </div>
       </DialogContent>
 
-      <DialogActions sx={{ gap: 1, mb: 2, pr: 3 }}>
+      {/* <DialogActions sx={{ gap: 1, mb: 2, pr: 3 }}>
         <Button
           onClick={handleContinue}
           variant="contained"
           sx={{
             backgroundColor: colors.blue,
-            "&:hover": {
-              backgroundColor: colors["blue.3"], // or any other hover color
+            '&:hover': {
+              backgroundColor: colors['blue.3'], // or any other hover color
             },
           }}
         >
@@ -212,7 +203,13 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
         >
           Reset
         </Button>
-      </DialogActions>
+      </DialogActions> */}
+      <CustomBackdrop
+        open={accountLoading}
+        style={{ zIndex: 1300, color: "#fff" }}
+      >
+        <Loader />
+      </CustomBackdrop>
     </Dialog>
   );
 };

@@ -1,5 +1,10 @@
-import { FC, useState } from "react";
+"use client";
+
+import { FC, useEffect, useState } from "react";
+import { getPaymentDetails } from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
 import { colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -15,6 +20,8 @@ import {
   Typography,
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
+import { CustomBackdrop, Loader } from "nsaicomponents";
+import { useDispatch, useSelector } from "react-redux";
 
 interface AddCardModalProps {
   open: boolean;
@@ -27,6 +34,20 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
   const [expiryMonth, setExpiryMonth] = useState<string>("");
   const [expiryYear, setExpiryYear] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
+  const { accountLoading } = useSelector((state: RootState) => state?.Account);
+
+  type IntuityUser = {
+    body?: {
+      acl_role_id?: string;
+      customer_id?: string;
+      token?: string;
+    };
+  };
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const handleContinue = () => {
     if (!agreed) {
@@ -45,6 +66,65 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
     setAgreed(false);
   };
 
+  useEffect(() => {
+    // Dynamically load the external iCG script
+    const script = document.createElement("script");
+    script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Clean up when component unmounts
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const iframeUrlForCard =
+    "https://iframe.icheckdev.com/iFrameCC.aspx?appId=hdkmckqqCn7GdocWNo3pJsmRACgaOEjx&appSecret=CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV&custId=0007.01&firstName=Grant+Schwartz&amp;street1=150+Willington+Ave+&amount=2.00&entryClassCode=WEB&saveTokenDisabled=false";
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event?.data?.token) {
+        handleSaveDetails(event.data);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+  const dispatch = useDispatch();
+
+  const handleSaveDetails = (data) => {
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append("model_open", "1");
+    formdata.append("token", data?.token);
+    formdata.append("credit_card_number", data?.cardNumber);
+    formdata.append("card_type", data?.cardType);
+    formdata.append("expiration", data?.cardExpDate);
+
+    dispatch(
+      getPaymentDetails(stored?.body?.token, formdata, true, () => {
+        const formdata = new FormData();
+        formdata.append("acl_role_id", stored?.body?.acl_role_id);
+        formdata.append("customer_id", stored?.body?.customer_id);
+
+        dispatch(
+          getPaymentDetails(stored?.body?.token, formdata, false, onClose)
+        );
+      })
+    );
+
+    //       acl_role_id:4
+    // customer_id:810
+    // model_open:1
+    // token:5e49a2e66b31456689174ba62e8029e4
+    // credit_card_number:1111
+    // card_type:Visa
+    // expiration:1129
+  };
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ m: 0, p: 2, pl: 3 }}>
@@ -64,118 +144,26 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <Box
-          sx={{
-            border: "1px solid #cfd8dc",
-            borderRadius: 1,
-            padding: 3,
-            mt: 1,
-          }}
-        >
-          {/* Card Logos - replace with icons if needed */}
-          <Box display="flex" gap={1} mb={2}>
-            <img src="/assets/cards_image.jpeg" alt="Cards" width={140} />
-          </Box>
-
-          <Box display="flex" gap={2} mb={2}>
-            <TextField
-              label="Card Number"
-              variant="standard"
-              fullWidth
-              value={cardNumber}
-              onChange={(e) => {
-                let value = e.target.value.replace(/\D/g, ""); // remove all non-digits
-                if (value.length > 16) value = value.slice(0, 16); // limit to 16 digits
-                const parts = value.match(/.{1,4}/g); // split every 4 digits
-                setCardNumber(parts ? parts.join("-") : "");
-              }}
-            />
-            <TextField
-              label="CVV"
-              variant="standard"
-              sx={{ width: 100 }}
-              value={cvv}
-              onChange={(e) => {
-                let value = e.target.value.replace(/\D/g, "");
-                if (value.length > 3) value = value.slice(0, 3);
-                setCvv(value);
-              }}
-            />
-          </Box>
-
-          <Box mb={2}>
-            <Typography variant="subtitle1" gutterBottom>
-              Expiration
-            </Typography>
-            <Box display="flex" alignItems="center" gap={1}>
-              <TextField
-                label="MM"
-                variant="standard"
-                value={expiryMonth}
-                onChange={(e) => setExpiryMonth(e.target.value)}
-                inputProps={{ maxLength: 2 }}
-                sx={{ width: 40 }}
-              />
-              <Typography mt={4}>/</Typography>
-              <TextField
-                label="YY"
-                variant="standard"
-                value={expiryYear}
-                onChange={(e) => setExpiryYear(e.target.value)}
-                inputProps={{ maxLength: 2 }}
-                sx={{ width: 40 }}
-              />
-            </Box>
-          </Box>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-              />
-            }
-            label={
-              <Typography variant="body2" color="text.secondary">
-                Sandbox - I authorize Creative Technologies - Eldorado to store
-                and enroll the credit card indicated in this form for payment of
-                one-time and/or auto recurring transactions for amounts due on
-                my utility account on or before the due date. I understand that
-                the authorization will remain in effect until I cancel it and
-                that payments may be withdrawn from my account on the same or
-                next banking business day after it is originated.
-              </Typography>
-            }
-            sx={{ alignItems: "flex-start" }}
-          />
-        </Box>
+        <div className="projects-section-line" style={{ marginTop: "20px" }}>
+          <iframe
+            id="iFrameBA"
+            name="iFrameBA"
+            src={iframeUrlForCard}
+            scrolling="no"
+            width="500"
+            height="500"
+            frameBorder="0"
+            title="ICG Payment"
+            style={{ border: "1px solid #ccc" }}
+          ></iframe>
+        </div>
       </DialogContent>
-
-      <DialogActions sx={{ gap: 1, mb: 2, pr: 3 }}>
-        <Button
-          onClick={handleContinue}
-          variant="contained"
-          sx={{
-            backgroundColor: colors.blue,
-            "&:hover": {
-              backgroundColor: colors["blue.3"], // or any other hover color
-            },
-          }}
-        >
-          Continue
-        </Button>
-        <Button
-          onClick={handleReset}
-          variant="outlined"
-          sx={{
-            color: colors.blue,
-            borderColor: colors.blue,
-          }}
-          // sx={{ background: 'linear-gradient(to right, #43e97b, #38f9d7)' }}
-        >
-          Reset
-        </Button>
-      </DialogActions>
+      <CustomBackdrop
+        open={accountLoading}
+        style={{ zIndex: 1300, color: "#fff" }}
+      >
+        <Loader />
+      </CustomBackdrop>
     </Dialog>
   );
 };
