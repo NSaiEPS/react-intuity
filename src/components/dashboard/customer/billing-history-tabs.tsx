@@ -130,7 +130,7 @@ export default function InvoiceTransactionTabs({
                       justifyContent: "space-between",
                     }}
                   >
-                    $ {item?.balance}
+                    $ {item?.balance_due}
                     {currentTab === "invoice" && (
                       <Box
                         // onClick={() => setPdfModal(true)}

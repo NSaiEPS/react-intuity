@@ -151,6 +151,12 @@ export const paths = {
         ? `/${slug}/dashboard/invoice-details?id=${id ?? ""}`
         : `/intuityfe/dashboard/invoice-details?id=${id ?? ""}`;
     },
+    paymentDetails: (id: string, company?: string) => {
+      const slug = company ?? getCurrentCompanySlug();
+      return slug
+        ? `/${slug}/dashboard/payment-details?id=${id ?? ""}`
+        : `/intuityfe/dashboard/payment-details?id=${id ?? ""}`;
+    },
   },
   errors: {
     notFound: () => "/errors/not-found",

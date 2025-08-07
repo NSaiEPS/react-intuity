@@ -27,6 +27,7 @@ import {
 import { Question, X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface AddBankAccountModalProps {
   open: boolean;
@@ -85,19 +86,38 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
       document.body.removeChild(script);
     };
   }, []);
+  const paymentProcessorDetails = useSelector(
+    (state: RootState) => state?.Account?.paymentProcessorDetails
+  );
+  const [processorDetails, setProcessorDetails] = useState<any>({});
+  const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
 
-  //   const iframeUrl = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=hdkmckqqCn7GdocWNo3pJsmRACgaOEjx&appSecret=CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV&custId=0007.01&saveTokenDisabled=False&firstName=Grant+Schwartz&amp;street1=150+Willin=st1&street2=203&city=ft&custom1=customtext1&amount=0.8&salesTax=0.01&entryClassCode=WEB&css=body{background:%23F5F7FA;}payment{padding:0;max-width:none;background:%23F5F7FA;border:none;box-shadow:none;color:%23515151}paymentNumber{border:1px%20solid%20%23F0ECEC;}input[type='button'],input[type='reset'],input[type='submit']{background-color:%23678FDA;font-size:14px;height:40px;border-radius:8px;border:none;}`;
-
-  //For ACH (bank account)
-  const iframeUrlForBank =
-    "https://iframe.icheckdev.com/iFrameBA.aspx?appId=hdkmckqqCn7GdocWNo3pJsmRACgaOEjx&appSecret=CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV&custId=0007.01&firstName=Grant+Schwartz&amp;street1=150+Willington+Ave+&amount=1.00&entryClassCode=WEB&saveTokenDisabled=false";
-  //For New Card adding
+  useEffect(() => {
+    if (paymentProcessorDetails?.current_processor?.length > 0) {
+      let details =
+        paymentProcessorDetails[
+          paymentProcessorDetails?.current_processor[0]?.config_value
+        ]?.[0]?.config_value;
+      setProcessorDetails(JSON.parse(details));
+    }
+  }, [paymentProcessorDetails]);
+  const CustomerInfo: any = dashBoardInfo?.body?.customer
+    ? dashBoardInfo?.body?.customer
+    : getLocalStorage("intuity-customerInfo");
+  const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
 
   useEffect(() => {
     const handleMessage = (event) => {
-      if (event?.data?.token) {
+      if (event?.data?.custId) {
         handleSaveDetails(event.data);
       }
+      // if (event.origin !== 'https://iframe.icheckdev.com') return; // or use production origin
+
+      // // Check the message format
+      // if (event.data && typeof event.data === 'string') {
+      //
+      //   // Optional: Store in state
+      // }
     };
 
     window.addEventListener("message", handleMessage);
@@ -120,6 +140,13 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const handleSaveDetails = (data) => {
+    if (data?.error) {
+      toast.error(
+        data?.error ? data?.error : "Try again something went wrong!"
+      );
+
+      return;
+    }
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
@@ -175,7 +202,6 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
             height="500"
             frameBorder="0"
             title="ICG Payment"
-            style={{ border: "1px solid #ccc" }}
           ></iframe>
         </div>
       </DialogContent>

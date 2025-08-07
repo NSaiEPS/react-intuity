@@ -1,27 +1,13 @@
-"use client";
-
 import { FC, useEffect, useState } from "react";
 import { getPaymentDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+
 import { getLocalStorage } from "@/utils/auth";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
-  IconButton,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import { X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 interface AddCardModalProps {
   open: boolean;
@@ -79,14 +65,39 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
     };
   }, []);
 
-  const iframeUrlForCard =
-    "https://iframe.icheckdev.com/iFrameCC.aspx?appId=hdkmckqqCn7GdocWNo3pJsmRACgaOEjx&appSecret=CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV&custId=0007.01&firstName=Grant+Schwartz&amp;street1=150+Willington+Ave+&amount=2.00&entryClassCode=WEB&saveTokenDisabled=false";
+  const paymentProcessorDetails = useSelector(
+    (state: RootState) => state?.Account?.paymentProcessorDetails
+  );
+  const [processorDetails, setProcessorDetails] = useState<any>({});
+  const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
+
+  useEffect(() => {
+    if (paymentProcessorDetails?.current_processor?.length > 0) {
+      let details =
+        paymentProcessorDetails[
+          paymentProcessorDetails?.current_processor[0]?.config_value
+        ]?.[0]?.config_value;
+      setProcessorDetails(JSON.parse(details));
+    }
+  }, [paymentProcessorDetails]);
+  const CustomerInfo: any = dashBoardInfo?.body?.customer
+    ? dashBoardInfo?.body?.customer
+    : getLocalStorage("intuity-customerInfo");
+
+  const iframeUrlForCard = `https://iframe.icheckdev.com/iFrameCC.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
 
   useEffect(() => {
     const handleMessage = (event) => {
-      if (event?.data?.token) {
+      if (event?.data?.custId) {
         handleSaveDetails(event.data);
       }
+      // if (event.origin !== 'https://iframe.icheckdev.com') return; // or use production origin
+
+      // // Check the message format
+      // if (event.data && typeof event.data === 'string') {
+      //
+      //   // Optional: Store in state
+      // }
     };
 
     window.addEventListener("message", handleMessage);
@@ -96,6 +107,13 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
 
   const handleSaveDetails = (data) => {
+    if (data?.error) {
+      toast.error(
+        data?.error ? data?.error : "Try again something went wrong!"
+      );
+
+      return;
+    }
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
@@ -144,16 +162,18 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <iframe
-          id="iFrameBA"
-          name="iFrameBA"
-          src={iframeUrlForCard}
-          scrolling="no"
-          width="100%"
-          height="500"
-          frameBorder="0"
-          title="ICG Payment"
-        ></iframe>
+        <div className="projects-section-line" style={{ marginTop: "20px" }}>
+          <iframe
+            id="iFrameBA"
+            name="iFrameBA"
+            src={iframeUrlForCard}
+            scrolling="no"
+            width="500"
+            height="500"
+            frameBorder="0"
+            title="ICG Payment"
+          ></iframe>
+        </div>
       </DialogContent>
       <CustomBackdrop
         open={accountLoading}

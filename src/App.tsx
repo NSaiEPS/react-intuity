@@ -22,6 +22,7 @@ import StopTransferServicePage from "./pages/dashboard/stop-service/page";
 import LinkAccountPage from "./pages/dashboard/link-account/page";
 import InvoiceDetailsPage from "./pages/dashboard/invoice-details/page";
 import NotFound from "./pages/not-found";
+import PaymentDetailsPage from "./pages/dashboard/payment-details/page";
 // import { getLoggedInUserType, getToken, USERS } from "../utils";
 
 export const router = createBrowserRouter([
@@ -166,6 +167,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <InvoiceDetailsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "payment-details",
+        element: (
+          <ProtectedRoute>
+            <PaymentDetailsPage />
           </ProtectedRoute>
         ),
       },

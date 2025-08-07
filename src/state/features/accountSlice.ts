@@ -6,8 +6,10 @@ import {
   getCompanyDetailsApi,
   getConfirmInfoApi,
   getPaymentDetailsApi,
+  getPaymentProcessorDetailsAPI,
   listAnotherAccountAPI,
   paperLessUpdate,
+  paymentWithoutSavingDetailsAPI,
   registerApi,
   transferService,
   updatePassword,
@@ -17,7 +19,7 @@ import {
 } from "@/api/dashboard";
 import { clearLocalStorage } from "@/utils/auth";
 import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+
 import { toast } from "react-toastify";
 
 type Users = {};
@@ -32,6 +34,7 @@ interface DahBoardState {
   confirmInfo: any;
   companyInfo: any;
   usageAlerts: any;
+  paymentProcessorDetails: any;
 }
 
 const initialState = {
@@ -44,6 +47,7 @@ const initialState = {
   confirmInfo: {},
   usageAlerts: {},
   userInfo: {},
+  paymentProcessorDetails: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -75,6 +79,9 @@ const AccountSlice = createSlice({
     setUserInfo(state, action) {
       state.userInfo = action.payload;
     },
+    setPaymentProcessorDetails(state, action) {
+      state.paymentProcessorDetails = action.payload;
+    },
   },
 });
 
@@ -87,6 +94,7 @@ export const {
   setCompanyInfo,
   setUsageAlerts,
   setUserInfo,
+  setPaymentProcessorDetails,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;
@@ -262,7 +270,6 @@ export const getPaymentDetails: any =
     try {
       const res = await getPaymentDetailsApi({ token, formData });
 
-      console.log(res, "getPaymentDetails");
       if (res?.status) {
         if (successCallBack) {
           successCallBack();
@@ -523,6 +530,66 @@ export const getUsageAlerts: any =
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Something went wrong!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const paymentWithoutSavingDetails: any =
+  (token, formData, isPost = false, successCallBack) =>
+  async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await paymentWithoutSavingDetailsAPI({ token, formData });
+
+      if (res?.status) {
+        if (successCallBack) {
+          successCallBack();
+        }
+
+        toast.success(res?.message ? res?.message : "Payment SuccessFull!");
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+        if (isPost) {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const getPaymentProcessorDetails: any =
+  (token, formData, isPost = false, successCallBack) =>
+  async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await getPaymentProcessorDetailsAPI({ token, formData });
+
+      if (res?.status) {
+        if (successCallBack) {
+          successCallBack();
+        }
+
+        dispatch(setPaymentProcessorDetails(res?.body));
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+        if (isPost) {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
     } finally {
       dispatch(setAccountLoading(false));
     }

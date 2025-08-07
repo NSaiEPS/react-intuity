@@ -13,6 +13,10 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
+import { paths } from "@/utils/paths";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
+import { useNavigate } from "react-router";
 
 interface PaymentModalProps {
   open: boolean;
@@ -31,9 +35,16 @@ export function PaymentModal({
     setPaymentOption(event.target.value as "payNow" | "schedule");
   };
 
+  const lastBillInfo = useSelector(
+    (state: RootState) => state?.Payment?.lastBillInfo
+  );
+  const navigate = useNavigate();
+
   const handleProceed = (): void => {
     // Proceed with the selected payment option
     onClose();
+
+    navigate(paths.dashboard.paymentDetails(lastBillInfo?.last_bill?.id));
   };
 
   return (

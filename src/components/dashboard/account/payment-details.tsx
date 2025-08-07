@@ -1,0 +1,504 @@
+import React, { useEffect, useState } from "react";
+
+import {
+  getPaymentProcessorDetails,
+  paymentWithoutSavingDetails,
+} from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
+import { colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Box,
+  Button,
+  Dialog,
+  FormControlLabel,
+  Paper,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { CustomBackdrop, Loader } from "nsaicomponents";
+import { Controller, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { z as zod } from "zod";
+
+// Correct hook for App Router
+
+import { PaymentMethods } from "../customer/payment-methods";
+import { useNavigate, useSearchParams } from "react-router";
+import { paths } from "@/utils/paths";
+
+const schema = zod.object({
+  name: zod.string().min(1, "Name is required"),
+  email: zod.string().email("Invalid email"),
+  amount: zod.string().min(1, "Amount is required"),
+});
+
+type FormData = zod.infer<typeof schema>;
+
+const PaymentForm = () => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+    reset,
+    watch,
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      amount: "",
+    },
+  });
+
+  const [paymentType, setPaymentType] = useState<"saved" | "no-save">("saved");
+  const [debitType, setDebitType] = useState<"card" | "bank_account">("card");
+  console.log(debitType, "debitType");
+  const onSubmit = (data: FormData) => {
+    console.log({ ...data, paymentType });
+  };
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+  const accountLoading = useSelector(
+    (state: RootState) => state?.Account.accountLoading
+  );
+
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const naviate = useNavigate();
+
+  const paymentProcessorDetails = useSelector(
+    (state: RootState) => state?.Account?.paymentProcessorDetails
+  );
+  const [processorDetails, setProcessorDetails] = useState<any>({});
+
+  useEffect(() => {
+    if (paymentProcessorDetails?.current_processor?.length > 0) {
+      let details =
+        paymentProcessorDetails[
+          paymentProcessorDetails?.current_processor[0]?.config_value
+        ]?.[0]?.config_value;
+      setProcessorDetails(JSON.parse(details));
+    }
+  }, [paymentProcessorDetails]);
+  const CustomerInfo: any = dashBoardInfo?.body?.customer
+    ? dashBoardInfo?.body?.customer
+    : getLocalStorage("intuity-customerInfo");
+  console.log(CustomerInfo, "CustomerInfo");
+  const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${
+    processorDetails?.app_id
+  }&appSecret=${processorDetails?.app_secret}&custId=${
+    CustomerInfo?.acctnum
+  }&firstName=${watch("name") ?? CustomerInfo?.customer_name}&email=${watch(
+    "email"
+  )}&amp;street1=${
+    CustomerInfo?.customer_nameaddress
+  }+&amount=1.00&entryClassCode=WEB&saveTokenDisabled=false`;
+  //For New Card adding
+  const iframeUrlForCard = `https://iframe.icheckdev.com/iFrameCC.aspx?appId=${
+    processorDetails?.app_id
+  }&appSecret=${processorDetails?.app_secret}&custId=${
+    CustomerInfo?.acctnum
+  }&firstName=${watch("name") ?? CustomerInfo?.customer_name}&email=${watch(
+    "email"
+  )}&amp;street1=${
+    CustomerInfo?.customer_nameaddress
+  }+&amount=2.00&entryClassCode=WEB&saveTokenDisabled=false`;
+
+  type IntuityUser = {
+    body?: {
+      acl_role_id?: string;
+      customer_id?: string;
+      token?: string;
+    };
+  };
+
+  // const linkedUsersInfoStored = getLocalStorage('linked-customerInfo');
+  // let linkedUsersInfo = dashBoardInfo?.body?.linked_customers || linkedUsersInfoStored || [];
+
+  // useEffect(() => {
+  //   if (linkedUsersInfo?.length > 0 && stored?.body?.customer_id) {
+  //     let currentUserInfo = linkedUsersInfo?.filter((account) => {
+  //       if (stored?.body?.customer_id == account?.link_customer_id) {
+  //         return account;
+  //       }
+  //     });
+  //     console.log(currentUserInfo, 'currentUserInfo');
+  //   }
+  // }, [linkedUsersInfo]);
+
+  useEffect(() => {
+    if (CustomerInfo?.acctnum) {
+      setValue("name", CustomerInfo?.customer_name);
+      setValue("email", CustomerInfo?.email);
+      setValue("amount", "100.00");
+    }
+    if (CustomerInfo?.company_id) {
+      const formdata = new FormData();
+      formdata.append("acl_role_id", stored?.body?.acl_role_id);
+      formdata.append("company_id", CustomerInfo?.company_id);
+      dispatch(
+        getPaymentProcessorDetails(stored?.body?.token, formdata, false)
+      );
+    }
+  }, [CustomerInfo]);
+
+  const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+
+  const id = searchParams.get("id");
+
+  const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
+
+  useEffect(() => {
+    // Dynamically load the external iCG script
+
+    if (paymentType === "no-save") {
+      // Skip loading script if saved payment method is selected
+      const script = document.createElement("script");
+      script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        // Clean up when component unmounts
+        document.body.removeChild(script);
+      };
+    }
+  }, [paymentType]);
+  // useEffect(() => {
+  //   if (linkedAccountsInfo?.id) {
+  //     const formdata = new FormData();
+  //     formdata.append('acl_role_id', stored?.body?.acl_role_id);
+  //     formdata.append('company_id', linkedAccountsInfo?.id);
+
+  //     dispatch(getPaymentProcessorDetails(stored?.body?.token, formdata, false));
+  //   }
+  // }, [linkedAccountsInfo]);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event?.data?.custId) {
+        console.log(event?.data);
+        handleSaveDetails(event.data, debitType);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, [debitType]);
+
+  const handleSaveDetails = (data, debitType) => {
+    if (data?.error) {
+      toast.error(
+        data?.error ? data?.error : "Try again something went wrong!"
+      );
+
+      return;
+    }
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append("is_one_time", "1");
+    formdata.append("id", id);
+
+    formdata.append("pay_payment_method", "pay_unsave_method");
+    formdata.append("payment_method_id_radio", debitType);
+    formdata.append("is_card", debitType === "card" ? "1" : "0");
+
+    //for card
+    if (debitType === "card") {
+      formdata.append("credit_card_number", data?.cardNumber);
+      formdata.append("card_type", data?.cardType);
+      formdata.append("expiration", data?.cardExpDate);
+      formdata.append("is_card_one_time", "1");
+    }
+    if (debitType == "bank_account") {
+      formdata.append("bank_account_number", data?.accountNumber);
+      formdata.append("routing_number", data?.routingNumber);
+      // formdata.append('account_type', data?.accountType);
+      formdata.append(
+        "account_type",
+        data?.accountType === "PC"
+          ? "Personal Checking"
+          : data?.accountType === "PS"
+          ? "Personal Savings"
+          : data?.accountType === "BC"
+          ? "Business Checking"
+          : data?.accountType === "BS"
+          ? "Business Savings"
+          : data?.accountType === "GL"
+          ? "General Ledger"
+          : " Other"
+      );
+    }
+    formdata.append("token", data?.token);
+
+    formdata.append("convenienceFee", "0.07");
+    formdata.append("payment_method", "0");
+    formdata.append("price", "2.00");
+
+    // "id:26286
+    // acl_role_id:4
+    // customer_id:810
+    // is_one_time:1
+    // pay_payment_method:pay_unsave_method
+    // payment_method_id_radio:card
+    // is_card:1
+    // credit_card_number:1111
+    // is_card_one_time:1
+    // card_type:Visa
+    // expiration:1129
+    // token:a2697ab75ae347218993e7b0c77f4aa0
+    // convenienceFee:0.07
+    // payment_method:0
+    // price:2.00"
+
+    //     "id:26286
+    // acl_role_id:4
+    // customer_id:810
+    // is_one_time:1
+    // pay_payment_method:pay_unsave_method
+    // payment_method_id_radio:bank_account
+    // is_card:0
+    // bank_account_number:0000
+    // is_card_one_time:1
+    // account_type:Personal Savings
+    // token:ec00452005c045ac89051e8de884da19
+    // convenienceFee:2.95
+    // payment_method:0
+    // price:3.00"
+
+    dispatch(
+      paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
+        // console.log('Payment details saved successfully!'); // Handle success
+        naviate(paths.dashboard.payNow());
+      })
+    );
+  };
+  return (
+    <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Section Title + Link */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h6" color="text.secondary">
+            Name/Email For Payment Receipt
+          </Typography>
+
+          <Typography
+            sx={{
+              mt: 1,
+              fontSize: 14,
+              color: colors.blue,
+              ":hover": {
+                cursor: "pointer",
+              },
+            }}
+            onClick={() => setOpenPaymentModal(true)}
+          >
+            💳 PAYMENT METHODS
+          </Typography>
+        </Box>
+
+        {/* Name & Email */}
+        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <Box flex={1}>
+            <Typography fontWeight={600}>Name</Typography>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  size="small"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              )}
+            />
+          </Box>
+
+          <Box flex={1}>
+            <Typography fontWeight={600}>Email</Typography>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  size="small"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+              )}
+            />
+          </Box>
+        </Box>
+
+        {/* Amount */}
+        <Box sx={{ mb: 2 }}>
+          <Typography fontWeight={600}>Amount to pay</Typography>
+          <Controller
+            name="amount"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                size="small"
+                type="number"
+                error={!!errors.amount}
+                helperText={errors.amount?.message}
+                InputProps={{
+                  startAdornment: <span style={{ marginRight: 4 }}>$</span>,
+                }}
+              />
+            )}
+          />
+          <Typography sx={{ mt: 1, fontSize: 14, color: colors.blue }}>
+            Additional convenience Fee: $3.50
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: colors.blue }}>
+            Total Payment: $103.50
+          </Typography>
+        </Box>
+
+        {/* Payment Method Option */}
+        <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
+          <RadioGroup
+            value={paymentType}
+            onChange={(e) =>
+              setPaymentType(e.target.value as "saved" | "no-save")
+            }
+          >
+            <FormControlLabel
+              value="saved"
+              control={<Radio />}
+              label="Pay with a saved payment method"
+            />
+            <FormControlLabel
+              value="no-save"
+              control={<Radio />}
+              label="Pay without saving a payment method"
+            />
+          </RadioGroup>
+        </Box>
+
+        {/* Saved Card Info Block (only show if saved method selected) */}
+        {paymentType === "saved" ? (
+          <>
+            <Box
+              component={Paper}
+              variant="outlined"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                p: 2,
+                mb: 3,
+                backgroundColor: "#f3f9fd",
+              }}
+            >
+              <FormControlLabel
+                value="visa"
+                control={<Radio checked />}
+                label="Visa"
+              />
+              <Typography>************1111</Typography>
+              <Typography>Card</Typography>
+              <Typography>05/04/2022 01:23</Typography>
+            </Box>
+            {/* Confirm Button */}
+            <Button
+              onClick={() => {}}
+              variant="contained"
+              sx={{
+                mt: 3,
+                mb: 1,
+                px: 4,
+                fontWeight: "bold",
+
+                backgroundColor: colors.blue,
+                "&:hover": {
+                  backgroundColor: colors["blue.3"], // or any other hover color
+                },
+              }}
+            >
+              CONFIRM PAYMENT
+            </Button>
+          </>
+        ) : (
+          <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
+            <RadioGroup
+              row
+              value={debitType}
+              onChange={(e) =>
+                setDebitType(e.target.value as "card" | "bank_account")
+              }
+            >
+              <FormControlLabel
+                value="card"
+                control={<Radio />}
+                label="Credit Card"
+              />
+              <FormControlLabel
+                value="bank_account"
+                control={<Radio />}
+                label="Bank Account"
+              />
+            </RadioGroup>
+          </Box>
+        )}
+      </form>
+      {paymentType === "no-save" && (
+        <div className="projects-section-line" style={{ marginTop: "20px" }}>
+          <iframe
+            id="iFrameBA"
+            name="iFrameBA"
+            src={debitType == "card" ? iframeUrlForCard : iframeUrlForBank}
+            scrolling="no"
+            width="500"
+            height="500"
+            frameBorder="0"
+            title="ICG Payment"
+          ></iframe>
+        </div>
+      )}
+
+      <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
+        <PaymentMethods
+          onClose={() => {
+            setOpenPaymentModal(false);
+          }}
+          isModal={true}
+          count={10}
+          page={1}
+          rows={[]}
+          rowsPerPage={10}
+        />
+      </Dialog>
+      <CustomBackdrop
+        open={accountLoading}
+        style={{ zIndex: 1300, color: "#fff" }}
+      >
+        <Loader />
+      </CustomBackdrop>
+    </Box>
+  );
+};
+
+export default PaymentForm;
