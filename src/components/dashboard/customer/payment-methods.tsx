@@ -129,14 +129,14 @@ const CardRow = React.memo(function CardRow({
   );
 });
 
-export function PaymentMethods({
+export const PaymentMethods = ({
   rows = [],
   isModal = false,
   onClose,
   accountInfo = false,
   onSaveCardDetails,
   paymentDetailsPage = false,
-}: CustomersTableProps): React.JSX.Element {
+}: CustomersTableProps): React.JSX.Element => {
   const dispatch = useDispatch();
   const { accountLoading, paymentMethodInfoCards } = useSelector(
     (state: RootState) => state?.Account
@@ -442,4 +442,4 @@ export function PaymentMethods({
       </CustomBackdrop>
     </Grid>
   );
-}
+};

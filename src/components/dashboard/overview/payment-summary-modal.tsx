@@ -75,7 +75,7 @@ export default function PaymentSummaryModal({
             alignItems="center"
           >
             <Typography variant="body1">{cardType}</Typography>
-            <Typography variant="body1">{cardLast4}</Typography>
+            <Typography variant="body1">{"************1111"}</Typography>
           </Stack>
         </Box>
 

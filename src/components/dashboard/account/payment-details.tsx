@@ -29,13 +29,15 @@ import { z as zod } from "zod";
 
 // Correct hook for App Router
 
-import { PaymentMethods } from "../customer/payment-methods";
+// const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
+
 import { useNavigate, useSearchParams } from "react-router";
 import { paths } from "@/utils/paths";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import PaymentSummaryModal from "../overview/payment-summary-modal";
+import { PaymentMethods } from "../customer/payment-methods";
 
 // Register plugins
 dayjs.extend(utc);
@@ -335,6 +337,9 @@ const PaymentForm = () => {
     formdata.append("payment_method_id_radio", "card");
     formdata.append("is_card", "0");
     formdata.append("is_card_one_time", "0");
+    if (paymentMethodInfoCards?.bank_account_number) {
+      formdata.append("is_bank_account_payment_method_form", "1");
+    }
     //for bank
     // is_bank_account_payment_method_form:1"
 
@@ -488,9 +493,15 @@ const PaymentForm = () => {
                 <FormControlLabel
                   value="visa"
                   control={<Radio checked />}
-                  label={paymentMethodInfoCards?.card_type}
+                  label={
+                    paymentMethodInfoCards?.card_type ??
+                    paymentMethodInfoCards?.account_type
+                  }
                 />
-                <Typography>{paymentMethodInfoCards?.card_number}</Typography>
+                <Typography>
+                  {paymentMethodInfoCards?.card_number ??
+                    paymentMethodInfoCards?.bank_account_number}
+                </Typography>
                 <Typography>
                   {paymentMethodInfoCards?.card_number
                     ? "Card"
@@ -566,21 +577,22 @@ const PaymentForm = () => {
           ></iframe>
         </div>
       )}
-
-      <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
-        <PaymentMethods
-          onClose={() => {
-            setOpenPaymentModal(false);
-          }}
-          isModal={true}
-          count={10}
-          page={1}
-          rows={[]}
-          rowsPerPage={10}
-          onSaveCardDetails={onSaveCardDetails}
-          paymentDetailsPage={true}
-        />
-      </Dialog>
+      {openPaymentModal && (
+        <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
+          <PaymentMethods
+            onClose={() => {
+              setOpenPaymentModal(false);
+            }}
+            isModal={true}
+            count={10}
+            page={1}
+            rows={[]}
+            rowsPerPage={10}
+            onSaveCardDetails={onSaveCardDetails}
+            paymentDetailsPage={true}
+          />
+        </Dialog>
+      )}
       {showPaymentSummary && (
         <PaymentSummaryModal
           open={showPaymentSummary}
@@ -588,8 +600,11 @@ const PaymentForm = () => {
           onPay={handlePay}
           amount={10.0}
           fee={0.35}
-          cardType={paymentMethodInfoCards?.card_type || "Card"}
-          cardLast4={paymentMethodInfoCards?.card_number}
+          cardType={paymentMethodInfoCards?.card_type || "Bank Account"}
+          cardLast4={
+            paymentMethodInfoCards?.card_number ??
+            paymentMethodInfoCards?.bank_account_number
+          }
         />
       )}
       <CustomBackdrop
