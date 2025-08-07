@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
+  getPaymentDetails,
   getPaymentProcessorDetails,
   paymentWithoutSavingDetails,
   saveDefaultPaymentMethod,
@@ -31,7 +32,13 @@ import { z as zod } from "zod";
 import { PaymentMethods } from "../customer/payment-methods";
 import { useNavigate, useSearchParams } from "react-router";
 import { paths } from "@/utils/paths";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
+// Register plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
 const schema = zod.object({
   name: zod.string().min(1, "Name is required"),
   email: zod.string().email("Invalid email"),
@@ -77,8 +84,21 @@ const PaymentForm = () => {
   const paymentProcessorDetails = useSelector(
     (state: RootState) => state?.Account?.paymentProcessorDetails
   );
-  const [processorDetails, setProcessorDetails] = useState<any>({});
+  const paymentMethodInfoCards = useSelector(
+    (state: RootState) => state?.Account?.selectedCardInfo
+  );
 
+  const [processorDetails, setProcessorDetails] = useState<any>({});
+  const paymentDetails = () => {
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+
+    dispatch(getPaymentDetails(stored?.body?.token, formdata));
+  };
+  React.useEffect(() => {
+    paymentDetails();
+  }, [stored]);
   useEffect(() => {
     if (paymentProcessorDetails?.current_processor?.length > 0) {
       const details =
@@ -294,7 +314,7 @@ const PaymentForm = () => {
     dispatch(
       saveDefaultPaymentMethod(stored?.body?.token, formdata, true, () => {
         setOpenPaymentModal(false);
-
+        paymentDetails();
         console.log("Payment details saved successfully!"); // Handle success
         // naviate(paths.dashboard.payNow());
       })
@@ -417,47 +437,64 @@ const PaymentForm = () => {
 
         {/* Saved Card Info Block (only show if saved method selected) */}
         {paymentType === "saved" ? (
-          <>
-            <Box
-              component={Paper}
-              variant="outlined"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                p: 2,
-                mb: 3,
-                backgroundColor: "#f3f9fd",
-              }}
-            >
-              <FormControlLabel
-                value="visa"
-                control={<Radio checked />}
-                label="Visa"
-              />
-              <Typography>************1111</Typography>
-              <Typography>Card</Typography>
-              <Typography>05/04/2022 01:23</Typography>
-            </Box>
-            {/* Confirm Button */}
-            <Button
-              onClick={() => {}}
-              variant="contained"
-              sx={{
-                mt: 3,
-                mb: 1,
-                px: 4,
-                fontWeight: "bold",
+          paymentMethodInfoCards?.id ? (
+            <>
+              <Box
+                component={Paper}
+                variant="outlined"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  p: 2,
+                  mb: 3,
+                  backgroundColor: "#f3f9fd",
+                }}
+              >
+                <FormControlLabel
+                  value="visa"
+                  control={<Radio checked />}
+                  label={paymentMethodInfoCards?.card_type}
+                />
+                <Typography>{paymentMethodInfoCards?.card_number}</Typography>
+                <Typography>
+                  {paymentMethodInfoCards?.card_number
+                    ? "Card"
+                    : "Bank Account"}
+                </Typography>
+                <Typography>
+                  {/* {paymentMethodInfoCards?.date_used} */}
 
-                backgroundColor: colors.blue,
-                "&:hover": {
-                  backgroundColor: colors["blue.3"], // or any other hover color
-                },
-              }}
-            >
-              CONFIRM PAYMENT
-            </Button>
-          </>
+                  {dayjs
+                    .tz(paymentMethodInfoCards?.date_used, "America/Chicago") // or whichever US timezone server uses
+                    .tz(dayjs.tz.guess()) // convert to user's local time
+                    .format("YYYY-MM-DD hh:mm A z")}
+                </Typography>
+              </Box>
+              {/* Confirm Button */}
+              <Button
+                onClick={() => {}}
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 1,
+                  px: 4,
+                  fontWeight: "bold",
+
+                  backgroundColor: colors.blue,
+                  "&:hover": {
+                    backgroundColor: colors["blue.3"], // or any other hover color
+                  },
+                }}
+              >
+                CONFIRM PAYMENT
+              </Button>
+            </>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              No saved payment methods available. Please add a payment method.
+            </Typography>
+          )
         ) : (
           <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
             <RadioGroup
@@ -507,6 +544,7 @@ const PaymentForm = () => {
           rows={[]}
           rowsPerPage={10}
           onSaveCardDetails={onSaveCardDetails}
+          paymentDetailsPage={true}
         />
       </Dialog>
       <CustomBackdrop

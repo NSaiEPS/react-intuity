@@ -28,13 +28,17 @@ import {
 import { Trash, X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 import { useSelection } from "@/hooks/use-selection";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 import AddBankAccountModal from "./add-bank-modal";
 import AddCardModal from "./add-card-modal";
-
+dayjs.extend(utc);
+dayjs.extend(timezone);
 export interface CardDetails {
   name: string;
   number: string;
@@ -97,7 +101,13 @@ const CardRow = React.memo(function CardRow({
       </TableCell>
       <TableCell>{row.number}</TableCell>
       <TableCell>{row.type}</TableCell>
-      <TableCell>{formatToMMDDYYYY(row.createdAt, true)}</TableCell>
+      {/* <TableCell>{formatToMMDDYYYY(row.createdAt, true)}</TableCell> */}
+      <TableCell>
+        {dayjs
+          .tz(row.createdAt, "America/Chicago") // or whichever US timezone server uses
+          .tz(dayjs.tz.guess()) // convert to user's local time
+          .format("YYYY-MM-DD hh:mm A z")}
+      </TableCell>
       <TableCell>
         <Button
           sx={{
@@ -124,6 +134,7 @@ export function PaymentMethods({
   onClose,
   accountInfo = false,
   onSaveCardDetails,
+  paymentDetailsPage = false,
 }: CustomersTableProps): React.JSX.Element {
   const dispatch = useDispatch();
   const { accountLoading, paymentMethodInfoCards } = useSelector(
@@ -154,8 +165,9 @@ export function PaymentMethods({
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
-
-    dispatch(getPaymentDetails(stored?.body?.token, formdata));
+    if (!paymentDetailsPage) {
+      dispatch(getPaymentDetails(stored?.body?.token, formdata));
+    }
   }, [dispatch]);
   const handleSaveDetails = () => {
     if (onSaveCardDetails) {

@@ -36,6 +36,7 @@ interface DahBoardState {
   companyInfo: any;
   usageAlerts: any;
   paymentProcessorDetails: any;
+  selectedCardInfo: any;
 }
 
 const initialState = {
@@ -49,6 +50,7 @@ const initialState = {
   usageAlerts: {},
   userInfo: {},
   paymentProcessorDetails: {},
+  selectedCardInfo: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -68,6 +70,11 @@ const AccountSlice = createSlice({
       // state.paymentMethodInfo = action.payload;
       state.paymentMethodInfoCards = action.payload;
     },
+    setSelectedCardInfo(state, action) {
+      // state.paymentMethodInfo = action.payload;
+      state.selectedCardInfo = action.payload;
+    },
+
     setConfirmInfo(state, action) {
       state.confirmInfo = action.payload;
     },
@@ -91,6 +98,7 @@ export const {
   setAccountLoading,
   setTransferInfo,
   setPaymentMethodInfo,
+  setSelectedCardInfo,
   setConfirmInfo,
   setCompanyInfo,
   setUsageAlerts,
@@ -277,6 +285,7 @@ export const getPaymentDetails: any =
         }
         if (!isPost) {
           dispatch(setPaymentMethodInfo(res?.body?.mycards));
+          dispatch(setSelectedCardInfo(res?.body?.selected_card));
         } else {
           toast.success(res?.message ? res?.message : "Payment method saved!");
         }

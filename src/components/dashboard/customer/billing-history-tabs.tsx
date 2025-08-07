@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   Box,
   Card,
@@ -18,9 +19,14 @@ import {
 } from "@mui/material";
 import { FileText, Minus, Plus } from "@phosphor-icons/react";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
 import { paths } from "@/utils/paths";
 
+// Register plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
 const TABS = [
   { label: "Invoice", value: "invoice" },
   { label: "Transaction", value: "transaction" },
@@ -105,7 +111,11 @@ export default function InvoiceTransactionTabs({
                 <TableCell>
                   {currentTab === "invoice"
                     ? dayjs(item?.billing_date).format("MMM D, YYYY")
-                    : dayjs(item?.transaction_date).format("MMM D, YYYY")}
+                    : dayjs
+                        .tz(item.transaction_date, "America/Chicago") // or whichever US timezone server uses
+                        .tz(dayjs.tz.guess()) // convert to user's local time
+                        .format("YYYY-MM-DD hh:mm A z")}
+                  {/* // dayjs(item?.transaction_date).format('MMM D, YYYY')} */}
                 </TableCell>
                 {/* {currentTab !== 'invoice' && <TableCell>{item?.acctnum}</TableCell>} */}
 
