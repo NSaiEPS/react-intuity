@@ -1,8 +1,8 @@
-import React, { CSSProperties, MouseEventHandler, useRef } from 'react';
+import React, { CSSProperties, JSX, MouseEventHandler, useRef } from "react";
 
-type Variant = 'contained' | 'outlined' | 'text';
-type Size = 'small' | 'medium' | 'large';
-type LoadingPosition = 'start' | 'end' | 'center';
+type Variant = "contained" | "outlined" | "text";
+type Size = "small" | "medium" | "large";
+type LoadingPosition = "start" | "end" | "center";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -14,8 +14,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   loadingPosition?: LoadingPosition;
   hideChildrenWhenLoading?: boolean;
-  textDecoration?: CSSProperties['textDecoration'];
-  textTransform?: CSSProperties['textTransform'];
+  textDecoration?: CSSProperties["textDecoration"];
+  textTransform?: CSSProperties["textTransform"];
   hoverBackgroundColor?: string;
   hoverColor?: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -23,13 +23,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   style?: CSSProperties;
 }
 
-const generateClassName = (): string => `btn-${Math.random().toString(36).substr(2, 9)}`;
+const generateClassName = (): string =>
+  `btn-${Math.random().toString(36).substr(2, 9)}`;
 
 const defaultColors = {
-  primary: '#1976d2',
-  secondary: '#9c27b0',
-  inherit: 'inherit',
-  success: 'green',
+  primary: "#1976d2",
+  secondary: "#9c27b0",
+  inherit: "inherit",
+  success: "green",
 };
 
 const variantStyles = (
@@ -41,31 +42,31 @@ const variantStyles = (
   textColor: string;
 } => {
   switch (variant) {
-    case 'contained':
+    case "contained":
       return {
         base: {
-          color: '#fff',
-          border: 'none',
+          color: "#fff",
+          border: "none",
           boxShadow:
-            '0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)',
+            "0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)",
         },
         backgroundColor: colorValue,
-        textColor: '#fff',
+        textColor: "#fff",
       };
-    case 'outlined':
+    case "outlined":
       return {
         base: {
-          backgroundColor: 'transparent',
+          backgroundColor: "transparent",
           border: `1px solid ${colorValue}`,
         },
         textColor: colorValue,
       };
-    case 'text':
+    case "text":
     default:
       return {
         base: {
-          backgroundColor: 'transparent',
-          border: 'none',
+          backgroundColor: "transparent",
+          border: "none",
         },
         textColor: colorValue,
       };
@@ -74,19 +75,19 @@ const variantStyles = (
 
 const sizeStyles: Record<Size, CSSProperties> = {
   small: {
-    padding: '4px 10px',
+    padding: "4px 10px",
     fontSize: 13,
     minWidth: 64,
     height: 32,
   },
   medium: {
-    padding: '8px 14px',
+    padding: "8px 14px",
     fontSize: 14,
     minWidth: 64,
     height: 36,
   },
   large: {
-    padding: '8px 22px',
+    padding: "8px 22px",
     fontSize: 15,
     minWidth: 64,
     height: 40,
@@ -95,18 +96,18 @@ const sizeStyles: Record<Size, CSSProperties> = {
 
 const Button: React.FC<ButtonProps> = ({
   children,
-  variant = 'contained',
-  color = 'primary',
-  size = 'medium',
-  type = 'button',
+  variant = "contained",
+  color = "primary",
+  size = "medium",
+  type = "button",
   style = {},
   fullWidth = false,
   disabled = false,
   loading = false,
-  loadingPosition = 'start',
+  loadingPosition = "start",
   hideChildrenWhenLoading = false,
-  textDecoration = 'none',
-  textTransform = 'uppercase',
+  textDecoration = "none",
+  textTransform = "uppercase",
   hoverBackgroundColor,
   hoverColor,
   onClick,
@@ -117,24 +118,29 @@ const Button: React.FC<ButtonProps> = ({
   const className = classNameRef.current;
   const isDisabled = disabled || loading;
 
-  const colorValue = bgColor || defaultColors[color as keyof typeof defaultColors] || color;
-  const { base, backgroundColor, textColor } = variantStyles(variant, colorValue);
+  const colorValue =
+    bgColor || defaultColors[color as keyof typeof defaultColors] || color;
+  const { base, backgroundColor, textColor } = variantStyles(
+    variant,
+    colorValue
+  );
 
   const buttonStyle: CSSProperties = {
     ...base,
     ...sizeStyles[size],
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: loading && loadingPosition === 'center' ? 'center' : 'center',
-    width: fullWidth ? '100%' : 'auto',
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent:
+      loading && loadingPosition === "center" ? "center" : "center",
+    width: fullWidth ? "100%" : "auto",
     borderRadius: 4,
-    cursor: isDisabled ? 'not-allowed' : 'pointer',
+    cursor: isDisabled ? "not-allowed" : "pointer",
     opacity: isDisabled ? 0.5 : 1,
-    transition: 'all 0.2s ease',
+    transition: "all 0.2s ease",
     textDecoration,
     textTransform,
     lineHeight: 1.5,
-    fontFamily: 'inherit',
+    fontFamily: "inherit",
     ...(hoverBackgroundColor ? {} : { backgroundColor }),
     ...(hoverColor ? {} : { color: textColor }),
     ...style,
@@ -145,13 +151,18 @@ const Button: React.FC<ButtonProps> = ({
       style={{
         width: 16,
         height: 16,
-        border: '2px solid currentColor',
-        borderTopColor: 'transparent',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
-        display: 'inline-block',
+        border: "2px solid currentColor",
+        borderTopColor: "transparent",
+        borderRadius: "50%",
+        animation: "spin 1s linear infinite",
+        display: "inline-block",
         flexShrink: 0,
-        margin: loadingPosition === 'start' ? '0 8px 0 0' : loadingPosition === 'end' ? '0 0 0 8px' : '0',
+        margin:
+          loadingPosition === "start"
+            ? "0 8px 0 0"
+            : loadingPosition === "end"
+            ? "0 0 0 8px"
+            : "0",
       }}
     />
   );
@@ -166,13 +177,21 @@ const Button: React.FC<ButtonProps> = ({
           }
 
           .${className} {
-            ${hoverBackgroundColor ? `background-color: ${backgroundColor};` : ''}
-            ${hoverColor ? `color: ${textColor};` : ''}
+            ${
+              hoverBackgroundColor
+                ? `background-color: ${backgroundColor};`
+                : ""
+            }
+            ${hoverColor ? `color: ${textColor};` : ""}
           }
 
           .${className}:hover {
-            ${hoverBackgroundColor ? `background-color: ${hoverBackgroundColor};` : ''}
-            ${hoverColor ? `color: ${hoverColor};` : ''}
+            ${
+              hoverBackgroundColor
+                ? `background-color: ${hoverBackgroundColor};`
+                : ""
+            }
+            ${hoverColor ? `color: ${hoverColor};` : ""}
           }
         `}
       </style>
@@ -186,10 +205,10 @@ const Button: React.FC<ButtonProps> = ({
         style={buttonStyle}
         {...props}
       >
-        {loading && loadingPosition === 'start' && Spinner}
+        {loading && loadingPosition === "start" && Spinner}
         {!loading || !hideChildrenWhenLoading ? children : null}
-        {loading && loadingPosition === 'end' && Spinner}
-        {loading && loadingPosition === 'center' && Spinner}
+        {loading && loadingPosition === "end" && Spinner}
+        {loading && loadingPosition === "center" && Spinner}
       </button>
     </>
   );

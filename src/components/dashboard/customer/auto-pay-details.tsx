@@ -1,12 +1,12 @@
 import * as React from "react";
-import type { Metadata } from "next";
+
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
+
 import CardHeader from "@mui/material/CardHeader";
 import Checkbox from "@mui/material/Checkbox";
 import Divider from "@mui/material/Divider";
@@ -17,7 +17,6 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 
-import { config } from "@/config";
 import { SelectPaymentMethod } from "@/components/dashboard/customer/select-payment-method";
 
 export default function AutoPayDetails(): React.JSX.Element {

@@ -31,21 +31,17 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { z } from "zod";
-
 const schema = z.object({
   name: z.string().min(1, "Required"),
-  // phone: z.string().min(1, 'Required'),
   phone: z
     .string()
     .min(6, "Phone must be at least 6 digits")
     .regex(/^\d+$/, "Phone must contain only numbers"),
-  requestedStopDate: z.date({ required_error: "Required" }),
+  requestedStopDate: z.date().refine((val) => !!val, { message: "Required" }),
   reading: z
     .preprocess(
       (val) => (val === "" ? undefined : Number(val)),
-      z
-        .number({ invalid_type_error: "Must be a number" })
-        .nonnegative("Reading must be a non-negative number")
+      z.number().nonnegative("Reading must be a non-negative number")
     )
     .optional(),
   address: z.string().min(1, "Required"),
@@ -76,7 +72,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     watch,
     reset,
     formState: { errors },
-  } = useForm<FormDataContent>({
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",

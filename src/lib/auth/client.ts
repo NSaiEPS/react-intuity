@@ -1,11 +1,11 @@
 // import api from '@/app/api/axios';
-import api from "@/app/api/axios";
+import api from "@/api/axios";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "react-toastify";
 
 import type { User } from "@/types/user";
 
-import { removeLocalStorage, setLocalStorage } from "../../utils/auth";
+import { removeLocalStorage } from "../../utils/auth";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);

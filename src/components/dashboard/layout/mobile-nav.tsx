@@ -77,7 +77,7 @@ export function MobileNav({
         >
           <Box
             component={RouterLink}
-            href={paths.dashboard.overview()}
+            to={paths.dashboard.overview()}
             sx={{ display: "inline-flex" }}
           >
             <Logo color="dark" height={50} width={140} />

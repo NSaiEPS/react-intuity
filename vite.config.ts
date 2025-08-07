@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "node:path"; // ✅ use `node:path` for compatibility with ESM
+import path from "path"; // ✅ use `node:path` for compatibility with ESM
 import { fileURLToPath } from "url";
 
 // ✅ emulate __dirname in ESM

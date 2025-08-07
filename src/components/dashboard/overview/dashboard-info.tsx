@@ -4,17 +4,11 @@ import {
   updateAccountInfo,
   updatePaperLessInfo,
 } from "@/state/features/accountSlice";
-import {
-  getDashboardInfo,
-  getNotificationList,
-  setAutoPaySettings,
-  setPaperLessSettings,
-} from "@/state/features/dashBoardSlice";
+import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
-import { useSelect } from "@mui/base";
-import Avatar from "@mui/material/Avatar";
+
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
@@ -29,6 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { paths } from "@/utils/paths";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import { Avatar } from "@mui/material";
 
 export interface DashboardInfoProps {
   sx?: SxProps;

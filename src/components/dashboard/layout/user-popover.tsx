@@ -417,7 +417,7 @@ export function UserPopover({
 
           <MenuItem
             component={RouterLink}
-            href={paths.dashboard.linkAccount()}
+            to={paths.dashboard.linkAccount()}
             onClick={onClose}
             sx={{ ml: 1 }}
           >
@@ -429,7 +429,7 @@ export function UserPopover({
 
           <MenuItem
             component={RouterLink}
-            href={paths.dashboard.settings()}
+            to={paths.dashboard.settings()}
             onClick={onClose}
             sx={{ ml: 1 }}
           >
@@ -441,7 +441,7 @@ export function UserPopover({
 
           <MenuItem
             component={RouterLink}
-            href={paths.dashboard.account()}
+            to={paths.dashboard.account()}
             onClick={onClose}
             sx={{ ml: 1 }}
           >

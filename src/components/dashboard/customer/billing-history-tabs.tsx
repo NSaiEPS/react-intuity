@@ -135,9 +135,7 @@ export default function InvoiceTransactionTabs({
                       <Box
                         // onClick={() => setPdfModal(true)}
                         onClick={() =>
-                          router.replace(
-                            paths.dashboard.invoiceDetails(item?.id)
-                          )
+                          navigate(paths.dashboard.invoiceDetails(item?.id))
                         }
                         sx={{
                           display: "flex",

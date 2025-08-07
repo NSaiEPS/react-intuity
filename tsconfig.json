@@ -1,10 +1,60 @@
+// {
+//   "compilerOptions": {
+//     "target": "es5",
+//     "moduleResolution": "Bundler",
+//     "lib": ["dom", "dom.iterable", "esnext"],
+//     "allowJs": true,
+//     "skipLibCheck": true,
+//     // Disable all strict type checking
+//     "strict": false,
+//     "strictNullChecks": false,
+//     "strictPropertyInitialization": false,
+//     "strictFunctionTypes": false,
+//     "strictBindCallApply": false,
+//     "noImplicitAny": false,
+//     "noImplicitThis": false,
+//     "skipDefaultLibCheck": true,
+//     "checkJs": false,
+//     "noUnusedLocals": false,
+//     "noUnusedParameters": false,
+//     "noImplicitReturns": false,
+//     "ignoreDeprecations": "5.0",
+//     "forceConsistentCasingInFileNames": true,
+//     "noEmit": true,
+//     "esModuleInterop": true,
+//     "module": "esnext",
+//     // "moduleResolution": "node",
+//     "resolveJsonModule": true,
+//     "isolatedModules": true,
+//     "jsx": "preserve",
+//     "incremental": true,
+//     "plugins": [
+//       {
+//         "name": "next"
+//       }
+//     ],
+//     "paths": {
+//       "@/*": ["./src/*"]
+//     }
+//   },
+//   "include": [
+//     "next-env.d.ts",
+//     "**/*.ts",
+//     "**/*.tsx",
+//     ".next/types/**/*.ts",
+//     "build/types/**/*.ts"
+//   ],
+//   "exclude": ["node_modules"]
+// }
+
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
-    // Disable all strict type checking
     "strict": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
@@ -12,21 +62,21 @@
     "strictBindCallApply": false,
     "noImplicitAny": false,
     "noImplicitThis": false,
-    "skipDefaultLibCheck": true,
-    "checkJs": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": false,
+    "skipDefaultLibCheck": true,
+    "checkJs": false,
     "ignoreDeprecations": "5.0",
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
     "plugins": [
       {
         "name": "next"

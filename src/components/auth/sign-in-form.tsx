@@ -32,6 +32,7 @@ import QuickActionsBox from "./register-actions";
 import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { Link as RouterLink } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
 
 // import Button from '../CommonComponents/Button;
 
@@ -186,35 +187,39 @@ export function SignInForm({ user = false }): React.JSX.Element {
           />
           {!user && (
             <div>
-              <Link
+              <MuiLink
+                component={RouterLink}
                 to={paths.auth.resetPassword()}
-                variant="subtitle2"
                 sx={{
-                  color: colors.blue,
+                  color: "primary.main",
+                  textDecoration: "none",
                   "&:hover": {
-                    borderColor: colors["blue.1"],
+                    color: colors["blue.1"],
+                    borderBottom: "1px solid",
                   },
                 }}
               >
                 Forgot password?
-              </Link>
+              </MuiLink>
             </div>
           )}
           {!user && (
             <div>
-              <Link
-                // to={user ? paths.auth.signUp() : paths.auth.register()}
+              <MuiLink
+                component={RouterLink}
                 to={user ? paths.auth.signUp() : paths.auth.newLogin()}
                 variant="subtitle2"
                 sx={{
                   color: colors.blue,
+                  textDecoration: "none",
                   "&:hover": {
-                    borderColor: colors["blue.1"],
+                    color: colors["blue.1"],
+                    borderBottom: `1px solid ${colors["blue.1"]}`,
                   },
                 }}
               >
                 {user ? "Register" : "Company Login"}
-              </Link>
+              </MuiLink>
             </div>
           )}
           {errors.root ? (

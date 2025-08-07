@@ -100,15 +100,16 @@
 // export default GaugeChart;
 
 import React from "react";
-import dynamic from "next/dynamic";
+
 import { RootState } from "@/state/store";
 import { boarderRadius } from "@/utils";
 import { Box, Card, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
+import Chart from "react-apexcharts";
 
 import { TotalProfitProps } from "./total-profit";
 
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+// const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 export default function GaugeChart({ sx }: TotalProfitProps) {
   const usageGraph = useSelector(

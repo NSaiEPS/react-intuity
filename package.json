@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "type": "module",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -43,10 +44,12 @@
     "react-router-dom": "^7.7.1",
     "react-secure-storage": "^1.3.2",
     "react-toastify": "^11.0.5",
-    "zod": "^4.0.14"
+    "zod": "^4.0.14",
+    "apexcharts": "3.49.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@types/node": "^24.2.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",

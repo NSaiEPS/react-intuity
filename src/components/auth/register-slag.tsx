@@ -292,8 +292,7 @@ export default function PaymentInfoSection() {
                         <strong>To view your account details</strong>, use the{" "}
                         <Link
                           to="/sign-up"
-                          fontWeight="bold"
-                          style={{ color: colors.blue }}
+                          style={{ color: colors.blue, fontWeight: "bold" }}
                         >
                           Register Now
                         </Link>{" "}
