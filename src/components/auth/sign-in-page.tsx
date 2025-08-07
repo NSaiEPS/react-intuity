@@ -16,7 +16,11 @@ export function SignInPage(): React.JSX.Element {
         flexDirection: "column",
       }}
     >
-      <Box>
+      <Box
+        sx={{
+          marginTop: 5,
+        }}
+      >
         <OneTimePaymentCard />
       </Box>
       <Box

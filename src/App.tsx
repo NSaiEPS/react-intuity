@@ -5,7 +5,9 @@ import { SignInPage } from "./components/auth/sign-in-page";
 import DashboardLayout from "./pages/dashboard/layout";
 import ConfirmInformation from "./pages/auth/confirm-information/page";
 import DashBoardPage from "./pages/dashboard/page";
-import ProtectedRoute from "./components/core/protectedRoute";
+import ProtectedRoute, {
+  Authorization,
+} from "./components/core/protectedRoute";
 import PayNowPage from "./pages/dashboard/pay-now/page";
 import NotificationSettingsPage from "./pages/dashboard/notification-settings/page";
 import AutoPayPage from "./pages/dashboard/auto-pay/page";
@@ -21,9 +23,6 @@ import LinkAccountPage from "./pages/dashboard/link-account/page";
 import InvoiceDetailsPage from "./pages/dashboard/invoice-details/page";
 import NotFound from "./pages/not-found";
 // import { getLoggedInUserType, getToken, USERS } from "../utils";
-
-const Authorization = ({ element }) =>
-  getLocalStorage("intuity-user") ? <Navigate to="/" /> : element;
 
 export const router = createBrowserRouter([
   {

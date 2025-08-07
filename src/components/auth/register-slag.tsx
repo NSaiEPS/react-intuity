@@ -24,6 +24,7 @@ import { ResetPasswordForm } from "./reset-password-form";
 import { SignInForm } from "./sign-in-form";
 import { SignUpForm } from "./sign-up-form";
 import { Link, useLocation, useNavigate } from "react-router";
+import { paths } from "@/utils/paths";
 
 export default function PaymentInfoSection() {
   const dispatch = useDispatch();
@@ -152,7 +153,14 @@ export default function PaymentInfoSection() {
                 sx={{ width: 50, height: 50, mr: 1.5 }}
               />
             ) : (
-              <Logo color="dark" height={50} width={140} />
+              <Box
+                // component={RouterLink}
+                // href={paths.auth.newLogin()}
+                onClick={() => navigate(paths.auth.newLogin())}
+                sx={{ display: "inline-flex" }}
+              >
+                <Logo color="dark" height={50} width={140} />
+              </Box>
             )}
             {pathname?.split("/")[1] !== "login" &&
               pathname?.includes("login") && (
@@ -177,6 +185,7 @@ export default function PaymentInfoSection() {
               ? 10
               : 0
           }
+          pb={5}
           // columnSpacing={3} // space between columns
           // rowSpacing={3} // space between rows (on small screens)
           justifyContent={
@@ -283,7 +292,8 @@ export default function PaymentInfoSection() {
                         <strong>To view your account details</strong>, use the{" "}
                         <Link
                           to="/sign-up"
-                          style={{ color: colors.blue, fontWeight: 600 }}
+                          fontWeight="bold"
+                          style={{ color: colors.blue }}
                         >
                           Register Now
                         </Link>{" "}

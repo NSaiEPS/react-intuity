@@ -13,3 +13,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default ProtectedRoute;
+
+export const Authorization = ({ element }) =>
+  getLocalStorage("intuity-user") ? <Navigate to="/" /> : element;

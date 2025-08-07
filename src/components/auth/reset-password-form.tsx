@@ -21,6 +21,7 @@ import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
 import { paths } from "@/utils/paths";
 import Button from "../CommonComponents/Button";
 import { Link } from "react-router";
+import { Box } from "@mui/material";
 
 const schema = zod.object({
   email: zod.string().min(1, { message: "Email is required" }).email(),
@@ -83,50 +84,49 @@ export function ResetPasswordForm(): React.JSX.Element {
             <Alert color="error">{errors.root.message}</Alert>
           ) : null}
 
-          <div>
+          <Box
+            mt={5}
+            sx={{
+              display: "flex",
+            }}
+          >
+            <Button
+              disabled={isPending}
+              loading={isPending}
+              type="submit"
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{
+                borderRadius: "12px",
+
+                height: "41px",
+                width: "175px",
+              }}
+            >
+              Send recovery link
+            </Button>
             <Link
               to={paths.auth.newLogin()}
               style={{
                 color: colors.blue,
-                textDecoration: "underline",
+                // textDecoration: "underline",
                 fontSize: "0.875rem", // corresponds to subtitle2 usually
                 borderColor: "transparent",
+                marginLeft: "15px",
+                justifyContent: "center",
+                marginTop: "auto",
+                marginBottom: "auto",
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.borderColor = colors["blue.1"];
               }}
             >
-              Sign in
+              Back to Login
             </Link>
-          </div>
-          {/* {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null} */}
-          <Button
-            // disabled={isPending}
-            // type="submit"
-            // variant="contained"
-            // sx={{
-            //   backgroundColor: colors.blue,
-            //   '&:hover': {
-            //     backgroundColor: colors['blue.3'], // or any other hover color
-            //   },
-            // }}
-
-            disabled={isPending}
-            loading={isPending}
-            type="submit"
-            variant="contained"
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{
-              borderRadius: "12px",
-              height: "41px",
-              // backgroundColor: 'red',
-            }}
-          >
-            Send recovery link
-          </Button>
+          </Box>
         </Stack>
       </form>
       <UpdatePasswordModal open={open} onClose={() => setOpen(false)} />
