@@ -3,7 +3,13 @@ import { getPaymentDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 
 import { getLocalStorage } from "@/utils/auth";
-import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+} from "@mui/material";
 import { X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +27,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
   const [expiryYear, setExpiryYear] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  const [iframeLoading, setIframeLoading] = useState(true);
 
   type IntuityUser = {
     body?: {
@@ -162,6 +169,18 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
+        {iframeLoading && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={500}
+            width={500}
+            sx={{ border: "1px solid #ccc", mb: 2 }}
+          >
+            Loading...
+          </Box>
+        )}
         <div className="projects-section-line" style={{ marginTop: "20px" }}>
           <iframe
             id="iFrameBA"
@@ -172,6 +191,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
             height="500"
             frameBorder="0"
             title="ICG Payment"
+            onLoad={() => setIframeLoading(false)}
           ></iframe>
         </div>
       </DialogContent>

@@ -206,6 +206,7 @@ const PaymentForm = () => {
   //     dispatch(getPaymentProcessorDetails(stored?.body?.token, formdata, false));
   //   }
   // }, [linkedAccountsInfo]);
+  const [iframeLoading, setIframeLoading] = useState(true);
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -563,6 +564,18 @@ const PaymentForm = () => {
           </Box>
         )}
       </form>
+      {paymentType === "no-save" && iframeLoading && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height={500}
+          width={500}
+          sx={{ border: "1px solid #ccc", mb: 2 }}
+        >
+          Loading...
+        </Box>
+      )}
       {paymentType === "no-save" && (
         <div className="projects-section-line" style={{ marginTop: "20px" }}>
           <iframe
@@ -574,6 +587,7 @@ const PaymentForm = () => {
             height="500"
             frameBorder="0"
             title="ICG Payment"
+            onLoad={() => setIframeLoading(false)}
           ></iframe>
         </div>
       )}

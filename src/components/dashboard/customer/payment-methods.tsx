@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   deleteCardAndBankAccount,
   getPaymentDetails,
+  getPaymentProcessorDetails,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors, formatToMMDDYYYY } from "@/utils";
@@ -250,6 +251,17 @@ export const PaymentMethods = ({
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
+
+  React.useEffect(() => {
+    if (CustomerInfo?.company_id) {
+      const formdata = new FormData();
+      formdata.append("acl_role_id", stored?.body?.acl_role_id);
+      formdata.append("company_id", CustomerInfo?.company_id);
+      dispatch(
+        getPaymentProcessorDetails(stored?.body?.token, formdata, false)
+      );
+    }
+  }, [CustomerInfo]);
   return (
     <Grid>
       {accountInfo && (

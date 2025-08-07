@@ -43,6 +43,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   const [accountType, setAccountType] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  const [iframeLoading, setIframeLoading] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -192,6 +193,18 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
       </DialogTitle>
 
       <DialogContent>
+        {iframeLoading && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={500}
+            width={500}
+            sx={{ border: "1px solid #ccc", mb: 2 }}
+          >
+            Loading...
+          </Box>
+        )}
         <div className="projects-section-line" style={{ marginTop: "20px" }}>
           <iframe
             id="iFrameBA"
@@ -202,6 +215,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
             height="500"
             frameBorder="0"
             title="ICG Payment"
+            onLoad={() => setIframeLoading(false)}
           ></iframe>
         </div>
       </DialogContent>
