@@ -638,3 +638,29 @@ export async function getPaymentProcessorDetailsAPI({
 
   return data;
 }
+
+export async function saveDefaultPaymentMethodAPI({
+  token,
+  formData,
+}: AccountUpdateForm) {
+  let api =
+    "https://test-intuity-backend.pay.waterbill.com//save-default-payment-method";
+
+  const res = await fetch(api, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}

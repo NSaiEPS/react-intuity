@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   getPaymentProcessorDetails,
   paymentWithoutSavingDetails,
+  saveDefaultPaymentMethod,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
@@ -45,7 +46,7 @@ const PaymentForm = () => {
     control,
     formState: { errors },
     setValue,
-    reset,
+    // reset,
     watch,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -80,7 +81,7 @@ const PaymentForm = () => {
 
   useEffect(() => {
     if (paymentProcessorDetails?.current_processor?.length > 0) {
-      let details =
+      const details =
         paymentProcessorDetails[
           paymentProcessorDetails?.current_processor[0]?.config_value
         ]?.[0]?.config_value;
@@ -280,6 +281,22 @@ const PaymentForm = () => {
       paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
         // console.log('Payment details saved successfully!'); // Handle success
         naviate(paths.dashboard.payNow());
+      })
+    );
+  };
+
+  const onSaveCardDetails = (cardNum: string) => {
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append("default_payment", "1");
+    formdata.append("payment_method_id", cardNum);
+    dispatch(
+      saveDefaultPaymentMethod(stored?.body?.token, formdata, true, () => {
+        setOpenPaymentModal(false);
+
+        console.log("Payment details saved successfully!"); // Handle success
+        // naviate(paths.dashboard.payNow());
       })
     );
   };
@@ -489,6 +506,7 @@ const PaymentForm = () => {
           page={1}
           rows={[]}
           rowsPerPage={10}
+          onSaveCardDetails={onSaveCardDetails}
         />
       </Dialog>
       <CustomBackdrop

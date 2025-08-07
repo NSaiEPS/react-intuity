@@ -57,6 +57,7 @@ interface CustomersTableProps {
   isModal?: boolean;
   onClose?: () => void;
   accountInfo?: boolean;
+  onSaveCardDetails?: (e: string) => void;
 }
 
 const CardRow = React.memo(function CardRow({
@@ -122,6 +123,7 @@ export function PaymentMethods({
   isModal = false,
   onClose,
   accountInfo = false,
+  onSaveCardDetails,
 }: CustomersTableProps): React.JSX.Element {
   const dispatch = useDispatch();
   const { accountLoading, paymentMethodInfoCards } = useSelector(
@@ -156,6 +158,10 @@ export function PaymentMethods({
     dispatch(getPaymentDetails(stored?.body?.token, formdata));
   }, [dispatch]);
   const handleSaveDetails = () => {
+    if (onSaveCardDetails) {
+      onSaveCardDetails(String(selectedId));
+      return;
+    }
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);

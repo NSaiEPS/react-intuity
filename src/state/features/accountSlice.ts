@@ -11,6 +11,7 @@ import {
   paperLessUpdate,
   paymentWithoutSavingDetailsAPI,
   registerApi,
+  saveDefaultPaymentMethodAPI,
   transferService,
   updatePassword,
   updateUserInfo,
@@ -579,6 +580,38 @@ export const getPaymentProcessorDetails: any =
         }
 
         dispatch(setPaymentProcessorDetails(res?.body));
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+        if (isPost) {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const saveDefaultPaymentMethod: any =
+  (token, formData, isPost = false, successCallBack) =>
+  async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await saveDefaultPaymentMethodAPI({ token, formData });
+
+      if (res?.status) {
+        if (successCallBack) {
+          successCallBack();
+        }
+
+        toast.success(
+          res?.message ? res?.message : "Payment Saved SuccessFully!"
+        );
       } else {
         if (res?.message == "You are not authorised to use this api") {
           clearLocalStorage();
