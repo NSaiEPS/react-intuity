@@ -35,6 +35,7 @@ import { paths } from "@/utils/paths";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import PaymentSummaryModal from "../overview/payment-summary-modal";
 
 // Register plugins
 dayjs.extend(utc);
@@ -66,7 +67,8 @@ const PaymentForm = () => {
 
   const [paymentType, setPaymentType] = useState<"saved" | "no-save">("saved");
   const [debitType, setDebitType] = useState<"card" | "bank_account">("card");
-  console.log(debitType, "debitType");
+  const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+
   const onSubmit = (data: FormData) => {
     console.log({ ...data, paymentType });
   };
@@ -320,6 +322,38 @@ const PaymentForm = () => {
       })
     );
   };
+
+  const handlePay = () => {
+    setShowPaymentSummary(false);
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append("is_one_time", "0");
+    formdata.append("id", id);
+
+    formdata.append("pay_payment_method", "pay_save_method");
+    formdata.append("payment_method_id_radio", "card");
+    formdata.append("is_card", "0");
+    formdata.append("is_card_one_time", "0");
+    //for bank
+    // is_bank_account_payment_method_form:1"
+
+    formdata.append(
+      "payment_method_id_form",
+      paymentMethodInfoCards?.card_token
+    );
+
+    formdata.append("convenienceFee", "0.07");
+    formdata.append("payment_method", "0");
+    formdata.append("price", "2.00");
+
+    dispatch(
+      paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
+        // console.log('Payment details saved successfully!'); // Handle success
+        naviate(paths.dashboard.payNow());
+      })
+    );
+  };
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -473,7 +507,7 @@ const PaymentForm = () => {
               </Box>
               {/* Confirm Button */}
               <Button
-                onClick={() => {}}
+                onClick={() => setShowPaymentSummary(true)}
                 variant="contained"
                 sx={{
                   mt: 3,
@@ -547,6 +581,17 @@ const PaymentForm = () => {
           paymentDetailsPage={true}
         />
       </Dialog>
+      {showPaymentSummary && (
+        <PaymentSummaryModal
+          open={showPaymentSummary}
+          onClose={() => setShowPaymentSummary(false)}
+          onPay={handlePay}
+          amount={10.0}
+          fee={0.35}
+          cardType={paymentMethodInfoCards?.card_type || "Card"}
+          cardLast4={paymentMethodInfoCards?.card_number}
+        />
+      )}
       <CustomBackdrop
         open={accountLoading}
         style={{ zIndex: 1300, color: "#fff" }}

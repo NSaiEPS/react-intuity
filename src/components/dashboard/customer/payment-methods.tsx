@@ -62,6 +62,7 @@ interface CustomersTableProps {
   onClose?: () => void;
   accountInfo?: boolean;
   onSaveCardDetails?: (e: string) => void;
+  paymentDetailsPage?: boolean;
 }
 
 const CardRow = React.memo(function CardRow({
