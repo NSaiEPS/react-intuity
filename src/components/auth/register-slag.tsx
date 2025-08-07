@@ -54,7 +54,7 @@ export default function PaymentInfoSection() {
 
     if (
       pathname?.split("/")[1] !== "login" &&
-      pathname?.split("/")[1]?.includes("login")
+      pathname?.split("/")[1]?.includes("login-")
     ) {
       // formData.append('alias', pathname?.split('/')[1]);
       formData.append("alias", pathname?.split("/")[1]?.split("login-")[1]);
@@ -67,7 +67,7 @@ export default function PaymentInfoSection() {
       pathname !== "/login" &&
       pathname !== "/sign-up" &&
       pathname !== "/reset-password" &&
-      !pathname?.includes("login")
+      !pathname?.includes("login-")
     ) {
       navigate("/login");
     }
