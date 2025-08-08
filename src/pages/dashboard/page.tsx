@@ -13,9 +13,9 @@ import { TotalProfit } from "@/components/dashboard/overview/total-profit";
 export default function DashBoardPage(): React.JSX.Element {
   return (
     <Grid container spacing={2}>
-      <Grid lg={12} xs={12}>
+      {/* <Grid lg={12} xs={12}>
         <Budget userInfo={true} />
-      </Grid>
+      </Grid> */}
       <Grid lg={3} sm={6} xs={12}>
         <Budget diff={12} trend="up" sx={{ height: "100%" }} />
       </Grid>

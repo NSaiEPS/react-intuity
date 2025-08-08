@@ -36,10 +36,17 @@ export function MainNav(): React.JSX.Element {
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo");
 
-  const { user_name, loginID, company_logo } =
+  const { user_name, loginID, company_logo, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 
   const [clickedType, setClickedType] = React.useState("");
+  const getInitials = (name: string): string => {
+    if (!name) return "";
+    const parts = name.split(" ");
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return parts[0].charAt(0).toUpperCase() + parts[1].charAt(0).toUpperCase();
+  };
   return (
     <React.Fragment>
       <Box
@@ -139,10 +146,27 @@ export function MainNav(): React.JSX.Element {
                 userPopover.handleOpen();
               }}
             >
-              <Avatar
+              {/* <Avatar
                 src={company_logo}
                 sx={{ width: 40, height: 40, mr: 1.5 }}
-              />
+              /> */}
+              {/* <Avatar
+                src={company_logo}
+                sx={{ width: 40, height: 40, mr: 1.5 }}
+              /> */}
+              <Avatar
+                // sx={{ bgcolor: "primary.main" }}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  mr: 1.5,
+                  bgcolor: colors.blue,
+                  color: colors.white,
+                }}
+              >
+                {getInitials(customer_name || "")}
+              </Avatar>
+
               <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
                 <Typography variant="subtitle2" noWrap>
                   {user_name}
