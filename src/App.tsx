@@ -1,53 +1,98 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import React from "react";
 
-import { getLocalStorage } from "./utils/auth";
-import { SignInPage } from "./components/auth/sign-in-page";
-import DashboardLayout from "./pages/dashboard/layout";
-import ConfirmInformation from "./pages/auth/confirm-information/page";
-import DashBoardPage from "./pages/dashboard/page";
+// Wrappers (keep them eager — they’re small and used everywhere)
 import ProtectedRoute, {
   Authorization,
 } from "./components/core/protectedRoute";
-import PayNowPage from "./pages/dashboard/pay-now/page";
-import NotificationSettingsPage from "./pages/dashboard/notification-settings/page";
-import AutoPayPage from "./pages/dashboard/auto-pay/page";
-import PaperLessPage from "./pages/dashboard/paperless/page";
-import PaymentMethodsPage from "./pages/dashboard/payment-methods/page";
-import PriorBillsPage from "./pages/dashboard/prior-bills/page";
-import UsageHistoryPage from "./pages/dashboard/usage-history/page";
-import CustomerServicePage from "./pages/dashboard/service/page";
-import SettingsPage from "./pages/dashboard/settings/page";
-import AccountPage from "./pages/dashboard/account/page";
-import StopTransferServicePage from "./pages/dashboard/stop-service/page";
-import LinkAccountPage from "./pages/dashboard/link-account/page";
-import InvoiceDetailsPage from "./pages/dashboard/invoice-details/page";
-import NotFound from "./pages/not-found";
-import PaymentDetailsPage from "./pages/dashboard/payment-details/page";
-// import { getLoggedInUserType, getToken, USERS } from "../utils";
+import WithSkeleton from "./components/core/withSkeleton";
 
+// Lazy imports for all pages
+const SignInPage = React.lazy(() =>
+  import("./components/auth/sign-in-page").then((m) => ({
+    default: m.SignInPage,
+  }))
+);
+const DashboardLayout = React.lazy(() => import("./pages/dashboard/layout"));
+const ConfirmInformation = React.lazy(
+  () => import("./pages/auth/confirm-information/page")
+);
+const DashBoardPage = React.lazy(() => import("./pages/dashboard/page"));
+const PayNowPage = React.lazy(() => import("./pages/dashboard/pay-now/page"));
+const NotificationSettingsPage = React.lazy(
+  () => import("./pages/dashboard/notification-settings/page")
+);
+const AutoPayPage = React.lazy(() => import("./pages/dashboard/auto-pay/page"));
+const PaperLessPage = React.lazy(
+  () => import("./pages/dashboard/paperless/page")
+);
+const PaymentMethodsPage = React.lazy(
+  () => import("./pages/dashboard/payment-methods/page")
+);
+const PriorBillsPage = React.lazy(
+  () => import("./pages/dashboard/prior-bills/page")
+);
+const UsageHistoryPage = React.lazy(
+  () => import("./pages/dashboard/usage-history/page")
+);
+const CustomerServicePage = React.lazy(
+  () => import("./pages/dashboard/service/page")
+);
+const SettingsPage = React.lazy(
+  () => import("./pages/dashboard/settings/page")
+);
+const AccountPage = React.lazy(() => import("./pages/dashboard/account/page"));
+const StopTransferServicePage = React.lazy(
+  () => import("./pages/dashboard/stop-service/page")
+);
+const LinkAccountPage = React.lazy(
+  () => import("./pages/dashboard/link-account/page")
+);
+const InvoiceDetailsPage = React.lazy(
+  () => import("./pages/dashboard/invoice-details/page")
+);
+const PaymentDetailsPage = React.lazy(
+  () => import("./pages/dashboard/payment-details/page")
+);
+const NotFound = React.lazy(() => import("./pages/not-found"));
+
+const LoaderFallback = React.lazy(() =>
+  import("@/components/core/protectedRoute").then((module) => ({
+    default: module.LoaderFallback,
+  }))
+);
+// Suspense wrapper to avoid repeating
+// const withSuspense = (element: React.ReactNode) => (
+//   <React.Suspense fallback={<LoaderFallback />}>{element}</React.Suspense>
+// );
+
+const withSuspense = (element: React.ReactNode) => {
+  return (
+    <React.Suspense fallback={<LoaderFallback />}>
+      {<>{element}</>}
+    </React.Suspense>
+  );
+};
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: <Authorization element={<SignInPage />} />,
+    element: withSuspense(<Authorization element={<SignInPage />} />),
   },
   {
     path: "/sign-up",
-    element: <Authorization element={<SignInPage />} />,
+    element: withSuspense(<Authorization element={<SignInPage />} />),
   },
   {
     path: "/reset-password",
-    element: <Authorization element={<SignInPage />} />,
+    element: withSuspense(<Authorization element={<SignInPage />} />),
   },
   {
     path: "/:logincompany/",
-    // path: "/login-RiverPark-1/",
-
-    element: <Authorization element={<SignInPage />} />,
+    element: withSuspense(<Authorization element={<SignInPage />} />),
   },
-
   {
     path: "/:company/confirm-information",
-    element: <ConfirmInformation />,
+    element: withSuspense(<ConfirmInformation />),
   },
   {
     path: "/",
@@ -55,11 +100,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/:company/dashboard",
-    element: <DashboardLayout />,
+    element: withSuspense(<DashboardLayout />),
     children: [
       {
         index: true,
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <DashBoardPage />
           </ProtectedRoute>
@@ -67,7 +112,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "pay-now",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <PayNowPage />
           </ProtectedRoute>
@@ -75,16 +120,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "notification-settings",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <NotificationSettingsPage />
           </ProtectedRoute>
         ),
       },
-
       {
         path: "auto-pay",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <AutoPayPage />
           </ProtectedRoute>
@@ -92,7 +136,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "paperless",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <PaperLessPage />
           </ProtectedRoute>
@@ -100,7 +144,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "payment-methods",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <PaymentMethodsPage />
           </ProtectedRoute>
@@ -108,7 +152,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "prior-bills",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <PriorBillsPage />
           </ProtectedRoute>
@@ -116,7 +160,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "usage-history",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <UsageHistoryPage />
           </ProtectedRoute>
@@ -124,7 +168,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "service",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <CustomerServicePage />
           </ProtectedRoute>
@@ -132,7 +176,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "settings",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <SettingsPage />
           </ProtectedRoute>
@@ -140,7 +184,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "account",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <AccountPage />
           </ProtectedRoute>
@@ -148,7 +192,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "stop-service",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <StopTransferServicePage />
           </ProtectedRoute>
@@ -156,7 +200,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "link-account",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <LinkAccountPage />
           </ProtectedRoute>
@@ -164,7 +208,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "invoice-details",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <InvoiceDetailsPage />
           </ProtectedRoute>
@@ -172,7 +216,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "payment-details",
-        element: (
+        element: withSuspense(
           <ProtectedRoute>
             <PaymentDetailsPage />
           </ProtectedRoute>
@@ -182,6 +226,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <NotFound />,
+    element: withSuspense(<NotFound />),
   },
 ]);
