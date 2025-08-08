@@ -64,18 +64,23 @@ export function TotalProfit({
                 startIcon={<IconCards type={"Headphones"} />}
                 // variant="outlined"
                 // color="primary"
-                sx={{ textTransform: "none" }}
+
+                sx={{
+                  textTransform: "none",
+
+                  color: "black",
+                }}
               >
-                Email
+                Call
               </Button>
 
               <Button
                 startIcon={<IconCards type={"Envelope"} />}
                 // variant="outlined"
                 // color="primary"
-                sx={{ textTransform: "none" }}
+                sx={{ textTransform: "none", color: "black" }}
               >
-                Call
+                Email
               </Button>
             </Stack>
           ) : (
