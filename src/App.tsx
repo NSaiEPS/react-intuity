@@ -1,78 +1,86 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import React from "react";
 
-// Wrappers (keep them eager — they’re small and used everywhere)
+// Wrappers
 import ProtectedRoute, {
   Authorization,
 } from "./components/core/protectedRoute";
-import WithSkeleton from "./components/core/withSkeleton";
+import withSkeleton from "./components/core/withSkeleton";
 
-// Lazy imports for all pages
-const SignInPage = React.lazy(() =>
-  import("./components/auth/sign-in-page").then((m) => ({
-    default: m.SignInPage,
-  }))
+// Lazy imports
+const SignInPage = withSkeleton(
+  React.lazy(() =>
+    import("./components/auth/sign-in-page").then((m) => ({
+      default: m.SignInPage,
+    }))
+  )
 );
-const DashboardLayout = React.lazy(() => import("./pages/dashboard/layout"));
-const ConfirmInformation = React.lazy(
-  () => import("./pages/auth/confirm-information/page")
+const DashboardLayout = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/layout"))
 );
-const DashBoardPage = React.lazy(() => import("./pages/dashboard/page"));
-const PayNowPage = React.lazy(() => import("./pages/dashboard/pay-now/page"));
-const NotificationSettingsPage = React.lazy(
-  () => import("./pages/dashboard/notification-settings/page")
+const ConfirmInformation = withSkeleton(
+  React.lazy(() => import("./pages/auth/confirm-information/page"))
 );
-const AutoPayPage = React.lazy(() => import("./pages/dashboard/auto-pay/page"));
-const PaperLessPage = React.lazy(
-  () => import("./pages/dashboard/paperless/page")
+const DashBoardPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/page"))
 );
-const PaymentMethodsPage = React.lazy(
-  () => import("./pages/dashboard/payment-methods/page")
+const PayNowPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/pay-now/page"))
 );
-const PriorBillsPage = React.lazy(
-  () => import("./pages/dashboard/prior-bills/page")
+const NotificationSettingsPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/notification-settings/page"))
 );
-const UsageHistoryPage = React.lazy(
-  () => import("./pages/dashboard/usage-history/page")
+const AutoPayPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/auto-pay/page"))
 );
-const CustomerServicePage = React.lazy(
-  () => import("./pages/dashboard/service/page")
+const PaperLessPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/paperless/page"))
 );
-const SettingsPage = React.lazy(
-  () => import("./pages/dashboard/settings/page")
+const PaymentMethodsPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/payment-methods/page"))
 );
-const AccountPage = React.lazy(() => import("./pages/dashboard/account/page"));
-const StopTransferServicePage = React.lazy(
-  () => import("./pages/dashboard/stop-service/page")
+const PriorBillsPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/prior-bills/page"))
 );
-const LinkAccountPage = React.lazy(
-  () => import("./pages/dashboard/link-account/page")
+const UsageHistoryPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/usage-history/page"))
 );
-const InvoiceDetailsPage = React.lazy(
-  () => import("./pages/dashboard/invoice-details/page")
+const CustomerServicePage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/service/page"))
 );
-const PaymentDetailsPage = React.lazy(
-  () => import("./pages/dashboard/payment-details/page")
+const SettingsPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/settings/page"))
 );
-const NotFound = React.lazy(() => import("./pages/not-found"));
+const AccountPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/account/page"))
+);
+const StopTransferServicePage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/stop-service/page"))
+);
+const LinkAccountPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/link-account/page"))
+);
+const InvoiceDetailsPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/invoice-details/page"))
+);
+const PaymentDetailsPage = withSkeleton(
+  React.lazy(() => import("./pages/dashboard/payment-details/page"))
+);
+const NotFound = withSkeleton(React.lazy(() => import("./pages/not-found")));
 
-const LoaderFallback = React.lazy(() =>
-  import("@/components/core/protectedRoute").then((module) => ({
-    default: module.LoaderFallback,
-  }))
+const LoaderFallback = withSkeleton(
+  React.lazy(() =>
+    import("@/components/core/protectedRoute").then((module) => ({
+      default: module.LoaderFallback,
+    }))
+  )
 );
-// Suspense wrapper to avoid repeating
-// const withSuspense = (element: React.ReactNode) => (
-//   <React.Suspense fallback={<LoaderFallback />}>{element}</React.Suspense>
-// );
 
-const withSuspense = (element: React.ReactNode) => {
-  return (
-    <React.Suspense fallback={<LoaderFallback />}>
-      {<>{element}</>}
-    </React.Suspense>
-  );
-};
+// Suspense wrapper
+const withSuspense = (element: React.ReactNode) => (
+  <React.Suspense fallback={<LoaderFallback />}>{element}</React.Suspense>
+);
+
 export const router = createBrowserRouter([
   {
     path: "/login",

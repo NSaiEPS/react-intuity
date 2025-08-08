@@ -7,6 +7,7 @@ import { AuthGuard } from "@/components/auth/auth-guard";
 import { MainNav } from "@/components/dashboard/layout/main-nav";
 import { SideNav } from "@/components/dashboard/layout/side-nav";
 import { Outlet } from "react-router";
+import { LoadingProvider } from "@/components/core/LoadingProvider";
 
 export default function DashboardLayout(): React.JSX.Element {
   console.log("DashboardLayout rendered");
@@ -48,7 +49,9 @@ export default function DashboardLayout(): React.JSX.Element {
           <main>
             <Container maxWidth="xl" sx={{ py: "64px", pt: "18px" }}>
               {/* {children} */}
-              <Outlet />
+              <LoadingProvider>
+                <Outlet />
+              </LoadingProvider>
             </Container>
           </main>
         </Box>

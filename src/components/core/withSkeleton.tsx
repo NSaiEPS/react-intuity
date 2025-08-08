@@ -1,21 +1,21 @@
 // withSkeleton.tsx
-import React, { useEffect, useState } from "react";
-
+import React from "react";
 import { Skeleton } from "@mui/material";
+import { useLoading } from "./LoadingProvider";
 
-const WithSkeleton = (Component: React.ComponentType<any>) => {
-  return function WrappedComponent(props: any) {
-    const [loading, setLoading] = useState(true);
+export default function withSkeleton<P>(Component: React.ComponentType<P>) {
+  return function WrappedComponent(props: P) {
+    const { loading } = useLoading();
 
-    useEffect(() => {
-      // Simulate delay — replace with your API call
-      const timer = setTimeout(() => setLoading(false), 1500);
-      return () => clearTimeout(timer);
-    }, []);
+    if (loading) {
+      return (
+        <>
+          <Skeleton variant="rectangular" height={50} />
+          <Skeleton variant="text" />
+        </>
+      );
+    }
 
-    if (loading) return <Skeleton variant="rounded" width={210} height={60} />;
     return <Component {...props} />;
   };
-};
-
-export default WithSkeleton;
+}
