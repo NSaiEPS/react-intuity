@@ -165,6 +165,13 @@ export function AccountDetailsForm(): React.JSX.Element {
                 startIcon={<EditIcon fontSize="var(--icon-fontSize-md)" />}
                 variant="outlined"
                 onClick={() => setIsEditEnable(true)}
+                sx={{
+                  color: colors.blue,
+                  borderColor: colors.blue,
+                  "&:hover": {
+                    borderColor: colors["blue.3"],
+                  },
+                }}
               >
                 Edit
               </Button>

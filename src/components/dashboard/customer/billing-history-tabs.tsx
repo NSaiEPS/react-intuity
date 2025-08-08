@@ -23,6 +23,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
 import { paths } from "@/utils/paths";
+import { boarderRadius, colors } from "@/utils";
 
 // Register plugins
 dayjs.extend(utc);
@@ -41,8 +42,6 @@ export default function InvoiceTransactionTabs({
   count,
   page,
   rowsPerPage,
-  boarderRadius,
-  colors,
 }) {
   const [currentTab, setCurrentTab] = useState("invoice");
   const navigate = useNavigate();
@@ -61,7 +60,20 @@ export default function InvoiceTransactionTabs({
         onChange={(_, tab) => setCurrentTab(tab)}
         indicatorColor="primary"
         textColor="primary"
-        sx={{ p: 2 }}
+        // sx={{ p: 2 }}
+
+        sx={{
+          p: 2,
+          "& .MuiTab-root": {
+            color: "#777", // default tab text color
+          },
+          "& .Mui-selected": {
+            color: `${colors.blue} !important`, // selected tab text color
+          },
+          "& .MuiTabs-indicator": {
+            backgroundColor: colors.blue, // indicator color
+          },
+        }}
       >
         {TABS.map((tab) => (
           <Tab key={tab.value} value={tab.value} label={tab.label} />

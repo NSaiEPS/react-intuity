@@ -83,7 +83,7 @@ export function PaymentModal({
                   mb: 2,
                   transition: "border-color 0.2s, box-shadow 0.2s",
                   "&:hover": {
-                    borderColor: "primary.main",
+                    borderColor: colors.blue,
                     // boxShadow: 1,
                   },
                 }}
@@ -104,7 +104,10 @@ export function PaymentModal({
 
         <Box mt={2}>
           <Typography variant="body2">
-            <strong>• Autopay is enabled</strong>
+            <strong>
+              • Autopay Is{" "}
+              {lastBillInfo?.customer?.autopay ? "Enabled" : " Not Enabled"}{" "}
+            </strong>
           </Typography>
         </Box>
       </DialogContent>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { RootState } from "@/state/store";
-import { boarderRadius } from "@/utils";
+import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -51,7 +51,11 @@ export function AccountInfo(): React.JSX.Element {
       </CardContent>
       <Divider />
       <CardActions>
-        <Button fullWidth variant="text">
+        <Button
+          fullWidth
+          variant="text"
+          sx={{ color: colors.blue, borderColor: colors.blue }}
+        >
           Upload picture
         </Button>
       </CardActions>

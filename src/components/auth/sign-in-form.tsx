@@ -191,7 +191,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
                 component={RouterLink}
                 to={paths.auth.resetPassword()}
                 sx={{
-                  color: "primary.main",
+                  color: colors.blue,
                   textDecoration: "none",
                   "&:hover": {
                     color: colors["blue.1"],

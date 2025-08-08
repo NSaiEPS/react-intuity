@@ -2,7 +2,7 @@ import * as React from "react";
 import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+
 import { getLocalStorage } from "@/utils/auth";
 import {
   CardHeader,
@@ -185,8 +185,6 @@ export function BillingHistory({
         count={count}
         page={page}
         rowsPerPage={rowsPerPage}
-        boarderRadius={boarderRadius}
-        colors={colors}
       />
       {/* <Card
         sx={{

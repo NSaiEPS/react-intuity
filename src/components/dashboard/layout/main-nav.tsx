@@ -155,7 +155,7 @@ export function MainNav(): React.JSX.Element {
                 sx={{ width: 40, height: 40, mr: 1.5 }}
               /> */}
               <Avatar
-                // sx={{ bgcolor: "primary.main" }}
+                // sx={{ bgcolor: colors.blue }}
                 sx={{
                   width: 40,
                   height: 40,

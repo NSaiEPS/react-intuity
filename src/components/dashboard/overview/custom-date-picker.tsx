@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { colors } from '@/utils';
+import React, { useState } from "react";
+import { colors } from "@/utils";
 import {
   Box,
   Button,
@@ -15,24 +15,25 @@ import {
   Select,
   SelectChangeEvent,
   Typography,
-} from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { X } from '@phosphor-icons/react';
-import dayjs, { Dayjs } from 'dayjs';
+} from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { X } from "@phosphor-icons/react";
+import dayjs, { Dayjs } from "dayjs";
 
 const DateRangeSelector = ({ onSubmit }) => {
-  const [selectedLabel, setSelectedLabel] = useState('This Month');
-  const [startDate, setStartDate] = useState<Dayjs>(dayjs().startOf('month'));
-  const [endDate, setEndDate] = useState<Dayjs>(dayjs().endOf('month'));
+  const [selectedLabel, setSelectedLabel] = useState("This Month");
+  const [startDate, setStartDate] = useState<Dayjs>(dayjs().startOf("month"));
+  const [endDate, setEndDate] = useState<Dayjs>(dayjs().endOf("month"));
   const [openCustomDialog, setOpenCustomDialog] = useState(false);
   //need to change type here
   const [customDateRange, setCustomDateRange] = useState<any>([null, null]);
 
-  const datePresets = ['This Month', 'Last Month', 'Custom Range'];
+  const datePresets = ["This Month", "Last Month", "Custom Range"];
 
-  const formatRange = (start: Dayjs, end: Dayjs) => `${start.format('MMM D, YYYY')} - ${end.format('MMM D, YYYY')}`;
+  const formatRange = (start: Dayjs, end: Dayjs) =>
+    `${start.format("MMM D, YYYY")} - ${end.format("MMM D, YYYY")}`;
 
   const handleChange = (e: SelectChangeEvent) => {
     const label = e.target.value;
@@ -56,14 +57,14 @@ const DateRangeSelector = ({ onSubmit }) => {
       // case 'Last 30 Days':
       //   start = today.subtract(29, 'day');
       //   break;
-      case 'This Month':
-        start = today.startOf('month');
+      case "This Month":
+        start = today.startOf("month");
         break;
-      case 'Last Month':
-        start = today.subtract(1, 'month').startOf('month');
-        end = today.subtract(1, 'month').endOf('month');
+      case "Last Month":
+        start = today.subtract(1, "month").startOf("month");
+        end = today.subtract(1, "month").endOf("month");
         break;
-      case 'Custom Range':
+      case "Custom Range":
         return; // Stopping here because date will come from calendar & modal from onclick
     }
 
@@ -86,7 +87,16 @@ const DateRangeSelector = ({ onSubmit }) => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Grid item>
         <FormControl size="small" sx={{ minWidth: 250 }}>
-          <InputLabel>Date Range</InputLabel>
+          <InputLabel
+            sx={{
+              color: "#111827", // default label color
+              "&.Mui-focused": {
+                color: colors.blue, // or set to same as text if needed
+              },
+            }}
+          >
+            Date Range
+          </InputLabel>
           <Select
             value={selectedLabel}
             label="Date Range"
@@ -96,7 +106,7 @@ const DateRangeSelector = ({ onSubmit }) => {
             {datePresets.map((label) => (
               <MenuItem
                 onClick={() => {
-                  if (label === 'Custom Range') {
+                  if (label === "Custom Range") {
                     setOpenCustomDialog(true);
                   }
                 }}
@@ -113,9 +123,9 @@ const DateRangeSelector = ({ onSubmit }) => {
         <Dialog open={openCustomDialog} maxWidth="xs" fullWidth>
           <DialogTitle
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               pl: 3,
               pr: 1,
               pt: 2,
@@ -133,7 +143,7 @@ const DateRangeSelector = ({ onSubmit }) => {
                 value={customDateRange}
                 onChange={(newValue) => setCustomDateRange(newValue)}
                 // calendars={1}
-                sx={{ width: '100%' }}
+                sx={{ width: "100%" }}
               />
             </Box>
           </DialogContent>
@@ -146,12 +156,12 @@ const DateRangeSelector = ({ onSubmit }) => {
               disabled={!customDateRange[0] || !customDateRange[1]}
               sx={{
                 backgroundColor: colors.blue,
-                '&:hover': {
-                  backgroundColor: colors['blue.3'],
+                "&:hover": {
+                  backgroundColor: colors["blue.3"],
                 },
-                borderRadius: '12px',
+                borderRadius: "12px",
                 fontWeight: 600,
-                textTransform: 'none',
+                textTransform: "none",
               }}
             >
               Save
