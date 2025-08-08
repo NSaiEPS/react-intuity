@@ -1,5 +1,3 @@
-"use client";
-
 import { FC, useEffect, useState } from "react";
 import { getPaymentDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";

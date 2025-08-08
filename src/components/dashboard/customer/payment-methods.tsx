@@ -160,8 +160,15 @@ export const PaymentMethods = ({
   };
   const raw = getLocalStorage("intuity-user");
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  // const stored: IntuityUser | null =
+  //   typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
+  const stored = React.useMemo(() => {
+    const raw = getLocalStorage("intuity-user");
+    return typeof raw === "object" && raw !== null
+      ? (raw as IntuityUser)
+      : null;
+  }, []);
   // 🧠 1. Fetch once on mount
   React.useEffect(() => {
     const formdata = new FormData();
@@ -211,9 +218,9 @@ export const PaymentMethods = ({
   // 🧠 3. Stable row IDs for selection hook
   const rowIds = React.useMemo(() => myCards.map((r) => r.id), [myCards]);
   // const { selectOne, deselectOne, selected } = useSelection(rowIds);
-  const selectOne = (id: number) => {
+  const selectOne = React.useCallback((id: number) => {
     setSelectedId(id);
-  };
+  }, []);
   const handleDelete = React.useCallback((row: CardDetails) => {
     setOpenConfirm(true);
     setDeleteCardDetails(row);
@@ -262,6 +269,20 @@ export const PaymentMethods = ({
       );
     }
   }, [CustomerInfo]);
+
+  const memoizedCardRows = React.useMemo(
+    () =>
+      myCards.map((row) => (
+        <CardRow
+          key={row.id}
+          row={row}
+          isSelected={selectedId === row.card_token}
+          onSelect={selectOne}
+          onDelete={handleDelete}
+        />
+      )),
+    [myCards, selectedId, selectOne, handleDelete]
+  );
   return (
     <Grid>
       {accountInfo && (
@@ -345,17 +366,8 @@ export const PaymentMethods = ({
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {/* {myCards.map((row) => (
-                <CardRow
-                  key={row.id}
-                  row={row}
-                  isSelected={selected.has(row.id)}
-                  onSelect={selectOne}
-                  onDeselect={deselectOne}
-                  onDelete={handleDelete}
-                />
-              ))} */}
+            {/* <TableBody>
+            
 
               {myCards.map((row) => (
                 <CardRow
@@ -366,7 +378,9 @@ export const PaymentMethods = ({
                   onDelete={handleDelete}
                 />
               ))}
-            </TableBody>
+            </TableBody> */}
+
+            <TableBody>{memoizedCardRows}</TableBody>
           </Table>
         </Box>
         <Divider />
