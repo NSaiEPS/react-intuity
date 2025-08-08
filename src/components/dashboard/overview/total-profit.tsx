@@ -9,8 +9,10 @@ import Stack from "@mui/material/Stack";
 import type { SxProps } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
+import { IconCards } from "@/components/dashboard/overview/Icon-cards";
 
 import { paths } from "@/utils/paths";
+import { Button } from "@mui/material";
 
 export interface TotalProfitProps {
   sx?: SxProps;
@@ -25,8 +27,7 @@ export function TotalProfit({
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const { last_bill, next_bill_days, next_bill } =
-    dashBoardInfo?.body?.customer || {};
+  const { next_bill_days, next_bill } = dashBoardInfo?.body?.customer || {};
 
   return (
     <Card
@@ -53,12 +54,37 @@ export function TotalProfit({
           <Typography variant="h6" fontWeight={700}>
             {value === "BillDue"
               ? "Bill Due Date"
+              : value === "CustomerService"
+              ? "Customer Service"
               : "Remaining days until late fees or penalties may be assessed"}
           </Typography>
+          {value === "CustomerService" ? (
+            <Stack direction="row" spacing={2}>
+              <Button
+                startIcon={<IconCards type={"Headphones"} />}
+                // variant="outlined"
+                // color="primary"
+                sx={{ textTransform: "none" }}
+              >
+                Email
+              </Button>
 
-          <Typography variant="h3" fontWeight={700} mt={"auto"}>
-            {value === "BillDue" ? formatToMMDDYYYY(next_bill) : next_bill_days}
-          </Typography>
+              <Button
+                startIcon={<IconCards type={"Envelope"} />}
+                // variant="outlined"
+                // color="primary"
+                sx={{ textTransform: "none" }}
+              >
+                Call
+              </Button>
+            </Stack>
+          ) : (
+            <Typography variant="h3" fontWeight={700} mt={"auto"}>
+              {value === "BillDue"
+                ? formatToMMDDYYYY(next_bill)
+                : next_bill_days}
+            </Typography>
+          )}
         </Stack>
       </CardContent>
     </Card>
