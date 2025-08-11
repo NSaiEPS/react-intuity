@@ -1,24 +1,37 @@
-import { router } from "@/App";
+import { router } from "@/App"; // Make sure this is the same router instance from your app
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export const LoadingContext = createContext({ loading: false });
+// Context for loading state
+export const LoadingContext = createContext({
+  contextLoading: true,
+  setContextLoading: () => {},
+});
+
+// Hook to use loading context
 export const useLoading = () => useContext(LoadingContext);
 
 export const LoadingProvider = ({ children }) => {
-  const [loading, setLoading] = useState(false);
+  const [contextLoading, setContextLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = router.subscribe(() => {
-      setLoading(true);
-      const timer = setTimeout(() => setLoading(false), 1000);
-      return () => clearTimeout(timer);
-    });
+  // useEffect(() => {
+  //   // Subscribe to router navigation events
+  //   const unsubscribe = router.subscribe(() => {
+  //     // Start loading
+  //     setContextLoading(true);
 
-    return unsubscribe;
-  }, []);
+  //     // Stop loading after a delay (simulate transition)
+  //     const timer = setTimeout(() => setContextLoading(false), 1000);
+
+  //     // Cleanup timer when navigation changes or unmounts
+  //     return () => clearTimeout(timer);
+  //   });
+
+  //   // Cleanup router subscription on unmount
+  //   return unsubscribe;
+  // }, []);
 
   return (
-    <LoadingContext.Provider value={{ loading }}>
+    <LoadingContext.Provider value={{ contextLoading, setContextLoading }}>
       {children}
     </LoadingContext.Provider>
   );

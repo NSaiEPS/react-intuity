@@ -91,7 +91,7 @@ export const {
 export default DashBoardSlice.reducer;
 
 export const getDashboardInfo: any =
-  (role_id, user_id, token) => async (dispatch) => {
+  (role_id, user_id, token, setContextLoading) => async (dispatch) => {
     dispatch(setDashboardLoader(true));
 
     try {
@@ -126,6 +126,7 @@ export const getDashboardInfo: any =
       // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setDashboardLoader(false));
+      setContextLoading(false);
     }
   };
 

@@ -1,6 +1,11 @@
 import * as React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { useMediaQuery, useTheme } from "@mui/material";
+import withSkeleton from "@/components/core/withSkeleton";
+import { getLocalStorage } from "@/utils/auth";
+import { useDispatch } from "react-redux";
+import { getDashboardInfo } from "@/state/features/dashBoardSlice";
+import { useLoading } from "@/components/core/LoadingProvider";
 
 // Lazy imports
 const Budget = React.lazy(() =>
@@ -36,9 +41,33 @@ const TotalProfit = React.lazy(() =>
 export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
   const isLargeUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const { setContextLoading } = useLoading();
+  const dispatch = useDispatch();
+
+  const SkeletonWrapper = withSkeleton(({ children }) => <>{children}</>);
+
+  React.useEffect(() => {
+    type IntuityUser = {
+      body?: {
+        acl_role_id?: string;
+        customer_id?: string;
+        token?: string;
+      };
+    };
+    const raw = getLocalStorage("intuity-user");
+
+    const stored: IntuityUser | null =
+      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
+    const roleId = stored?.body?.acl_role_id;
+    const userId = stored?.body?.customer_id;
+    const token = stored?.body?.token;
+
+    dispatch(getDashboardInfo(roleId, userId, token, setContextLoading));
+  }, []);
 
   return (
-    <React.Suspense fallback={<LoaderFallback />}>
+    <SkeletonWrapper>
       <Grid container spacing={2}>
         {/* First Row */}
         <Grid container spacing={2} lg={9} xs={12}>
@@ -123,6 +152,6 @@ export default function DashBoardPage(): React.JSX.Element {
           </Grid>
         </Grid>
       </Grid>
-    </React.Suspense>
+    </SkeletonWrapper>
   );
 }

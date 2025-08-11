@@ -52,27 +52,6 @@ export function Budget({
   } = dashBoardInfo?.body?.customer || {};
   const { balance } = dashBoardInfo?.body?.dashboard || {};
 
-  React.useEffect(() => {
-    type IntuityUser = {
-      body?: {
-        acl_role_id?: string;
-        customer_id?: string;
-        token?: string;
-      };
-    };
-    const raw = getLocalStorage("intuity-user");
-
-    const stored: IntuityUser | null =
-      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-    if (!userInfo) {
-      dispatch(getDashboardInfo(roleId, userId, token));
-    }
-  }, []);
-
   return (
     <Card sx={{ borderRadius: boarderRadius.card, ...sx }}>
       <CardContent>
