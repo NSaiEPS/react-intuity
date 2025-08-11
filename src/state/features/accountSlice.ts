@@ -443,7 +443,7 @@ export const getConfirmInfo: any =
   };
 
 export const getCompanyDetails: any =
-  (formData, successCallBack) => async (dispatch) => {
+  (formData, successCallBack, failureCallBack) => async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
       const res = await getCompanyDetailsApi({ formData });
@@ -459,10 +459,17 @@ export const getCompanyDetails: any =
           clearLocalStorage();
           location.reload();
         }
+
         toast.error(res?.message ?? "Something went wrong!");
+        if (failureCallBack) {
+          failureCallBack();
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
+      if (failureCallBack) {
+        failureCallBack();
+      }
     } finally {
       dispatch(setAccountLoading(false));
     }

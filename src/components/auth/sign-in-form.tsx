@@ -66,8 +66,6 @@ export function SignInForm({ user = false }): React.JSX.Element {
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
   const onSubmit = React.useCallback(
-    // async (values: Values): Promise<void> => {
-    //need to add required
     async (values: any): Promise<void> => {
       setIsPending(true);
 
@@ -100,28 +98,18 @@ export function SignInForm({ user = false }): React.JSX.Element {
   const dispatch = useDispatch();
   const successCallBack = async (res: any) => {
     dispatch(setUserInfo(res));
-    // await checkSession?.();
-    console.log(res, "resresresresres");
-    // return;
+    const companyAlias = res?.body?.alias || "intuityfe";
     if (res?.body?.is_verified == 1) {
       await checkSession?.();
 
       if (pathname?.split("/")[2] !== "auth") {
-        // console.log(res, 'resresresresres');
-
-        // router.replace(paths.dashboard.overview(res?.body?.alias));
-        navigate(paths.dashboard.overview(res?.body?.alias));
+        navigate(paths.dashboard.overview(companyAlias));
       } else {
-        // console.log(res, 'resresresresres');
-
-        // router.replace(`/${res?.body?.alias}/dashboard`);
-        navigate(`/${res?.body?.alias}/dashboard`);
+        navigate(`/${companyAlias}/dashboard`);
       }
     } else {
-      // router.replace(paths.auth.confirmInfo(res?.body?.alias));
-      navigate(paths.auth.confirmInfo(res?.body?.alias));
+      navigate(paths.auth.confirmInfo(companyAlias));
     }
-    console.log(res?.body?.is_verified, "successCallBack");
   };
   return (
     <Stack spacing={4}>

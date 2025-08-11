@@ -39,29 +39,17 @@ export default function PaymentInfoSection() {
   React.useEffect(() => {
     const formData = new FormData();
 
-    // formData.append('alias', 'cape-royale1');
-    // formData.append('alias', 'RiverPark-1');
-    // formData.append('alias', 'ctutil');
-    // if (pathname?.split('/')[2] === 'ctutil') {
-    //   formData.append('alias', 'ctutil');
-    // }
-    // if (pathname?.split('/')[2] === 'RiverPark') {
-    //   formData.append('alias', 'RiverPark-1');
-    // }
-    // if (pathname?.split('/')[2] !== 'ctutil' && pathname?.split('/')[2] !== 'RiverPark') {
-    //   formData.append('alias', 'cape-royale1');
-    // }
-
     if (
       pathname?.split("/")[1] !== "login" &&
       pathname?.split("/")[1]?.includes("login-")
     ) {
-      // formData.append('alias', pathname?.split('/')[1]);
       formData.append("alias", pathname?.split("/")[1]?.split("login-")[1]);
-      dispatch(getCompanyDetails(formData));
+      dispatch(getCompanyDetails(formData, undefined, failureCallBack));
     }
   }, []);
-
+  const failureCallBack = () => {
+    navigate("/login");
+  };
   useEffect(() => {
     if (
       pathname !== "/login" &&

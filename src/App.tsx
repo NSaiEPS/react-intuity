@@ -5,6 +5,7 @@ import React from "react";
 import ProtectedRoute, {
   Authorization,
 } from "./components/core/protectedRoute";
+import CompanyRouteGuard from "./components/core/company-routeGuard";
 
 // Lazy imports for all pages
 const SignInPage = React.lazy(() =>
@@ -98,128 +99,134 @@ export const router = createBrowserRouter([
     element: <Navigate to="/intuityfe/dashboard" replace />,
   },
   {
-    path: "/:company/dashboard",
-    element: withSuspense(<DashboardLayout />),
+    path: "/:company",
+    element: <CompanyRouteGuard />,
     children: [
       {
-        index: true,
-        element: withSuspense(
-          <ProtectedRoute>
-            <DashBoardPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "pay-now",
-        element: withSuspense(
-          <ProtectedRoute>
-            <PayNowPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "notification-settings",
-        element: withSuspense(
-          <ProtectedRoute>
-            <NotificationSettingsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "auto-pay",
-        element: withSuspense(
-          <ProtectedRoute>
-            <AutoPayPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "paperless",
-        element: withSuspense(
-          <ProtectedRoute>
-            <PaperLessPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "payment-methods",
-        element: withSuspense(
-          <ProtectedRoute>
-            <PaymentMethodsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "prior-bills",
-        element: withSuspense(
-          <ProtectedRoute>
-            <PriorBillsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "usage-history",
-        element: withSuspense(
-          <ProtectedRoute>
-            <UsageHistoryPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "service",
-        element: withSuspense(
-          <ProtectedRoute>
-            <CustomerServicePage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "settings",
-        element: withSuspense(
-          <ProtectedRoute>
-            <SettingsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "account",
-        element: withSuspense(
-          <ProtectedRoute>
-            <AccountPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "stop-service",
-        element: withSuspense(
-          <ProtectedRoute>
-            <StopTransferServicePage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "link-account",
-        element: withSuspense(
-          <ProtectedRoute>
-            <LinkAccountPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "invoice-details",
-        element: withSuspense(
-          <ProtectedRoute>
-            <InvoiceDetailsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "payment-details",
-        element: withSuspense(
-          <ProtectedRoute>
-            <PaymentDetailsPage />
-          </ProtectedRoute>
-        ),
+        path: "dashboard",
+        element: withSuspense(<DashboardLayout />),
+        children: [
+          {
+            index: true,
+            element: withSuspense(
+              <ProtectedRoute>
+                <DashBoardPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "pay-now",
+            element: withSuspense(
+              <ProtectedRoute>
+                <PayNowPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "notification-settings",
+            element: withSuspense(
+              <ProtectedRoute>
+                <NotificationSettingsPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "auto-pay",
+            element: withSuspense(
+              <ProtectedRoute>
+                <AutoPayPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "paperless",
+            element: withSuspense(
+              <ProtectedRoute>
+                <PaperLessPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "payment-methods",
+            element: withSuspense(
+              <ProtectedRoute>
+                <PaymentMethodsPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "prior-bills",
+            element: withSuspense(
+              <ProtectedRoute>
+                <PriorBillsPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "usage-history",
+            element: withSuspense(
+              <ProtectedRoute>
+                <UsageHistoryPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "service",
+            element: withSuspense(
+              <ProtectedRoute>
+                <CustomerServicePage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "settings",
+            element: withSuspense(
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "account",
+            element: withSuspense(
+              <ProtectedRoute>
+                <AccountPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "stop-service",
+            element: withSuspense(
+              <ProtectedRoute>
+                <StopTransferServicePage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "link-account",
+            element: withSuspense(
+              <ProtectedRoute>
+                <LinkAccountPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "invoice-details",
+            element: withSuspense(
+              <ProtectedRoute>
+                <InvoiceDetailsPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "payment-details",
+            element: withSuspense(
+              <ProtectedRoute>
+                <PaymentDetailsPage />
+              </ProtectedRoute>
+            ),
+          },
+        ],
       },
     ],
   },

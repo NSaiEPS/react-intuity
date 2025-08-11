@@ -112,6 +112,10 @@ class AuthClient {
     // localStorage.setItem('custom-auth-token', data?.body?.token);
     secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
     secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
+    secureLocalStorage.setItem(
+      "intuity-companyId",
+      data?.body?.alias || "intuityfe"
+    );
     // Cookies.set('intuity-user', JSON.stringify(data.body), {
     //   expires: 7,
     //   secure: true,
