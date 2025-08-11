@@ -29,6 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as z from "zod";
 
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import { useLoading } from "@/components/core/skeletion-context";
 
 const schema = z.object({
   email: z.string().email("Invalid email"),
@@ -128,6 +129,8 @@ export function Notifications(): React.JSX.Element {
   const [phoneUpdated, setPhoneUpdated] = React.useState(false);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [userUpdating, setUserUpdating] = React.useState("");
+  const { contextLoading } = useLoading();
+
   const {
     control,
     handleSubmit,
@@ -447,7 +450,7 @@ export function Notifications(): React.JSX.Element {
       />
 
       <CustomBackdrop
-        open={accountLoading}
+        open={accountLoading && !contextLoading}
         style={{ zIndex: 1300, color: "#fff" }}
       >
         <Loader />

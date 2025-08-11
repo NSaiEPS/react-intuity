@@ -197,7 +197,14 @@ export const stopTransferService: any =
   };
 
 export const updateAccountInfo: any =
-  (token, formData, profile = false, successCallBack, dataRequired = false) =>
+  (
+    token,
+    formData,
+    profile = false,
+    successCallBack,
+    dataRequired = false,
+    setContextLoading
+  ) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
@@ -242,6 +249,9 @@ export const updateAccountInfo: any =
       // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 

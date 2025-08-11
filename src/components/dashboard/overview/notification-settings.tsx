@@ -18,13 +18,19 @@ import {
 } from "@mui/material";
 import { Question } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLoading } from "@/components/core/skeletion-context";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
 
 function NotificationsSettings() {
   // const CustomerInfo: any = getLocalStorage('intuity-customerInfo');
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
+  const { setContextLoading } = useLoading();
 
+  React.useLayoutEffect(() => {
+    setContextLoading(true);
+  }, []);
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
@@ -98,7 +104,16 @@ function NotificationsSettings() {
     formData.append("id", userId);
     formData.append("model_open", "15");
 
-    dispatch(updateAccountInfo(token, formData, true, successCallBack, true));
+    dispatch(
+      updateAccountInfo(
+        token,
+        formData,
+        true,
+        successCallBack,
+        true,
+        setContextLoading
+      )
+    );
   };
   const successCallBack = (res) => {
     // console.log(res, 'successCallBack');
@@ -113,161 +128,163 @@ function NotificationsSettings() {
   };
 
   return (
-    <Box sx={{ pt: 0 }}>
-      <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader
-          title={
-            <Typography ml={1} variant="h5">
-              Notification Settings
-            </Typography>
-          }
-        />
+    <SkeletonWrapper>
+      <Box sx={{ pt: 0 }}>
+        <Grid container spacing={2} justifyContent="space-between">
+          <CardHeader
+            title={
+              <Typography ml={1} variant="h5">
+                Notification Settings
+              </Typography>
+            }
+          />
 
-        <CardHeader
-          subheader={
-            <Typography variant="h6">
-              Names :{CustomerInfo?.customer_name}
-            </Typography>
-          }
-          title={
-            <Typography variant="h5">
-              Account No :{CustomerInfo?.acctnum}
-            </Typography>
-          }
-        />
-      </Grid>
-
-      <Divider />
-
-      <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
-        Select your notification preference for each type of notice
-      </Typography>
-
-      <Grid container p={2} alignItems="center">
-        <Grid item xs={12} sm={6}>
-          <Typography>New bill</Typography>
+          <CardHeader
+            subheader={
+              <Typography variant="h6">
+                Names :{CustomerInfo?.customer_name}
+              </Typography>
+            }
+            title={
+              <Typography variant="h5">
+                Account No :{CustomerInfo?.acctnum}
+              </Typography>
+            }
+          />
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <Select
-              value={preferences.new_bill}
-              onChange={(e) => handleChange("new_bill", e.target.value)}
-            >
-              <MenuItem value="2">Text</MenuItem>
-              <MenuItem value="1">Email</MenuItem>
-              <MenuItem value="3">Both</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
 
-      <Grid container alignItems="center" p={2} pt={0}>
-        <Grid item xs={12} sm={6}>
-          <Typography>Payment confirmation</Typography>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <Select
-              value={preferences.payment_confirmation}
-              onChange={(e) =>
-                handleChange("payment_confirmation", e.target.value)
-              }
-            >
-              <MenuItem value="2">Text</MenuItem>
-              <MenuItem value="1">Email</MenuItem>
-              <MenuItem value="3">Both</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
+        <Divider />
 
-      <Grid container p={2} alignItems="center" pt={0}>
-        {/* <Grid item xs={12} sm={6}>
+        <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
+          Select your notification preference for each type of notice
+        </Typography>
+
+        <Grid container p={2} alignItems="center">
+          <Grid item xs={12} sm={6}>
+            <Typography>New bill</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Select
+                value={preferences.new_bill}
+                onChange={(e) => handleChange("new_bill", e.target.value)}
+              >
+                <MenuItem value="2">Text</MenuItem>
+                <MenuItem value="1">Email</MenuItem>
+                <MenuItem value="3">Both</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        <Grid container alignItems="center" p={2} pt={0}>
+          <Grid item xs={12} sm={6}>
+            <Typography>Payment confirmation</Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Select
+                value={preferences.payment_confirmation}
+                onChange={(e) =>
+                  handleChange("payment_confirmation", e.target.value)
+                }
+              >
+                <MenuItem value="2">Text</MenuItem>
+                <MenuItem value="1">Email</MenuItem>
+                <MenuItem value="3">Both</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        <Grid container p={2} alignItems="center" pt={0}>
+          {/* <Grid item xs={12} sm={6}>
           <Typography>Due date reminder (5 days ahead)</Typography>
         </Grid> */}
 
-        <Grid item xs={12} sm={6} display="flex" alignItems="center">
-          <Typography>Due date reminder (5 days ahead)</Typography>
-          <Tooltip
-            title="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
-            arrow
-          >
-            <IconButton edge="end">
-              <Question size={20} color="#90caf9" weight="fill" />
-            </IconButton>
-          </Tooltip>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <Select
-              value={preferences.reminders}
-              onChange={(e) => handleChange("reminders", e.target.value)}
+          <Grid item xs={12} sm={6} display="flex" alignItems="center">
+            <Typography>Due date reminder (5 days ahead)</Typography>
+            <Tooltip
+              title="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
+              arrow
             >
-              <MenuItem value="2">Text</MenuItem>
-              <MenuItem value="1">Email</MenuItem>
-              <MenuItem value="3">Both</MenuItem>
-              <MenuItem value="4">None</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
-
-      <Grid container p={2} alignItems="center" pt={0}>
-        <Grid item xs={12} sm={6} display="flex" alignItems="center">
-          <Typography>Biller announcements</Typography>
-          <Tooltip
-            title="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
-            placement="top"
-            arrow
-          >
-            <IconButton edge="end">
-              <Question size={20} color="#90caf9" weight="fill" />
-            </IconButton>
-          </Tooltip>
+              <IconButton edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Select
+                value={preferences.reminders}
+                onChange={(e) => handleChange("reminders", e.target.value)}
+              >
+                <MenuItem value="2">Text</MenuItem>
+                <MenuItem value="1">Email</MenuItem>
+                <MenuItem value="3">Both</MenuItem>
+                <MenuItem value="4">None</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <Select
-              value={preferences.biller_announcements}
-              onChange={(e) =>
-                handleChange("biller_announcements", e.target.value)
-              }
+        <Grid container p={2} alignItems="center" pt={0}>
+          <Grid item xs={12} sm={6} display="flex" alignItems="center">
+            <Typography>Biller announcements</Typography>
+            <Tooltip
+              title="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
+              placement="top"
+              arrow
             >
-              <MenuItem value="1">Text</MenuItem>
-              <MenuItem value="0">Email</MenuItem>
-              <MenuItem value="2">Both</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
+              <IconButton edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+          </Grid>
 
-      <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
-        <Button
-          color="inherit"
-          variant="outlined"
-          sx={{
-            color: colors.blue,
-            borderColor: colors.blue,
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: colors.blue,
-            "&:hover": {
-              backgroundColor: colors["blue.3"], // or any other hover color
-            },
-          }}
-          color="primary"
-          onClick={handleSave}
-        >
-          Save
-        </Button>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <Select
+                value={preferences.biller_announcements}
+                onChange={(e) =>
+                  handleChange("biller_announcements", e.target.value)
+                }
+              >
+                <MenuItem value="1">Text</MenuItem>
+                <MenuItem value="0">Email</MenuItem>
+                <MenuItem value="2">Both</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            sx={{
+              color: colors.blue,
+              borderColor: colors.blue,
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: colors.blue,
+              "&:hover": {
+                backgroundColor: colors["blue.3"], // or any other hover color
+              },
+            }}
+            color="primary"
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    </SkeletonWrapper>
   );
 }
 
