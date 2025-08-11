@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { getConfirmInfo } from "@/state/features/accountSlice";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { Helmet } from "react-helmet";
 
 // import { ConfirmInfoDetails } from '@/components/auth/confirm-info';
 
@@ -49,6 +50,9 @@ export default function ConfirmInformation() {
         px: { xs: 2, sm: 4, md: 8, lg: 20 },
       }}
     >
+      <Helmet>
+        <title>{`Confirm Info - Intuity`}</title>
+      </Helmet>
       <SkeletonWrapper>
         <ConfirmInfoDetails />
       </SkeletonWrapper>

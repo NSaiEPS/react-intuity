@@ -76,19 +76,35 @@ const withSuspense = (element: React.ReactNode) => {
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: withSuspense(<Authorization element={<SignInPage />} />),
+    element: withSuspense(
+      <Authorization title={"Login"}>
+        <SignInPage title={"Login"} />
+      </Authorization>
+    ),
   },
   {
     path: "/sign-up",
-    element: withSuspense(<Authorization element={<SignInPage />} />),
+    element: withSuspense(
+      <Authorization title={"Sign Up"}>
+        <SignInPage title={"Sign Up"} />
+      </Authorization>
+    ),
   },
   {
     path: "/reset-password",
-    element: withSuspense(<Authorization element={<SignInPage />} />),
+    element: withSuspense(
+      <Authorization title={"Recover Password"}>
+        <SignInPage title={"Recover Password"} />
+      </Authorization>
+    ),
   },
   {
     path: "/:logincompany/",
-    element: withSuspense(<Authorization element={<SignInPage />} />),
+    element: withSuspense(
+      <Authorization title={"Login"}>
+        <SignInPage title={"Login"} />
+      </Authorization>
+    ),
   },
   {
     path: "/:company/confirm-information",
@@ -109,7 +125,7 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Homepage">
                 <DashBoardPage />
               </ProtectedRoute>
             ),
@@ -117,7 +133,7 @@ export const router = createBrowserRouter([
           {
             path: "pay-now",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Billing">
                 <PayNowPage />
               </ProtectedRoute>
             ),
@@ -125,7 +141,7 @@ export const router = createBrowserRouter([
           {
             path: "notification-settings",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Notification Settings">
                 <NotificationSettingsPage />
               </ProtectedRoute>
             ),
@@ -133,7 +149,7 @@ export const router = createBrowserRouter([
           {
             path: "auto-pay",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Auto Pay">
                 <AutoPayPage />
               </ProtectedRoute>
             ),
@@ -141,7 +157,7 @@ export const router = createBrowserRouter([
           {
             path: "paperless",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Paper Less">
                 <PaperLessPage />
               </ProtectedRoute>
             ),
@@ -149,7 +165,7 @@ export const router = createBrowserRouter([
           {
             path: "payment-methods",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Payments">
                 <PaymentMethodsPage />
               </ProtectedRoute>
             ),
@@ -157,7 +173,7 @@ export const router = createBrowserRouter([
           {
             path: "prior-bills",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Billing">
                 <PriorBillsPage />
               </ProtectedRoute>
             ),
@@ -165,7 +181,7 @@ export const router = createBrowserRouter([
           {
             path: "usage-history",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Usage">
                 <UsageHistoryPage />
               </ProtectedRoute>
             ),
@@ -173,7 +189,7 @@ export const router = createBrowserRouter([
           {
             path: "service",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Customer">
                 <CustomerServicePage />
               </ProtectedRoute>
             ),
@@ -181,7 +197,7 @@ export const router = createBrowserRouter([
           {
             path: "settings",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Settings">
                 <SettingsPage />
               </ProtectedRoute>
             ),
@@ -189,7 +205,7 @@ export const router = createBrowserRouter([
           {
             path: "account",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Account">
                 <AccountPage />
               </ProtectedRoute>
             ),
@@ -197,7 +213,7 @@ export const router = createBrowserRouter([
           {
             path: "stop-service",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Stop | Transfer">
                 <StopTransferServicePage />
               </ProtectedRoute>
             ),
@@ -205,7 +221,7 @@ export const router = createBrowserRouter([
           {
             path: "link-account",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Link Accounts">
                 <LinkAccountPage />
               </ProtectedRoute>
             ),
@@ -213,7 +229,7 @@ export const router = createBrowserRouter([
           {
             path: "invoice-details",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Invoice Details">
                 <InvoiceDetailsPage />
               </ProtectedRoute>
             ),
@@ -221,7 +237,7 @@ export const router = createBrowserRouter([
           {
             path: "payment-details",
             element: withSuspense(
-              <ProtectedRoute>
+              <ProtectedRoute title="Payment Details">
                 <PaymentDetailsPage />
               </ProtectedRoute>
             ),

@@ -64,9 +64,9 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   // }, []);
 
   const hanldeConfirm = () => {
-    let role_id = stored?.body?.acl_role_id;
-    let user_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
+    const role_id = stored?.body?.acl_role_id;
+    const user_id = stored?.body?.customer_id;
+    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", role_id);

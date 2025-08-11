@@ -127,10 +127,6 @@ export function AccountDetailsForm(): React.JSX.Element {
     dispatch(getAccountInfo(roleId, userId, token));
   };
 
-  React.useEffect(() => {
-    getUserDetails();
-  }, [userInfo]);
-
   const onSubmit = (data: FormSchema) => {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
