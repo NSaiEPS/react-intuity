@@ -38,6 +38,8 @@ import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 import AddBankAccountModal from "./add-bank-modal";
 import AddCardModal from "./add-card-modal";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { useLoading } from "@/components/core/skeletion-context";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 export interface CardDetails {
@@ -138,6 +140,13 @@ export const PaymentMethods = ({
   onSaveCardDetails,
   paymentDetailsPage = false,
 }: CustomersTableProps): React.JSX.Element => {
+  const { setContextLoading } = useLoading();
+
+  React.useLayoutEffect(() => {
+    if (!paymentDetailsPage) {
+      setContextLoading(true);
+    }
+  }, []);
   const dispatch = useDispatch();
   const { accountLoading, paymentMethodInfoCards } = useSelector(
     (state: RootState) => state?.Account
@@ -175,7 +184,14 @@ export const PaymentMethods = ({
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
     if (!paymentDetailsPage) {
-      dispatch(getPaymentDetails(stored?.body?.token, formdata));
+      dispatch(
+        getPaymentDetails(
+          stored?.body?.token,
+          formdata,
+          undefined,
+          setContextLoading
+        )
+      );
     }
   }, [dispatch]);
   const handleSaveDetails = () => {
@@ -265,7 +281,17 @@ export const PaymentMethods = ({
       formdata.append("acl_role_id", stored?.body?.acl_role_id);
       formdata.append("company_id", CustomerInfo?.company_id);
       dispatch(
-        getPaymentProcessorDetails(stored?.body?.token, formdata, false)
+        getPaymentProcessorDetails(
+          stored?.body?.token,
+          formdata,
+          false,
+          undefined,
+          () => {
+            if (paymentDetailsPage) {
+              setContextLoading(false);
+            }
+          }
+        )
       );
     }
   }, [CustomerInfo]);
@@ -284,89 +310,90 @@ export const PaymentMethods = ({
     [myCards, selectedId, selectOne, handleDelete]
   );
   return (
-    <Grid>
-      {accountInfo && (
-        <Grid container spacing={2} justifyContent="space-between">
-          <CardHeader
-            title={<Typography variant="h5"> Payment Method</Typography>}
-          />
+    <SkeletonWrapper>
+      <Grid>
+        {accountInfo && (
+          <Grid container spacing={2} justifyContent="space-between">
+            <CardHeader
+              title={<Typography variant="h5"> Payment Method</Typography>}
+            />
 
-          <CardHeader
-            subheader={
-              <Typography variant="h6">
-                Name :{CustomerInfo?.customer_name}
-              </Typography>
-            }
-            title={
-              <Typography variant="h5">
-                Account No :{CustomerInfo?.acctnum}
-              </Typography>
-            }
-          />
-        </Grid>
-      )}
-      <DialogActions
-        sx={{
-          px: isModal ? 3 : 0, // padding top and bottom (2 * 8 = 16px)
-          pr: 1,
-          py: isModal ? 2 : 1,
-        }}
-      >
-        <Button
-          onClick={() => setCardModalOpen(true)}
-          sx={{ color: colors.blue, borderColor: colors.blue }}
-          variant="outlined"
-        >
-          New Card
-        </Button>
-        <Button
-          onClick={() => setBankModalOpen(true)}
-          color="primary"
-          variant="contained"
+            <CardHeader
+              subheader={
+                <Typography variant="h6">
+                  Name :{CustomerInfo?.customer_name}
+                </Typography>
+              }
+              title={
+                <Typography variant="h5">
+                  Account No :{CustomerInfo?.acctnum}
+                </Typography>
+              }
+            />
+          </Grid>
+        )}
+        <DialogActions
           sx={{
-            backgroundColor: colors.blue,
-            "&:hover": { backgroundColor: colors["blue.3"] },
+            px: isModal ? 3 : 0, // padding top and bottom (2 * 8 = 16px)
+            pr: 1,
+            py: isModal ? 2 : 1,
           }}
         >
-          New Bank Account
-        </Button>
-        {isModal && (
           <Button
-            sx={{
-              // width: '2px',
-              // backgroundColor: 'red',
-              minWidth: 0,
-              padding: "4px",
-              // backgroundColor: 'red',
-              width: "32px", // or any visible size
-              height: "32px",
-            }}
-            onClick={onClose}
+            onClick={() => setCardModalOpen(true)}
+            sx={{ color: colors.blue, borderColor: colors.blue }}
+            variant="outlined"
           >
-            <X size={24} />
+            New Card
           </Button>
-        )}
-      </DialogActions>
+          <Button
+            onClick={() => setBankModalOpen(true)}
+            color="primary"
+            variant="contained"
+            sx={{
+              backgroundColor: colors.blue,
+              "&:hover": { backgroundColor: colors["blue.3"] },
+            }}
+          >
+            New Bank Account
+          </Button>
+          {isModal && (
+            <Button
+              sx={{
+                // width: '2px',
+                // backgroundColor: 'red',
+                minWidth: 0,
+                padding: "4px",
+                // backgroundColor: 'red',
+                width: "32px", // or any visible size
+                height: "32px",
+              }}
+              onClick={onClose}
+            >
+              <X size={24} />
+            </Button>
+          )}
+        </DialogActions>
 
-      <Card
-        sx={{
-          width: isModal ? "95%" : "100%",
-          mx: "auto",
-          borderRadius: boarderRadius.card,
-        }}
-      >
-        <Box sx={{ overflowX: "auto", height: isModal ? "400px" : "auto" }}>
-          <Table sx={{ minWidth: "800px" }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Number</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            {/* <TableBody>
+        <Card
+          sx={{
+            width: isModal ? "95%" : "100%",
+            mx: "auto",
+            borderRadius: boarderRadius.card,
+          }}
+        >
+          <Box sx={{ overflowX: "auto", height: isModal ? "400px" : "auto" }}>
+            <Table sx={{ minWidth: "800px" }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Number</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              {/* <TableBody>
             
 
               {myCards.map((row) => (
@@ -380,92 +407,93 @@ export const PaymentMethods = ({
               ))}
             </TableBody> */}
 
-            <TableBody>{memoizedCardRows}</TableBody>
-          </Table>
-        </Box>
-        <Divider />
-        <Grid
-          mt={0}
-          container
-          spacing={0}
-          justifyContent="flex-end"
-          alignItems="center"
-          sx={{
-            py: isModal ? 1 : 0,
-          }}
-        >
-          <Grid item>
-            {/* <Typography variant="h6">*Fees will apply</Typography> */}
-            <Typography
-              variant="body2"
-              sx={{
-                // color: 'text.secondary',
-                pr: 1, // space between text and buttons
-              }}
-            >
-              * Fees will apply
-            </Typography>
-          </Grid>
-          <Grid item>
-            <CardActions sx={{ justifyContent: "flex-end" }}>
-              <Button
-                onClick={() => setSelectedId(null)}
-                variant="outlined"
-                sx={{ color: colors.blue, borderColor: colors.blue }}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveDetails}
-                variant="contained"
-                disabled={!selectedId}
+              <TableBody>{memoizedCardRows}</TableBody>
+            </Table>
+          </Box>
+          <Divider />
+          <Grid
+            mt={0}
+            container
+            spacing={0}
+            justifyContent="flex-end"
+            alignItems="center"
+            sx={{
+              py: isModal ? 1 : 0,
+            }}
+          >
+            <Grid item>
+              {/* <Typography variant="h6">*Fees will apply</Typography> */}
+              <Typography
+                variant="body2"
                 sx={{
-                  backgroundColor: colors.blue,
-                  "&:hover": { backgroundColor: colors["blue.3"] },
+                  // color: 'text.secondary',
+                  pr: 1, // space between text and buttons
                 }}
               >
-                Save details
-              </Button>
-            </CardActions>
+                * Fees will apply
+              </Typography>
+            </Grid>
+            <Grid item>
+              <CardActions sx={{ justifyContent: "flex-end" }}>
+                <Button
+                  onClick={() => setSelectedId(null)}
+                  variant="outlined"
+                  sx={{ color: colors.blue, borderColor: colors.blue }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveDetails}
+                  variant="contained"
+                  disabled={!selectedId}
+                  sx={{
+                    backgroundColor: colors.blue,
+                    "&:hover": { backgroundColor: colors["blue.3"] },
+                  }}
+                >
+                  Save details
+                </Button>
+              </CardActions>
+            </Grid>
           </Grid>
-        </Grid>
-      </Card>
+        </Card>
 
-      {/* Modals */}
-      {cardModalOpen && (
-        <AddCardModal
-          open={cardModalOpen}
-          onClose={() => setCardModalOpen(false)}
+        {/* Modals */}
+        {cardModalOpen && (
+          <AddCardModal
+            open={cardModalOpen}
+            onClose={() => setCardModalOpen(false)}
+          />
+        )}
+        {bankModalOpen && (
+          <AddBankAccountModal
+            open={bankModalOpen}
+            onClose={() => setBankModalOpen(false)}
+          />
+        )}
+
+        {/* Confirm Dialog */}
+        <ConfirmDialog
+          open={openConfirm}
+          title={deleCardDetails?.card_type ? "Card" : "Bank Account"}
+          message={`Are you sure want to Delete this ${
+            deleCardDetails?.card_type ? "Card" : "Bank Account"
+          }?`}
+          confirmLabel="Yes, Confirm"
+          cancelLabel="Cancel"
+          onConfirm={handleConfirm}
+          onCancel={() => setOpenConfirm(false)}
+          loader={accountLoading}
         />
-      )}
-      {bankModalOpen && (
-        <AddBankAccountModal
-          open={bankModalOpen}
-          onClose={() => setBankModalOpen(false)}
-        />
-      )}
 
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        open={openConfirm}
-        title={deleCardDetails?.card_type ? "Card" : "Bank Account"}
-        message={`Are you sure want to Delete this ${
-          deleCardDetails?.card_type ? "Card" : "Bank Account"
-        }?`}
-        confirmLabel="Yes, Confirm"
-        cancelLabel="Cancel"
-        onConfirm={handleConfirm}
-        onCancel={() => setOpenConfirm(false)}
-        loader={accountLoading}
-      />
-
-      {/* Loading Backdrop */}
-      <CustomBackdrop
-        open={accountLoading}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
-        <Loader />
-      </CustomBackdrop>
-    </Grid>
+        {/* Loading Backdrop */}
+        <CustomBackdrop
+          open={accountLoading}
+          style={{ zIndex: 1300, color: "#fff" }}
+        >
+          <Loader />
+        </CustomBackdrop>
+      </Grid>
+    </SkeletonWrapper>
   );
 };

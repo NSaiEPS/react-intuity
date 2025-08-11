@@ -288,7 +288,7 @@ export const updatePaperLessInfo: any =
   };
 
 export const getPaymentDetails: any =
-  (token, formData, isPost = false, successCallBack) =>
+  (token, formData, isPost = false, successCallBack, setContextLoading) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
 
@@ -318,6 +318,9 @@ export const getPaymentDetails: any =
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 
@@ -595,7 +598,7 @@ export const paymentWithoutSavingDetails: any =
   };
 
 export const getPaymentProcessorDetails: any =
-  (token, formData, isPost = false, successCallBack) =>
+  (token, formData, isPost = false, successCallBack, setContextLoading) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
 
@@ -621,6 +624,9 @@ export const getPaymentProcessorDetails: any =
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 

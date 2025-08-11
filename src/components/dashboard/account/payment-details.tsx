@@ -38,6 +38,8 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import PaymentSummaryModal from "../overview/payment-summary-modal";
 import { PaymentMethods } from "../customer/payment-methods";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { useLoading } from "@/components/core/skeletion-context";
 
 // Register plugins
 dayjs.extend(utc);
@@ -70,6 +72,7 @@ const PaymentForm = () => {
   const [paymentType, setPaymentType] = useState<"saved" | "no-save">("saved");
   const [debitType, setDebitType] = useState<"card" | "bank_account">("card");
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+  const { setContextLoading } = useLoading();
 
   const onSubmit = (data: FormData) => {
     console.log({ ...data, paymentType });
@@ -98,7 +101,14 @@ const PaymentForm = () => {
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
 
-    dispatch(getPaymentDetails(stored?.body?.token, formdata));
+    dispatch(
+      getPaymentDetails(
+        stored?.body?.token,
+        formdata,
+        undefined,
+        setContextLoading
+      )
+    );
   };
   React.useEffect(() => {
     paymentDetails();
@@ -361,273 +371,275 @@ const PaymentForm = () => {
     );
   };
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Section Title + Link */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h6" color="text.secondary">
-            Name/Email For Payment Receipt
-          </Typography>
-
-          <Typography
-            sx={{
-              mt: 1,
-              fontSize: 14,
-              color: colors.blue,
-              ":hover": {
-                cursor: "pointer",
-              },
-            }}
-            onClick={() => setOpenPaymentModal(true)}
+    <SkeletonWrapper>
+      <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Section Title + Link */}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
           >
-            💳 PAYMENT METHODS
-          </Typography>
-        </Box>
-
-        {/* Name & Email */}
-        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-          <Box flex={1}>
-            <Typography fontWeight={600}>Name</Typography>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  size="small"
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
-                />
-              )}
-            />
-          </Box>
-
-          <Box flex={1}>
-            <Typography fontWeight={600}>Email</Typography>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  size="small"
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                />
-              )}
-            />
-          </Box>
-        </Box>
-
-        {/* Amount */}
-        <Box sx={{ mb: 2 }}>
-          <Typography fontWeight={600}>Amount to pay</Typography>
-          <Controller
-            name="amount"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                size="small"
-                type="number"
-                error={!!errors.amount}
-                helperText={errors.amount?.message}
-                InputProps={{
-                  startAdornment: <span style={{ marginRight: 4 }}>$</span>,
-                }}
-              />
-            )}
-          />
-          <Typography sx={{ mt: 1, fontSize: 14, color: colors.blue }}>
-            Additional convenience Fee: $3.50
-          </Typography>
-          <Typography sx={{ fontSize: 14, color: colors.blue }}>
-            Total Payment: $103.50
-          </Typography>
-        </Box>
-
-        {/* Payment Method Option */}
-        <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
-          <RadioGroup
-            value={paymentType}
-            onChange={(e) =>
-              setPaymentType(e.target.value as "saved" | "no-save")
-            }
-          >
-            <FormControlLabel
-              value="saved"
-              control={<Radio />}
-              label="Pay with a saved payment method"
-            />
-            <FormControlLabel
-              value="no-save"
-              control={<Radio />}
-              label="Pay without saving a payment method"
-            />
-          </RadioGroup>
-        </Box>
-
-        {/* Saved Card Info Block (only show if saved method selected) */}
-        {paymentType === "saved" ? (
-          paymentMethodInfoCards?.id ? (
-            <>
-              <Box
-                component={Paper}
-                variant="outlined"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  p: 2,
-                  mb: 3,
-                  backgroundColor: "#f3f9fd",
-                }}
-              >
-                <FormControlLabel
-                  value="visa"
-                  control={<Radio checked />}
-                  label={
-                    paymentMethodInfoCards?.card_type ??
-                    paymentMethodInfoCards?.account_type
-                  }
-                />
-                <Typography>
-                  {paymentMethodInfoCards?.card_number ??
-                    paymentMethodInfoCards?.bank_account_number}
-                </Typography>
-                <Typography>
-                  {paymentMethodInfoCards?.card_number
-                    ? "Card"
-                    : "Bank Account"}
-                </Typography>
-                <Typography>
-                  {/* {paymentMethodInfoCards?.date_used} */}
-
-                  {dayjs
-                    .tz(paymentMethodInfoCards?.date_used, "America/Chicago") // or whichever US timezone server uses
-                    .tz(dayjs.tz.guess()) // convert to user's local time
-                    .format("YYYY-MM-DD hh:mm A z")}
-                </Typography>
-              </Box>
-              {/* Confirm Button */}
-              <Button
-                onClick={() => setShowPaymentSummary(true)}
-                variant="contained"
-                sx={{
-                  mt: 3,
-                  mb: 1,
-                  px: 4,
-                  fontWeight: "bold",
-
-                  backgroundColor: colors.blue,
-                  "&:hover": {
-                    backgroundColor: colors["blue.3"], // or any other hover color
-                  },
-                }}
-              >
-                CONFIRM PAYMENT
-              </Button>
-            </>
-          ) : (
-            <Typography variant="body2" color="text.secondary">
-              No saved payment methods available. Please add a payment method.
+            <Typography variant="h6" color="text.secondary">
+              Name/Email For Payment Receipt
             </Typography>
-          )
-        ) : (
+
+            <Typography
+              sx={{
+                mt: 1,
+                fontSize: 14,
+                color: colors.blue,
+                ":hover": {
+                  cursor: "pointer",
+                },
+              }}
+              onClick={() => setOpenPaymentModal(true)}
+            >
+              💳 PAYMENT METHODS
+            </Typography>
+          </Box>
+
+          {/* Name & Email */}
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <Box flex={1}>
+              <Typography fontWeight={600}>Name</Typography>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
+                )}
+              />
+            </Box>
+
+            <Box flex={1}>
+              <Typography fontWeight={600}>Email</Typography>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
+
+          {/* Amount */}
+          <Box sx={{ mb: 2 }}>
+            <Typography fontWeight={600}>Amount to pay</Typography>
+            <Controller
+              name="amount"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  size="small"
+                  type="number"
+                  error={!!errors.amount}
+                  helperText={errors.amount?.message}
+                  InputProps={{
+                    startAdornment: <span style={{ marginRight: 4 }}>$</span>,
+                  }}
+                />
+              )}
+            />
+            <Typography sx={{ mt: 1, fontSize: 14, color: colors.blue }}>
+              Additional convenience Fee: $3.50
+            </Typography>
+            <Typography sx={{ fontSize: 14, color: colors.blue }}>
+              Total Payment: $103.50
+            </Typography>
+          </Box>
+
+          {/* Payment Method Option */}
           <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
             <RadioGroup
-              row
-              value={debitType}
+              value={paymentType}
               onChange={(e) =>
-                setDebitType(e.target.value as "card" | "bank_account")
+                setPaymentType(e.target.value as "saved" | "no-save")
               }
             >
               <FormControlLabel
-                value="card"
+                value="saved"
                 control={<Radio />}
-                label="Credit Card"
+                label="Pay with a saved payment method"
               />
               <FormControlLabel
-                value="bank_account"
+                value="no-save"
                 control={<Radio />}
-                label="Bank Account"
+                label="Pay without saving a payment method"
               />
             </RadioGroup>
           </Box>
+
+          {/* Saved Card Info Block (only show if saved method selected) */}
+          {paymentType === "saved" ? (
+            paymentMethodInfoCards?.id ? (
+              <>
+                <Box
+                  component={Paper}
+                  variant="outlined"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    p: 2,
+                    mb: 3,
+                    backgroundColor: "#f3f9fd",
+                  }}
+                >
+                  <FormControlLabel
+                    value="visa"
+                    control={<Radio checked />}
+                    label={
+                      paymentMethodInfoCards?.card_type ??
+                      paymentMethodInfoCards?.account_type
+                    }
+                  />
+                  <Typography>
+                    {paymentMethodInfoCards?.card_number ??
+                      paymentMethodInfoCards?.bank_account_number}
+                  </Typography>
+                  <Typography>
+                    {paymentMethodInfoCards?.card_number
+                      ? "Card"
+                      : "Bank Account"}
+                  </Typography>
+                  <Typography>
+                    {/* {paymentMethodInfoCards?.date_used} */}
+
+                    {dayjs
+                      .tz(paymentMethodInfoCards?.date_used, "America/Chicago") // or whichever US timezone server uses
+                      .tz(dayjs.tz.guess()) // convert to user's local time
+                      .format("YYYY-MM-DD hh:mm A z")}
+                  </Typography>
+                </Box>
+                {/* Confirm Button */}
+                <Button
+                  onClick={() => setShowPaymentSummary(true)}
+                  variant="contained"
+                  sx={{
+                    mt: 3,
+                    mb: 1,
+                    px: 4,
+                    fontWeight: "bold",
+
+                    backgroundColor: colors.blue,
+                    "&:hover": {
+                      backgroundColor: colors["blue.3"], // or any other hover color
+                    },
+                  }}
+                >
+                  CONFIRM PAYMENT
+                </Button>
+              </>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No saved payment methods available. Please add a payment method.
+              </Typography>
+            )
+          ) : (
+            <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
+              <RadioGroup
+                row
+                value={debitType}
+                onChange={(e) =>
+                  setDebitType(e.target.value as "card" | "bank_account")
+                }
+              >
+                <FormControlLabel
+                  value="card"
+                  control={<Radio />}
+                  label="Credit Card"
+                />
+                <FormControlLabel
+                  value="bank_account"
+                  control={<Radio />}
+                  label="Bank Account"
+                />
+              </RadioGroup>
+            </Box>
+          )}
+        </form>
+        {paymentType === "no-save" && iframeLoading && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height={500}
+            width={500}
+            sx={{ border: "1px solid #ccc", mb: 2 }}
+          >
+            Loading...
+          </Box>
         )}
-      </form>
-      {paymentType === "no-save" && iframeLoading && (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          height={500}
-          width={500}
-          sx={{ border: "1px solid #ccc", mb: 2 }}
-        >
-          Loading...
-        </Box>
-      )}
-      {paymentType === "no-save" && (
-        <div className="projects-section-line" style={{ marginTop: "20px" }}>
-          <iframe
-            id="iFrameBA"
-            name="iFrameBA"
-            src={debitType == "card" ? iframeUrlForCard : iframeUrlForBank}
-            scrolling="no"
-            width="500"
-            height="500"
-            frameBorder="0"
-            title="ICG Payment"
-            onLoad={() => setIframeLoading(false)}
-          ></iframe>
-        </div>
-      )}
-      {openPaymentModal && (
-        <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
-          <PaymentMethods
-            onClose={() => {
-              setOpenPaymentModal(false);
-            }}
-            isModal={true}
-            count={10}
-            page={1}
-            rows={[]}
-            rowsPerPage={10}
-            onSaveCardDetails={onSaveCardDetails}
-            paymentDetailsPage={true}
+        {paymentType === "no-save" && (
+          <div className="projects-section-line" style={{ marginTop: "20px" }}>
+            <iframe
+              id="iFrameBA"
+              name="iFrameBA"
+              src={debitType == "card" ? iframeUrlForCard : iframeUrlForBank}
+              scrolling="no"
+              width="500"
+              height="500"
+              frameBorder="0"
+              title="ICG Payment"
+              onLoad={() => setIframeLoading(false)}
+            ></iframe>
+          </div>
+        )}
+        {openPaymentModal && (
+          <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
+            <PaymentMethods
+              onClose={() => {
+                setOpenPaymentModal(false);
+              }}
+              isModal={true}
+              count={10}
+              page={1}
+              rows={[]}
+              rowsPerPage={10}
+              onSaveCardDetails={onSaveCardDetails}
+              paymentDetailsPage={true}
+            />
+          </Dialog>
+        )}
+        {showPaymentSummary && (
+          <PaymentSummaryModal
+            open={showPaymentSummary}
+            onClose={() => setShowPaymentSummary(false)}
+            onPay={handlePay}
+            amount={10.0}
+            fee={0.35}
+            cardType={paymentMethodInfoCards?.card_type || "Bank Account"}
+            cardLast4={
+              paymentMethodInfoCards?.card_number ??
+              paymentMethodInfoCards?.bank_account_number
+            }
           />
-        </Dialog>
-      )}
-      {showPaymentSummary && (
-        <PaymentSummaryModal
-          open={showPaymentSummary}
-          onClose={() => setShowPaymentSummary(false)}
-          onPay={handlePay}
-          amount={10.0}
-          fee={0.35}
-          cardType={paymentMethodInfoCards?.card_type || "Bank Account"}
-          cardLast4={
-            paymentMethodInfoCards?.card_number ??
-            paymentMethodInfoCards?.bank_account_number
-          }
-        />
-      )}
-      <CustomBackdrop
-        open={accountLoading}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
-        <Loader />
-      </CustomBackdrop>
-    </Box>
+        )}
+        <CustomBackdrop
+          open={accountLoading}
+          style={{ zIndex: 1300, color: "#fff" }}
+        >
+          <Loader />
+        </CustomBackdrop>
+      </Box>
+    </SkeletonWrapper>
   );
 };
 
