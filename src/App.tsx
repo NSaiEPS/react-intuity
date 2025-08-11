@@ -5,7 +5,6 @@ import React from "react";
 import ProtectedRoute, {
   Authorization,
 } from "./components/core/protectedRoute";
-import WithSkeleton from "./components/core/withSkeleton";
 
 // Lazy imports for all pages
 const SignInPage = React.lazy(() =>

@@ -109,7 +109,7 @@ export const {
 export default AccountSlice.reducer;
 
 export const getAccountInfo: any =
-  (role_id, user_id, token) => async (dispatch) => {
+  (role_id, user_id, token, setContextLoading) => async (dispatch) => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -128,6 +128,9 @@ export const getAccountInfo: any =
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 
@@ -161,7 +164,7 @@ export const updateAccountCustomerInfo: any =
   };
 
 export const stopTransferService: any =
-  (token, formData, isGetApi = false, successCallBack) =>
+  (token, formData, isGetApi = false, successCallBack, setContextLoading) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
@@ -187,6 +190,9 @@ export const stopTransferService: any =
       toast.error(e?.message ?? "Something went wrong!");
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 
@@ -364,7 +370,7 @@ export const updateVoicePreference: any =
   };
 
 export const contactCustomerService: any =
-  (token, formData, successCallBack, showMessage = true) =>
+  (token, formData, successCallBack, showMessage = true, setContextLoading) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
@@ -388,6 +394,9 @@ export const contactCustomerService: any =
       toast.error(e?.response?.data?.message ?? "Error Try again!");
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 

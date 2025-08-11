@@ -25,17 +25,8 @@ import { PaymentModal } from "./paymnet-modal";
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
   const [pdfModal, setPdfModal] = React.useState<boolean>(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
   );
@@ -51,23 +42,6 @@ export function LastBill(): React.JSX.Element {
     : getLocalStorage("intuity-customerInfo");
   console.log(lastBillInfo, "lastBillInfo");
   // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  console.log(stored, "storedstored");
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
-  React.useEffect(() => {
-    const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-
-    dispatch(getLastBillInfo(formData, token));
-  }, [userInfo]);
 
   const [balanceCount, setBalanceCount] = React.useState(0);
   React.useEffect(() => {

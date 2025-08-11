@@ -15,8 +15,7 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 
 export function TransferDetailsForm(): React.JSX.Element {
-  const dispatch = useDispatch();
-  const { transferInfo, accountLoading, userInfo } = useSelector(
+  const { transferInfo, accountLoading } = useSelector(
     (state: RootState) => state?.Account
   );
 
@@ -33,38 +32,7 @@ export function TransferDetailsForm(): React.JSX.Element {
     id,
     meterNumber,
   } = transferInfo?.customer_data?.[0] || {};
-  // console.log(transferInfo, 'transferInfo');
-  const getUserDetails = () => {
-    type IntuityUser = {
-      body?: {
-        acl_role_id?: string;
-        customer_id?: string;
-        token?: string;
-      };
-    };
-    const raw = getLocalStorage("intuity-user");
 
-    const stored: IntuityUser | null =
-      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-    console.log(stored, "stored");
-    // let roleId = stored?.user?.body?.acl_role_id;
-    // let userId = stored?.user?.body?.id;
-
-    let roleId = stored?.body?.acl_role_id;
-    let customer_id = stored?.body?.customer_id;
-    // let userId = stored?.body?.id;
-    let token = stored?.body?.token;
-
-    const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", customer_id);
-    formData.append("is_form", "0");
-    dispatch(stopTransferService(token, formData, true));
-  };
-  React.useEffect(() => {
-    getUserDetails();
-  }, [userInfo]);
   return (
     <>
       <form

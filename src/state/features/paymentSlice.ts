@@ -31,28 +31,30 @@ export const { setLastBillInfo, setPaymentLoader } = paymentSlice.actions;
 
 export default paymentSlice.reducer;
 
-export const getLastBillInfo: any = (formData, token) => async (dispatch) => {
-  dispatch(setPaymentLoader(true));
+export const getLastBillInfo: any =
+  (formData, token, setContextLoading) => async (dispatch) => {
+    dispatch(setPaymentLoader(true));
 
-  try {
-    const res = await getLastBillInfoAPI({ token, formData });
+    try {
+      const res = await getLastBillInfoAPI({ token, formData });
 
-    if (res?.status) {
-      dispatch(setLastBillInfo(res?.body));
-    } else {
-      dispatch(setLastBillInfo({}));
+      if (res?.status) {
+        dispatch(setLastBillInfo(res?.body));
+      } else {
+        dispatch(setLastBillInfo({}));
 
-      if (res?.message == "You are not authorised to use this api") {
-        clearLocalStorage();
-        location.reload();
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
       }
-    }
-  } catch (e: any) {
-    toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
 
-    // toast(e?.response?.data?.message);
-    // message.error(e?.response?.data?.message);
-  } finally {
-    dispatch(setPaymentLoader(false));
-  }
-};
+      // toast(e?.response?.data?.message);
+      // message.error(e?.response?.data?.message);
+    } finally {
+      dispatch(setPaymentLoader(false));
+      setContextLoading(false);
+    }
+  };

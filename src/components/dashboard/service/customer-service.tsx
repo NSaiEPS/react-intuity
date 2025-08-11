@@ -30,6 +30,8 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 
 import { paths } from "@/utils/paths";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { useLoading } from "@/components/core/skeletion-context";
 
 // Schema
 const formSchema = z.object({
@@ -57,9 +59,11 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function CustomerDetailsForm(): React.JSX.Element {
-  const navigate = useNavigate();
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
-
+  const { setContextLoading } = useLoading();
+  React.useLayoutEffect(() => {
+    setContextLoading(true);
+  }, []);
   const {
     control,
     handleSubmit,
@@ -139,7 +143,15 @@ export function CustomerDetailsForm(): React.JSX.Element {
     formData.append("customer_id", customer_id);
     formData.append("is_form", "0");
 
-    dispatch(contactCustomerService(token, formData, successCallBack, false));
+    dispatch(
+      contactCustomerService(
+        token,
+        formData,
+        successCallBack,
+        false,
+        setContextLoading
+      )
+    );
   }, [customer_id]);
   const successCallBack = (res) => {
     console.log(res, "sdsdsdsdsdsdsd");
@@ -176,286 +188,294 @@ export function CustomerDetailsForm(): React.JSX.Element {
     updatedFiles.splice(index, 1);
     setValue("files", updatedFiles, { shouldValidate: true });
   };
-  console.log(errors, "errorserrors");
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ borderRadius: boarderRadius.card }}>
-        <CardContent>
-          <Grid container spacing={3}>
-            <Grid md={6} xs={12}>
-              <Controller
-                name="accountName"
-                control={control}
-                render={({ field }) => (
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    disabled
-                    required
-                    error={!!errors.accountName}
-                  >
-                    <InputLabel>Account name</InputLabel>
-                    <OutlinedInput label="Account name" {...field} />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="accountNumber"
-                control={control}
-                render={({ field }) => (
-                  <FormControl
-                    disabled
-                    fullWidth
-                    required
-                    error={!!errors.accountNumber}
-                  >
-                    <InputLabel>Account #</InputLabel>
-                    <OutlinedInput label="Account #" {...field} />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="masterNumber"
-                control={control}
-                render={({ field }) => (
-                  <FormControl disabled fullWidth error={!!errors.masterNumber}>
-                    <InputLabel>Meter #</InputLabel>
-                    <OutlinedInput label="Master #" {...field} />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="serviceAddress"
-                control={control}
-                render={({ field }) => (
-                  <FormControl
-                    disabled
-                    fullWidth
-                    required
-                    error={!!errors.serviceAddress}
-                  >
-                    <InputLabel>Service Address</InputLabel>
-                    <OutlinedInput label="Service Address" {...field} />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="billingAddress"
-                control={control}
-                render={({ field }) => (
-                  <FormControl
-                    disabled
-                    fullWidth
-                    required
-                    error={!!errors.billingAddress}
-                  >
-                    <InputLabel>Billing Address</InputLabel>
-                    <OutlinedInput label="Billing Address" {...field} />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="phone"
-                control={control}
-                render={({ field }) => (
-                  <FormControl disabled fullWidth>
-                    <InputLabel>Primary Phone</InputLabel>
-                    <OutlinedInput
-                      label="Primary Phone"
-                      type="tel"
-                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                      {...field}
-                    />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="altPhone"
-                control={control}
-                disabled
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel>Alt Phone</InputLabel>
-                    <OutlinedInput
-                      label="Alt Phone"
-                      type="tel"
-                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                      {...field}
-                    />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid md={6} xs={12}>
-              <Controller
-                name="email"
-                disabled
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth disabled error={!!errors.email}>
-                    <InputLabel>Email</InputLabel>
-                    <OutlinedInput label="Email" type="email" {...field} />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-          </Grid>
-
-          <Grid md={12} xs={12} p={0} pt={3}>
-            <Controller
-              name="question"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth required error={!!errors.question}>
-                  <InputLabel>Enter your comments or questions </InputLabel>
-                  <OutlinedInput
-                    label="Enter your comments or questions "
-                    multiline
-                    {...field}
-                  />
-                </FormControl>
-              )}
-            />
-          </Grid>
-
-          <Grid container spacing={2} mt={1}>
-            <Grid xs={12} sm={6}>
-              <Stack spacing={1}>
-                <Typography variant="h6">Preferred contact method *</Typography>
+    <SkeletonWrapper>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card sx={{ borderRadius: boarderRadius.card }}>
+          <CardContent>
+            <Grid container spacing={3}>
+              <Grid md={6} xs={12}>
                 <Controller
-                  name="preferredContactMethod"
+                  name="accountName"
                   control={control}
                   render={({ field }) => (
-                    <RadioGroup row {...field}>
-                      <FormControlLabel
-                        value="Phone"
-                        control={<Radio />}
-                        label="Phone"
-                      />
-                      <FormControlLabel
-                        value="Email"
-                        control={<Radio />}
-                        label="Email"
-                      />
-                    </RadioGroup>
+                    <FormControl
+                      variant="outlined"
+                      fullWidth
+                      disabled
+                      required
+                      error={!!errors.accountName}
+                    >
+                      <InputLabel>Account name</InputLabel>
+                      <OutlinedInput label="Account name" {...field} />
+                    </FormControl>
                   )}
                 />
-              </Stack>
-            </Grid>
+              </Grid>
 
-            <Grid xs={12} sm={6}>
-              <Stack spacing={1}>
-                <Typography variant="h6">I am the *</Typography>
+              <Grid md={6} xs={12}>
                 <Controller
-                  name="preferredOwnerMethod"
+                  name="accountNumber"
                   control={control}
                   render={({ field }) => (
-                    <RadioGroup row {...field}>
-                      <FormControlLabel
-                        value="Owner"
-                        control={<Radio />}
-                        label="Owner"
-                      />
-                      <FormControlLabel
-                        value="Tenant"
-                        control={<Radio />}
-                        label="Tenant"
-                      />
-                    </RadioGroup>
+                    <FormControl
+                      disabled
+                      fullWidth
+                      required
+                      error={!!errors.accountNumber}
+                    >
+                      <InputLabel>Account #</InputLabel>
+                      <OutlinedInput label="Account #" {...field} />
+                    </FormControl>
                   )}
                 />
-              </Stack>
+              </Grid>
+
+              <Grid md={6} xs={12}>
+                <Controller
+                  name="masterNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl
+                      disabled
+                      fullWidth
+                      error={!!errors.masterNumber}
+                    >
+                      <InputLabel>Meter #</InputLabel>
+                      <OutlinedInput label="Master #" {...field} />
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid md={6} xs={12}>
+                <Controller
+                  name="serviceAddress"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl
+                      disabled
+                      fullWidth
+                      required
+                      error={!!errors.serviceAddress}
+                    >
+                      <InputLabel>Service Address</InputLabel>
+                      <OutlinedInput label="Service Address" {...field} />
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid md={6} xs={12}>
+                <Controller
+                  name="billingAddress"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl
+                      disabled
+                      fullWidth
+                      required
+                      error={!!errors.billingAddress}
+                    >
+                      <InputLabel>Billing Address</InputLabel>
+                      <OutlinedInput label="Billing Address" {...field} />
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid md={6} xs={12}>
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl disabled fullWidth>
+                      <InputLabel>Primary Phone</InputLabel>
+                      <OutlinedInput
+                        label="Primary Phone"
+                        type="tel"
+                        inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                        {...field}
+                      />
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid md={6} xs={12}>
+                <Controller
+                  name="altPhone"
+                  control={control}
+                  disabled
+                  render={({ field }) => (
+                    <FormControl fullWidth>
+                      <InputLabel>Alt Phone</InputLabel>
+                      <OutlinedInput
+                        label="Alt Phone"
+                        type="tel"
+                        inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                        {...field}
+                      />
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid md={6} xs={12}>
+                <Controller
+                  name="email"
+                  disabled
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth disabled error={!!errors.email}>
+                      <InputLabel>Email</InputLabel>
+                      <OutlinedInput label="Email" type="email" {...field} />
+                    </FormControl>
+                  )}
+                />
+              </Grid>
             </Grid>
+
             <Grid md={12} xs={12} p={0} pt={3}>
-              <FormControl fullWidth error={!!errors.files}>
-                <Typography variant="body1" mb={1}>
-                  Please upload any supporting documents or photos:(Photos or
-                  PDfs,etc..)
-                </Typography>
-                <OutlinedInput
-                  type="file"
-                  inputProps={{ multiple: true }}
-                  onChange={handleFilesChange}
-                />
-                {!!errors.files && (
-                  <FormHelperText>
-                    {errors.files.message as string}
-                  </FormHelperText>
+              <Controller
+                name="question"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth required error={!!errors.question}>
+                    <InputLabel>Enter your comments or questions </InputLabel>
+                    <OutlinedInput
+                      label="Enter your comments or questions "
+                      multiline
+                      {...field}
+                    />
+                  </FormControl>
                 )}
-              </FormControl>
-
-              {/* File Preview List */}
-              {files.length > 0 && (
-                <Grid container spacing={1} mt={2}>
-                  {files.map((file, index) => (
-                    <Grid key={index}>
-                      <Chip
-                        label={file.name}
-                        onDelete={() => handleFileRemove(index)}
-                        deleteIcon={<XSquare />}
-                        variant="outlined"
-                        color="primary"
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              )}
+              />
             </Grid>
-          </Grid>
-        </CardContent>
 
-        <Divider />
+            <Grid container spacing={2} mt={1}>
+              <Grid xs={12} sm={6}>
+                <Stack spacing={1}>
+                  <Typography variant="h6">
+                    Preferred contact method *
+                  </Typography>
+                  <Controller
+                    name="preferredContactMethod"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup row {...field}>
+                        <FormControlLabel
+                          value="Phone"
+                          control={<Radio />}
+                          label="Phone"
+                        />
+                        <FormControlLabel
+                          value="Email"
+                          control={<Radio />}
+                          label="Email"
+                        />
+                      </RadioGroup>
+                    )}
+                  />
+                </Stack>
+              </Grid>
 
-        <CardActions sx={{ justifyContent: "flex-end" }}>
-          <Button
-            variant="outlined"
-            sx={{ color: colors.blue, borderColor: colors.blue }}
-            disables={accountLoading}
-            textTransform="none"
-            onClick={() => handleReset()}
-            style={{
-              color: colors.blue,
-              borderColor: colors.blue,
-              borderRadius: "12px",
-              height: "41px",
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={accountLoading}
-            loading={accountLoading}
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{ borderRadius: "12px", height: "41px" }}
-          >
-            Send
-          </Button>
-        </CardActions>
-      </Card>
-    </form>
+              <Grid xs={12} sm={6}>
+                <Stack spacing={1}>
+                  <Typography variant="h6">I am the *</Typography>
+                  <Controller
+                    name="preferredOwnerMethod"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup row {...field}>
+                        <FormControlLabel
+                          value="Owner"
+                          control={<Radio />}
+                          label="Owner"
+                        />
+                        <FormControlLabel
+                          value="Tenant"
+                          control={<Radio />}
+                          label="Tenant"
+                        />
+                      </RadioGroup>
+                    )}
+                  />
+                </Stack>
+              </Grid>
+              <Grid md={12} xs={12} p={0} pt={3}>
+                <FormControl fullWidth error={!!errors.files}>
+                  <Typography variant="body1" mb={1}>
+                    Please upload any supporting documents or photos:(Photos or
+                    PDfs,etc..)
+                  </Typography>
+                  <OutlinedInput
+                    type="file"
+                    inputProps={{ multiple: true }}
+                    onChange={handleFilesChange}
+                  />
+                  {!!errors.files && (
+                    <FormHelperText>
+                      {errors.files.message as string}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+
+                {/* File Preview List */}
+                {files.length > 0 && (
+                  <Grid container spacing={1} mt={2}>
+                    {files.map((file, index) => (
+                      <Grid key={index}>
+                        <Chip
+                          label={file.name}
+                          onDelete={() => handleFileRemove(index)}
+                          deleteIcon={<XSquare />}
+                          variant="outlined"
+                          color="primary"
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+
+          <Divider />
+
+          <CardActions sx={{ justifyContent: "flex-end" }}>
+            <Button
+              variant="outlined"
+              sx={{ color: colors.blue, borderColor: colors.blue }}
+              disables={accountLoading}
+              textTransform="none"
+              onClick={() => handleReset()}
+              style={{
+                color: colors.blue,
+                borderColor: colors.blue,
+                borderRadius: "12px",
+                height: "41px",
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={accountLoading}
+              loading={accountLoading}
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{ borderRadius: "12px", height: "41px" }}
+            >
+              Send
+            </Button>
+          </CardActions>
+        </Card>
+      </form>
+    </SkeletonWrapper>
   );
 }

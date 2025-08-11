@@ -1,31 +1,10 @@
 import * as React from "react";
-import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 
 import { getLocalStorage } from "@/utils/auth";
-import {
-  CardHeader,
-  FormControl,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Divider from "@mui/material/Divider";
-import Stack from "@mui/material/Stack";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
+import { CardHeader, FormControl, Grid, MenuItem, Select } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import { FileText, Minus, Plus } from "@phosphor-icons/react/dist/ssr";
-import dayjs from "dayjs";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -71,24 +50,6 @@ export function BillingHistory({
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
-  const dummyInvoice = [
-    {
-      type: "invoice",
-      date: dayjs().format("MMM D, YYYY"),
-      status: "Success",
-      amount: "$ 130",
-      balance: "$ 130",
-      id: 1,
-    },
-    {
-      type: "invoice",
-      date: dayjs().format("MMM D, YYYY"),
-      status: "Success",
-      amount: "$ 100",
-      balance: "$ 100",
-      id: 2,
-    },
-  ];
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 15 }, (_, index) => currentYear - index);
@@ -96,6 +57,7 @@ export function BillingHistory({
 
   const handleChange = (event: any) => {
     setSelectedYear(event.target.value);
+    filterByYear(event.target.value);
   };
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
@@ -123,19 +85,20 @@ export function BillingHistory({
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  React.useEffect(() => {
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
+
+  const filterByYear = (year) => {
+    const roleId = stored?.body?.acl_role_id;
+    const userId = stored?.body?.customer_id;
+    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("id", userId);
-    formData.append("year", String(selectedYear));
+    formData.append("year", String(year));
 
     dispatch(getLastBillInfo(formData, token));
-  }, [userInfo, selectedYear]);
+  };
   return (
     <Grid>
       <Grid container spacing={2} justifyContent="space-between">
