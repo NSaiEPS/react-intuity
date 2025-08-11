@@ -414,7 +414,7 @@ export const contactCustomerService: any =
   };
 
 export const getConfirmInfo: any =
-  (token, formData, successCallBack) => async (dispatch) => {
+  (token, formData, successCallBack, setContextLoading) => async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
       const res = await getConfirmInfoApi({ token, formData });
@@ -436,6 +436,9 @@ export const getConfirmInfo: any =
       toast.error(e?.response?.data?.message ?? "Error Try again!");
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 

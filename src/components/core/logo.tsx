@@ -1,7 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { useColorScheme } from "@mui/material/styles";
-
 import { NoSsr } from "@/components/core/no-ssr";
 
 const HEIGHT = 60;
@@ -31,7 +30,15 @@ export function Logo({
   }
 
   return (
-    <Box alt="logo" component="img" height={height} src={url} width={width} />
+    <Box
+      alt="logo"
+      component="img"
+      height={height}
+      width={width}
+      src={url}
+      loading="lazy" // <-- lazy load the image
+      sx={{ display: "block" }}
+    />
   );
 }
 
@@ -42,6 +49,11 @@ export interface DynamicLogoProps {
   height?: number;
   width?: number;
 }
+
+// Lazy-load the Logo component itself
+const LazyLogo = React.lazy(() =>
+  import("./Logo").then((mod) => ({ default: mod.Logo }))
+);
 
 export function DynamicLogo({
   colorDark = "light",
@@ -57,7 +69,11 @@ export function DynamicLogo({
     <NoSsr
       fallback={<Box sx={{ height: `${height}px`, width: `${width}px` }} />}
     >
-      <Logo color={color} height={height} width={width} {...props} />
+      <React.Suspense
+        fallback={<Box sx={{ height: `${height}px`, width: `${width}px` }} />}
+      >
+        <LazyLogo color={color} height={height} width={width} {...props} />
+      </React.Suspense>
     </NoSsr>
   );
 }

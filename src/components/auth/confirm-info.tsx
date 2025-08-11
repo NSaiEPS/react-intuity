@@ -52,16 +52,16 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  React.useEffect(() => {
-    let role_id = stored?.body?.acl_role_id;
-    let user_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-    const formData = new FormData();
+  // React.useEffect(() => {
+  //   let role_id = stored?.body?.acl_role_id;
+  //   let user_id = stored?.body?.customer_id;
+  //   let token = stored?.body?.token;
+  //   const formData = new FormData();
 
-    formData.append("acl_role_id", role_id);
-    formData.append("customer_id", user_id);
-    dispatch(getConfirmInfo(token, formData));
-  }, []);
+  //   formData.append("acl_role_id", role_id);
+  //   formData.append("customer_id", user_id);
+  //   dispatch(getConfirmInfo(token, formData));
+  // }, []);
 
   const hanldeConfirm = () => {
     let role_id = stored?.body?.acl_role_id;
