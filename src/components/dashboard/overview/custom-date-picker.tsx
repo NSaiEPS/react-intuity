@@ -133,7 +133,7 @@ const DateRangeSelector = ({ onSubmit }) => {
           >
             <Typography variant="h6">Select Custom Date Range</Typography>
             <IconButton onClick={() => setOpenCustomDialog(false)}>
-              <X size={24} />
+              <X size={24} color={colors.blue} />
             </IconButton>
           </DialogTitle>
 

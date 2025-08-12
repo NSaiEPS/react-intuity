@@ -14,6 +14,7 @@ import { X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { colors } from "@/utils";
 
 interface AddCardModalProps {
   open: boolean;
@@ -165,7 +166,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
             color: (theme) => theme.palette.grey[500],
           }}
         >
-          <X size={24} />
+          <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
       <DialogContent>

@@ -186,7 +186,7 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
       >
         Change Notification Phone No. (Account No. 1146)
         <IconButton onClick={onClose}>
-          <X size={24} />
+          <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
 

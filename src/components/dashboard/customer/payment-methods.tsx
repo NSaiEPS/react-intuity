@@ -370,7 +370,7 @@ export const PaymentMethods = ({
               }}
               onClick={onClose}
             >
-              <X size={24} />
+              <X size={24} color={colors.blue} />
             </Button>
           )}
         </DialogActions>

@@ -14,6 +14,7 @@ import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass"
 import { Minus } from "@phosphor-icons/react/dist/ssr/Minus";
 import { Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Printer } from "@phosphor-icons/react/dist/ssr/Printer";
+import { colors } from "@/utils";
 // import { Document, Page, pdfjs } from "react-pdf";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -65,7 +66,7 @@ export default function PdfViewer({ fileUrl, onClose, open }: PdfViewProps) {
             color: (theme) => theme.palette.grey[500],
           }}
         >
-          <X size={24} />
+          <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
       <Box

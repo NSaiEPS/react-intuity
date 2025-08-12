@@ -97,7 +97,7 @@ export default function EmailDialog({ open, onClose, clickedDetails }) {
       >
         Change Notification Email (Account No. 1146)
         <IconButton onClick={onClose} edge="end">
-          <X size={24} />
+          <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
 

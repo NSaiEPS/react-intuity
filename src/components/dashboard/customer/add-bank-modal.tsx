@@ -186,7 +186,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
             color: (theme) => theme.palette.grey[500],
           }}
         >
-          <X size={24} />
+          <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
 

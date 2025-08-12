@@ -59,7 +59,7 @@ export default function PaymentSummaryModal({
             }}
             onClick={onClose}
           >
-            <X size={24} />
+            <X size={24} color={colors.blue} />
           </Button>
         </Stack>
       </DialogTitle>

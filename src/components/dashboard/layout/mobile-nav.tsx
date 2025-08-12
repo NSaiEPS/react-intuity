@@ -115,7 +115,7 @@ export function MobileNav({
             justifyContent: "center",
           }}
         >
-          <X size={24} weight="bold" color={colors.darkBlue} />
+          <X size={24} color={colors.blue} weight="bold" />
         </Box>
       )}
     </>
