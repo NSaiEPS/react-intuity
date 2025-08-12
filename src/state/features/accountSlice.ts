@@ -697,9 +697,8 @@ export const getConvenienceFee: any =
           clearLocalStorage();
           location.reload();
         }
-        if (isPost) {
-          toast.error(res?.message ?? "Something went wrong!");
-        }
+
+        toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");

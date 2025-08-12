@@ -52,7 +52,7 @@ export interface DynamicLogoProps {
 
 // Lazy-load the Logo component itself
 const LazyLogo = React.lazy(() =>
-  import("./Logo").then((mod) => ({ default: mod.Logo }))
+  import("./logo").then((mod) => ({ default: mod.Logo }))
 );
 
 export function DynamicLogo({

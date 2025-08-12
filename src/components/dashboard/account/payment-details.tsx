@@ -370,9 +370,9 @@ const PaymentForm = () => {
       paymentMethodInfoCards?.card_token
     );
 
-    formdata.append("convenienceFee", watch("convenienceFee") || 0);
+    formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
     formdata.append("payment_method", "0");
-    formdata.append("price", watch("amount") || 0);
+    formdata.append("price", String(watch("amount") || 0));
 
     dispatch(
       paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
@@ -478,13 +478,24 @@ const PaymentForm = () => {
   //   };
   // }
 
+  type PaymentConfig = {
+    config_data_card?: Record<string, any>;
+    config_data_ach?: Record<string, any>;
+    [key: string]: any;
+  };
+
   function calculatePaymentAmount({
     amount,
     paymentType,
     cardType = "other",
     config = {},
+  }: {
+    amount: number | string;
+    paymentType: string;
+    cardType?: string;
+    config?: PaymentConfig;
   }) {
-    const parseNum = (v) => {
+    const parseNum = (v: any) => {
       const n = parseFloat(v);
       return Number.isFinite(n) ? n : 0;
     };
@@ -499,8 +510,8 @@ const PaymentForm = () => {
       };
 
     let conv = 0;
-    const cardConfig = config.config_data_card || {};
-    const achConfig = config.config_data_ach || {};
+    const cardConfig = (config && config.config_data_card) || {};
+    const achConfig = (config && config.config_data_ach) || {};
 
     // Helper to compute same branching logic as PHP for a group of (fixed, percentage, minimum)
     function computeFeeFromFields(baseAmount, fixedField, percField, minField) {
