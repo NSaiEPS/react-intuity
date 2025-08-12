@@ -5,7 +5,6 @@ import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
 
 export default function CompanyRouteGuard() {
-  console.log("CompanyRouteGuard rendered");
   const user = getLocalStorage("intuity-user");
   const storedCompanyId = secureLocalStorage.getItem("intuity-companyId");
 

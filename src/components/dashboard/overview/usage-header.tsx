@@ -41,7 +41,7 @@ function UsageHeader() {
   const { accountLoading, usageAlerts } = useSelector(
     (state: RootState) => state?.Account
   );
-  console.log(usageAlerts, "usageAlerts");
+
   const dispatch = useDispatch();
   useEffect(() => {
     let roleId = stored?.body?.acl_role_id;

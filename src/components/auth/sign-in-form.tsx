@@ -52,7 +52,6 @@ export function SignInForm({ user = false }): React.JSX.Element {
   const { checkSession } = useUser();
   const location = useLocation();
   const pathname = location.pathname;
-  console.log(pathname?.split("/"), "pathname");
 
   const [showPassword, setShowPassword] = React.useState<boolean>();
 

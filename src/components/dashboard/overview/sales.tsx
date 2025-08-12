@@ -324,7 +324,6 @@ export function Sales({
   // const barData: any = monthlyUsageGraph?.length monthlyUsageGraph?.slice(1);
   // console.log(barData, 'barData');
   const getBarChartData = (barData) => {
-    console.log(barData, "dsdsdsdsd");
     const gallons: any[] = [];
     const dollars: any[] = [];
     const dates: string[] = [];

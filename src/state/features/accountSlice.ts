@@ -428,7 +428,7 @@ export const getConfirmInfo: any =
 
       if (res.status) {
         dispatch(setConfirmInfo(res?.body));
-        console.log(res, "resss");
+
         if (successCallBack) {
           successCallBack();
         }

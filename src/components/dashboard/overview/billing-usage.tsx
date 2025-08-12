@@ -144,8 +144,6 @@ const HeaderSection = ({ setUamType }) => {
   }, [utilityType]);
 
   const successCallBack = (data, isMeter = false) => {
-    console.log(data, "datadatadatadata");
-
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
       let type = [...filterList.type];
       let ums = [];
@@ -376,7 +374,6 @@ const BarChart = () => {
   );
 
   const barData: any = dashBoardInfo;
-  console.log(dashBoardInfo, "barData");
 
   const getBarChartData = () => {
     const gallons: any[] = [];
@@ -432,12 +429,6 @@ const BarChart = () => {
         dataLabels: {
           enabled: true,
           formatter: function (val, { dataPointIndex }) {
-            console.log(
-              barGraphData.gallons[dataPointIndex],
-              dataPointIndex,
-              barGraphData,
-              "dataPointIndex"
-            );
             return `${barGraphData.gallons[dataPointIndex]} ${uamType}`;
           },
           offsetY: -25,

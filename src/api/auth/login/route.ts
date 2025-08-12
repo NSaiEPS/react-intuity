@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const formData = new URLSearchParams();
   formData.append("email", email);
   formData.append("password", password);
-  console.log("rendered");
+
   const res = await fetch(`${BASE_URL}login`, {
     method: "POST",
     headers: {

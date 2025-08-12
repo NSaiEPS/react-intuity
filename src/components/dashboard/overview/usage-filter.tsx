@@ -34,7 +34,6 @@ function UsageFilter() {
   const updatedMeterDetails = dashBoardInfo?.meterDetails
     ? dashBoardInfo?.meterDetails
     : dropdownDetailes;
-  console.log(updatedMeterDetails, "updatedMeterDetailsupdatedMeterDetails");
 
   const [meterDetails, setMeterDetails] = useState([]);
 
@@ -53,7 +52,7 @@ function UsageFilter() {
 
     setMeterDetails(value);
   }, [updatedMeterDetails]);
-  console.log(utilityType, "utilityType");
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -99,7 +98,7 @@ function UsageFilter() {
           });
         }
       });
-      console.log(type?.[0]?.value, "typetypetypetype");
+
       setUtilityType(type?.[0]?.value);
       setFilterList({
         type: type,
@@ -202,8 +201,6 @@ function UsageFilter() {
     }
   }, [unitMeasure]);
   const successCallBack = (data, isMeter = false) => {
-    console.log(data, "datadatadatadata");
-
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
       let type = [...filterList.type];
       let ums = [];
@@ -241,7 +238,7 @@ function UsageFilter() {
       if (!isMeter) {
         setUnitMeasure(ums[0]?.value);
       }
-      setMeterNo(meterNum[0]?.value);
+      setMeterNo(meterNum[0]?.value || "");
 
       setFilterList({
         type: type,
@@ -305,6 +302,7 @@ function UsageFilter() {
           <FormControl>
             <Select
               value={utilityType}
+              defaultValue=""
               onChange={(e) => {
                 setUtilityType(e.target.value);
               }}
@@ -327,6 +325,7 @@ function UsageFilter() {
           <FormControl>
             <Select
               value={unitMeasure}
+              defaultValue=""
               onChange={(e) => {
                 setUnitMeasure(e.target.value);
               }}
@@ -350,7 +349,7 @@ function UsageFilter() {
         <Grid item>
           <FormControl>
             <Select
-              value={meterNo}
+              value={meterNo || ""}
               onChange={(e) => {
                 setMeterNo(e.target.value);
               }}
