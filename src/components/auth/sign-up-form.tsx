@@ -212,7 +212,6 @@ export function SignUpForm() {
       getFieldsForStep(activeStep) as (keyof FormData)[]
     );
 
-    console.log("Form Valid:", valid);
     // if (valid) setActiveStep((prev) => prev + 1);
     if (valid) apiCall();
   };
@@ -307,7 +306,6 @@ export function SignUpForm() {
     if (activeStep == 3) {
       window.location.href = "/intuityfe/auth/sign-in";
     }
-    console.log(activeStep);
   };
   const navigate = useNavigate();
 
@@ -324,7 +322,6 @@ export function SignUpForm() {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log("Form submitted:", data);
     apiCall();
     // API call here
   };

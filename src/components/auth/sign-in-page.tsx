@@ -9,7 +9,6 @@ import { Helmet } from "react-helmet";
 // import { SignInForm } from '@/components/auth/sign-in-form';
 
 export function SignInPage({ title }): React.JSX.Element {
-  console.log(title);
   return (
     <Box
       sx={{

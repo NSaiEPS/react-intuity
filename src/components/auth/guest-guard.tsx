@@ -27,7 +27,6 @@ export function GuestGuard({
     }
 
     if (user) {
-      console.log(user, "setIsChecking");
       logger.debug("[GuestGuard]: User is logged in, redirecting to dashboard");
       // router.replace(paths.dashboard.overview(user?.body?.alias));
 

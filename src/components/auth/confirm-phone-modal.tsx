@@ -129,7 +129,6 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
 
   const onSubmit = (data) => {
     setIsPending(true);
-    console.log("Saved email:", data.email);
 
     let role_id = stored?.body?.acl_role_id;
     let user_id = stored?.body?.customer_id;

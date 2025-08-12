@@ -78,7 +78,6 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   const { checkSession } = useUser();
 
   const successCallBack = async () => {
-    console.log("success");
     await checkSession?.();
 
     navigate(paths.dashboard.overview());

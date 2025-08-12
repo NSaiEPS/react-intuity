@@ -33,7 +33,6 @@ export default function AutoPayDetails(): React.JSX.Element {
 
   React.useEffect(() => {
     setisAutoPay(CustomerInfo?.autopay === 1 ? true : false);
-    console.log(CustomerInfo, "isAutoPay");
   }, [CustomerInfo?.autopay]);
   const handleChange = () => {
     setisAutoPay((prev) => !prev);

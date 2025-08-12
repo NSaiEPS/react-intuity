@@ -38,12 +38,11 @@ const PayerTermsConditionsModal = () => {
 
   useEffect(() => {
     setIsPaperLessOn(CustomerInfo?.paperless === 1 ? true : false);
-    console.log(CustomerInfo?.paperless, "isPaperLessOn");
   }, [CustomerInfo?.paperless]);
   const handleChange = () => {
     setIsPaperLessOn((prev) => !prev);
   };
-  console.log(isPaperLessOn, "isPaperLessOn");
+
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
@@ -55,7 +54,7 @@ const PayerTermsConditionsModal = () => {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  console.log(stored, "stored");
+
   // let roleId = stored?.user?.body?.acl_role_id;
   // let userId = stored?.user?.body?.id;
   let roleId = stored?.body?.acl_role_id;

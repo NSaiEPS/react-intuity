@@ -41,7 +41,7 @@ export default function StopTransferServicePage(): React.JSX.Element {
 
     const stored: IntuityUser | null =
       typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-    console.log(stored, "stored");
+
     // let roleId = stored?.user?.body?.acl_role_id;
     // let userId = stored?.user?.body?.id;
 

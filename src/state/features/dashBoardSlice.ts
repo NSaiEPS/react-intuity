@@ -132,7 +132,7 @@ export const getDashboardInfo: any =
 export const getAccountInfo: any =
   (role_id, user_id, token) => async (dispatch) => {
     dispatch(setDashboardLoader(true));
-    console.log(role_id, "role_id");
+
     // formData.append('customer_id', '5968');
 
     // formData.append('question', 'What is this?');
@@ -146,7 +146,6 @@ export const getAccountInfo: any =
       const res = await accountDetailsAPI({ role_id, user_id, token });
 
       if (res?.status) {
-        console.log(res, "accountDetailsAPI");
         //toast(res?.data?.message);
         // message.success(res?.data?.message);
         // dispatch(setDashboardInfo(res));

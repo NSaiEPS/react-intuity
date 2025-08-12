@@ -43,22 +43,22 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
-  const handleContinue = () => {
-    if (!agreed) {
-      alert("Please agree to the terms.");
-      return;
-    }
-    console.log({ cardNumber, cvv, expiryMonth, expiryYear });
-    onClose();
-  };
+  // const handleContinue = () => {
+  //   if (!agreed) {
+  //     alert("Please agree to the terms.");
+  //     return;
+  //   }
 
-  const handleReset = () => {
-    setCardNumber("");
-    setCvv("");
-    setExpiryMonth("");
-    setExpiryYear("");
-    setAgreed(false);
-  };
+  //   onClose();
+  // };
+
+  // const handleReset = () => {
+  //   setCardNumber("");
+  //   setCvv("");
+  //   setExpiryMonth("");
+  //   setExpiryYear("");
+  //   setAgreed(false);
+  // };
 
   useEffect(() => {
     // Dynamically load the external iCG script

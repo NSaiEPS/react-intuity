@@ -60,7 +60,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
       alert("Please agree to the terms.");
       return;
     }
-    console.log({ routingNumber, accountNumber, accountType });
+
     onClose();
   };
 

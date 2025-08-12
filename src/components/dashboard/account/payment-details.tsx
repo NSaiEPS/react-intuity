@@ -79,7 +79,7 @@ const PaymentForm = () => {
   const { setContextLoading } = useLoading();
 
   const onSubmit = (data: FormData) => {
-    console.log({ ...data, paymentType });
+    // console.log({ ...data, paymentType });
   };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const accountLoading = useSelector(
