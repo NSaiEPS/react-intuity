@@ -100,9 +100,21 @@ const customColor = colors.blue;
 //   },
 // }));
 
-const CustomConnector = styled(StepConnector)(({ theme }) => ({
+interface CustomConnectorProps {
+  topOffset?: number;
+}
+
+export const CustomConnector = styled(StepConnector, {
+  shouldForwardProp: (prop) => prop !== "topOffset",
+})<CustomConnectorProps>(({ theme, topOffset = 15 }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 15,
+    top: topOffset,
+  },
+  [`&.${stepConnectorClasses.active} .${stepConnectorClasses.line}`]: {
+    borderColor: colors["blue.3"], // active step
+  },
+  [`&.${stepConnectorClasses.completed} .${stepConnectorClasses.line}`]: {
+    borderColor: colors.blue, // completed steps
   },
   [`& .${stepConnectorClasses.line}`]: {
     borderColor: "#ccc",
@@ -157,7 +169,7 @@ const CustomStepIconRoot = styled("div")<{
   }),
 }));
 
-function CustomStepIcon(props) {
+export function CustomStepIcon(props) {
   const { active, completed, className, icon } = props;
   return (
     <CustomStepIconRoot

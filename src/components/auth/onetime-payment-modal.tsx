@@ -1,17 +1,25 @@
 import React, { useState } from "react";
 import {
-  Modal,
   Box,
   Typography,
   TextField,
-  Button,
   Stepper,
   Step,
   StepLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
+  stepConnectorClasses,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  IconButton,
 } from "@mui/material";
+import { CustomConnector, CustomStepIcon } from "./sign-up-form";
+import { Button } from "nsaicomponents";
+import { colors } from "@/utils";
+import { X } from "@phosphor-icons/react";
 
 const steps = ["Retrieve Bill", "Confirm Payment", "Select Payment Method"];
 
@@ -69,7 +77,23 @@ export default function OneTimePaymentModal({ open, onClose }) {
               onChange={handleChange("invoiceAmount")}
               sx={{ mb: 2 }}
             />
-            <Button variant="contained" onClick={handleRetrieveBill} fullWidth>
+            <Button
+              type="button"
+              variant="contained"
+              onClick={handleRetrieveBill}
+              style={{
+                borderRadius: "12px",
+                height: "41px",
+                width: "100%",
+                backgroundColor: colors.blue,
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = colors["blue.3"])
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = colors.blue)
+              }
+            >
               Retrieve Bill
             </Button>
           </>
@@ -88,10 +112,37 @@ export default function OneTimePaymentModal({ open, onClose }) {
               sx={{ my: 2 }}
             />
             <Box display="flex" justifyContent="space-between">
-              <Button variant="outlined" onClick={handleBack}>
+              <Button
+                onClick={handleBack}
+                variant="outlined"
+                textTransform="none"
+                style={{
+                  color: colors.blue,
+                  borderColor: colors.blue,
+                  borderRadius: "12px",
+                  height: "41px",
+                }}
+              >
                 Back
               </Button>
-              <Button variant="contained" onClick={handleNext}>
+
+              <Button
+                type="button"
+                variant="contained"
+                onClick={handleNext}
+                style={{
+                  borderRadius: "12px",
+                  height: "41px",
+                  width: "115",
+                  backgroundColor: colors.blue,
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors["blue.3"])
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.blue)
+                }
+              >
                 Enter Payment Method
               </Button>
             </Box>
@@ -124,10 +175,35 @@ export default function OneTimePaymentModal({ open, onClose }) {
             </RadioGroup>
 
             <Box display="flex" justifyContent="space-between" mt={2}>
-              <Button variant="outlined" onClick={handleBack}>
+              <Button
+                onClick={handleBack}
+                variant="outlined"
+                textTransform="none"
+                style={{
+                  color: colors.blue,
+                  borderColor: colors.blue,
+                  borderRadius: "12px",
+                  height: "41px",
+                }}
+              >
                 Back
               </Button>
-              <Button variant="contained" onClick={onClose}>
+              <Button
+                variant="contained"
+                onClick={onClose}
+                style={{
+                  borderRadius: "12px",
+                  height: "41px",
+                  width: "115",
+                  backgroundColor: colors.blue,
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors["blue.3"])
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.blue)
+                }
+              >
                 Pay Now
               </Button>
             </Box>
@@ -139,28 +215,73 @@ export default function OneTimePaymentModal({ open, onClose }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          p: 4,
-          bgcolor: "background.paper",
-          maxWidth: 500,
-          mx: "auto",
-          my: "10%",
-          borderRadius: 2,
-          boxShadow: 24,
-        }}
-      >
-        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 3 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+    // <Modal open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="h5" sx={{ fontWeight: 500 }}>
+            One Time Payment
+          </Typography>
 
-        {renderStepContent(activeStep)}
-      </Box>
-    </Modal>
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+            sx={{
+              position: "absolute",
+              right: 13,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <X size={24} color={colors.blue} />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
+
+      <DialogContent>
+        <Box
+          sx={{
+            p: 4,
+            bgcolor: "background.paper",
+            maxWidth: 600,
+            mx: "auto",
+            my: "7%",
+            borderRadius: 2,
+            boxShadow: 24,
+          }}
+        >
+          <Stepper
+            activeStep={activeStep}
+            alternativeLabel
+            connector={<CustomConnector topOffset={15} />}
+            sx={{
+              mb: 4,
+              // maxWidth: 700,
+              // marginX: "auto",
+              width: "100%",
+              [`& .${stepConnectorClasses.line}`]: {
+                borderColor: "#ccc",
+                borderTopWidth: 2,
+                borderRadius: 1,
+              },
+            }}
+          >
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel StepIconComponent={CustomStepIcon}>
+                  {label}
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          {renderStepContent(activeStep)}
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 }

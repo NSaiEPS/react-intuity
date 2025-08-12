@@ -289,7 +289,14 @@ export function SignInForm({ user = false }): React.JSX.Element {
           {user && (
             <Typography variant="subtitle2" marginTop={1}>
               Don't have an account {` `}
-              <Link to="/sign-up" style={{ color: colors.blue }}>
+              <Link
+                to="/sign-up"
+                style={{
+                  color: colors.blue,
+                  borderColor: "transparent",
+                  textDecoration: "none",
+                }}
+              >
                 Register Now
               </Link>{" "}
               to view your account details

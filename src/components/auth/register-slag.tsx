@@ -263,7 +263,11 @@ export default function PaymentInfoSection() {
                         <strong>To view your account details</strong>, use the{" "}
                         <Link
                           to="/sign-up"
-                          style={{ color: colors.blue, fontWeight: "bold" }}
+                          style={{
+                            color: colors.blue,
+                            fontWeight: "bold",
+                            textDecoration: "none",
+                          }}
                         >
                           Register Now
                         </Link>{" "}
@@ -313,7 +317,10 @@ export default function PaymentInfoSection() {
         <CircularProgress color="success" />
       </Backdrop>
 
-      <OneTimePaymentModal open={onetimePaymentModalOpen} onClose={() => {}} />
+      <OneTimePaymentModal
+        open={onetimePaymentModalOpen}
+        onClose={() => setOneTimePaymentModalOpen(false)}
+      />
     </Box>
   );
 }
