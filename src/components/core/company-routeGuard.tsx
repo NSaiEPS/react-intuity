@@ -1,7 +1,7 @@
 // CompanyRouteGuard.tsx
 import { getLocalStorage } from "@/utils/auth";
-import React from "react";
-import { Navigate, Outlet, useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
 
 export default function CompanyRouteGuard() {
@@ -10,14 +10,17 @@ export default function CompanyRouteGuard() {
   const storedCompanyId = secureLocalStorage.getItem("intuity-companyId");
 
   const { company } = useParams();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  // Get the company from the URL params
 
   if (!storedCompanyId) {
-    // If there's no stored company, maybe force logout or handle gracefully
     return <Navigate to="/" replace />;
   }
 
@@ -25,6 +28,5 @@ export default function CompanyRouteGuard() {
     return <Navigate to={`/${storedCompanyId}/dashboard`} replace />;
   }
 
-  // ✅ Company matches, so allow rendering child routes
   return <Outlet />;
 }
