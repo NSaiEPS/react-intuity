@@ -1,5 +1,7 @@
 // 'use server';
 
+import { BASE_URL } from "./axios";
+
 // import { cookies } from 'next/headers';
 
 // import { SignInWithPasswordParams } from '@/lib/auth/client';
@@ -36,17 +38,14 @@
 
 export async function loginAction(req: Request) {
   const body = await req.formData();
-  const email = body.get("email") as string;
-  const password = body.get("password") as string;
+  // const email = body.get("email") as string;
+  // const password = body.get("password") as string;
 
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/login",
-    {
-      method: "POST",
-      headers: { Accept: "application/json" },
-      body: body,
-    }
-  );
+  const res = await fetch(`${BASE_URL}login`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+    body: body,
+  });
 
   const data = await res.json();
 

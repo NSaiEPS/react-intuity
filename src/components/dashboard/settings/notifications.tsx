@@ -272,6 +272,7 @@ export function Notifications(): React.JSX.Element {
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // setChecked();
+
     setClickedState(event.target.checked);
     setOpenConfirm(true);
   };
@@ -446,7 +447,10 @@ export function Notifications(): React.JSX.Element {
         confirmLabel="Yes, Confirm"
         cancelLabel="Cancel"
         onConfirm={handleConfirm}
-        onCancel={() => setOpenConfirm(false)}
+        onCancel={() => {
+          setOpenConfirm(false);
+          setClickedState((prev) => !prev);
+        }}
       />
 
       <CustomBackdrop

@@ -84,12 +84,11 @@ export function UserPopover({
     (state: RootState) => state?.DashBoard
   );
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
-  const CustomerInfo = getLocalStorage("intuity-customerInfo");
+
   const linkedCustomerInfo = getLocalStorage("linked-customerInfo");
 
-  const [onlyUnread, setOnlyUnread] = React.useState(false);
-  const { user_name, email, loginID, company_logo } =
-    dashBoardInfo?.body?.customer || CustomerInfo || {};
+  const [onlyUnread, setOnlyUnread] = React.useState(true);
+
   const linkedAccountsInfo =
     dashBoardInfo?.body?.linked_customers || linkedCustomerInfo || [];
   const [linkedAccounts, setLinkedAccounts] = React.useState([]);

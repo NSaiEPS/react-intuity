@@ -1,5 +1,5 @@
 // import api from '@/app/api/axios';
-import api from "@/api/axios";
+import api, { BASE_URL } from "@/api/axios";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "react-toastify";
 
@@ -89,16 +89,13 @@ class AuthClient {
 
     formData.append("email", email);
     formData.append("password", password);
-    const res = await fetch(
-      "https://test-intuity-backend.pay.waterbill.com/login",
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
-        body: formData,
-      }
-    );
+    const res = await fetch(`${BASE_URL}login`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: formData,
+    });
 
     const data = await res.json();
     console.log(data, "errorerror");
@@ -134,16 +131,13 @@ class AuthClient {
 
     formData.append("email", email);
 
-    const res = await fetch(
-      "https://test-intuity-backend.pay.waterbill.com/index/recover-password",
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
-        body: formData,
-      }
-    );
+    const res = await fetch(`${BASE_URL}index/recover-password`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: formData,
+    });
 
     const data = await res.json();
     if (data?.status) {

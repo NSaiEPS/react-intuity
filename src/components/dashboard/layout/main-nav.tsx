@@ -36,7 +36,7 @@ export function MainNav(): React.JSX.Element {
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo");
 
-  const { user_name, loginID, company_logo, customer_name } =
+  const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 
   const [clickedType, setClickedType] = React.useState("");

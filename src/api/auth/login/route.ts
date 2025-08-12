@@ -1,5 +1,7 @@
 // src/app/api/auth/login/route.ts
 
+import { BASE_URL } from "@/api/axios";
+
 export async function POST(req: Request) {
   const { email, password } = await req.json();
 
@@ -7,17 +9,14 @@ export async function POST(req: Request) {
   formData.append("email", email);
   formData.append("password", password);
   console.log("rendered");
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/login",
-    {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "",
-    }
-  );
+  const res = await fetch(`${BASE_URL}login`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "",
+  });
 
   const data = await res.json();
 

@@ -1,5 +1,7 @@
 // 'use server';
 
+import { BASE_URL } from "./axios";
+
 // import { cookies } from 'next/headers';
 
 // import { SignInWithPasswordParams } from '@/lib/auth/client';
@@ -24,18 +26,15 @@ export async function homeApi({ role_id, user_id, token }: DashBoardAPIParams) {
   formData.append("customer_id", user_id);
   //   const body = new URLSearchParams({ email, password }).toString();
 
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/home",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}home`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -60,18 +59,15 @@ export async function accountDetailsAPI({
   formData.append("is_form", "0");
   //   const body = new URLSearchParams({ email, password }).toString();
 
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/request/front/account-info",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}request/front/account-info`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -86,18 +82,15 @@ export async function accountCustomerInfo({
   token,
   formData,
 }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/request/front/account-info",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}request/front/account-info`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -109,18 +102,15 @@ export async function accountCustomerInfo({
 }
 
 export async function transferService({ token, formData }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/request/front/transfer-service",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}request/front/transfer-service`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -136,10 +126,10 @@ export async function paperLessUpdate({
   formData,
   type,
 }: AccountUpdateForm) {
-  let api =
+  const api =
     type === "autopay"
-      ? "https://test-intuity-backend.pay.waterbill.com/settings/front/autopay-setting"
-      : "https://test-intuity-backend.pay.waterbill.com/settings/front/paperless-setting";
+      ? `${BASE_URL}settings/front/autopay-setting`
+      : `${BASE_URL}settings/front/paperless-setting`;
   const res = await fetch(api, {
     method: "POST",
 
@@ -164,8 +154,7 @@ export async function updatePassword({
   formData,
   type,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/index/change-password";
+  const api = `${BASE_URL}index/change-password`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -191,7 +180,7 @@ export async function updateUserInfo({
   formData,
   type,
 }: AccountUpdateForm) {
-  let api = "https://test-intuity-backend.pay.waterbill.com/my-account";
+  const api = `${BASE_URL}my-account`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -216,8 +205,7 @@ export async function getPaymentDetailsApi({
   token,
   formData,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/settings/front/payment-method";
+  const api = `${BASE_URL}settings/front/payment-method`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -243,14 +231,11 @@ export async function deleteCardAndBankAccountApi({
   formData,
   type,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/billing/front/delete-card/";
-  if (type === "card") {
-    api =
-      "https://test-intuity-backend.pay.waterbill.com/billing/front/delete-card/";
+  let api = `${BASE_URL}billing/front/delete-card/`;
+  if (type == "card") {
+    api = `${BASE_URL}billing/front/delete-card/`;
   } else if (type === "bank_account") {
-    api =
-      "https://test-intuity-backend.pay.waterbill.com/billing/front/delete-bank-account/";
+    api = `${BASE_URL}billing/front/delete-bank-account/`;
   }
   const res = await fetch(api, {
     method: "POST",
@@ -272,7 +257,7 @@ export async function deleteCardAndBankAccountApi({
 }
 
 // export async function getNotificationListApi({ token, formData }: AccountUpdateForm) {
-//   let api = 'https://test-intuity-backend.pay.waterbill.com/my-account';
+//   const api = 'https://test-intuity-backend.pay.waterbill.com/my-account';
 
 //   const res = await fetch(api, {
 //     method: 'POST',
@@ -297,8 +282,7 @@ export async function updateVoicePreferenceAPi({
   token,
   formData,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/settings/front/update-customer-column";
+  const api = `${BASE_URL}settings/front/update-customer-column`;
   const res = await fetch(api, {
     method: "POST",
 
@@ -322,18 +306,15 @@ export async function contactCustomerServiceApi({
   token,
   formData,
 }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/request/front/contact-service",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}request/front/contact-service`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -348,18 +329,15 @@ export async function getConfirmInfoApi({
   token,
   formData,
 }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/confirm-information",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}confirm-information`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -371,17 +349,14 @@ export async function getConfirmInfoApi({
 }
 
 export async function getCompanyDetailsApi({ formData }) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/get-details-by-alias",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}get-details-by-alias`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -393,8 +368,8 @@ export async function getCompanyDetailsApi({ formData }) {
 }
 
 export async function registerApi({ formData }: any) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/register-cape-royale1";
+  //TODO: make dynamic
+  const api = `${BASE_URL}register-cape-royale1`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -415,7 +390,7 @@ export async function registerApi({ formData }: any) {
 }
 
 export async function listAnotherAccountAPI({ token, formData }: any) {
-  let api = "https://test-intuity-backend.pay.waterbill.com/add-account";
+  const api = `${BASE_URL}add-account`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -437,18 +412,15 @@ export async function listAnotherAccountAPI({ token, formData }: any) {
 }
 
 export async function usageAlertsAPI({ token, formData }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/usage/front/list-alerts",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}usage/front/list-alerts`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -461,18 +433,15 @@ export async function usageAlertsAPI({ token, formData }: AccountUpdateForm) {
 
 export async function usageGraphAPI({ token, formData }: AccountUpdateForm) {
   // const res = await fetch('https://test-intuity-backend.pay.waterbill.com/usage', {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/usage-bar-chart",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}usage-bar-chart`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -487,8 +456,7 @@ export async function getInvoiceDetailsAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/billing/front/invoice";
+  const api = `${BASE_URL}billing/front/invoice`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -513,18 +481,15 @@ export async function usageMonthlyGraphAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/usage/front/usage-meters-data",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}usage/front/usage-meters-data`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -539,18 +504,15 @@ export async function usageUtilityFiltersAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/get-utilityum-list",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}get-utilityum-list`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -565,18 +527,15 @@ export async function getLastBillInfoAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  const res = await fetch(
-    "https://test-intuity-backend.pay.waterbill.com/billing/front/billing-details",
-    {
-      method: "POST",
+  const res = await fetch(`${BASE_URL}billing/front/billing-details`, {
+    method: "POST",
 
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`, // ✅ Add the token to headers
-      },
-      body: formData,
-    }
-  );
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
 
   const data = await res.json();
 
@@ -591,8 +550,7 @@ export async function paymentWithoutSavingDetailsAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/billing/front/payment";
+  const api = `${BASE_URL}billing/front/payment`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -617,8 +575,7 @@ export async function getPaymentProcessorDetailsAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com/get-payment-processors";
+  const api = `${BASE_URL}get-payment-processors`;
 
   const res = await fetch(api, {
     method: "POST",
@@ -643,8 +600,7 @@ export async function saveDefaultPaymentMethodAPI({
   token,
   formData,
 }: AccountUpdateForm) {
-  let api =
-    "https://test-intuity-backend.pay.waterbill.com//save-default-payment-method";
+  const api = `${BASE_URL}save-default-payment-method`;
 
   const res = await fetch(api, {
     method: "POST",
