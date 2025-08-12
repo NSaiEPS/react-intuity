@@ -79,57 +79,57 @@ const customColor = colors.blue;
 //   },
 // }));
 
-const CustomConnector = styled(StepConnector)(({ theme }) => ({
-  [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 16,
-    left: "-70px",
-    right: "20px",
-    marginLeft: "500px",
-  },
-  // 👇 This targets the first step connector visually (the one after Step 1)
-  // [`&:nth-of-type(2).${stepConnectorClasses.alternativeLabel}`]: {
-  //   left: 'calc(50% + 2px)', // pushes line away from the circle
-  // },
-  [`&.${stepConnectorClasses.active} .${stepConnectorClasses.line}`]: {
-    backgroundColor: customColor,
-  },
-  [`& .${stepConnectorClasses.line}`]: {
-    height: 2,
-    border: 0,
-    backgroundColor: theme.palette.grey[300],
-  },
-}));
-
 // const CustomConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-//     top: 22,
+//     top: 16,
+//     left: "-70px",
+//     right: "20px",
+//     marginLeft: "500px",
+//   },
+//   // 👇 This targets the first step connector visually (the one after Step 1)
+//   // [`&:nth-of-type(2).${stepConnectorClasses.alternativeLabel}`]: {
+//   //   left: 'calc(50% + 2px)', // pushes line away from the circle
+//   // },
+//   [`&.${stepConnectorClasses.active} .${stepConnectorClasses.line}`]: {
+//     backgroundColor: customColor,
 //   },
 //   [`& .${stepConnectorClasses.line}`]: {
-//     borderColor: "#ccc",
-//     borderTopWidth: 2,
-//     borderRadius: 1,
+//     height: 2,
+//     border: 0,
+//     backgroundColor: theme.palette.grey[300],
 //   },
 // }));
-const CustomStepIcon = ({ active, completed, icon }: any) => {
-  return (
-    <div
-      style={{
-        backgroundColor: active || completed ? customColor : "#ccc",
-        color: "#fff",
-        borderRadius: "50%",
-        width: 32,
-        height: 32,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontWeight: "bold",
-      }}
-    >
-      {/* {completed ? icon : icon} */}
-      {completed ? <Check size={20} weight="bold" /> : icon}
-    </div>
-  );
-};
+
+const CustomConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 15,
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor: "#ccc",
+    borderTopWidth: 2,
+    borderRadius: 1,
+  },
+}));
+// const CustomStepIcon = ({ active, completed, icon }: any) => {
+//   return (
+//     <div
+//       style={{
+//         backgroundColor: active || completed ? customColor : "#ccc",
+//         color: "#fff",
+//         borderRadius: "50%",
+//         width: 32,
+//         height: 32,
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         fontWeight: "bold",
+//       }}
+//     >
+//       {/* {completed ? icon : icon} */}
+//       {completed ? <Check size={20} weight="bold" /> : icon}
+//     </div>
+//   );
+// };
 
 // Example usage
 const steps = [
@@ -138,6 +138,36 @@ const steps = [
   "Login Credentials",
   "Contact Info",
 ];
+const CustomStepIconRoot = styled("div")<{
+  ownerState: { active?: boolean; completed?: boolean };
+}>(({ theme, ownerState }) => ({
+  backgroundColor: ownerState.active ? colors.blue : "#ccc",
+  zIndex: 1,
+  color: "#fff",
+  width: 32,
+  height: 32,
+  display: "flex",
+  borderRadius: "50%",
+  justifyContent: "center",
+  alignItems: "center",
+  fontWeight: 500,
+  fontSize: 14,
+  ...(ownerState.completed && {
+    backgroundColor: colors.blue,
+  }),
+}));
+
+function CustomStepIcon(props) {
+  const { active, completed, className, icon } = props;
+  return (
+    <CustomStepIconRoot
+      ownerState={{ active, completed }}
+      className={className}
+    >
+      {icon}
+    </CustomStepIconRoot>
+  );
+}
 
 export const CustomStepper = ({ activeStep }: { activeStep: number }) => {
   return (
@@ -148,12 +178,18 @@ export const CustomStepper = ({ activeStep }: { activeStep: number }) => {
         connector={<CustomConnector />}
         sx={{
           mb: 4,
-          maxWidth: 700,
-          marginX: "auto",
+          // maxWidth: 700,
+          // marginX: "auto",
+          width: "100%",
+          [`& .${stepConnectorClasses.line}`]: {
+            borderColor: "#ccc",
+            borderTopWidth: 2,
+            borderRadius: 1,
+          },
         }}
       >
-        {steps.map((label, index) => (
-          <Step key={label} className={index === 0 ? "first-connector" : ""}>
+        {steps.map((label) => (
+          <Step key={label}>
             <StepLabel StepIconComponent={CustomStepIcon}>{label}</StepLabel>
           </Step>
         ))}
