@@ -83,12 +83,12 @@ export default function PaymentSummaryModal({
 
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
           <Typography>Invoice Amount</Typography>
-          <Typography>${amount.toFixed(2)}</Typography>
+          <Typography>${amount}</Typography>
         </Stack>
 
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
           <Typography>Convenience Fee</Typography>
-          <Typography>${fee.toFixed(2)}</Typography>
+          <Typography>${fee}</Typography>
         </Stack>
 
         <Divider sx={{ mb: 2 }} />
@@ -98,7 +98,7 @@ export default function PaymentSummaryModal({
             Total Payment
           </Typography>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            ${total.toFixed(2)}
+            ${total}
           </Typography>
         </Stack>
       </DialogContent>

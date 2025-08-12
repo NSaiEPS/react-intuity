@@ -49,6 +49,7 @@ const schema = zod.object({
   name: zod.string().min(1, "Name is required"),
   email: zod.string().email("Invalid email"),
   amount: zod.string().min(1, "Amount is required"),
+  convenienceFee: zod.number().optional(),
 });
 
 type FormData = zod.infer<typeof schema>;
@@ -67,6 +68,7 @@ const PaymentForm = () => {
       name: "",
       email: "",
       amount: "",
+      convenienceFee: 0,
     },
   });
 
@@ -176,7 +178,7 @@ const PaymentForm = () => {
     if (CustomerInfo?.acctnum) {
       setValue("name", CustomerInfo?.customer_name);
       setValue("email", CustomerInfo?.email);
-      setValue("amount", "100.00");
+      setValue("amount", "0.00");
     }
     if (CustomerInfo?.company_id) {
       const formdata = new FormData();
@@ -368,9 +370,9 @@ const PaymentForm = () => {
       paymentMethodInfoCards?.card_token
     );
 
-    formdata.append("convenienceFee", "0.07");
+    formdata.append("convenienceFee", watch("convenienceFee") || 0);
     formdata.append("payment_method", "0");
-    formdata.append("price", "2.00");
+    formdata.append("price", watch("amount") || 0);
 
     dispatch(
       paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
@@ -379,6 +381,222 @@ const PaymentForm = () => {
       })
     );
   };
+
+  // function calculatePaymentAmount({
+  //   amount,
+  //   paymentType, // 'card' or 'ach'
+  //   cardType, // 'visa', 'mastercard', 'amex' (only needed if paymentType is 'card')
+  //   config,
+  // }) {
+  //   const totalAmount = parseFloat(amount) || 0;
+  //   let fee = 0;
+
+  //   if (paymentType === "card") {
+  //     const cardConfig = config.config_data_card;
+
+  //     if (cardConfig.calculate_convenience_fee === "yes") {
+  //       if (cardType === "amex") {
+  //         // Amex fees
+  //         if (
+  //           parseFloat(cardConfig.credit_card_amex_amount_convenience_fee) > 0
+  //         ) {
+  //           fee += parseFloat(
+  //             cardConfig.credit_card_amex_amount_convenience_fee
+  //           );
+  //         }
+  //         if (
+  //           parseFloat(cardConfig.credit_card_amex_percentage_convenience_fee) >
+  //           0
+  //         ) {
+  //           fee +=
+  //             (totalAmount *
+  //               parseFloat(
+  //                 cardConfig.credit_card_amex_percentage_convenience_fee
+  //               )) /
+  //             100;
+  //         }
+  //         if (
+  //           fee <
+  //           parseFloat(
+  //             cardConfig.credit_card_amex_minimum_amount_convenience_fee
+  //           )
+  //         ) {
+  //           fee = parseFloat(
+  //             cardConfig.credit_card_amex_minimum_amount_convenience_fee
+  //           );
+  //         }
+  //       } else {
+  //         // Other cards
+  //         if (parseFloat(cardConfig.credit_card_amount_convenience_fee) > 0) {
+  //           fee += parseFloat(cardConfig.credit_card_amount_convenience_fee);
+  //         }
+  //         if (
+  //           parseFloat(cardConfig.credit_card_percentage_convenience_fee) > 0
+  //         ) {
+  //           fee +=
+  //             (totalAmount *
+  //               parseFloat(cardConfig.credit_card_percentage_convenience_fee)) /
+  //             100;
+  //         }
+  //         if (
+  //           fee <
+  //           parseFloat(cardConfig.credit_card_minimum_amount_convenience_fee)
+  //         ) {
+  //           fee = parseFloat(
+  //             cardConfig.credit_card_minimum_amount_convenience_fee
+  //           );
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   if (paymentType === "ach") {
+  //     const achConfig = config.config_data_ach;
+
+  //     if (achConfig.calculate_convenience_fee_ach === "yes") {
+  //       if (parseFloat(achConfig.bank_amount_convenience_fee_ach) > 0) {
+  //         fee += parseFloat(achConfig.bank_amount_convenience_fee_ach);
+  //       }
+  //       if (parseFloat(achConfig.bank_percentage_convenience_fee_ach) > 0) {
+  //         fee +=
+  //           (totalAmount *
+  //             parseFloat(achConfig.bank_percentage_convenience_fee_ach)) /
+  //           100;
+  //       }
+  //       if (
+  //         fee < parseFloat(achConfig.bank_minimum_amount_convenience_fee_ach)
+  //       ) {
+  //         fee = parseFloat(achConfig.bank_minimum_amount_convenience_fee_ach);
+  //       }
+  //     }
+  //   }
+
+  //   return {
+  //     baseAmount: totalAmount,
+  //     fee: parseFloat(fee.toFixed(2)),
+  //     total: parseFloat((totalAmount + fee).toFixed(2)),
+  //   };
+  // }
+
+  function calculatePaymentAmount({
+    amount,
+    paymentType,
+    cardType = "other",
+    config = {},
+  }) {
+    const parseNum = (v) => {
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    const base = parseNum(amount);
+    // PHP only calculates when amount > 0 in the keyup path — follow that
+    if (base <= 0)
+      return {
+        baseAmount: base,
+        convenienceFee: 0.0,
+        total: Number(base.toFixed(2)),
+      };
+
+    let conv = 0;
+    const cardConfig = config.config_data_card || {};
+    const achConfig = config.config_data_ach || {};
+
+    // Helper to compute same branching logic as PHP for a group of (fixed, percentage, minimum)
+    function computeFeeFromFields(baseAmount, fixedField, percField, minField) {
+      const fixed = parseNum(fixedField);
+      const perc = parseNum(percField);
+      const minimum = parseNum(minField);
+
+      if (fixed > 0 && perc > 0) {
+        conv = (baseAmount * perc) / 100 + fixed;
+        conv = Number(conv.toFixed(2)); // PHP does rounding here
+        return conv > minimum ? conv : minimum;
+      } else if (perc > 0) {
+        conv = Number(((baseAmount * perc) / 100).toFixed(2));
+        return conv > minimum ? conv : minimum;
+      } else if (fixed > 0) {
+        conv = Number(fixed.toFixed(2));
+        return conv > minimum ? conv : minimum;
+      } else {
+        // fallback to minimum (even if zero)
+        return minimum;
+      }
+    }
+
+    if (paymentType === "card") {
+      if (cardType === "amex") {
+        conv = computeFeeFromFields(
+          base,
+          cardConfig.credit_card_amex_amount_convenience_fee,
+          cardConfig.credit_card_amex_percentage_convenience_fee,
+          cardConfig.credit_card_amex_minimum_amount_convenience_fee
+        );
+      } else {
+        conv = computeFeeFromFields(
+          base,
+          cardConfig.credit_card_amount_convenience_fee,
+          cardConfig.credit_card_percentage_convenience_fee,
+          cardConfig.credit_card_minimum_amount_convenience_fee
+        );
+      }
+    } else if (paymentType === "bank_account") {
+      conv = computeFeeFromFields(
+        base,
+        achConfig.bank_amount_convenience_fee_ach,
+        achConfig.bank_percentage_convenience_fee_ach,
+        achConfig.bank_minimum_amount_convenience_fee_ach
+      );
+    }
+
+    const convenienceFee = Number(conv.toFixed(2));
+    const total = Number((base + convenienceFee).toFixed(2));
+
+    return {
+      baseAmount: Number(base.toFixed(2)),
+      convenienceFee,
+      total,
+    };
+  }
+  const resultCard = calculatePaymentAmount({
+    amount: 10,
+    paymentType: "card",
+    cardType: "visa", // or 'amex'
+    config: convenienceFee,
+  });
+
+  const resultACH = calculatePaymentAmount({
+    amount: 200,
+    paymentType: "bank_account",
+    config: convenienceFee,
+  });
+
+  console.log(resultCard, "resultCard"); // { baseAmount: 100, fee: 3.5, total: 103.5 }
+  console.log(resultACH, "resultCard");
+  const amount = watch("amount");
+
+  useEffect(() => {
+    const fee = calculatePaymentAmount({
+      amount: watch("amount") || "0",
+      paymentType:
+        paymentType === "saved"
+          ? paymentMethodInfoCards?.card_type
+            ? "card"
+            : "bank_account"
+          : debitType,
+      cardType: paymentMethodInfoCards?.card_type || "visa",
+      config: convenienceFee,
+    }).convenienceFee.toFixed(2);
+    setValue("convenienceFee", Number(fee));
+  }, [
+    amount,
+    convenienceFee,
+    debitType,
+    paymentMethodInfoCards?.card_type,
+    paymentType,
+    setValue,
+    watch,
+  ]);
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
@@ -467,10 +685,13 @@ const PaymentForm = () => {
               )}
             />
             <Typography sx={{ mt: 1, fontSize: 14, color: colors.blue }}>
-              Additional convenience Fee: $3.50
+              Additional convenience Fee:$ {watch("convenienceFee") || 0}
             </Typography>
             <Typography sx={{ fontSize: 14, color: colors.blue }}>
-              Total Payment: $103.50
+              Total Payment: ${" "}
+              {(
+                (Number(watch("amount")) || 0) + (watch("convenienceFee") || 0)
+              ).toFixed(2)}
             </Typography>
           </Box>
 
@@ -632,8 +853,8 @@ const PaymentForm = () => {
             open={showPaymentSummary}
             onClose={() => setShowPaymentSummary(false)}
             onPay={handlePay}
-            amount={10.0}
-            fee={0.35}
+            amount={Number(amount || 0)}
+            fee={Number(watch("convenienceFee") || 0)}
             cardType={paymentMethodInfoCards?.card_type || "Bank Account"}
             cardLast4={
               paymentMethodInfoCards?.card_number ??
