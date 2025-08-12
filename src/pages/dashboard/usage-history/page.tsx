@@ -1,12 +1,15 @@
 import * as React from "react";
 
-import { CardHeader, Chip, Grid, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import Stack from "@mui/material/Stack";
-import { Box } from "@mui/system";
 
 //import { companySlugs, config } from "@/config";
 import BarChart from "@/components/dashboard/overview/billing-usage";
-import { Sales } from "@/components/dashboard/overview/sales";
+const Sales = React.lazy(() =>
+  import("@/components/dashboard/overview/sales").then((module) => ({
+    default: module.Sales,
+  }))
+);
 import UsageFilter from "@/components/dashboard/overview/usage-filter";
 import UsageHeader from "@/components/dashboard/overview/usage-header";
 

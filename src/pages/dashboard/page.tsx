@@ -5,8 +5,15 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import { Budget } from "@/components/dashboard/overview/budget";
 
 import { DashboardInfo } from "@/components/dashboard/overview/dashboard-info";
-import { Sales } from "@/components/dashboard/overview/sales";
+// import { Sales } from "@/components/dashboard/overview/sales";
+
 import { TotalProfit } from "@/components/dashboard/overview/total-profit";
+
+const Sales = React.lazy(() =>
+  import("@/components/dashboard/overview/sales").then((module) => ({
+    default: module.Sales,
+  }))
+);
 
 export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
@@ -48,20 +55,22 @@ export default function DashBoardPage(): React.JSX.Element {
 
       {/* Sales Chart */}
       <Grid lg={9} xs={12} order={{ xs: 3, lg: 1 }}>
-        <Sales
-          chartSeries={[
-            {
-              name: "This year",
-              data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-            },
-            {
-              name: "Last year",
-              data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
-            },
-          ]}
-          sx={{ height: "100%" }}
-          dashboard
-        />
+        <React.Suspense fallback={null}>
+          <Sales
+            chartSeries={[
+              {
+                name: "This year",
+                data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
+              },
+              {
+                name: "Last year",
+                data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
+              },
+            ]}
+            sx={{ height: "100%" }}
+            dashboard
+          />
+        </React.Suspense>
       </Grid>
 
       {/* Right Column */}

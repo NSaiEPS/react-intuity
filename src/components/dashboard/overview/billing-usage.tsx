@@ -16,7 +16,8 @@ import {
   Typography,
 } from "@mui/material";
 import { ChartLineUp } from "@phosphor-icons/react";
-import Chart from "react-apexcharts";
+const Chart = React.lazy(() => import("react-apexcharts"));
+
 import { useDispatch, useSelector } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 

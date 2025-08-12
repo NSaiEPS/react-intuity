@@ -39,209 +39,8 @@ export function Sales({
   dashboard = false,
 }: SalesProps): React.JSX.Element {
   const navigate = useNavigate();
-  const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:750px)");
   const chartOptions = useChartOptions();
-  const input = {
-    maxValue: "5900",
-    data: [
-      {
-        categorie: "Jan",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Feb",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Mar",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Apr",
-        values: [
-          {
-            value: "800",
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "May",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Jun",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Jul",
-        values: [
-          {
-            value: "5900",
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Aug",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Sep",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Oct",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Nov",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Dec",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-      {
-        categorie: "Jan",
-        values: [
-          {
-            value: 0,
-            rate: 2024,
-            utility: "gal",
-          },
-          {
-            value: 0,
-            rate: "2025",
-            utility: "gal",
-          },
-        ],
-      },
-    ],
-  };
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.usageGraph
   );
@@ -295,9 +94,9 @@ export function Sales({
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
   React.useEffect(() => {
     const formData = new FormData();
 
@@ -324,8 +123,8 @@ export function Sales({
   // const barData: any = monthlyUsageGraph?.length monthlyUsageGraph?.slice(1);
   // console.log(barData, 'barData');
   const getBarChartData = (barData) => {
-    const gallons: any[] = [];
-    const dollars: any[] = [];
+    const gallons: string[] = [];
+    const dollars: string[] = [];
     const dates: string[] = [];
     const colors: string[] = [];
 
@@ -381,7 +180,7 @@ export function Sales({
       dataLabels: {
         enabled: true,
         formatter: function (val, { dataPointIndex }) {
-          let changeval = barGraphData.gallons[dataPointIndex]?.split(" ")[0];
+          const changeval = barGraphData.gallons[dataPointIndex]?.split(" ")[0];
           // return `${changeval} ${monthlyUsageUam}`;
           return `${changeval} ${changeval ? monthlyUsageUam : ""}`;
         },
@@ -399,14 +198,10 @@ export function Sales({
           useHTML: true,
           formatter: function (val, index) {
             // console.log('barGraphDatabarGraphData', val, index);
-            let Dateindex = barGraphData.dates.indexOf(val);
-            let dollar = barGraphData.dollars[Dateindex];
+            const Dateindex = barGraphData.dates.indexOf(val);
+            const dollar = barGraphData.dollars[Dateindex];
             const dollarVal = barGraphData.dollars[index];
-            const isNegative = dollarVal < 0;
-            const dollarFormatted = `${isNegative ? "-" : ""}$${Math.abs(
-              dollarVal
-            ).toFixed(2)}`;
-            const date = barGraphData.dates[index];
+            // const isNegative = dollarVal < 0;
             // return `${dollarFormatted}\n${date}`;
             // return `$ ${dollar}\n ${index}`;
             const label = `${dollar} `;
