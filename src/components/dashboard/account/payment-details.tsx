@@ -88,7 +88,7 @@ const PaymentForm = () => {
   const convenienceFee = useSelector(
     (state: RootState) => state?.Account.convenienceFee
   );
-  console.log(convenienceFee, "convenienceFee");
+
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
   const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
   const stored: IntuityUser | null =
@@ -132,7 +132,7 @@ const PaymentForm = () => {
   const CustomerInfo: any = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
-  console.log(CustomerInfo, "CustomerInfo");
+
   const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${
     processorDetails?.app_id
   }&appSecret=${processorDetails?.app_secret}&custId=${
@@ -574,21 +574,19 @@ const PaymentForm = () => {
       total,
     };
   }
-  const resultCard = calculatePaymentAmount({
-    amount: 10,
-    paymentType: "card",
-    cardType: "visa", // or 'amex'
-    config: convenienceFee,
-  });
+  // const resultCard = calculatePaymentAmount({
+  //   amount: 10,
+  //   paymentType: "card",
+  //   cardType: "visa", // or 'amex'
+  //   config: convenienceFee,
+  // });
 
-  const resultACH = calculatePaymentAmount({
-    amount: 200,
-    paymentType: "bank_account",
-    config: convenienceFee,
-  });
+  // const resultACH = calculatePaymentAmount({
+  //   amount: 200,
+  //   paymentType: "bank_account",
+  //   config: convenienceFee,
+  // });
 
-  console.log(resultCard, "resultCard"); // { baseAmount: 100, fee: 3.5, total: 103.5 }
-  console.log(resultACH, "resultCard");
   const amount = watch("amount");
 
   useEffect(() => {

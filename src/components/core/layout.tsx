@@ -5,7 +5,7 @@ import Providers from "@/state/Provider";
 import { ToastContainer } from "react-toastify";
 
 import { UserProvider } from "@/contexts/user-context";
-import RouteLoader from "@/components/CommonComponents/RouteLoader";
+
 import { LocalizationProvider } from "@/components/core/localization-provider";
 import { ThemeProvider } from "@/components/core/theme-provider/theme-provider";
 

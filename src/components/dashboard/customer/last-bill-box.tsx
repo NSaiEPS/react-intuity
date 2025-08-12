@@ -40,7 +40,7 @@ export function LastBill(): React.JSX.Element {
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
-  console.log(lastBillInfo, "lastBillInfo");
+
   // const raw = getLocalStorage('intuity-user');
 
   const [balanceCount, setBalanceCount] = React.useState(0);

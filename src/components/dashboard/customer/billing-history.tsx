@@ -69,7 +69,7 @@ export function BillingHistory({
   const paymentLoader = useSelector(
     (state: RootState) => state?.Payment?.paymentLoader
   );
-  console.log(lastBillInfo, "lastBillInfo");
+
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");

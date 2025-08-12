@@ -98,7 +98,6 @@ class AuthClient {
     });
 
     const data = await res.json();
-    console.log(data, "errorerror");
 
     if (!res.ok || data?.body?.errors?.[0]) {
       return { error: data?.body?.errors?.[0] || "Login failed" };
@@ -143,7 +142,7 @@ class AuthClient {
     if (data?.status) {
       toast.success(data?.message ?? "Email sent!");
     }
-    console.log(data, "errorerror");
+
     if (!res.ok || data?.status == false || data?.body?.errors?.[0]) {
       return {
         error:

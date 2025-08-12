@@ -32,7 +32,7 @@ export default function PayNowPage(): React.JSX.Element {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  console.log(stored, "storedstored");
+
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
