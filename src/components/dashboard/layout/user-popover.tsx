@@ -302,6 +302,15 @@ export function UserPopover({
             width: isMobile ? "90vw" : type === "email" ? "350px" : "500px",
             marginLeft: isMobile ? 0 : type === "email" ? "0px" : "-200px",
             maxWidth: "100%",
+            outline: "none",
+            boxShadow: (theme) => theme.shadows[3],
+            "&:focus": {
+              outline: "none",
+            },
+            "&:focus-visible": {
+              outline: "none",
+              // boxShadow: "none",
+            },
           },
         },
       }}

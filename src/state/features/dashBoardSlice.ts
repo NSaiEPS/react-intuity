@@ -286,32 +286,36 @@ export const getUsageGraph: any = (formData, token) => async (dispatch) => {
   }
 };
 
-export const getInvoiceDetails: any = (formData, token) => async (dispatch) => {
-  dispatch(setDashboardLoader(true));
-  try {
-    // const res: any = await api.post('/billing/front/invoice', data, {
-    //   headers: {
-    //     Authorization: token,
-    //   },
-    // });
+export const getInvoiceDetails: any =
+  (formData, token, setContextLoading) => async (dispatch) => {
+    dispatch(setDashboardLoader(true));
+    try {
+      // const res: any = await api.post('/billing/front/invoice', data, {
+      //   headers: {
+      //     Authorization: token,
+      //   },
+      // });
 
-    const res = await getInvoiceDetailsAPI({ token, formData });
+      const res = await getInvoiceDetailsAPI({ token, formData });
 
-    if (res?.status) {
-      dispatch(setInvoiceDetails(res?.body));
-    } else {
-      if (res?.message == "You are not authorised to use this api") {
-        clearLocalStorage();
-        location.reload();
+      if (res?.status) {
+        dispatch(setInvoiceDetails(res?.body));
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+        toast.error(res?.message ?? "Something went wrong!");
       }
-      toast.error(res?.message ?? "Something went wrong!");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } finally {
+      dispatch(setDashboardLoader(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
-  } catch (e: any) {
-    toast.error(e?.response?.data?.message ?? "Error Try again!!");
-  } finally {
-    dispatch(setDashboardLoader(false));
-  }
-};
+  };
 
 export const usageMonthlyGraph: any = (formData, token) => async (dispatch) => {
   dispatch(setDashboardLoader(true));

@@ -30,6 +30,8 @@ import { toast } from "react-toastify";
 
 import Button from "@/components/CommonComponents/Button";
 import { useSearchParams } from "react-router";
+import { useLoading } from "@/components/core/skeletion-context";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();
@@ -60,7 +62,11 @@ export default function InvoiceDetails() {
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
+  const { setContextLoading } = useLoading();
 
+  React.useLayoutEffect(() => {
+    setContextLoading(true);
+  }, []);
   React.useEffect(() => {
     if (!id) {
       toast.error("Invalid ID");
@@ -71,7 +77,7 @@ export default function InvoiceDetails() {
       formData.append("customer_id", userId);
       formData.append("id", id ?? "");
 
-      dispatch(getInvoiceDetails(formData, token));
+      dispatch(getInvoiceDetails(formData, token, setContextLoading));
     }
   }, [id]);
 
@@ -199,7 +205,7 @@ export default function InvoiceDetails() {
   // };
 
   return (
-    <>
+    <SkeletonWrapper>
       {/* <Button variant="contained" onClick={handleDownloadPDF} sx={{ mb: 2 }}>
         Download Invoice PDF
       </Button> */}
@@ -647,6 +653,6 @@ export default function InvoiceDetails() {
           </CustomBackdrop>
         </Box>
       </div>
-    </>
+    </SkeletonWrapper>
   );
 }

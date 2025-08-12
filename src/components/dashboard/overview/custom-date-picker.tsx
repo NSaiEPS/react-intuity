@@ -141,6 +141,7 @@ const DateRangeSelector = ({ onSubmit }) => {
             <Box sx={{ mt: 1 }}>
               <DateRangePicker
                 value={customDateRange}
+                calendars={1}
                 onChange={(newValue) => setCustomDateRange(newValue)}
                 // calendars={1}
                 sx={{ width: "100%" }}
