@@ -527,7 +527,7 @@ export function UserPopover({
                 key={item.id}
                 onClick={(e) => {
                   e?.stopPropagation();
-                  // handleNotificationClick(item);
+                  handleNotificationClick(item);
                 }}
               >
                 <ListItem

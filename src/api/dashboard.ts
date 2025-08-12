@@ -620,3 +620,28 @@ export async function saveDefaultPaymentMethodAPI({
 
   return data;
 }
+
+export async function getConvenienceFeeAPI({
+  token,
+  formData,
+}: AccountUpdateForm) {
+  const api = `${BASE_URL}get-convenience-fee`;
+
+  const res = await fetch(api, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}

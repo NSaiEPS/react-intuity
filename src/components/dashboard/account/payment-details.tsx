@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
+  getConvenienceFee,
   getPaymentDetails,
   getPaymentProcessorDetails,
   paymentWithoutSavingDetails,
@@ -81,7 +82,10 @@ const PaymentForm = () => {
   const accountLoading = useSelector(
     (state: RootState) => state?.Account.accountLoading
   );
-
+  const convenienceFee = useSelector(
+    (state: RootState) => state?.Account.convenienceFee
+  );
+  console.log(convenienceFee, "convenienceFee");
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
   const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
   const stored: IntuityUser | null =
@@ -181,6 +185,11 @@ const PaymentForm = () => {
       dispatch(
         getPaymentProcessorDetails(stored?.body?.token, formdata, false)
       );
+      const convenienceFeeFormdata = new FormData();
+      convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
+      convenienceFeeFormdata.append("customer_id", stored?.body?.customer_id);
+
+      dispatch(getConvenienceFee(stored?.body?.token, convenienceFeeFormdata));
     }
   }, [CustomerInfo]);
 

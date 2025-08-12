@@ -5,6 +5,7 @@ import {
   deleteCardAndBankAccountApi,
   getCompanyDetailsApi,
   getConfirmInfoApi,
+  getConvenienceFeeAPI,
   getPaymentDetailsApi,
   getPaymentProcessorDetailsAPI,
   listAnotherAccountAPI,
@@ -37,6 +38,7 @@ interface DahBoardState {
   usageAlerts: any;
   paymentProcessorDetails: any;
   selectedCardInfo: any;
+  convenienceFee: any;
 }
 
 const initialState = {
@@ -51,6 +53,7 @@ const initialState = {
   userInfo: {},
   paymentProcessorDetails: {},
   selectedCardInfo: {},
+  convenienceFee: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -90,6 +93,9 @@ const AccountSlice = createSlice({
     setPaymentProcessorDetails(state, action) {
       state.paymentProcessorDetails = action.payload;
     },
+    setConvenienceFee(state, action) {
+      state.convenienceFee = action.payload;
+    },
   },
 });
 
@@ -104,6 +110,7 @@ export const {
   setUsageAlerts,
   setUserInfo,
   setPaymentProcessorDetails,
+  setConvenienceFee,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;
@@ -656,6 +663,35 @@ export const saveDefaultPaymentMethod: any =
         toast.success(
           res?.message ? res?.message : "Payment Saved SuccessFully!"
         );
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+        if (isPost) {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const getConvenienceFee: any =
+  (token, formData, successCallBack) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await getConvenienceFeeAPI({ token, formData });
+
+      if (res?.status) {
+        dispatch(setConvenienceFee(res?.body));
+
+        if (successCallBack) {
+          successCallBack();
+        }
       } else {
         if (res?.message == "You are not authorised to use this api") {
           clearLocalStorage();
