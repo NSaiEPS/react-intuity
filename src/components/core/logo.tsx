@@ -36,7 +36,7 @@ export function Logo({
       height={height}
       width={width}
       src={url}
-      loading="lazy" // <-- lazy load the image
+      loading="lazy" // Browser-native lazy image load
       sx={{ display: "block" }}
     />
   );
@@ -50,11 +50,6 @@ export interface DynamicLogoProps {
   width?: number;
 }
 
-// Lazy-load the Logo component itself
-const LazyLogo = React.lazy(() =>
-  import("./logo").then((mod) => ({ default: mod.Logo }))
-);
-
 export function DynamicLogo({
   colorDark = "light",
   colorLight = "dark",
@@ -65,15 +60,5 @@ export function DynamicLogo({
   const { colorScheme } = useColorScheme();
   const color = colorScheme === "dark" ? colorDark : colorLight;
 
-  return (
-    <NoSsr
-      fallback={<Box sx={{ height: `${height}px`, width: `${width}px` }} />}
-    >
-      <React.Suspense
-        fallback={<Box sx={{ height: `${height}px`, width: `${width}px` }} />}
-      >
-        <LazyLogo color={color} height={height} width={width} {...props} />
-      </React.Suspense>
-    </NoSsr>
-  );
+  return <Logo color={color} height={height} width={width} {...props} />;
 }
