@@ -41,6 +41,7 @@ import PaymentSummaryModal from "../overview/payment-summary-modal";
 import { PaymentMethods } from "../customer/payment-methods";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
+import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 // Register plugins
 dayjs.extend(utc);
@@ -331,7 +332,9 @@ const PaymentForm = () => {
     );
   };
 
-  const onSaveCardDetails = (cardNum: string) => {
+  const onSaveCardDetails = () => {
+    const cardNum = selectedCardDetails.card_token;
+
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
@@ -340,13 +343,18 @@ const PaymentForm = () => {
     dispatch(
       saveDefaultPaymentMethod(stored?.body?.token, formdata, true, () => {
         setOpenPaymentModal(false);
+        setOpenConfirm(false);
         paymentDetails();
         console.log("Payment details saved successfully!"); // Handle success
         // naviate(paths.dashboard.payNow());
       })
     );
   };
-
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [selectedCardDetails, setSelectedCardDetails] = useState<any>({});
+  useEffect(() => {
+    setSelectedCardDetails(paymentMethodInfoCards);
+  }, [paymentMethodInfoCards]);
   const handlePay = () => {
     setShowPaymentSummary(false);
     const formdata = new FormData();
@@ -359,16 +367,13 @@ const PaymentForm = () => {
     formdata.append("payment_method_id_radio", "card");
     formdata.append("is_card", "0");
     formdata.append("is_card_one_time", "0");
-    if (paymentMethodInfoCards?.bank_account_number) {
+    if (selectedCardDetails?.bank_account_number) {
       formdata.append("is_bank_account_payment_method_form", "1");
     }
     //for bank
     // is_bank_account_payment_method_form:1"
 
-    formdata.append(
-      "payment_method_id_form",
-      paymentMethodInfoCards?.card_token
-    );
+    formdata.append("payment_method_id_form", selectedCardDetails?.card_token);
 
     formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
     formdata.append("payment_method", "0");
@@ -591,11 +596,11 @@ const PaymentForm = () => {
       amount: watch("amount") || "0",
       paymentType:
         paymentType === "saved"
-          ? paymentMethodInfoCards?.card_type
+          ? selectedCardDetails?.card_type
             ? "card"
             : "bank_account"
           : debitType,
-      cardType: paymentMethodInfoCards?.card_type || "visa",
+      cardType: selectedCardDetails?.card_type || "visa",
       config: convenienceFee,
     }).convenienceFee.toFixed(2);
     setValue("convenienceFee", Number(fee));
@@ -603,7 +608,7 @@ const PaymentForm = () => {
     amount,
     convenienceFee,
     debitType,
-    paymentMethodInfoCards?.card_type,
+    selectedCardDetails?.card_type,
     paymentType,
     setValue,
     watch,
@@ -729,7 +734,7 @@ const PaymentForm = () => {
 
           {/* Saved Card Info Block (only show if saved method selected) */}
           {paymentType === "saved" ? (
-            paymentMethodInfoCards?.id ? (
+            selectedCardDetails?.id ? (
               <>
                 <Box
                   component={Paper}
@@ -747,24 +752,22 @@ const PaymentForm = () => {
                     value="visa"
                     control={<Radio checked />}
                     label={
-                      paymentMethodInfoCards?.card_type ??
-                      paymentMethodInfoCards?.account_type
+                      selectedCardDetails?.card_type ??
+                      selectedCardDetails?.account_type
                     }
                   />
                   <Typography>
-                    {paymentMethodInfoCards?.card_number ??
-                      paymentMethodInfoCards?.bank_account_number}
+                    {selectedCardDetails?.card_number ??
+                      selectedCardDetails?.bank_account_number}
                   </Typography>
                   <Typography>
-                    {paymentMethodInfoCards?.card_number
-                      ? "Card"
-                      : "Bank Account"}
+                    {selectedCardDetails?.card_number ? "Card" : "Bank Account"}
                   </Typography>
                   <Typography>
-                    {/* {paymentMethodInfoCards?.date_used} */}
+                    {/* {selectedCardDetails?.date_used} */}
 
                     {dayjs
-                      .tz(paymentMethodInfoCards?.date_used, "America/Chicago") // or whichever US timezone server uses
+                      .tz(selectedCardDetails?.date_used, "America/Chicago") // or whichever US timezone server uses
                       .tz(dayjs.tz.guess()) // convert to user's local time
                       .format("YYYY-MM-DD hh:mm A z")}
                   </Typography>
@@ -854,7 +857,10 @@ const PaymentForm = () => {
               page={1}
               rows={[]}
               rowsPerPage={10}
-              onSaveCardDetails={onSaveCardDetails}
+              onSaveCardDetails={(data) => {
+                setSelectedCardDetails(data);
+                setOpenConfirm(true);
+              }}
               paymentDetailsPage={true}
             />
           </Dialog>
@@ -866,11 +872,27 @@ const PaymentForm = () => {
             onPay={handlePay}
             amount={Number(amount || 0)}
             fee={Number(watch("convenienceFee") || 0)}
-            cardType={paymentMethodInfoCards?.card_type || "Bank Account"}
+            cardType={selectedCardDetails?.card_type || "Bank Account"}
             cardLast4={
-              paymentMethodInfoCards?.card_number ??
-              paymentMethodInfoCards?.bank_account_number
+              selectedCardDetails?.card_number ??
+              selectedCardDetails?.bank_account_number
             }
+          />
+        )}
+        {openConfirm && (
+          <ConfirmDialog
+            open={openConfirm}
+            title={"Default payment method?"}
+            message={`Do you want to save this as your default payment method?
+`}
+            confirmLabel="Yes, Confirm"
+            cancelLabel="No"
+            onConfirm={onSaveCardDetails}
+            onCancel={() => {
+              setOpenConfirm(false);
+              setOpenPaymentModal(false);
+            }}
+            loader={accountLoading}
           />
         )}
         <CustomBackdrop

@@ -196,7 +196,17 @@ export const PaymentMethods = ({
   }, [dispatch]);
   const handleSaveDetails = () => {
     if (onSaveCardDetails) {
-      onSaveCardDetails(String(selectedId));
+      // const selectedCardDetails = paymentMethodInfoCards.filter(
+      //   (item) => item.card_token === selectedId
+      // )[0];
+      const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(
+        (key) => paymentMethodInfoCards[key].card_token === selectedId
+      )[0];
+      // console.log(
+      //   "Selected Card Details:",
+      //   paymentMethodInfoCards[selectedCardDetails]
+      // );
+      onSaveCardDetails(paymentMethodInfoCards[selectedCardDetails]);
       return;
     }
     const formdata = new FormData();
