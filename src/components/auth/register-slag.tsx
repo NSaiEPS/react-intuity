@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { getCompanyDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
@@ -14,8 +14,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-// import { CustomBackdrop, Loader } from 'nsaicomponents';
-// import { Button, CustomBackdrop, Loader } from 'nsaicomponents';
+
 import { useDispatch, useSelector } from "react-redux";
 
 import Button from "../CommonComponents/Button";
@@ -25,11 +24,12 @@ import { SignInForm } from "./sign-in-form";
 import { SignUpForm } from "./sign-up-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
+import OneTimePaymentModal from "./onetime-payment-modal";
 
 export default function PaymentInfoSection() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const [onetimePaymentModalOpen, setOneTimePaymentModalOpen] = useState(false);
   const { accountLoading, companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
@@ -85,23 +85,6 @@ export default function PaymentInfoSection() {
       return "Sign Up Request";
     }
   };
-  // let time;
-  // const search = (search) => {
-  //   if (time) {
-  //     clearTimeout(time);
-  //   }
-
-  //   time = setTimeout(() => {
-  //     console.log(search);
-  //   }, 2000);
-  // };
-
-  // search('hi');
-  // search('hi1');
-  // search('hi2');
-  // search('hi3');
-  // search('hi4');
-  // search('hi5');
   return (
     <Box
       sx={{
@@ -300,6 +283,7 @@ export default function PaymentInfoSection() {
                         <Button
                           type="button"
                           variant="contained"
+                          onClick={() => setOneTimePaymentModalOpen(true)}
                           style={{
                             borderRadius: "12px",
                             height: "41px",
@@ -328,6 +312,8 @@ export default function PaymentInfoSection() {
       <Backdrop open={accountLoading} style={{ zIndex: 1300, color: "#fff" }}>
         <CircularProgress color="success" />
       </Backdrop>
+
+      <OneTimePaymentModal open={onetimePaymentModalOpen} onClose={() => {}} />
     </Box>
   );
 }

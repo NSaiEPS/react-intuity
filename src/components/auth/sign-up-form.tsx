@@ -100,6 +100,16 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
+// const CustomConnector = styled(StepConnector)(({ theme }) => ({
+//   [`&.${stepConnectorClasses.alternativeLabel}`]: {
+//     top: 22,
+//   },
+//   [`& .${stepConnectorClasses.line}`]: {
+//     borderColor: "#ccc",
+//     borderTopWidth: 2,
+//     borderRadius: 1,
+//   },
+// }));
 const CustomStepIcon = ({ active, completed, icon }: any) => {
   return (
     <div
