@@ -4,6 +4,7 @@ import React from "react";
 // Wrappers (keep them eager — they’re small and used everywhere)
 import ProtectedRoute, {
   Authorization,
+  DashboardLayoutWithSuspense,
 } from "./components/core/protectedRoute";
 import CompanyRouteGuard from "./components/core/company-routeGuard";
 
@@ -13,7 +14,6 @@ const SignInPage = React.lazy(() =>
     default: m.SignInPage,
   }))
 );
-const DashboardLayout = React.lazy(() => import("./pages/dashboard/layout"));
 const ConfirmInformation = React.lazy(
   () => import("./pages/auth/confirm-information/page")
 );
@@ -73,6 +73,7 @@ const withSuspense = (element: React.ReactNode) => {
     </React.Suspense>
   );
 };
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -120,7 +121,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "dashboard",
-        element: <DashboardLayout />,
+        element: <DashboardLayoutWithSuspense />,
         children: [
           {
             index: true,

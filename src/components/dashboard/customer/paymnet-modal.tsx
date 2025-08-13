@@ -17,6 +17,7 @@ import { paths } from "@/utils/paths";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { useNavigate } from "react-router";
+import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 interface PaymentModalProps {
   open: boolean;
@@ -30,7 +31,7 @@ export function PaymentModal({
   const [paymentOption, setPaymentOption] = useState<"payNow" | "schedule">(
     "payNow"
   );
-
+  const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setPaymentOption(event.target.value as "payNow" | "schedule");
   };
@@ -57,12 +58,15 @@ export function PaymentModal({
               {
                 value: "payNow",
                 title: "Pay Now",
-                description: "Payment will be processed immediately.",
+                description:
+                  lastBillInfo?.pay_now_text ??
+                  "Payment will be processed immediately.",
               },
               {
                 value: "schedule",
                 title: "Schedule a payment",
                 description:
+                  lastBillInfo?.schedule_payment_text ??
                   "Schedule a single or recurring payment of a set amount. If your scheduled payment does not pay the full balance by the due date, late fees may apply.",
               },
             ].map((option) => (
@@ -101,15 +105,26 @@ export function PaymentModal({
             ))}
           </RadioGroup>
         </FormControl>
-
+        {lastBillInfo?.autopay_text && (
+          <Box mt={2}>
+            <Typography variant="body2">
+              <strong>{lastBillInfo?.autopay_text}</strong>
+            </Typography>
+          </Box>
+        )}
+        {/* //{" "}
         <Box mt={2}>
+          //{" "}
           <Typography variant="body2">
+            //{" "}
             <strong>
-              • Autopay Is{" "}
-              {lastBillInfo?.customer?.autopay ? "Enabled" : " Not Enabled"}{" "}
+              // • Autopay Is //{" "}
+              {lastBillInfo?.customer?.autopay ? "Enabled" : " Not Enabled"} //{" "}
             </strong>
+            //{" "}
           </Typography>
-        </Box>
+          //{" "} */}
+        {/* </Box> */}
       </DialogContent>
 
       <DialogActions
@@ -129,7 +144,16 @@ export function PaymentModal({
           Cancel
         </Button>
         <Button
-          onClick={handleProceed}
+          onClick={() => {
+            if (
+              lastBillInfo?.pending_payment?.length > 0 &&
+              lastBillInfo?.pending_payment_text
+            ) {
+              setConfirmationOpen(true);
+            } else {
+              handleProceed();
+            }
+          }}
           color="primary"
           variant="contained"
           sx={{
@@ -142,6 +166,22 @@ export function PaymentModal({
           Proceed to Payment
         </Button>
       </DialogActions>
+
+      <ConfirmDialog
+        open={confirmationOpen}
+        title={"Pending Payment Confirmation"}
+        message={`${lastBillInfo?.pending_payment_text}`}
+        confirmLabel="Yes, Confirm"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          setConfirmationOpen(false);
+          handleProceed();
+        }}
+        onCancel={() => {
+          setConfirmationOpen(false);
+        }}
+        loader={false}
+      />
     </Dialog>
   );
 }
