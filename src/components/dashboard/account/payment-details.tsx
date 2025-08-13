@@ -764,7 +764,13 @@ const PaymentForm = () => {
                 </Box>
                 {/* Confirm Button */}
                 <Button
-                  onClick={() => setShowPaymentSummary(true)}
+                  onClick={() => {
+                    if (Number(watch("amount")) === 0) {
+                      toast.warn("Amount should be more than 0");
+                      return;
+                    }
+                    setShowPaymentSummary(true);
+                  }}
                   variant="contained"
                   sx={{
                     mt: 3,
