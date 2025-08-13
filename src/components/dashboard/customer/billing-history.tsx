@@ -53,7 +53,7 @@ export function BillingHistory({
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 15 }, (_, index) => currentYear - index);
-  const [selectedYear, setSelectedYear] = React.useState(years[2]);
+  const [selectedYear, setSelectedYear] = React.useState(years[0]);
 
   const handleChange = (event: any) => {
     setSelectedYear(event.target.value);

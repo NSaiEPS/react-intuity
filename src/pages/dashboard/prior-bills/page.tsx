@@ -54,7 +54,7 @@ export default function PriorBillsPage(): React.JSX.Element {
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("id", userId);
-    formData.append("year", String(years[2]));
+    formData.append("year", String(years[0]));
 
     dispatch(getLastBillInfo(formData, token, setContextLoading));
   }, [userInfo]);

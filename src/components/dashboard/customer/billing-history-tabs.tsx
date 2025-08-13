@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
+  Chip,
   Divider,
   IconButton,
   Stack,
@@ -52,6 +53,16 @@ export default function InvoiceTransactionTabs({
       ? dummyInvoice?.get_invoices ?? []
       : dummyInvoice?.get_transactions ?? [];
 
+  const statusMap = {
+    1: {
+      label: "Success",
+      color: colors["blue.3"],
+      textColor: colors.white,
+    },
+    0: { label: "Declined", color: "#e74c3c", textColor: colors.white },
+    2: { label: "Pending", color: "#f39c12", textColor: colors.white },
+    3: { label: "Authorization", color: "#1abc9c", textColor: colors.white },
+  };
   return (
     <Card sx={{ borderRadius: boarderRadius.card }}>
       {/* Tabs Top Bar */}
@@ -131,7 +142,7 @@ export default function InvoiceTransactionTabs({
                 </TableCell>
                 {/* {currentTab !== 'invoice' && <TableCell>{item?.acctnum}</TableCell>} */}
 
-                <TableCell>
+                {/* <TableCell>
                   {item?.status == 1
                     ? "Success"
                     : item?.status == 0
@@ -141,6 +152,21 @@ export default function InvoiceTransactionTabs({
                     : item?.status == 3
                     ? "Authorization"
                     : ""}
+                </TableCell> */}
+                <TableCell>
+                  {statusMap[item?.status] ? (
+                    <Chip
+                      label={statusMap[item?.status].label}
+                      sx={{
+                        backgroundColor: statusMap[item.status].color,
+                        color: statusMap[item.status].textColor,
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                        height: 24,
+                      }}
+                      size="small"
+                    />
+                  ) : null}
                 </TableCell>
                 <TableCell>${item?.amount}</TableCell>
 
