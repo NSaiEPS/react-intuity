@@ -108,6 +108,12 @@ const PaymentForm = () => {
   );
 
   const [processorDetails, setProcessorDetails] = useState<any>({});
+  // const [maxPaymentModal, setMaxPaymentModal] = useState<any>(false);
+  const [myCustomerDetails, setCustomerDetails] = useState<any>({
+    allow_overpayments: 0,
+    balance: 0,
+  });
+
   const paymentDetails = () => {
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
@@ -118,6 +124,7 @@ const PaymentForm = () => {
         stored?.body?.token,
         formdata,
         undefined,
+        setCustomerDetails,
         setContextLoading
       )
     );
@@ -397,102 +404,6 @@ const PaymentForm = () => {
     );
   };
 
-  // function calculatePaymentAmount({
-  //   amount,
-  //   paymentType, // 'card' or 'ach'
-  //   cardType, // 'visa', 'mastercard', 'amex' (only needed if paymentType is 'card')
-  //   config,
-  // }) {
-  //   const totalAmount = parseFloat(amount) || 0;
-  //   let fee = 0;
-
-  //   if (paymentType === "card") {
-  //     const cardConfig = config.config_data_card;
-
-  //     if (cardConfig.calculate_convenience_fee === "yes") {
-  //       if (cardType === "amex") {
-  //         // Amex fees
-  //         if (
-  //           parseFloat(cardConfig.credit_card_amex_amount_convenience_fee) > 0
-  //         ) {
-  //           fee += parseFloat(
-  //             cardConfig.credit_card_amex_amount_convenience_fee
-  //           );
-  //         }
-  //         if (
-  //           parseFloat(cardConfig.credit_card_amex_percentage_convenience_fee) >
-  //           0
-  //         ) {
-  //           fee +=
-  //             (totalAmount *
-  //               parseFloat(
-  //                 cardConfig.credit_card_amex_percentage_convenience_fee
-  //               )) /
-  //             100;
-  //         }
-  //         if (
-  //           fee <
-  //           parseFloat(
-  //             cardConfig.credit_card_amex_minimum_amount_convenience_fee
-  //           )
-  //         ) {
-  //           fee = parseFloat(
-  //             cardConfig.credit_card_amex_minimum_amount_convenience_fee
-  //           );
-  //         }
-  //       } else {
-  //         // Other cards
-  //         if (parseFloat(cardConfig.credit_card_amount_convenience_fee) > 0) {
-  //           fee += parseFloat(cardConfig.credit_card_amount_convenience_fee);
-  //         }
-  //         if (
-  //           parseFloat(cardConfig.credit_card_percentage_convenience_fee) > 0
-  //         ) {
-  //           fee +=
-  //             (totalAmount *
-  //               parseFloat(cardConfig.credit_card_percentage_convenience_fee)) /
-  //             100;
-  //         }
-  //         if (
-  //           fee <
-  //           parseFloat(cardConfig.credit_card_minimum_amount_convenience_fee)
-  //         ) {
-  //           fee = parseFloat(
-  //             cardConfig.credit_card_minimum_amount_convenience_fee
-  //           );
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   if (paymentType === "ach") {
-  //     const achConfig = config.config_data_ach;
-
-  //     if (achConfig.calculate_convenience_fee_ach === "yes") {
-  //       if (parseFloat(achConfig.bank_amount_convenience_fee_ach) > 0) {
-  //         fee += parseFloat(achConfig.bank_amount_convenience_fee_ach);
-  //       }
-  //       if (parseFloat(achConfig.bank_percentage_convenience_fee_ach) > 0) {
-  //         fee +=
-  //           (totalAmount *
-  //             parseFloat(achConfig.bank_percentage_convenience_fee_ach)) /
-  //           100;
-  //       }
-  //       if (
-  //         fee < parseFloat(achConfig.bank_minimum_amount_convenience_fee_ach)
-  //       ) {
-  //         fee = parseFloat(achConfig.bank_minimum_amount_convenience_fee_ach);
-  //       }
-  //     }
-  //   }
-
-  //   return {
-  //     baseAmount: totalAmount,
-  //     fee: parseFloat(fee.toFixed(2)),
-  //     total: parseFloat((totalAmount + fee).toFixed(2)),
-  //   };
-  // }
-
   type PaymentConfig = {
     config_data_card?: Record<string, any>;
     config_data_ach?: Record<string, any>;
@@ -621,6 +532,16 @@ const PaymentForm = () => {
     setValue,
     watch,
   ]);
+  useEffect(() => {
+    if (
+      myCustomerDetails?.allow_overpayments == 0 &&
+      Number(amount) > Number(myCustomerDetails?.balance || 0) &&
+      myCustomerDetails?.id
+    ) {
+      setValue("amount", myCustomerDetails?.balance || "0");
+      toast.warn("Please don't pay more than you owe!");
+    }
+  }, [amount, myCustomerDetails, setValue]);
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>

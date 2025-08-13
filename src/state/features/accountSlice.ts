@@ -304,7 +304,7 @@ export const getPaymentDetails: any =
 
       if (res?.status) {
         if (successCallBack) {
-          successCallBack();
+          successCallBack(res?.body?.customer);
         }
         if (!isPost) {
           dispatch(setPaymentMethodInfo(res?.body?.mycards));
