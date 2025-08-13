@@ -9,6 +9,8 @@ import {
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
+import { Leaf, CreditCard } from "@phosphor-icons/react/dist/ssr";
+
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -88,9 +90,12 @@ const PaymentForm = () => {
   const convenienceFee = useSelector(
     (state: RootState) => state?.Account.convenienceFee
   );
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
 
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-  const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
+
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const naviate = useNavigate();
@@ -132,6 +137,11 @@ const PaymentForm = () => {
   const CustomerInfo: any = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
+  const [isPaperLessOn, setIsPaperLessOn] = useState(false);
+
+  useEffect(() => {
+    setIsPaperLessOn(CustomerInfo?.paperless === 1 ? true : false);
+  }, [CustomerInfo?.paperless]);
 
   const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${
     processorDetails?.app_id
@@ -621,28 +631,89 @@ const PaymentForm = () => {
             justifyContent="space-between"
             alignItems="center"
             mb={2}
+            sx={{
+              flexDirection: { xs: "column", sm: "row" }, // column for small, row for larger
+              alignItems: { xs: "flex-start", sm: "center" },
+              gap: { xs: 1, sm: 0 }, // spacing in column mode
+            }}
           >
+            {/* Left Side */}
             <Typography variant="h6" color="text.secondary">
               Name/Email For Payment Receipt
             </Typography>
 
-            <Typography
+            {/* Right Side */}
+            <Box
+              display="flex"
               sx={{
-                mt: 1,
-                fontSize: 14,
-                color: colors.blue,
-                ":hover": {
-                  cursor: "pointer",
-                },
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: 1, sm: 2 },
               }}
-              onClick={() => setOpenPaymentModal(true)}
             >
-              💳 PAYMENT METHODS
-            </Typography>
+              {/* Payment Methods */}
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  color: colors.blue,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  ":hover": { cursor: "pointer" },
+                }}
+                onClick={() => setOpenPaymentModal(true)}
+              >
+                <CreditCard
+                  color={"var(--NavItem-icon-color)"}
+                  size={20}
+                  weight={"regular"}
+                  style={{
+                    fontSize: "var(--icon-fontSize-md)",
+                    background: "transparent",
+                    fill: "currentColor",
+                  }}
+                />
+                PAYMENT METHODS
+              </Typography>
+
+              {/* Go Paperless */}
+              {!isPaperLessOn && (
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: colors.blue,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    ":hover": { cursor: "pointer" },
+                  }}
+                  onClick={() => setOpenPaymentModal(true)}
+                >
+                  <Leaf
+                    color={"var(--NavItem-icon-color)"}
+                    size={20}
+                    weight={"regular"}
+                    style={{
+                      fontSize: "var(--icon-fontSize-md)",
+                      background: "transparent",
+                      fill: "currentColor",
+                    }}
+                  />
+                  GO PAPERLESS
+                </Typography>
+              )}
+            </Box>
           </Box>
 
           {/* Name & Email */}
-          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              mb: 2,
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
             <Box flex={1}>
               <Typography fontWeight={600}>Name</Typography>
               <Controller
