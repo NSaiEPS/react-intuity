@@ -5,6 +5,7 @@ import React from "react";
 import ProtectedRoute, {
   Authorization,
   DashboardLayoutWithSuspense,
+  LoginSuspense,
 } from "./components/core/protectedRoute";
 import CompanyRouteGuard from "./components/core/company-routeGuard";
 
@@ -77,7 +78,7 @@ const withSuspense = (element: React.ReactNode) => {
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: (
+    element: LoginSuspense(
       <Authorization>
         <SignInPage title={"Login"} />
       </Authorization>
@@ -85,7 +86,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/sign-up",
-    element: (
+    element: LoginSuspense(
       <Authorization>
         <SignInPage title={"Sign Up"} />
       </Authorization>
@@ -93,7 +94,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/reset-password",
-    element: (
+    element: LoginSuspense(
       <Authorization>
         <SignInPage title={"Recover Password"} />
       </Authorization>
@@ -101,7 +102,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/:logincompany/",
-    element: (
+    element: LoginSuspense(
       <Authorization>
         <SignInPage title={"Login"} />
       </Authorization>
@@ -109,7 +110,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/:company/confirm-information",
-    element: <ConfirmInformation />,
+    element: LoginSuspense(<ConfirmInformation />),
   },
   {
     path: "/",
@@ -117,7 +118,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/:company",
-    element: <CompanyRouteGuard />,
+    element: LoginSuspense(<CompanyRouteGuard />),
     children: [
       {
         path: "dashboard",
