@@ -31,6 +31,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { z } from "zod";
+
 const schema = z.object({
   name: z.string().min(1, "Required"),
   phone: z
@@ -72,7 +73,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     watch,
     reset,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormDataContent>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
