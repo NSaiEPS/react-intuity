@@ -34,7 +34,7 @@ import { z as zod } from "zod";
 
 // const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
 
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { paths } from "@/utils/paths";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
@@ -79,7 +79,9 @@ const PaymentForm = () => {
   const [debitType, setDebitType] = useState<"card" | "bank_account">("card");
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
-
+  const location = useLocation();
+  const { isShedule } = location.state || {};
+  console.log(isShedule, "isShedule");
   const onSubmit = (data: FormData) => {
     // console.log({ ...data, paymentType });
   };
@@ -702,6 +704,9 @@ const PaymentForm = () => {
           </Box>
 
           {/* Payment Method Option */}
+          {/* {
+            isShedule ?
+          } */}
           <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
             <RadioGroup
               value={paymentType}

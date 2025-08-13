@@ -31,6 +31,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { z } from "zod";
+import { borderColor } from "@mui/system";
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
@@ -216,6 +217,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
                           error: !!errors.requestedStopDate,
                           helperText: errors.requestedStopDate?.message,
                           inputProps: { readOnly: true },
+                          color: "primary",
                         },
                       }}
                     />

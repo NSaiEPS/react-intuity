@@ -14,6 +14,15 @@ export const MuiTextField: Components<Theme>["MuiTextField"] = {
       "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
         borderColor: "#0066ff", // your theme blue
       },
+      "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+        borderColor: "red",
+      },
+      "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
+        borderColor: "darkred",
+      },
+      "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: "red",
+      },
     },
   },
 };

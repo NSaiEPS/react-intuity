@@ -45,7 +45,11 @@ export function PaymentModal({
     // Proceed with the selected payment option
     onClose();
 
-    navigate(paths.dashboard.paymentDetails(lastBillInfo?.last_bill?.id));
+    navigate(paths.dashboard.paymentDetails(lastBillInfo?.last_bill?.id), {
+      state: {
+        isShedule: paymentOption == "schedule" ? true : false,
+      },
+    });
   };
 
   return (
