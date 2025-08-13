@@ -103,7 +103,13 @@ const CardRow = React.memo(function CardRow({
           <Typography variant="subtitle2">{row.name}</Typography>
         </Stack>
       </TableCell>
-      <TableCell>{row.number}</TableCell>
+      <TableCell
+        sx={{
+          fontFamily: "monospace", // ensures * and numbers align perfectly
+        }}
+      >
+        {row.number}
+      </TableCell>
       <TableCell>{row.type}</TableCell>
       {/* <TableCell>{formatToMMDDYYYY(row.createdAt, true)}</TableCell> */}
       <TableCell>

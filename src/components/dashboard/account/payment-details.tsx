@@ -746,7 +746,11 @@ const PaymentForm = () => {
                       selectedCardDetails?.account_type
                     }
                   />
-                  <Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: "monospace", // ensures * and numbers align perfectly
+                    }}
+                  >
                     {selectedCardDetails?.card_number ??
                       selectedCardDetails?.bank_account_number}
                   </Typography>
