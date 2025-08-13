@@ -450,7 +450,8 @@ export const getConfirmInfo: any =
   };
 
 export const getCompanyDetails: any =
-  (formData, successCallBack, failureCallBack) => async (dispatch) => {
+  (formData, successCallBack, failureCallBack, setContextLoading) =>
+  async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
       const res = await getCompanyDetailsApi({ formData });
@@ -479,6 +480,9 @@ export const getCompanyDetails: any =
       }
     } finally {
       dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };
 

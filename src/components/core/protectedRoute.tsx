@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { getLocalStorage } from "@/utils/auth";
-import { CircularProgress, Grid } from "@mui/material";
+import { CircularProgress, Grid, Skeleton } from "@mui/material";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -46,13 +46,18 @@ export const Authorization = ({ children, title }) => {
 
 export function LoaderFallback() {
   return (
-    <Grid
-      container
-      justifyContent="center"
-      alignItems="center"
-      style={{ minHeight: "100vh" }}
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        margin: "auto",
+        // display: "flex",
+        // alignItems: "center",
+      }}
     >
-      <CircularProgress />
-    </Grid>
+      <Skeleton variant="rectangular" height={50} />
+      <Skeleton variant="text" />
+      <Skeleton variant="rectangular" height={500} style={{ marginTop: 16 }} />
+    </div>
   );
 }

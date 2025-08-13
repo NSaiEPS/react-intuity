@@ -15,12 +15,13 @@ export default function withSkeleton<P>(Component: React.ComponentType<P>) {
     if (contextLoading) {
       return (
         <div style={{ width: "100%", height: "100%" }}>
-          <Skeleton variant="rectangular" height={50} />
-          <Skeleton variant="text" />
+          <Skeleton animation="wave" variant="rectangular" height={50} />
+          <Skeleton animation="wave" variant="text" />
           <Skeleton
             variant="rectangular"
             height={500}
             style={{ marginTop: 16 }}
+            animation="wave"
           />
         </div>
       );

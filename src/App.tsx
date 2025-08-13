@@ -76,7 +76,7 @@ const withSuspense = (element: React.ReactNode) => {
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: withSuspense(
+    element: (
       <Authorization title={"Login"}>
         <SignInPage title={"Login"} />
       </Authorization>
@@ -84,7 +84,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/sign-up",
-    element: withSuspense(
+    element: (
       <Authorization title={"Sign Up"}>
         <SignInPage title={"Sign Up"} />
       </Authorization>
@@ -92,7 +92,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/reset-password",
-    element: withSuspense(
+    element: (
       <Authorization title={"Recover Password"}>
         <SignInPage title={"Recover Password"} />
       </Authorization>
@@ -100,7 +100,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/:logincompany/",
-    element: withSuspense(
+    element: (
       <Authorization title={"Login"}>
         <SignInPage title={"Login"} />
       </Authorization>
@@ -108,7 +108,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/:company/confirm-information",
-    element: withSuspense(<ConfirmInformation />),
+    element: <ConfirmInformation />,
   },
   {
     path: "/",
@@ -120,7 +120,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "dashboard",
-        element: withSuspense(<DashboardLayout />),
+        element: <DashboardLayout />,
         children: [
           {
             index: true,

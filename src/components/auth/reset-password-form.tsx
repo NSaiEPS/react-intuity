@@ -113,12 +113,13 @@ export function ResetPasswordForm(): React.JSX.Element {
               style={{
                 color: colors.blue,
                 // textDecoration: "underline",
-                fontSize: "0.875rem", // corresponds to subtitle2 usually
+                // fontSize: "0.875rem", // corresponds to subtitle2 usually
                 borderColor: "transparent",
                 marginLeft: "15px",
                 justifyContent: "center",
                 marginTop: "auto",
                 marginBottom: "auto",
+                textDecoration: "none",
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.borderColor = colors["blue.1"];
