@@ -73,6 +73,7 @@ export const DashboardLayoutSkeleton = () => {
         }}
       >
         <Skeleton
+          animation="pulse"
           variant="rectangular"
           width="60%"
           height={40}
@@ -81,6 +82,7 @@ export const DashboardLayoutSkeleton = () => {
         {/* Logo */}
         {Array.from({ length: 10 }).map((_, i) => (
           <Skeleton
+            animation="pulse"
             key={i}
             variant="rectangular"
             width="100%"
@@ -103,11 +105,27 @@ export const DashboardLayoutSkeleton = () => {
             alignItems: "center",
           }}
         >
-          <Skeleton variant="text" width={120} height={30} /> {/* Page Title */}
+          <Skeleton animation="pulse" variant="text" width={120} height={30} />{" "}
+          {/* Page Title */}
           <Stack direction="row" spacing={2} alignItems="center">
-            <Skeleton variant="circular" width={32} height={32} />
-            <Skeleton variant="circular" width={32} height={32} />
-            <Skeleton variant="circular" width={40} height={40} />
+            <Skeleton
+              animation="pulse"
+              variant="circular"
+              width={32}
+              height={32}
+            />
+            <Skeleton
+              animation="pulse"
+              variant="circular"
+              width={32}
+              height={32}
+            />
+            <Skeleton
+              animation="pulse"
+              variant="circular"
+              width={40}
+              height={40}
+            />
           </Stack>
         </Box>
 
@@ -115,11 +133,29 @@ export const DashboardLayoutSkeleton = () => {
         <Box sx={{ p: 3, display: "flex", gap: 3 }}>
           {/* Left Card */}
           <Paper sx={{ flex: 2, p: 2 }}>
-            <Skeleton variant="rectangular" width={100} height={20} />
-            <Skeleton variant="text" width="60%" height={24} sx={{ mt: 1 }} />
-            <Skeleton variant="text" width="40%" height={20} sx={{ mt: 1 }} />
+            <Skeleton
+              animation="pulse"
+              variant="rectangular"
+              width={100}
+              height={20}
+            />
+            <Skeleton
+              animation="pulse"
+              variant="text"
+              width="60%"
+              height={24}
+              sx={{ mt: 1 }}
+            />
+            <Skeleton
+              animation="pulse"
+              variant="text"
+              width="40%"
+              height={20}
+              sx={{ mt: 1 }}
+            />
 
             <Skeleton
+              animation="pulse"
               variant="rectangular"
               width="100%"
               height={1}
@@ -127,8 +163,18 @@ export const DashboardLayoutSkeleton = () => {
             />
 
             <Stack direction="row" justifyContent="space-between">
-              <Skeleton variant="text" width={120} height={20} />
-              <Skeleton variant="text" width={100} height={20} />
+              <Skeleton
+                animation="pulse"
+                variant="text"
+                width={120}
+                height={20}
+              />
+              <Skeleton
+                animation="pulse"
+                variant="text"
+                width={100}
+                height={20}
+              />
             </Stack>
 
             <Stack
@@ -136,28 +182,57 @@ export const DashboardLayoutSkeleton = () => {
               justifyContent="space-between"
               sx={{ mt: 2 }}
             >
-              <Skeleton variant="text" width={120} height={20} />
-              <Skeleton variant="text" width={120} height={20} />
+              <Skeleton
+                animation="pulse"
+                variant="text"
+                width={120}
+                height={20}
+              />
+              <Skeleton
+                animation="pulse"
+                variant="text"
+                width={120}
+                height={20}
+              />
             </Stack>
           </Paper>
 
           {/* Right Card */}
           <Paper sx={{ flex: 1, p: 2 }}>
-            <Skeleton variant="text" width="70%" height={20} />
-            <Skeleton variant="text" width="50%" height={20} sx={{ mt: 1 }} />
             <Skeleton
+              animation="pulse"
+              variant="text"
+              width="70%"
+              height={20}
+            />
+            <Skeleton
+              animation="pulse"
+              variant="text"
+              width="50%"
+              height={20}
+              sx={{ mt: 1 }}
+            />
+            <Skeleton
+              animation="pulse"
               variant="rectangular"
               width="40%"
               height={40}
               sx={{ mt: 2 }}
             />
             <Skeleton
+              animation="pulse"
               variant="rectangular"
               width="100%"
               height={36}
               sx={{ mt: 3, borderRadius: 1 }}
             />
-            <Skeleton variant="text" width="50%" height={20} sx={{ mt: 2 }} />
+            <Skeleton
+              animation="pulse"
+              variant="text"
+              width="50%"
+              height={20}
+              sx={{ mt: 2 }}
+            />
           </Paper>
         </Box>
       </Box>
@@ -189,24 +264,26 @@ export const LoginSkeleton = () => {
       {/* Logo Row */}
       <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 4 }}>
         <Skeleton
+          animation="pulse"
           variant="rectangular"
           width={40}
           height={40}
           sx={{ borderRadius: 1 }}
         />
-        <Skeleton variant="text" width={100} height={30} />
+        <Skeleton animation="pulse" variant="text" width={100} height={30} />
       </Stack>
 
       {/* Login Box */}
       <Paper sx={{ width: 420, p: 0, overflow: "hidden" }}>
         {/* Header */}
         <Box sx={{ bgcolor: "#e0e0e0", p: 2 }}>
-          <Skeleton variant="text" width={80} height={24} />
+          <Skeleton animation="pulse" variant="text" width={80} height={24} />
         </Box>
 
         <Box sx={{ p: 3 }}>
           {/* Login ID Field */}
           <Skeleton
+            animation="pulse"
             variant="rectangular"
             width="100%"
             height={50}
@@ -215,6 +292,7 @@ export const LoginSkeleton = () => {
 
           {/* Password Field */}
           <Skeleton
+            animation="pulse"
             variant="rectangular"
             width="100%"
             height={50}
@@ -230,6 +308,7 @@ export const LoginSkeleton = () => {
           >
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton
+                animation="pulse"
                 key={i}
                 variant="rectangular"
                 width="24%"
@@ -242,16 +321,22 @@ export const LoginSkeleton = () => {
           {/* Sign In and Forgot Password */}
           <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
             <Skeleton
+              animation="pulse"
               variant="rectangular"
               width={100}
               height={40}
               sx={{ borderRadius: 2 }}
             />
-            <Skeleton variant="text" width={140} height={20} />
+            <Skeleton
+              animation="pulse"
+              variant="text"
+              width={140}
+              height={20}
+            />
           </Stack>
 
           {/* Register Link */}
-          <Skeleton variant="text" width="100%" height={20} />
+          <Skeleton animation="pulse" variant="text" width="100%" height={20} />
         </Box>
       </Paper>
     </Box>
