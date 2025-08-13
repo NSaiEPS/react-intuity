@@ -98,7 +98,7 @@ const PaymentForm = () => {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const naviate = useNavigate();
+  const navigate = useNavigate();
 
   const paymentProcessorDetails = useSelector(
     (state: RootState) => state?.Account?.paymentProcessorDetails
@@ -149,9 +149,9 @@ const PaymentForm = () => {
     CustomerInfo?.acctnum
   }&firstName=${watch("name") ?? CustomerInfo?.customer_name}&email=${watch(
     "email"
-  )}&amp;street1=${
-    CustomerInfo?.customer_nameaddress
-  }+&amount=1.00&entryClassCode=WEB&saveTokenDisabled=false`;
+  )}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=${
+    Number(watch("amount")) || 0
+  }&entryClassCode=WEB&saveTokenDisabled=false`;
   //For New Card adding
   const iframeUrlForCard = `https://iframe.icheckdev.com/iFrameCC.aspx?appId=${
     processorDetails?.app_id
@@ -159,9 +159,9 @@ const PaymentForm = () => {
     CustomerInfo?.acctnum
   }&firstName=${watch("name") ?? CustomerInfo?.customer_name}&email=${watch(
     "email"
-  )}&amp;street1=${
-    CustomerInfo?.customer_nameaddress
-  }+&amount=2.00&entryClassCode=WEB&saveTokenDisabled=false`;
+  )}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=${
+    Number(watch("amount")) || 0
+  }&entryClassCode=WEB&saveTokenDisabled=false`;
 
   type IntuityUser = {
     body?: {
@@ -337,7 +337,7 @@ const PaymentForm = () => {
     dispatch(
       paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
         // console.log('Payment details saved successfully!'); // Handle success
-        naviate(paths.dashboard.payNow());
+        navigate(paths.dashboard.payNow());
       })
     );
   };
@@ -356,7 +356,7 @@ const PaymentForm = () => {
         setOpenConfirm(false);
         paymentDetails();
         console.log("Payment details saved successfully!"); // Handle success
-        // naviate(paths.dashboard.payNow());
+        // navigate(paths.dashboard.payNow());
       })
     );
   };
@@ -392,7 +392,7 @@ const PaymentForm = () => {
     dispatch(
       paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
         // console.log('Payment details saved successfully!'); // Handle success
-        naviate(paths.dashboard.payNow());
+        navigate(paths.dashboard.payNow());
       })
     );
   };
@@ -687,7 +687,7 @@ const PaymentForm = () => {
                     gap: "4px",
                     ":hover": { cursor: "pointer" },
                   }}
-                  onClick={() => setOpenPaymentModal(true)}
+                  onClick={() => navigate(paths.dashboard.paperless())}
                 >
                   <Leaf
                     color={"var(--NavItem-icon-color)"}

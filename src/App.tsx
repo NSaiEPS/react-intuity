@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <Authorization title={"Login"}>
+      <Authorization>
         <SignInPage title={"Login"} />
       </Authorization>
     ),
@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
   {
     path: "/sign-up",
     element: (
-      <Authorization title={"Sign Up"}>
+      <Authorization>
         <SignInPage title={"Sign Up"} />
       </Authorization>
     ),
@@ -94,7 +94,7 @@ export const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: (
-      <Authorization title={"Recover Password"}>
+      <Authorization>
         <SignInPage title={"Recover Password"} />
       </Authorization>
     ),
@@ -102,7 +102,7 @@ export const router = createBrowserRouter([
   {
     path: "/:logincompany/",
     element: (
-      <Authorization title={"Login"}>
+      <Authorization>
         <SignInPage title={"Login"} />
       </Authorization>
     ),
