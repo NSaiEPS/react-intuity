@@ -45,9 +45,9 @@ export const colorSchemes = {
       primary: {
         ...neonBlue,
         light: neonBlue[300],
-        main: "red",
+        main: neonBlue[400],
         dark: neonBlue[500],
-        contrastText: "red",
+        contrastText: "var(--mui-palette-common-black)",
       },
       secondary: {
         ...nevada,
