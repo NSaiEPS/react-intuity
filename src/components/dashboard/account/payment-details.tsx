@@ -92,7 +92,7 @@ const PaymentForm = () => {
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
   const location = useLocation();
-  const { isShedule } = location.state || {};
+  const { isSchedule } = location.state || {};
   const [enabled, setEnabled] = useState(false);
   const [frequency, setFrequency] = useState("6");
   const [repeatOption, setRepeatOption] = useState("indefinite");
@@ -722,7 +722,7 @@ const PaymentForm = () => {
           </Box>
 
           {/* Payment Method Option */}
-          {isShedule ? (
+          {isSchedule ? (
             <Box sx={{ mb: 2 }}>
               <Grid container spacing={2} alignItems="center">
                 {/* Left side: Date */}
@@ -787,7 +787,7 @@ const PaymentForm = () => {
             </Box>
           )}
 
-          {isShedule && (
+          {isSchedule && (
             <Box display="flex" flexDirection="column" gap={2} mb={2}>
               {/* Checkbox */}
               <FormControlLabel
@@ -940,7 +940,7 @@ const PaymentForm = () => {
                     },
                   }}
                 >
-                  {isShedule ? "Schedule a Paytment" : " CONFIRM PAYMENT"}
+                  {isSchedule ? "Schedule a Payment" : " CONFIRM PAYMENT"}
                 </Button>
               </>
             ) : (

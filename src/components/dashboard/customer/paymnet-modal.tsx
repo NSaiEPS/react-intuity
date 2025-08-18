@@ -47,7 +47,7 @@ export function PaymentModal({
 
     navigate(paths.dashboard.paymentDetails(lastBillInfo?.last_bill?.id), {
       state: {
-        isShedule: paymentOption == "schedule" ? true : false,
+        isSchedule: paymentOption == "schedule" ? true : false,
       },
     });
   };
