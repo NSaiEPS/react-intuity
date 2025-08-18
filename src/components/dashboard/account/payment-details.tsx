@@ -10,17 +10,27 @@ import {
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { Leaf, CreditCard } from "@phosphor-icons/react/dist/ssr";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
+  FormControl,
   FormControlLabel,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  MenuItem,
   Paper,
   Radio,
   RadioGroup,
+  Select,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -36,7 +46,7 @@ import { z as zod } from "zod";
 
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { paths } from "@/utils/paths";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import PaymentSummaryModal from "../overview/payment-summary-modal";
@@ -44,6 +54,7 @@ import { PaymentMethods } from "../customer/payment-methods";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import { LocalizationProvider } from "@/components/core/localization-provider";
 
 // Register plugins
 dayjs.extend(utc);
@@ -53,6 +64,7 @@ const schema = zod.object({
   email: zod.string().email("Invalid email"),
   amount: zod.string().min(1, "Amount is required"),
   convenienceFee: zod.number().optional(),
+  duedate: zod.date().refine((val) => !!val, { message: "Required" }),
 });
 
 type FormData = zod.infer<typeof schema>;
@@ -81,7 +93,11 @@ const PaymentForm = () => {
   const { setContextLoading } = useLoading();
   const location = useLocation();
   const { isShedule } = location.state || {};
-  console.log(isShedule, "isShedule");
+  const [enabled, setEnabled] = useState(false);
+  const [frequency, setFrequency] = useState("6");
+  const [repeatOption, setRepeatOption] = useState("indefinite");
+  const [repeatTimes, setRepeatTimes] = useState(1);
+
   const onSubmit = (data: FormData) => {
     // console.log({ ...data, paymentType });
   };
@@ -668,7 +684,7 @@ const PaymentForm = () => {
           </Box>
 
           {/* Amount */}
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 4 }}>
             <Typography fontWeight={600}>Amount to pay</Typography>
             <Controller
               name="amount"
@@ -687,40 +703,176 @@ const PaymentForm = () => {
                 />
               )}
             />
-            <Typography sx={{ mt: 1, fontSize: 14, color: colors.blue }}>
-              Additional convenience Fee:$ {watch("convenienceFee") || 0}
-            </Typography>
-            <Typography sx={{ fontSize: 14, color: colors.blue }}>
-              Total Payment: ${" "}
-              {(
-                (Number(watch("amount")) || 0) + (watch("convenienceFee") || 0)
-              ).toFixed(2)}
-            </Typography>
+            <Stack
+              direction={{ xs: "column", sm: "row" }} // column on extra small, row from small+
+              spacing={2}
+              sx={{ mt: 1 }}
+            >
+              <Typography sx={{ fontSize: 14, color: colors.blue }}>
+                Additional Convenience Fee: ${watch("convenienceFee") || 0}
+              </Typography>
+              <Typography sx={{ fontSize: 14, color: colors.blue }}>
+                Total Payment: $
+                {(
+                  (Number(watch("amount")) || 0) +
+                  (watch("convenienceFee") || 0)
+                ).toFixed(2)}
+              </Typography>
+            </Stack>
           </Box>
 
           {/* Payment Method Option */}
-          {/* {
-            isShedule ?
-          } */}
-          <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
-            <RadioGroup
-              value={paymentType}
-              onChange={(e) =>
-                setPaymentType(e.target.value as "saved" | "no-save")
-              }
-            >
+          {isShedule ? (
+            <Box sx={{ mb: 2 }}>
+              <Grid container spacing={2} alignItems="center">
+                {/* Left side: Date */}
+                <Grid item xs={12} md={6}>
+                  <LocalizationProvider>
+                    <Controller
+                      name="duedate"
+                      control={control}
+                      render={({ field }) => (
+                        <DatePicker
+                          label="Requested Stop Date"
+                          value={dayjs(field.value)}
+                          minDate={dayjs()}
+                          disablePast
+                          onChange={(date: Dayjs | null) =>
+                            field.onChange(date?.toDate())
+                          }
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              required: true,
+                              error: !!errors.duedate,
+                              helperText: errors.duedate?.message,
+                              inputProps: { readOnly: true },
+                              color: "primary",
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+
+                {/* Right side: Texts */}
+                <Grid item xs={12} md={6}>
+                  <Box display="flex" flexDirection="column" gap={1}>
+                    <Typography fontWeight={600}>Due Date</Typography>
+                    <Typography fontWeight={600}>22/09/2025</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          ) : (
+            <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
+              <RadioGroup
+                value={paymentType}
+                onChange={(e) =>
+                  setPaymentType(e.target.value as "saved" | "no-save")
+                }
+              >
+                <FormControlLabel
+                  value="saved"
+                  control={<Radio />}
+                  label="Pay with a saved payment method"
+                />
+                <FormControlLabel
+                  value="no-save"
+                  control={<Radio />}
+                  label="Pay without saving a payment method"
+                />
+              </RadioGroup>
+            </Box>
+          )}
+
+          {isShedule && (
+            <Box display="flex" flexDirection="column" gap={2} mb={2}>
+              {/* Checkbox */}
               <FormControlLabel
-                value="saved"
-                control={<Radio />}
-                label="Pay with a saved payment method"
+                control={
+                  <Checkbox
+                    checked={enabled}
+                    onChange={(e) => setEnabled(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="Make a recurring payment of the same amount, on the same day"
               />
-              <FormControlLabel
-                value="no-save"
-                control={<Radio />}
-                label="Pay without saving a payment method"
-              />
-            </RadioGroup>
-          </Box>
+
+              {enabled && (
+                <>
+                  {/* Frequency Select */}
+                  <FormControl sx={{ minWidth: 200 }}>
+                    <InputLabel>Frequency</InputLabel>
+                    <Select
+                      value={frequency}
+                      onChange={(e) => setFrequency(e.target.value)}
+                      label="Frequency"
+                    >
+                      <MenuItem value="1">Every month</MenuItem>
+                      <MenuItem value="2">Every 2 months</MenuItem>
+                      <MenuItem value="3">Every 3 months</MenuItem>
+                      <MenuItem value="6">Every 6 months</MenuItem>
+                      <MenuItem value="12">Every year</MenuItem>
+                    </Select>
+                    <FormHelperText>
+                      Recurring payments will not pay your invoice amount on the
+                      due date.
+                    </FormHelperText>
+                  </FormControl>
+
+                  {/* Repeat options */}
+                  <FormControl>
+                    <RadioGroup
+                      value={repeatOption}
+                      onChange={(e) => setRepeatOption(e.target.value)}
+                    >
+                      {/* First Option */}
+                      <FormControlLabel
+                        value="indefinite"
+                        control={<Radio />}
+                        label="Repeat indefinitely"
+                        sx={{
+                          width: "220px",
+                        }}
+                      />
+
+                      {/* Second Option (Radio + Select + Text Inline) */}
+                      <FormControlLabel
+                        value="times"
+                        control={<Radio />}
+                        label={
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Typography>Repeat an additional</Typography>
+                            <Select
+                              size="small"
+                              value={repeatTimes}
+                              onChange={(e) =>
+                                setRepeatTimes(Number(e.target.value))
+                              }
+                              sx={{ width: 80 }}
+                              disabled={repeatOption !== "times"}
+                            >
+                              {[...Array(25).keys()].map((n) => (
+                                <MenuItem key={n + 1} value={n + 1}>
+                                  {n + 1}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            <Typography>
+                              times after the first payment
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                    </RadioGroup>
+                  </FormControl>
+                </>
+              )}
+            </Box>
+          )}
 
           {/* Saved Card Info Block (only show if saved method selected) */}
           {paymentType === "saved" ? (
@@ -788,7 +940,7 @@ const PaymentForm = () => {
                     },
                   }}
                 >
-                  CONFIRM PAYMENT
+                  {isShedule ? "Schedule a Paytment" : " CONFIRM PAYMENT"}
                 </Button>
               </>
             ) : (
