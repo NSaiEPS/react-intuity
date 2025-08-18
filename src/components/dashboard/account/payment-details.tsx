@@ -146,11 +146,6 @@ const PaymentForm = () => {
   const CustomerInfo: any = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
-  const [isPaperLessOn, setIsPaperLessOn] = useState(false);
-
-  useEffect(() => {
-    setIsPaperLessOn(CustomerInfo?.paperless === 1 ? true : false);
-  }, [CustomerInfo?.paperless]);
 
   const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${
     processorDetails?.app_id
@@ -600,7 +595,7 @@ const PaymentForm = () => {
               </Typography>
 
               {/* Go Paperless */}
-              {!isPaperLessOn && (
+              {myCustomerDetails.paperless === 0 && (
                 <Typography
                   sx={{
                     fontSize: 14,
