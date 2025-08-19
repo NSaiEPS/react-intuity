@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Typography,
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
@@ -183,6 +184,15 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           </Box>
         )}
         <div className="projects-section-line" style={{ marginTop: "20px" }}>
+          {!iframeLoading && (
+            <Typography
+              variant="body1"
+              align="center"
+              sx={{ color: "red", fontWeight: "bold" }}
+            >
+              ⚠️ WARNING! Only click this button ONCE!
+            </Typography>
+          )}
           <iframe
             id="iFrameBA"
             name="iFrameBA"
