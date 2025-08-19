@@ -6,6 +6,7 @@ import {
   getPaymentProcessorDetails,
   paymentWithoutSavingDetails,
   saveDefaultPaymentMethod,
+  schedulePayment,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
@@ -84,6 +85,7 @@ const PaymentForm = () => {
       email: "",
       amount: "",
       convenienceFee: 0,
+      duedate: dayjs().add(1, "day").toDate(),
     },
   });
 
@@ -93,7 +95,7 @@ const PaymentForm = () => {
   const { setContextLoading } = useLoading();
   const location = useLocation();
   const { isSchedule } = location.state || {};
-  const [enabled, setEnabled] = useState(false);
+  const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState("6");
   const [repeatOption, setRepeatOption] = useState("indefinite");
   const [repeatTimes, setRepeatTimes] = useState(1);
@@ -385,36 +387,93 @@ const PaymentForm = () => {
   useEffect(() => {
     setSelectedCardDetails(paymentMethodInfoCards);
   }, [paymentMethodInfoCards]);
+
   const handlePay = () => {
     setShowPaymentSummary(false);
     const formdata = new FormData();
+
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
     formdata.append("is_one_time", "0");
     formdata.append("id", id);
 
-    formdata.append("pay_payment_method", "pay_save_method");
-    formdata.append("payment_method_id_radio", "card");
-    formdata.append("is_card", "0");
-    formdata.append("is_card_one_time", "0");
-    if (selectedCardDetails?.bank_account_number) {
-      formdata.append("is_bank_account_payment_method_form", "1");
+    if (isSchedule) {
+      formdata.append("is_one_time", "0");
+      formdata.append(
+        "payment_method_id_radio",
+        selectedCardDetails?.card_number ? "card" : "bank_account"
+      );
+      formdata.append("is_card", selectedCardDetails?.card_number ? "1" : "0");
+      formdata.append("is_card_one_time", "0");
+      formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
+      formdata.append("payment_method", "1");
+      formdata.append("price", String(watch("amount") || 0));
+      formdata.append(
+        "payment_method_id_form",
+        selectedCardDetails?.card_token
+      );
+      formdata.append(
+        "schedule_date",
+        dayjs(watch("duedate")).format("MM/DD/YY")
+      );
+      formdata.append("pay_now_hidden", "1");
+
+      // is_one_time:0
+      // payment_method_id_radio:card
+      // is_card:0
+      // is_card_one_time:0
+      // convenienceFee:0.04
+      // payment_method:1
+      // price:1.00
+      // payment_method_id_form:ca56b25436154679aa30c9e9a911c1c1
+      // schedule_date:08/14/2025
+      // pay_now_hidden:1"
+
+      //recurring
+
+      if (recurringPaymentEnabled) {
+        formdata.append("make_recurring_pay", "1");
+        formdata.append("recurring_pay_opt", frequency);
+        formdata.append("select_repeat_options", "repeat_an_additional");
+        formdata.append("repeat_an_additional_times", String(repeatTimes));
+      }
+
+      // make_recurring_pay:1
+      // recurring_pay_opt:1
+      // select_repeat_options:repeat_an_additional
+      // repeat_an_additional_times:2"
+
+      dispatch(
+        schedulePayment(stored?.body?.token, formdata, () => {
+          navigate(paths.dashboard.payNow());
+        })
+      );
+    } else {
+      formdata.append("pay_payment_method", "pay_save_method");
+      formdata.append("payment_method_id_radio", "card");
+      formdata.append("is_card", "0");
+      formdata.append("is_card_one_time", "0");
+      if (selectedCardDetails?.bank_account_number) {
+        formdata.append("is_bank_account_payment_method_form", "1");
+      }
+      //for bank
+      // is_bank_account_payment_method_form:1"
+
+      formdata.append(
+        "payment_method_id_form",
+        selectedCardDetails?.card_token
+      );
+
+      formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
+      formdata.append("payment_method", "0");
+      formdata.append("price", String(watch("amount") || 0));
+
+      dispatch(
+        paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
+          navigate(paths.dashboard.payNow());
+        })
+      );
     }
-    //for bank
-    // is_bank_account_payment_method_form:1"
-
-    formdata.append("payment_method_id_form", selectedCardDetails?.card_token);
-
-    formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
-    formdata.append("payment_method", "0");
-    formdata.append("price", String(watch("amount") || 0));
-
-    dispatch(
-      paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
-        // console.log('Payment details saved successfully!'); // Handle success
-        navigate(paths.dashboard.payNow());
-      })
-    );
   };
 
   type PaymentConfig = {
@@ -793,15 +852,17 @@ const PaymentForm = () => {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={enabled}
-                    onChange={(e) => setEnabled(e.target.checked)}
+                    checked={recurringPaymentEnabled}
+                    onChange={(e) =>
+                      setRecurringPaymentEnabled(e.target.checked)
+                    }
                     color="primary"
                   />
                 }
                 label="Make a recurring payment of the same amount, on the same day"
               />
 
-              {enabled && (
+              {recurringPaymentEnabled && (
                 <>
                   {/* Frequency Select */}
                   <FormControl sx={{ minWidth: 200 }}>
@@ -1029,6 +1090,7 @@ const PaymentForm = () => {
               selectedCardDetails?.card_number ??
               selectedCardDetails?.bank_account_number
             }
+            dueDate={isSchedule ? watch("duedate") : null}
           />
         )}
         {openConfirm && (

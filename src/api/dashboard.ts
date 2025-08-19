@@ -645,3 +645,28 @@ export async function getConvenienceFeeAPI({
 
   return data;
 }
+
+export async function schedulePaymentAPI({
+  token,
+  formData,
+}: AccountUpdateForm) {
+  const api = `${BASE_URL}billing/front/payment`;
+
+  const res = await fetch(api, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}

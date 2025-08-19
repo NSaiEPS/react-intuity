@@ -14,6 +14,7 @@ import {
   CardActions,
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
+import dayjs from "dayjs";
 
 interface PaymentSummaryModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface PaymentSummaryModalProps {
   fee: number;
   cardType: string;
   cardLast4: string;
+  dueDate?: string | null | Date;
 }
 
 export default function PaymentSummaryModal({
@@ -33,6 +35,7 @@ export default function PaymentSummaryModal({
   fee,
   cardType,
   cardLast4,
+  dueDate,
 }: PaymentSummaryModalProps) {
   const total = amount + fee;
 
@@ -99,6 +102,14 @@ export default function PaymentSummaryModal({
           </Typography>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
             ${total}
+          </Typography>
+        </Stack>
+        <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            Date To Pay
+          </Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {dayjs(dueDate).format("MMM D, YYYY")}
           </Typography>
         </Stack>
       </DialogContent>

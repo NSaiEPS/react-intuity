@@ -13,6 +13,7 @@ import {
   paymentWithoutSavingDetailsAPI,
   registerApi,
   saveDefaultPaymentMethodAPI,
+  schedulePaymentAPI,
   transferService,
   updatePassword,
   updateUserInfo,
@@ -696,6 +697,36 @@ export const getConvenienceFee: any =
         if (successCallBack) {
           successCallBack();
         }
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+
+        toast.error(res?.message ?? "Something went wrong!");
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const schedulePayment: any =
+  (token, formData, successCallBack) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await schedulePaymentAPI({ token, formData });
+
+      if (res?.status) {
+        if (successCallBack) {
+          successCallBack();
+        }
+
+        toast.success(
+          res?.message ? res?.message : "Payment SuccessFully Scheduled!"
+        );
       } else {
         if (res?.message == "You are not authorised to use this api") {
           clearLocalStorage();
