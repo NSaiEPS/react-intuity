@@ -36,9 +36,9 @@ export default function CompanyDetails({ reset = false }) {
           // backgroundColor: 'red',
         }}
       >
-        <Box sx={{ mt: 0, maxWidth: "100%", mx: "auto", marginLeft: "auto" }}>
+        <Box sx={{ mt: 0, maxWidth: "100%", mx: "auto" }}>
           <Stack spacing={1}>
-            {pathname?.split("/")[1] !== "login" &&
+            {/* {pathname?.split("/")[1] !== "login" &&
               pathname?.includes("login") && (
                 <Typography variant="body2" color="text.secondary">
                   <strong style={{ color: colors.blue }}>
@@ -53,19 +53,32 @@ export default function CompanyDetails({ reset = false }) {
                   {companyInfo?.company?.state} {` `}{" "}
                   {companyInfo?.company?.zip} {` `}{" "}
                   {companyInfo?.company?.country}
-                  {/* VAT No.: US123456789 */}
-                  {/* Company Reg. No: {companyInfo?.company?.reg_no ?? ''}, */}
                   Phone No: {companyInfo?.company?.phone ?? ""}, email :{" "}
                   {companyInfo?.company?.email ?? ""}
                 </Typography>
-              )}
-            <Typography variant="body2" color="text.secondary">
-              <strong style={{ color: colors.blue }}>Contact Us: </strong>
-              📞+1 234 567 8900 &nbsp;&nbsp;&nbsp; &nbsp;
-              &nbsp;📧info@intuity.com&nbsp; &nbsp; &nbsp; &nbsp;
-              🌐&nbsp;www.intuity.com &nbsp; 📍&nbsp;1234 Water Ave, Suite 100
-              &nbsp; &nbsp; &nbsp; Springfield, IL 62701
-            </Typography>
+              )} */}
+            {pathname?.split("/")[1] !== "login" &&
+            pathname?.includes("login") ? (
+              <Typography variant="body2" color="text.secondary">
+                <strong style={{ color: colors.blue }}>Contact Us: 📞 </strong>
+                {companyInfo?.company?.country}
+                {companyInfo?.company?.phone ?? ""} &nbsp;&nbsp;&nbsp; &nbsp;
+                &nbsp;📧 {companyInfo?.company?.email ?? ""}&nbsp; &nbsp; &nbsp;
+                &nbsp; 🌐&nbsp;www.intuity.com &nbsp; 📍&nbsp;
+                {companyInfo?.company?.street
+                  ? `${companyInfo?.company?.street},`
+                  : ""}{" "}
+                {` `} {companyInfo?.company?.time_zone}, {` `}{" "}
+              </Typography>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                <strong style={{ color: colors.blue }}>Contact Us: </strong>
+                📞+1 234 567 8900 &nbsp;&nbsp;&nbsp; &nbsp;
+                &nbsp;📧info@intuity.com&nbsp; &nbsp; &nbsp; &nbsp;
+                🌐&nbsp;www.intuity.com &nbsp; 📍&nbsp;1234 Water Ave, Suite 100
+                &nbsp; &nbsp; &nbsp; Springfield, IL 62701
+              </Typography>
+            )}
           </Stack>
         </Box>
 
@@ -114,7 +127,7 @@ export default function CompanyDetails({ reset = false }) {
             </Typography>
 
             {/* Right content */}
-            <Typography
+            {/* <Typography
               variant="body2"
               sx={{
                 color: colors.blue,
@@ -134,8 +147,44 @@ export default function CompanyDetails({ reset = false }) {
                 Terms of use
               </Link>
               : https://pay.waterbill.com/terms-of-use
-            </Typography>
+            </Typography> */}
           </Box>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "#f1f6fa", // light gray/blue
+            px: 4,
+            py: 2,
+            mt: 2,
+          }}
+        >
+          {/* Left side */}
+          <Typography variant="body2" sx={{ color: "#374151" }}>
+            powered by{" "}
+            <Box
+              component="span"
+              sx={{
+                fontStyle: "italic",
+                fontWeight: 600,
+                color: "#0284c7",
+              }}
+            >
+              Intuity
+            </Box>
+          </Typography>
+
+          {/* Right side */}
+          <Link
+            href="https://pay.waterbill.com/terms-of-use"
+            underline="hover"
+            target="_blank"
+            sx={{ color: colors.blue, fontSize: "0.875rem" }}
+          >
+            Terms of use
+          </Link>
         </Box>
       </Box>
     </Grid>
