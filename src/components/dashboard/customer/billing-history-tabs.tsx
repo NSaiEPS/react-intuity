@@ -168,7 +168,12 @@ export default function InvoiceTransactionTabs({
                     />
                   ) : null}
                 </TableCell>
-                <TableCell>${item?.amount}</TableCell>
+                <TableCell>
+                  {/* ${item?.amount} */}$
+                  {item?.amount < 0
+                    ? `(${Math.abs(parseFloat(item.amount)).toFixed(2)})`
+                    : item?.amount}
+                </TableCell>
 
                 <TableCell>
                   <Box
@@ -178,7 +183,10 @@ export default function InvoiceTransactionTabs({
                       justifyContent: "space-between",
                     }}
                   >
-                    $ {item?.balance_due}
+                    {/* ${item?.balance_due} */}$
+                    {item?.balance_due < 0
+                      ? `(${Math.abs(parseFloat(item.balance_due)).toFixed(2)})`
+                      : item?.balance_due}
                     {currentTab === "invoice" && (
                       <Box
                         // onClick={() => setPdfModal(true)}
@@ -230,8 +238,8 @@ export default function InvoiceTransactionTabs({
                         ? "Authorization"
                         : ""}
                     </TableCell>
-                    <TableCell>$ {row.amount}</TableCell>
-                    <TableCell>$ {row.balance_due}</TableCell>
+                    <TableCell>${row.amount}</TableCell>
+                    <TableCell>${row.balance_due}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
