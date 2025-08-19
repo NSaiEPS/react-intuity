@@ -94,10 +94,10 @@ const PaymentForm = () => {
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
   const location = useLocation();
-  const { isSchedule } = location.state || {};
+  const { isSchedule, dueDate } = location.state || {};
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState("6");
-  const [repeatOption, setRepeatOption] = useState("indefinite");
+  const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
   const [repeatTimes, setRepeatTimes] = useState(1);
 
   const onSubmit = (data: FormData) => {
@@ -399,11 +399,15 @@ const PaymentForm = () => {
 
     if (isSchedule) {
       formdata.append("is_one_time", "0");
-      formdata.append(
-        "payment_method_id_radio",
-        selectedCardDetails?.card_number ? "card" : "bank_account"
-      );
-      formdata.append("is_card", selectedCardDetails?.card_number ? "1" : "0");
+
+      // formdata.append(
+      //   "payment_method_id_radio",
+      //   selectedCardDetails?.card_number ? "card" : "bank_account"
+      // );
+      // formdata.append("is_card", selectedCardDetails?.card_number ? "1" : "0");
+      formdata.append("payment_method_id_radio", "card");
+      formdata.append("is_card", "0");
+
       formdata.append("is_card_one_time", "0");
       formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
       formdata.append("payment_method", "1");
@@ -434,7 +438,7 @@ const PaymentForm = () => {
       if (recurringPaymentEnabled) {
         formdata.append("make_recurring_pay", "1");
         formdata.append("recurring_pay_opt", frequency);
-        formdata.append("select_repeat_options", "repeat_an_additional");
+        formdata.append("select_repeat_options", repeatOption);
         formdata.append("repeat_an_additional_times", String(repeatTimes));
       }
 
@@ -819,7 +823,7 @@ const PaymentForm = () => {
                 <Grid item xs={12} md={6}>
                   <Box display="flex" flexDirection="column" gap={1}>
                     <Typography fontWeight={600}>Due Date</Typography>
-                    <Typography fontWeight={600}>22/09/2025</Typography>
+                    <Typography fontWeight={600}>{dueDate}</Typography>
                   </Box>
                 </Grid>
               </Grid>
@@ -892,7 +896,7 @@ const PaymentForm = () => {
                     >
                       {/* First Option */}
                       <FormControlLabel
-                        value="indefinite"
+                        value="repeat_indefinitely"
                         control={<Radio />}
                         label="Repeat indefinitely"
                         sx={{
@@ -902,7 +906,7 @@ const PaymentForm = () => {
 
                       {/* Second Option (Radio + Select + Text Inline) */}
                       <FormControlLabel
-                        value="times"
+                        value="repeat_an_additional"
                         control={<Radio />}
                         label={
                           <Box display="flex" alignItems="center" gap={1}>
@@ -914,7 +918,7 @@ const PaymentForm = () => {
                                 setRepeatTimes(Number(e.target.value))
                               }
                               sx={{ width: 80 }}
-                              disabled={repeatOption !== "times"}
+                              disabled={repeatOption !== "repeat_an_additional"}
                             >
                               {[...Array(25).keys()].map((n) => (
                                 <MenuItem key={n + 1} value={n + 1}>

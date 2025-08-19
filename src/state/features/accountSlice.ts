@@ -8,6 +8,7 @@ import {
   getConvenienceFeeAPI,
   getPaymentDetailsApi,
   getPaymentProcessorDetailsAPI,
+  guestPaymentRequestApi,
   listAnotherAccountAPI,
   paperLessUpdate,
   paymentWithoutSavingDetailsAPI,
@@ -40,6 +41,7 @@ interface DahBoardState {
   paymentProcessorDetails: any;
   selectedCardInfo: any;
   convenienceFee: any;
+  oneTimePaymentInfo: any;
 }
 
 const initialState = {
@@ -55,6 +57,7 @@ const initialState = {
   paymentProcessorDetails: {},
   selectedCardInfo: {},
   convenienceFee: {},
+  oneTimePaymentInfo: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -97,6 +100,9 @@ const AccountSlice = createSlice({
     setConvenienceFee(state, action) {
       state.convenienceFee = action.payload;
     },
+    setOneTimePaymentInfo(state, action) {
+      state.oneTimePaymentInfo = action.payload;
+    },
   },
 });
 
@@ -112,6 +118,7 @@ export const {
   setUserInfo,
   setPaymentProcessorDetails,
   setConvenienceFee,
+  setOneTimePaymentInfo,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;
@@ -737,6 +744,121 @@ export const schedulePayment: any =
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const guestPaymentRequest: any =
+  (formData, alias, successCallBack, failureCallBack) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+    try {
+      const res = await guestPaymentRequestApi({ formData, alias });
+      let dummyRes = {
+        status: true,
+        body: {
+          customer: {
+            id: 16406,
+            company_id: 4,
+            location_id: 0,
+            user_id: 0,
+            status: 1,
+            acctnum: "0012",
+            customer_name: "LINCOLN RECOVERY",
+            address: "2955 EAST 1ST AVENUE, STE 200 ",
+            city: "DENVER",
+            state: 6,
+            zipcode: "80206",
+            house_num: null,
+            phone: "",
+            phone2: "",
+            email: "accounting@sunshinebh.com",
+            service_address: "19067 WEST FRONTAGE ROAD",
+            map_lat: null,
+            map_lng: null,
+            balance: 2032.85,
+            balance_date: "2025-04-25",
+            projected_bill: 0,
+            next_bill_date: null,
+            invite_date: null,
+            invite_code: "",
+            adderss2: null,
+            zip: null,
+            customer_vat_number: null,
+            registration_value: null,
+            block_payments_cc: null,
+            block_payments_eft: null,
+            customer_name2: null,
+            pin: "5186",
+            display_account_number: null,
+            usage_calc_last: "2025-04-17 00:00:00",
+            customer_type: "",
+            ic_email: "",
+            ic_password: "",
+            paperless: 0,
+            paperless_reported: null,
+            email_blast: null,
+            default_card_id_for_auto_payment: null,
+            payment_method_for_auto_payment: null,
+            fixed_payment_amount_for_auto_payment: null,
+            day_for_auto_payment: null,
+            autopay: 0,
+            email_updated_date: null,
+            customer_status: "A",
+            special_handling_code: "R",
+            country_code: null,
+            phone_no: null,
+            is_phone_verified: 0,
+            otp: 0,
+            phone_no_updated_at: null,
+            notification_new_bill: 1,
+            notification_payment: 1,
+            notification_reminder: 4,
+            notification_biller: 0,
+            is_phone_block: 0,
+            country_code_phone_no: "0",
+            payment_method: null,
+            total_unread_notification: 25,
+            is_payment_schedule: 0,
+            payment_schedule_date: null,
+            text_preference: 0,
+            country_id: 0,
+            ivr_callfrom_phone: null,
+            is_conveyed: 0,
+            secondary_recipient_email: "",
+            is_recurring_payment: 0,
+            is_payments_blocked: 0,
+            recurring_ack_date: null,
+            is_voice_optout: 0,
+            updated_email: null,
+            last_bill_amount: 2032.85,
+            billing_id: 71574,
+          },
+        },
+        message: "Data Found",
+      };
+      if (dummyRes.status) {
+        dispatch(setOneTimePaymentInfo(dummyRes?.body));
+
+        if (successCallBack) {
+          successCallBack(dummyRes?.body?.customer);
+        }
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+
+        toast.error(res?.message ?? "Something went wrong!");
+        if (failureCallBack) {
+          failureCallBack();
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!");
+      if (failureCallBack) {
+        failureCallBack();
+      }
     } finally {
       dispatch(setAccountLoading(false));
     }

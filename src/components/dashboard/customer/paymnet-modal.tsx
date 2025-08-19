@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { colors } from "@/utils";
+import { colors, formatToMMDDYYYY } from "@/utils";
 import {
   Box,
   Button,
@@ -48,6 +48,11 @@ export function PaymentModal({
     navigate(paths.dashboard.paymentDetails(lastBillInfo?.last_bill?.id), {
       state: {
         isSchedule: paymentOption == "schedule" ? true : false,
+        dueDate: formatToMMDDYYYY(
+          lastBillInfo?.last_bill?.due_date,
+          false,
+          true
+        ),
       },
     });
   };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -15,17 +15,33 @@ import {
   DialogTitle,
   Stack,
   IconButton,
+  InputAdornment,
+  Tooltip,
 } from "@mui/material";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";
 import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
 import { X } from "@phosphor-icons/react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/state/store";
+import { guestPaymentRequest } from "@/state/features/accountSlice";
+import { Question } from "@phosphor-icons/react";
 
 const steps = ["Retrieve Bill", "Confirm Payment", "Select Payment Method"];
 
 export default function OneTimePaymentModal({ open, onClose }) {
   const [activeStep, setActiveStep] = useState(0);
+  const dispatch = useDispatch();
+  const [iframeLoading, setIframeLoading] = useState(true);
 
+  const companyInfo = useSelector(
+    (state: RootState) => state.Account.companyInfo
+  );
+  const accountLoading = useSelector(
+    (state: RootState) => state.Account.accountLoading
+  );
+
+  console.log(companyInfo, "companyInfo");
   const [formData, setFormData] = useState({
     accountNo: "",
     invoiceAmount: "",
@@ -35,27 +51,104 @@ export default function OneTimePaymentModal({ open, onClose }) {
     convenienceFee: "",
     totalPayment: "",
     paymentType: "card",
+    street: "",
   });
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const [errors, setErrors] = useState({}); // Track validation errors
 
   const handleChange = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
+    setErrors({ ...errors, [field]: "" }); // clear error once user types
   };
 
+  const paymentProcessorDetails = useSelector(
+    (state: RootState) => state?.Account?.paymentProcessorDetails
+  );
+  const [processorDetails, setProcessorDetails] = useState<any>({});
+  let app_id = "hdkmckqqCn7GdocWNo3pJsmRACgaOEjx";
+  let app_secret = "CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV";
+  const iframeUrlForPayment = `https://iframe.icheckdev.com/${
+    formData.paymentType == "card" ? "iFrameCC" : "iFrameBA"
+  }.aspx?appId=${app_id}&appSecret=${app_secret}&custId=${
+    formData?.accountNo
+  }&firstName=${formData?.name}&email=${formData?.email}&amp;street1=${
+    formData?.street
+  }+&amount=${
+    Number(formData.amountToPay) || 0
+  }&entryClassCode=WEB&saveTokenDisabled=false`;
+  useEffect(() => {
+    if (paymentProcessorDetails?.current_processor?.length > 0) {
+      const details =
+        paymentProcessorDetails[
+          paymentProcessorDetails?.current_processor[0]?.config_value
+        ]?.[0]?.config_value;
+      setProcessorDetails(JSON.parse(details));
+    }
+  }, [paymentProcessorDetails]);
+
+  // Validation per step
+  const validateStep = () => {
+    let newErrors = {};
+    if (activeStep === 0) {
+      if (!formData.accountNo) newErrors.accountNo = "Account No. is required";
+      if (!formData.invoiceAmount)
+        newErrors.invoiceAmount = "Invoice Amount is required";
+    }
+    if (activeStep === 1) {
+      if (!formData.amountToPay)
+        newErrors.amountToPay = "Amount to Pay is required";
+    }
+    if (activeStep === 2) {
+      if (!formData.paymentType)
+        newErrors.paymentType = "Please select a payment method";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep()) {
+      setActiveStep((prev) => prev + 1);
+    }
+  };
+
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
   const handleRetrieveBill = () => {
-    // Simulate API call
-    setFormData((prev) => ({
-      ...prev,
-      invoiceAmount: "2032.85",
-      name: "LINCOLN RECOVERY",
-      email: "accounting@sunshinebh.com",
-      amountToPay: "2032.85",
-      convenienceFee: "71.15",
-      totalPayment: "2104.00",
-    }));
-    handleNext();
+    if (!formData.accountNo) {
+      setErrors({ accountNo: "Account No. is required" });
+      return;
+    }
+    if (!formData.invoiceAmount) {
+      setErrors({ invoiceAmount: "Invoice Amount is required" });
+      return;
+    }
+    const paymentData = new FormData();
+    paymentData.append("account_number", formData.accountNo);
+    paymentData.append("invoice_amount", formData.invoiceAmount);
+    paymentData.append("success_authenticate", "0");
+    paymentData.append("company_id", companyInfo?.company?.id);
+    paymentData.append("company_alias", companyInfo?.company?.alias);
+    // invoice_amount:2032.85
+    // success_authenticate:0
+    // company_id:4
+    // company_alias:RiverPark-1
+    dispatch(
+      guestPaymentRequest(paymentData, companyInfo?.company?.alias, (res) => {
+        console.log(res, "companyInfo");
+        setFormData((prev) => ({
+          ...prev,
+
+          name: res?.customer_name,
+          email: res?.email,
+          amountToPay: res?.last_bill_amount,
+          convenienceFee: "0",
+          totalPayment: "0",
+          street: res?.street,
+        }));
+        handleNext();
+      })
+    );
   };
 
   const renderStepContent = (step) => {
@@ -68,19 +161,56 @@ export default function OneTimePaymentModal({ open, onClose }) {
               label="Account No."
               value={formData.accountNo}
               onChange={handleChange("accountNo")}
+              error={!!errors.accountNo}
+              helperText={errors.accountNo}
               sx={{ mb: 2 }}
             />
+            {/* <TextField
+              fullWidth
+              label="Original Invoice Amount"
+              value={formData.invoiceAmount}
+              onChange={handleChange("invoiceAmount")}
+              error={!!errors.invoiceAmount}
+              helperText={errors.invoiceAmount}
+              sx={{ mb: 2 }}
+            /> */}
+
             <TextField
               fullWidth
               label="Original Invoice Amount"
               value={formData.invoiceAmount}
               onChange={handleChange("invoiceAmount")}
+              error={!!errors.invoiceAmount}
+              helperText={errors.invoiceAmount}
               sx={{ mb: 2 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip
+                      title={
+                        <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
+                          Enter the amount from your original invoice for this
+                          billing period. Do not include any recently added late
+                          fees. Do not reduce the invoice amount due to any
+                          payments made since you received the initial bill.
+                        </span>
+                      }
+                      placement="top"
+                      arrow
+                    >
+                      <IconButton edge="end" size="small">
+                        <Question size={20} color="#5dade2" weight="fill" />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="button"
               variant="contained"
               onClick={handleRetrieveBill}
+              loading={accountLoading}
               style={{
                 borderRadius: "12px",
                 height: "41px",
@@ -109,6 +239,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
               label="Amount To Pay"
               value={formData.amountToPay}
               onChange={handleChange("amountToPay")}
+              error={!!errors.amountToPay}
+              helperText={errors.amountToPay}
               sx={{ my: 2 }}
             />
             <Box display="flex" justifyContent="space-between">
@@ -173,6 +305,40 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 label="Bank Account"
               />
             </RadioGroup>
+            {errors.paymentType && (
+              <Typography color="error" variant="caption">
+                {errors.paymentType}
+              </Typography>
+            )}
+
+            {iframeLoading && (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height={500}
+                width={500}
+                sx={{ border: "1px solid #ccc", mb: 2 }}
+              >
+                Loading...
+              </Box>
+            )}
+            <div
+              className="projects-section-line"
+              style={{ marginTop: "20px" }}
+            >
+              <iframe
+                id="iFrameBA"
+                name="iFrameBA"
+                src={iframeUrlForPayment}
+                scrolling="no"
+                width="500"
+                height="500"
+                frameBorder="0"
+                title="ICG Payment"
+                onLoad={() => setIframeLoading(false)}
+              ></iframe>
+            </div>
 
             <Box display="flex" justifyContent="space-between" mt={2}>
               <Button
@@ -188,9 +354,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
               >
                 Back
               </Button>
-              <Button
+              {/* <Button
                 variant="contained"
-                onClick={onClose}
+                onClick={() => {
+                  if (validateStep()) onClose();
+                }}
                 style={{
                   borderRadius: "12px",
                   height: "41px",
@@ -205,7 +373,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 }
               >
                 Pay Now
-              </Button>
+              </Button> */}
             </Box>
           </>
         );
@@ -215,7 +383,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
   };
 
   return (
-    // <Modal open={open} onClose={onClose}>
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Stack
@@ -260,8 +427,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
             connector={<CustomConnector topOffset={15} />}
             sx={{
               mb: 4,
-              // maxWidth: 700,
-              // marginX: "auto",
               width: "100%",
               [`& .${stepConnectorClasses.line}`]: {
                 borderColor: "#ccc",
