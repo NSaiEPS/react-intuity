@@ -20,6 +20,7 @@ type ConfirmDialogProps = {
   onConfirm: () => void;
   onCancel: () => void;
   loader?: boolean;
+  checkBox?: boolean;
 };
 
 export function ConfirmDialog({
