@@ -132,7 +132,7 @@ export default function PaymentSummaryModal({
               sx={{ fontWeight: 600, color: "red" }}
             >
               {recurrenceMap[Recurring] ?? ""}{" "}
-              {Payment !== "Thereafter" ? Payment : ""}
+              {/* {Payment !== "Thereafter" ? Payment : ""} */}
             </Typography>
           </Stack>
         )}
@@ -145,7 +145,9 @@ export default function PaymentSummaryModal({
               variant="subtitle1"
               sx={{ fontWeight: 600, color: "red" }}
             >
-              {Payment === "Thereafter" ? "Thereafter" : "Additional Times"}
+              {Payment === "Thereafter"
+                ? "Thereafter"
+                : `${Payment} Additional Times`}
               {/* Additional Times */}
             </Typography>
           </Stack>

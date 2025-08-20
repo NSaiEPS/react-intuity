@@ -36,7 +36,15 @@ export default function CompanyDetails({ reset = false }) {
           // backgroundColor: 'red',
         }}
       >
-        <Box sx={{ mt: 0, maxWidth: "100%", mx: "auto" }}>
+        <Box
+          sx={{
+            mt: 0,
+            maxWidth: "100%",
+            mx: "auto",
+
+            cursor: "auto",
+          }}
+        >
           <Stack spacing={1}>
             {/* {pathname?.split("/")[1] !== "login" &&
               pathname?.includes("login") && (
@@ -64,7 +72,8 @@ export default function CompanyDetails({ reset = false }) {
                 {companyInfo?.company?.country}
                 {companyInfo?.company?.phone ?? ""} &nbsp;&nbsp;&nbsp; &nbsp;
                 &nbsp;📧 {companyInfo?.company?.email ?? ""}&nbsp; &nbsp; &nbsp;
-                &nbsp; 🌐&nbsp;www.intuity.com &nbsp; 📍&nbsp;
+                &nbsp; {companyInfo?.company?.website ? "🌐" : ""} &nbsp;
+                {companyInfo?.company?.website ?? ""} &nbsp; 📍&nbsp;
                 {companyInfo?.company?.street
                   ? `${companyInfo?.company?.street},`
                   : ""}{" "}
@@ -113,6 +122,9 @@ export default function CompanyDetails({ reset = false }) {
             flexWrap="wrap"
             alignItems="flex-start"
             gap={1}
+            sx={{
+              cursor: "auto",
+            }}
           >
             {/* Left content */}
             <Typography
@@ -155,14 +167,25 @@ export default function CompanyDetails({ reset = false }) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            backgroundColor: "#f1f6fa", // light gray/blue
+            // backgroundColor: "#f1f6fa", // light gray/blue
             px: 4,
-            py: 2,
+            // py: 2,
             mt: 2,
+
+            cursor: "auto",
           }}
         >
+          <Box
+            alt="logo"
+            component="img"
+            height={40}
+            width={220}
+            src={"/assets/intuity-footer.png"}
+            loading="lazy" // Browser-native lazy image load
+            // sx={{ display: "block" }}
+          />
           {/* Left side */}
-          <Typography variant="body2" sx={{ color: "#374151" }}>
+          {/* <Typography variant="body2" sx={{ color: "#374151" }}>
             powered by{" "}
             <Box
               component="span"
@@ -174,7 +197,7 @@ export default function CompanyDetails({ reset = false }) {
             >
               Intuity
             </Box>
-          </Typography>
+          </Typography> */}
 
           {/* Right side */}
           <Link

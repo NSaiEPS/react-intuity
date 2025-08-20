@@ -83,20 +83,20 @@ export default function InvoiceTransactionTabs({
             borderRadius: "10px 10px 0 0",
             position: "relative",
             "&:hover": {
-              color: "#1d4ed8",
+              color: colors.blue,
               backgroundColor: "#f3f4f6",
               transform: "translateY(-2px)", // subtle lift on hover
             },
           },
           "& .Mui-selected": {
-            color: "#1d4ed8",
+            color: colors.white,
             fontWeight: 600,
-            backgroundColor: "#ffffff",
+            backgroundColor: colors.blue,
             boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
             transform: "translateY(-2px)", // stay lifted when active
           },
           "& .MuiTabs-indicator": {
-            background: "linear-gradient(90deg, #2563eb, #3b82f6)",
+            // background: "linear-gradient(90deg, #2563eb, #3b82f6)",
             height: "4px",
             borderRadius: "4px 4px 0 0",
           },

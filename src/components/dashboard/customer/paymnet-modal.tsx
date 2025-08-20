@@ -88,9 +88,13 @@ export function PaymentModal({
     if (type == "schedule") {
       formData.append("scheduledId", "1");
     } else {
-      formData.append("recurringId", userId);
+      formData.append("recurringId", lastBillInfo?.get_recurring_payments?.id);
       formData.append("is_recurring_pay", "1");
-      formData.append("next_payment", "1");
+      if (type == "All Recurring") {
+        formData.append("all_payment", "1");
+      } else {
+        formData.append("next_payment", "1");
+      }
     }
 
     // recurringId:60
@@ -138,7 +142,7 @@ export function PaymentModal({
                           {lastBillInfo?.recurring_payment_msg1
                             ? lastBillInfo?.recurring_payment_msg1
                             : lastBillInfo?.customer?.is_payment_schedule
-                            ? `Payment Schedule for ${lastBillInfo?.customer?.payment_schedule_date}`
+                            ? lastBillInfo?.schedule_payment_msg
                             : "Recurring Payment"}
                         </Typography>
                         {lastBillInfo?.customer?.is_payment_schedule ? (

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import {
   getConvenienceFee,
   getPaymentDetails,
@@ -11,11 +10,8 @@ import {
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
-import { Leaf, CreditCard } from "@phosphor-icons/react/dist/ssr";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { paths } from "@/utils/paths";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -36,27 +32,30 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { CreditCard, Leaf } from "@phosphor-icons/react/dist/ssr";
+import dayjs, { Dayjs } from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import { z as zod } from "zod";
-
 // Correct hook for App Router
 
 // const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
 
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { paths } from "@/utils/paths";
-import dayjs, { Dayjs } from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import PaymentSummaryModal from "../overview/payment-summary-modal";
-import { PaymentMethods } from "../customer/payment-methods";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { useLoading } from "@/components/core/skeletion-context";
-import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import { toast } from "react-toastify";
+import { z as zod } from "zod";
+
 import { LocalizationProvider } from "@/components/core/localization-provider";
+import { useLoading } from "@/components/core/skeletion-context";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+
+import { PaymentMethods } from "../customer/payment-methods";
+import PaymentSummaryModal from "../overview/payment-summary-modal";
 
 // Register plugins
 dayjs.extend(utc);
@@ -101,7 +100,7 @@ const PaymentForm = () => {
     customer_acknowledgement_text = "",
   } = location.state || {};
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
-  const [frequency, setFrequency] = useState("6");
+  const [frequency, setFrequency] = useState("1");
   const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
   const [repeatTimes, setRepeatTimes] = useState(1);
   const [recurringAckownledgeModal, setRecurringAckownledgeModal] =
@@ -113,9 +112,10 @@ const PaymentForm = () => {
     formdata.append("recurring_acknowledge", "1");
 
     dispatch(
-      saveAcknowledgeForRecurringPayment(stored?.body?.token, formdata, () =>
-        setRecurringPaymentEnabled(true)
-      )
+      saveAcknowledgeForRecurringPayment(stored?.body?.token, formdata, () => {
+        setRecurringPaymentEnabled(true);
+        setRecurringAckownledgeModal(false);
+      })
     );
   };
   const onSubmit = (data: FormData) => {
@@ -919,7 +919,7 @@ const PaymentForm = () => {
                               sx={{ width: 80 }}
                               disabled={repeatOption !== "repeat_an_additional"}
                             >
-                              {[...Array(25).keys()].map((n) => (
+                              {Array.from(Array(25).keys()).map((n) => (
                                 <MenuItem key={n + 1} value={n + 1}>
                                   {n + 1}
                                 </MenuItem>
