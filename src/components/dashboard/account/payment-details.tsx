@@ -1141,6 +1141,7 @@ const PaymentForm = () => {
               setRecurringAckownledgeModal(false);
             }}
             loader={accountLoading}
+            checkBox={true}
           />
         )}
         <CustomBackdrop

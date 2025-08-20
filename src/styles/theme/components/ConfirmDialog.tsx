@@ -1,11 +1,13 @@
 import * as React from "react";
 import { colors } from "@/utils";
 import {
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControlLabel,
 } from "@mui/material";
 import { Button } from "nsaicomponents";
 
@@ -29,7 +31,15 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
   loader = false,
+  checkBox = false,
 }: ConfirmDialogProps): React.JSX.Element {
+  const [checked, setChecked] = React.useState(false);
+
+  // Reset checkbox when dialog closes
+  React.useEffect(() => {
+    if (!open) setChecked(false);
+  }, [open]);
+
   return (
     <Dialog open={open}>
       <DialogTitle>{title}</DialogTitle>
@@ -38,7 +48,21 @@ export function ConfirmDialog({
           minWidth: "400px",
         }}
       >
-        <DialogContentText>{message}</DialogContentText>
+        {checkBox ? (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={checked}
+                onChange={(e) => setChecked(e.target.checked)}
+                color="primary"
+              />
+            }
+            label={<DialogContentText>{message}</DialogContentText>}
+            sx={{ alignItems: "flex-start", mt: 1 }}
+          />
+        ) : (
+          <DialogContentText>{message}</DialogContentText>
+        )}
       </DialogContent>
       <DialogActions
         sx={{
@@ -63,7 +87,7 @@ export function ConfirmDialog({
         </Button>
         <Button
           onClick={onConfirm}
-          disabled={loader}
+          disabled={loader || (checkBox && !checked)}
           loading={loader}
           variant="contained"
           textTransform="none"
