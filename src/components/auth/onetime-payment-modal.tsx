@@ -54,7 +54,15 @@ export default function OneTimePaymentModal({ open, onClose }) {
     street: "",
   });
 
-  const [errors, setErrors] = useState({}); // Track validation errors
+  type FormErrors = {
+    accountNo?: string;
+    invoiceAmount?: string;
+    amountToPay?: string;
+    paymentType?: string;
+    [key: string]: string | undefined;
+  };
+
+  const [errors, setErrors] = useState<FormErrors>({}); // Track validation errors
 
   const handleChange = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
@@ -88,7 +96,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   // Validation per step
   const validateStep = () => {
-    let newErrors = {};
+    let newErrors: any = {};
     if (activeStep === 0) {
       if (!formData.accountNo) newErrors.accountNo = "Account No. is required";
       if (!formData.invoiceAmount)

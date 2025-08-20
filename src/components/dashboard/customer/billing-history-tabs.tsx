@@ -185,10 +185,10 @@ export default function InvoiceTransactionTabs({
                   ) : null}
                 </TableCell>
                 <TableCell>
-                  {/* ${item?.amount} */}$
+                  {/* ${item?.amount} */}
                   {item?.amount < 0
-                    ? `(${Math.abs(parseFloat(item.amount)).toFixed(2)})`
-                    : item?.amount}
+                    ? `($${Math.abs(parseFloat(item.amount)).toFixed(2)})`
+                    : `$${item?.amount}`}
                 </TableCell>
 
                 <TableCell>

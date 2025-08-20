@@ -86,7 +86,7 @@ export function PaymentModal({
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     if (type == "schedule") {
-      formData.append("scheduledId", 1);
+      formData.append("scheduledId", "1");
     } else {
       formData.append("recurringId", userId);
       formData.append("is_recurring_pay", "1");
@@ -296,7 +296,7 @@ export function PaymentModal({
       </DialogActions>
 
       <ConfirmDialog
-        open={confirmationOpen || deleteType}
+        open={confirmationOpen || deleteType ? true : false}
         title={
           deleteType ? `Delete ${deleteType}` : "Pending Payment Confirmation"
         }

@@ -3,6 +3,8 @@ import { stopTransferService } from "@/state/features/accountSlice";
 import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler } from "react-hook-form";
+
 import {
   Button,
   Card,
@@ -41,10 +43,8 @@ const schema = z.object({
     .regex(/^\d+$/, "Phone must contain only numbers"),
   requestedStopDate: z.date().refine((val) => !!val, { message: "Required" }),
   reading: z
-    .preprocess(
-      (val) => (val === "" ? undefined : Number(val)),
-      z.number().nonnegative("Reading must be a non-negative number")
-    )
+    .number()
+    .nonnegative("Reading must be a non-negative number")
     .optional(),
   address: z.string().min(1, "Required"),
   addressTwo: z.string().optional(),
@@ -63,7 +63,21 @@ const schema = z.object({
     .optional(),
 });
 
-type FormDataContent = z.infer<typeof schema>;
+type FormDataContent = {
+  name: string;
+  phone: string;
+  requestedStopDate: Date;
+  reading?: number;
+  address: string;
+  addressTwo?: string;
+  unit?: string;
+  city: string;
+  zip: string;
+  preferredOwnerMethod: "Owner" | "Tenant";
+  comment: string;
+  applicableField?: string;
+  files?: any;
+};
 
 export function SendBillDetailsForm(): React.JSX.Element {
   const {
@@ -94,7 +108,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
   });
   const dispatch = useDispatch();
 
-  const onSubmit = (data: FormDataContent) => {
+  const onSubmit: SubmitHandler<FormDataContent> = (data) => {
     let files: any = data?.files?.length ? data?.files : [];
 
     // if (!files?.length) {
