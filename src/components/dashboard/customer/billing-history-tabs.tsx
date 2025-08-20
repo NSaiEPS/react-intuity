@@ -89,7 +89,7 @@ export default function InvoiceTransactionTabs({
             },
           },
           "& .Mui-selected": {
-            color: colors.white,
+            color: colors["blue.1"],
             fontWeight: 600,
             backgroundColor: colors.blue,
             boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
