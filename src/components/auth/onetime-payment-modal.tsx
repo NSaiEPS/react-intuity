@@ -17,6 +17,8 @@ import {
   IconButton,
   InputAdornment,
   Tooltip,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";
 import { Button } from "nsaicomponents";
@@ -24,8 +26,12 @@ import { colors } from "@/utils";
 import { X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
-import { guestPaymentRequest } from "@/state/features/accountSlice";
+import {
+  guestPaymentRequest,
+  oneTimePayment,
+} from "@/state/features/accountSlice";
 import { Question } from "@phosphor-icons/react";
+import { toast } from "react-toastify";
 
 const steps = ["Retrieve Bill", "Confirm Payment", "Select Payment Method"];
 
@@ -53,7 +59,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     paymentType: "card",
     street: "",
   });
-
+  const [customerDetails, setCustomerDetails] = useState({});
   type FormErrors = {
     accountNo?: string;
     invoiceAmount?: string;
@@ -98,13 +104,24 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const validateStep = () => {
     let newErrors: any = {};
     if (activeStep === 0) {
-      if (!formData.accountNo) newErrors.accountNo = "Account No. is required";
-      if (!formData.invoiceAmount)
+      if (!formData.accountNo) {
+        newErrors.accountNo = "Account No. is required";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
+        newErrors.accountNo = "Only numbers allowed";
+      }
+
+      // Invoice Amount
+      if (!formData.invoiceAmount) {
         newErrors.invoiceAmount = "Invoice Amount is required";
+      } else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
+        newErrors.invoiceAmount = "Only numbers or decimals allowed";
+      }
     }
     if (activeStep === 1) {
       if (!formData.amountToPay)
         newErrors.amountToPay = "Amount to Pay is required";
+      if (!formData.name) newErrors.name = "Name  is required";
+      if (!formData.email) newErrors.email = "Email  is required";
     }
     if (activeStep === 2) {
       if (!formData.paymentType)
@@ -126,9 +143,15 @@ export default function OneTimePaymentModal({ open, onClose }) {
     if (!formData.accountNo) {
       setErrors({ accountNo: "Account No. is required" });
       return;
+    } else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
+      setErrors({ accountNo: "Only numbers allowed" });
+      return;
     }
     if (!formData.invoiceAmount) {
       setErrors({ invoiceAmount: "Invoice Amount is required" });
+      return;
+    } else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
+      setErrors({ invoiceAmount: "Only numbers allowed" });
       return;
     }
     const paymentData = new FormData();
@@ -144,6 +167,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     dispatch(
       guestPaymentRequest(paymentData, companyInfo?.company?.alias, (res) => {
         console.log(res, "companyInfo");
+        setCustomerDetails(res);
         setFormData((prev) => ({
           ...prev,
 
@@ -159,6 +183,109 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
   };
 
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event?.data?.custId) {
+        console.log(event?.data);
+        handleSaveDetails(event.data, companyInfo, formData, customerDetails);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, [companyInfo, formData, customerDetails]);
+  console.log(formData, "formData");
+
+  const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
+    if (data?.error) {
+      toast.error(
+        data?.error ? data?.error : "Try again something went wrong!"
+      );
+
+      return;
+    }
+    console.log(companyInfo, "companyInfo");
+    const debitType = data?.cardNumber ? "card" : "bank_account";
+    const paymentData = new FormData();
+    paymentData.append("account_number", formData.accountNo);
+    paymentData.append("invoice_amount", formData.invoiceAmount);
+
+    paymentData.append("company_id", companyInfo?.company?.id);
+    paymentData.append("company_alias", companyInfo?.company?.alias);
+    paymentData.append("customer_id", customerDetails?.id);
+    paymentData.append("success_authenticate", "1");
+    paymentData.append("name", formData.name);
+    paymentData.append("email", formData.email);
+    paymentData.append("billing_id", customerDetails?.billing_id);
+
+    paymentData.append("token", data?.token);
+    paymentData.append("is_one_time", "1");
+    paymentData.append("amount", formData.amountToPay);
+    paymentData.append("convenienceFee", formData.convenienceFee);
+
+    if (debitType === "card") {
+      paymentData.append("credit_card_number", data?.cardNumber);
+      paymentData.append("card_type", data?.cardType);
+      paymentData.append("expiration", data?.cardExpDate);
+      paymentData.append("is_card_one_time", "1");
+    }
+    if (debitType == "bank_account") {
+      paymentData.append("bank_account_number", data?.accountNumber);
+      paymentData.append("routing_number", data?.routingNumber);
+      paymentData.append(
+        "account_type",
+        data?.accountType === "PC"
+          ? "Personal Checking"
+          : data?.accountType === "PS"
+          ? "Personal Savings"
+          : data?.accountType === "BC"
+          ? "Business Checking"
+          : data?.accountType === "BS"
+          ? "Business Savings"
+          : data?.accountType === "GL"
+          ? "General Ledger"
+          : " Other"
+      );
+    }
+    //    "account_number:0125
+    // invoice_amount:62.99
+    // amount:1.00
+    // company_id:2
+    // company_alias:cape-royale1
+    // customer_id:379
+    // success_authenticate:1
+    // name:JORDAN, JOAN H
+    // email:jordan@gmail.com
+    // billing_id:26323
+    // token:c662e0ea1cd34584a54c53f7276044ab
+    // credit_card_number:1111
+    // expiration:1131
+    // is_one_time:1
+    // is_card:1
+    // convenienceFee:0.04"
+
+    dispatch(
+      oneTimePayment(paymentData, () => {
+        onModalClose();
+      })
+    );
+  };
+  const onModalClose = () => {
+    setActiveStep(0);
+    setFormData({
+      accountNo: "",
+      invoiceAmount: "",
+      name: "",
+      email: "",
+      amountToPay: "",
+      convenienceFee: "",
+      totalPayment: "",
+      paymentType: "card",
+      street: "",
+    });
+    onClose();
+  };
   const renderStepContent = (step) => {
     switch (step) {
       case 0:
@@ -239,9 +366,29 @@ export default function OneTimePaymentModal({ open, onClose }) {
       case 1:
         return (
           <>
-            <Typography>Name: {formData.name}</Typography>
-            <Typography>Email: {formData.email}</Typography>
-            <Typography>Due Amount: ${formData.invoiceAmount}</Typography>
+            <TextField
+              fullWidth
+              label="Name: "
+              value={formData.name}
+              onChange={handleChange("name")}
+              error={!!errors.name}
+              helperText={errors.name}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Email: "
+              value={formData.email}
+              onChange={handleChange("email")}
+              error={!!errors.email}
+              helperText={errors.email}
+              sx={{ mb: 2 }}
+            />
+            {/* <Typography>Name: {formData.name}</Typography>
+            <Typography>Email: {formData.email}</Typography> */}
+            <Typography mb={2}>
+              Due Amount: ${formData.invoiceAmount}
+            </Typography>
             <TextField
               fullWidth
               label="Amount To Pay"
@@ -249,7 +396,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               onChange={handleChange("amountToPay")}
               error={!!errors.amountToPay}
               helperText={errors.amountToPay}
-              sx={{ my: 2 }}
+              sx={{ mb: 2 }}
             />
             <Box display="flex" justifyContent="space-between">
               <Button
@@ -291,11 +438,20 @@ export default function OneTimePaymentModal({ open, onClose }) {
       case 2:
         return (
           <>
-            <Typography>Amount: ${formData.amountToPay}</Typography>
+            <Typography>Name: {formData.name}</Typography>
+            <Typography>Email: {formData.email}</Typography>
+            <Typography mt={2}>Amount: ${formData.amountToPay}</Typography>
             <Typography>
               Additional Convenience Fee: ${formData.convenienceFee}
             </Typography>
-            <Typography>Total Payment: ${formData.totalPayment}</Typography>
+            <Typography>
+              Total Payment: $
+              {parseFloat(
+                (
+                  Number(formData.amountToPay) + Number(formData.totalPayment)
+                ).toFixed(2)
+              )}
+            </Typography>
 
             <Typography sx={{ mt: 2 }}>Select Payment Type</Typography>
             <RadioGroup
@@ -400,7 +556,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onModalClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Stack
           direction="row"
@@ -413,7 +569,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
           <IconButton
             aria-label="close"
-            onClick={onClose}
+            onClick={onModalClose}
             sx={{
               position: "absolute",
               right: 13,
@@ -463,6 +619,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
           {renderStepContent(activeStep)}
         </Box>
+
+        <Backdrop open={accountLoading} style={{ zIndex: 1300, color: "#fff" }}>
+          <CircularProgress color="success" />
+        </Backdrop>
       </DialogContent>
     </Dialog>
   );

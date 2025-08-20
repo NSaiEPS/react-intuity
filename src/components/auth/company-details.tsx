@@ -168,7 +168,7 @@ export default function CompanyDetails({ reset = false }) {
             justifyContent: "space-between",
             alignItems: "center",
             // backgroundColor: "#f1f6fa", // light gray/blue
-            px: 4,
+            // px: 4,
             // py: 2,
             mt: 2,
 
