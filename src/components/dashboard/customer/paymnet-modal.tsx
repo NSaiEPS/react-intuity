@@ -14,10 +14,12 @@ import {
   Typography,
 } from "@mui/material";
 import { paths } from "@/utils/paths";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { useNavigate } from "react-router";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { getLastBillInfo } from "@/state/features/paymentSlice";
 
 interface PaymentModalProps {
   open: boolean;
@@ -39,6 +41,10 @@ export function PaymentModal({
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
   );
+  const paymentLoader = useSelector(
+    (state: RootState) => state?.Payment?.paymentLoader
+  );
+
   const navigate = useNavigate();
 
   const handleProceed = (): void => {
@@ -53,32 +59,145 @@ export function PaymentModal({
           false,
           true
         ),
+        customer_acknowledgement_text:
+          lastBillInfo?.customer_acknowledgement_text,
       },
     });
   };
+  const dispatch = useDispatch();
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const [deleteType, setDeleteType] = useState("");
+  const handleDeleteRecurring = (type) => {
+    if (!deleteType) {
+      setDeleteType(type);
+      return;
+    }
+    console.log(type);
+    const roleId = stored?.body?.acl_role_id;
+    const userId = stored?.body?.customer_id;
+    const token = stored?.body?.token;
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    if (type == "schedule") {
+      formData.append("scheduledId", 1);
+    } else {
+      formData.append("recurringId", userId);
+      formData.append("is_recurring_pay", "1");
+      formData.append("next_payment", "1");
+    }
+
+    // recurringId:60
+    // is_recurring_pay:1
+    // next_payment:1
+
+    dispatch(
+      getLastBillInfo(formData, token, undefined, true, () => {
+        setDeleteType("");
+        onClose();
+        const getData = new FormData();
+
+        getData.append("acl_role_id", roleId);
+        getData.append("customer_id", userId);
+        getData.append("id", userId);
+
+        dispatch(getLastBillInfo(getData, token));
+      })
+    );
+  };
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle>When would you like to pay?</DialogTitle>
       <DialogContent>
         <FormControl component="fieldset" sx={{ width: "100%", pl: 1 }}>
           <RadioGroup value={paymentOption} onChange={handleChange}>
-            {[
-              {
-                value: "payNow",
-                title: "Pay Now",
-                description:
-                  lastBillInfo?.pay_now_text ??
-                  "Payment will be processed immediately.",
-              },
-              {
-                value: "schedule",
-                title: "Schedule a payment",
-                description:
-                  lastBillInfo?.schedule_payment_text ??
-                  "Schedule a single or recurring payment of a set amount. If your scheduled payment does not pay the full balance by the due date, late fees may apply.",
-              },
-            ].map((option) => (
+            {(lastBillInfo?.recurring_payment_msg1 ||
+            lastBillInfo?.customer?.is_payment_schedule ||
+            lastBillInfo?.customer?.is_recurring_payment
+              ? [
+                  {
+                    value: "payNow",
+                    title: "Pay Now",
+                    description:
+                      lastBillInfo?.pay_now_text ??
+                      "Payment will be processed immediately.",
+                    extraInfo: (
+                      <>
+                        <Typography
+                          variant="body2"
+                          fontWeight="bold"
+                          sx={{ mt: 2 }}
+                        >
+                          •{" "}
+                          {lastBillInfo?.recurring_payment_msg1
+                            ? lastBillInfo?.recurring_payment_msg1
+                            : lastBillInfo?.customer?.is_payment_schedule
+                            ? `Payment Schedule for ${lastBillInfo?.customer?.payment_schedule_date}`
+                            : "Recurring Payment"}
+                        </Typography>
+                        {lastBillInfo?.customer?.is_payment_schedule ? (
+                          <Box sx={{ mt: 1 }}>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              sx={{ color: "primary.main", cursor: "pointer" }}
+                              onClick={() => handleDeleteRecurring("schedule")}
+                            >
+                              Delete
+                            </Typography>{" "}
+                          </Box>
+                        ) : (
+                          <Box sx={{ mt: 1 }}>
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              sx={{ color: "primary.main", cursor: "pointer" }}
+                              onClick={() =>
+                                handleDeleteRecurring("Next Recurring")
+                              }
+                            >
+                              Delete just the next payment?
+                            </Typography>{" "}
+                            OR{" "}
+                            <Typography
+                              component="span"
+                              variant="body2"
+                              sx={{ color: "primary.main", cursor: "pointer" }}
+                              onClick={() =>
+                                handleDeleteRecurring("All Recurring")
+                              }
+                            >
+                              Delete all remaining recurring payments?
+                            </Typography>
+                          </Box>
+                        )}
+                      </>
+                    ),
+                  },
+                ]
+              : [
+                  {
+                    value: "payNow",
+                    title: "Pay Now",
+                    description:
+                      lastBillInfo?.pay_now_text ??
+                      "Payment will be processed immediately.",
+                  },
+                  {
+                    value: "schedule",
+                    title: "Schedule a payment",
+                    description:
+                      lastBillInfo?.schedule_payment_text ??
+                      "Make a single scheduled payment - that's it!",
+                  },
+                ]
+            ).map((option) => (
               <FormControlLabel
                 key={option.value}
                 value={option.value}
@@ -86,7 +205,6 @@ export function PaymentModal({
                 sx={{
                   display: "flex",
                   alignItems: "flex-start",
-
                   border: "1px solid",
                   borderColor: "divider",
                   borderRadius: 2,
@@ -96,8 +214,7 @@ export function PaymentModal({
                   mb: 2,
                   transition: "border-color 0.2s, box-shadow 0.2s",
                   "&:hover": {
-                    borderColor: colors.blue,
-                    // boxShadow: 1,
+                    borderColor: "primary.main",
                   },
                 }}
                 label={
@@ -108,12 +225,14 @@ export function PaymentModal({
                     <Typography variant="body2" color="text.secondary" mt={0.5}>
                       {option.description}
                     </Typography>
+                    {option.extraInfo}
                   </Box>
                 }
               />
             ))}
           </RadioGroup>
         </FormControl>
+
         {lastBillInfo?.autopay_text && (
           <Box mt={2}>
             <Typography variant="body2">
@@ -177,19 +296,33 @@ export function PaymentModal({
       </DialogActions>
 
       <ConfirmDialog
-        open={confirmationOpen}
-        title={"Pending Payment Confirmation"}
-        message={`${lastBillInfo?.pending_payment_text}`}
+        open={confirmationOpen || deleteType}
+        title={
+          deleteType ? `Delete ${deleteType}` : "Pending Payment Confirmation"
+        }
+        message={
+          deleteType
+            ? `Are you sure you want to delete your ${deleteType} payment?`
+            : `${lastBillInfo?.pending_payment_text}`
+        }
         confirmLabel="Yes, Confirm"
         cancelLabel="Cancel"
         onConfirm={() => {
-          setConfirmationOpen(false);
-          handleProceed();
+          if (deleteType) {
+            handleDeleteRecurring(deleteType);
+          } else {
+            setConfirmationOpen(false);
+            handleProceed();
+          }
         }}
         onCancel={() => {
-          setConfirmationOpen(false);
+          if (deleteType) {
+            setDeleteType("");
+          } else {
+            setConfirmationOpen(false);
+          }
         }}
-        loader={false}
+        loader={paymentLoader}
       />
     </Dialog>
   );

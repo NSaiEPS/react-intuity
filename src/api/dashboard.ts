@@ -689,3 +689,53 @@ export async function guestPaymentRequestApi({ formData, alias }) {
 
   return data;
 }
+
+export async function saveAcknowledgeForRecurringPaymentApi({
+  token,
+  formData,
+}: AccountUpdateForm) {
+  const api = `${BASE_URL}billing/front/recurring-pay-customer-acknowledge`;
+
+  const res = await fetch(api, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}
+
+// export async function deleteScheduleOrRecurringPaymentApi({
+//   token,
+//   formData,
+// }: AccountUpdateForm) {
+//   const api = `${BASE_URL}billing/front/recurring-pay-customer-acknowledge`;
+
+//   const res = await fetch(api, {
+//     method: "POST",
+
+//     headers: {
+//       Accept: "application/json",
+//       Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+//     },
+//     body: formData,
+//   });
+
+//   const data = await res.json();
+
+//   if (!res.ok) {
+//     return { error: data?.body?.errors?.[0] || "Details failed" };
+//   }
+
+//   return data;
+// }

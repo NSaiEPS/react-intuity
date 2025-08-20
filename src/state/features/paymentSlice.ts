@@ -32,14 +32,22 @@ export const { setLastBillInfo, setPaymentLoader } = paymentSlice.actions;
 export default paymentSlice.reducer;
 
 export const getLastBillInfo: any =
-  (formData, token, setContextLoading) => async (dispatch) => {
+  (formData, token, setContextLoading, isPost = false, successCallBack) =>
+  async (dispatch) => {
     dispatch(setPaymentLoader(true));
 
     try {
       const res = await getLastBillInfoAPI({ token, formData });
 
       if (res?.status) {
-        dispatch(setLastBillInfo(res?.body));
+        if (successCallBack) {
+          successCallBack();
+        }
+        if (!isPost) {
+          dispatch(setLastBillInfo(res?.body));
+        } else {
+          toast.success(res?.message ?? "Successful!!");
+        }
       } else {
         dispatch(setLastBillInfo({}));
 
@@ -55,6 +63,8 @@ export const getLastBillInfo: any =
       // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setPaymentLoader(false));
-      setContextLoading(false);
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };

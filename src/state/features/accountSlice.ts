@@ -13,6 +13,7 @@ import {
   paperLessUpdate,
   paymentWithoutSavingDetailsAPI,
   registerApi,
+  saveAcknowledgeForRecurringPaymentApi,
   saveDefaultPaymentMethodAPI,
   schedulePaymentAPI,
   transferService,
@@ -859,6 +860,37 @@ export const guestPaymentRequest: any =
       if (failureCallBack) {
         failureCallBack();
       }
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const saveAcknowledgeForRecurringPayment: any =
+  (token, formData, successCallBack) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+    try {
+      const res = await saveAcknowledgeForRecurringPaymentApi({
+        token,
+        formData,
+      });
+
+      if (res.status) {
+        toast.success(
+          res?.message ? res?.message : " Acknowledgement Saved !!"
+        );
+
+        if (successCallBack) {
+          successCallBack();
+        }
+      } else {
+        if (res?.message == "You are not authorised to use this api") {
+          clearLocalStorage();
+          location.reload();
+        }
+        toast.error(res?.message ?? "Something went wrong!");
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!");
     } finally {
       dispatch(setAccountLoading(false));
     }

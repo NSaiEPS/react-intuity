@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 import { colors, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
@@ -14,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { paths } from "@/utils/paths";
 

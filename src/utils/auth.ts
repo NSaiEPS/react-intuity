@@ -19,8 +19,7 @@
 //   }
 // };
 
-
-import secureLocalStorage from 'react-secure-storage';
+import secureLocalStorage from "react-secure-storage";
 
 export const setLocalStorage = (key: string, value: any) => {
   secureLocalStorage.setItem(key, value);
@@ -38,11 +37,17 @@ export const clearLocalStorage = () => {
   secureLocalStorage.clear();
 };
 
-export const updateLocalStorageValue = (storageKey: string, targetKey: string, newValue: any) => {
+export const updateLocalStorageValue = (
+  storageKey: string,
+  targetKey: string,
+  newValue: any
+) => {
   try {
     const storedData = secureLocalStorage.getItem(storageKey);
-    if (!storedData || typeof storedData !== 'object') {
-      console.warn(`No valid object found in secure storage for key: ${storageKey}`);
+    if (!storedData || typeof storedData !== "object") {
+      console.warn(
+        `No valid object found in secure storage for key: ${storageKey}`
+      );
       return;
     }
 
@@ -53,6 +58,14 @@ export const updateLocalStorageValue = (storageKey: string, targetKey: string, n
 
     secureLocalStorage.setItem(storageKey, updatedData);
   } catch (error) {
-    console.error('Error updating secure storage:', error);
+    console.error("Error updating secure storage:", error);
   }
+};
+
+export type IntuityUser = {
+  body?: {
+    acl_role_id?: string;
+    customer_id?: string;
+    token?: string;
+  };
 };

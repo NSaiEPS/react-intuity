@@ -25,6 +25,8 @@ interface PaymentSummaryModalProps {
   cardType: string;
   cardLast4: string;
   dueDate?: string | null | Date;
+  Recurring?: string | null;
+  Payment?: string | null;
 }
 
 export default function PaymentSummaryModal({
@@ -36,9 +38,17 @@ export default function PaymentSummaryModal({
   cardType,
   cardLast4,
   dueDate,
+  Recurring = null,
+  Payment = null,
 }: PaymentSummaryModalProps) {
   const total = amount + fee;
-
+  const recurrenceMap = {
+    1: "and every month",
+    2: "and every other month",
+    3: "and every 3 months",
+    6: "and every 6 months",
+    12: "and every 12 months",
+  };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>
@@ -112,6 +122,34 @@ export default function PaymentSummaryModal({
             {dayjs(dueDate).format("MMM D, YYYY")}
           </Typography>
         </Stack>
+        {Recurring && (
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Recurring
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, color: "red" }}
+            >
+              {recurrenceMap[Recurring] ?? ""}{" "}
+              {Payment !== "Thereafter" ? Payment : ""}
+            </Typography>
+          </Stack>
+        )}
+        {Payment && (
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Payment
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 600, color: "red" }}
+            >
+              {Payment === "Thereafter" ? "Thereafter" : "Additional Times"}
+              {/* Additional Times */}
+            </Typography>
+          </Stack>
+        )}
       </DialogContent>
 
       <DialogActions

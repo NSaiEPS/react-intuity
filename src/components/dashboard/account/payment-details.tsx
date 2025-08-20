@@ -5,6 +5,7 @@ import {
   getPaymentDetails,
   getPaymentProcessorDetails,
   paymentWithoutSavingDetails,
+  saveAcknowledgeForRecurringPayment,
   saveDefaultPaymentMethod,
   schedulePayment,
 } from "@/state/features/accountSlice";
@@ -14,7 +15,7 @@ import { Leaf, CreditCard } from "@phosphor-icons/react/dist/ssr";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -94,12 +95,29 @@ const PaymentForm = () => {
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
   const location = useLocation();
-  const { isSchedule, dueDate } = location.state || {};
+  const {
+    isSchedule,
+    dueDate,
+    customer_acknowledgement_text = "",
+  } = location.state || {};
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState("6");
   const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
   const [repeatTimes, setRepeatTimes] = useState(1);
+  const [recurringAckownledgeModal, setRecurringAckownledgeModal] =
+    useState(false);
+  const onCustomerAckowledge = () => {
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append("recurring_acknowledge", "1");
 
+    dispatch(
+      saveAcknowledgeForRecurringPayment(stored?.body?.token, formdata, () =>
+        setRecurringPaymentEnabled(true)
+      )
+    );
+  };
   const onSubmit = (data: FormData) => {
     // console.log({ ...data, paymentType });
   };
@@ -184,28 +202,6 @@ const PaymentForm = () => {
   )}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=${
     Number(watch("amount")) || 0
   }&entryClassCode=WEB&saveTokenDisabled=false`;
-
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-
-  // const linkedUsersInfoStored = getLocalStorage('linked-customerInfo');
-  // let linkedUsersInfo = dashBoardInfo?.body?.linked_customers || linkedUsersInfoStored || [];
-
-  // useEffect(() => {
-  //   if (linkedUsersInfo?.length > 0 && stored?.body?.customer_id) {
-  //     let currentUserInfo = linkedUsersInfo?.filter((account) => {
-  //       if (stored?.body?.customer_id == account?.link_customer_id) {
-  //         return account;
-  //       }
-  //     });
-  //     console.log(currentUserInfo, 'currentUserInfo');
-  //   }
-  // }, [linkedUsersInfo]);
 
   useEffect(() => {
     if (CustomerInfo?.acctnum) {
@@ -358,7 +354,6 @@ const PaymentForm = () => {
 
     dispatch(
       paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
-        // console.log('Payment details saved successfully!'); // Handle success
         navigate(paths.dashboard.payNow());
       })
     );
@@ -857,9 +852,13 @@ const PaymentForm = () => {
                 control={
                   <Checkbox
                     checked={recurringPaymentEnabled}
-                    onChange={(e) =>
-                      setRecurringPaymentEnabled(e.target.checked)
-                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setRecurringAckownledgeModal(true);
+                      } else {
+                        setRecurringPaymentEnabled(e.target.checked);
+                      }
+                    }}
                     color="primary"
                   />
                 }
@@ -1104,6 +1103,14 @@ const PaymentForm = () => {
               selectedCardDetails?.bank_account_number
             }
             dueDate={isSchedule ? watch("duedate") : null}
+            Recurring={recurringPaymentEnabled ? frequency : null}
+            Payment={
+              recurringPaymentEnabled
+                ? repeatOption == "repeat_indefinitely"
+                  ? "Thereafter"
+                  : String(repeatTimes)
+                : null
+            }
           />
         )}
         {openConfirm && (
@@ -1118,6 +1125,20 @@ const PaymentForm = () => {
             onCancel={() => {
               setOpenConfirm(false);
               setOpenPaymentModal(false);
+            }}
+            loader={accountLoading}
+          />
+        )}
+        {recurringAckownledgeModal && (
+          <ConfirmDialog
+            open={recurringAckownledgeModal}
+            title={"Customer Acknowledgement"}
+            message={customer_acknowledgement_text}
+            confirmLabel="Yes, Confirm"
+            cancelLabel="No"
+            onConfirm={onCustomerAckowledge}
+            onCancel={() => {
+              setRecurringAckownledgeModal(false);
             }}
             loader={accountLoading}
           />
