@@ -69,12 +69,12 @@ export default function InvoiceTransactionTabs({
       <Tabs
         value={currentTab}
         onChange={(_, tab) => setCurrentTab(tab)}
-        indicatorColor="primary"
-        textColor="primary"
+        // indicatorColor="primary"
+        // textColor="primary"
         sx={{
           borderBottom: "1px solid #e5e7eb",
           "& .MuiTab-root": {
-            color: "#6b7280",
+            color: colors.blue,
             fontWeight: 500,
             textTransform: "none",
             minWidth: 120,
@@ -82,23 +82,23 @@ export default function InvoiceTransactionTabs({
             transition: "all 0.3s ease",
             borderRadius: "10px 10px 0 0",
             position: "relative",
+            backgroundColor: colors["blue.4"], // inactive tab background
             "&:hover": {
               color: colors.blue,
-              backgroundColor: colors["blue.4"],
+              backgroundColor: colors["blue.3"],
               transform: "translateY(-2px)", // subtle lift on hover
             },
           },
-          "& .Mui-selected": {
+          "& .MuiTab-root.Mui-selected": {
             color: "white",
             fontWeight: 600,
             backgroundColor: colors.blue,
             boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
-            transform: "translateY(-2px)", // stay lifted when active
           },
           "& .MuiTabs-indicator": {
-            // background: "linear-gradient(90deg, #2563eb, #3b82f6)",
             height: "4px",
             borderRadius: "4px 4px 0 0",
+            background: "transparent", // hide indicator since we style tab bg
           },
         }}
       >
