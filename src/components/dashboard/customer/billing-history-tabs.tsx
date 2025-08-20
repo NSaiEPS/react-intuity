@@ -84,12 +84,12 @@ export default function InvoiceTransactionTabs({
             position: "relative",
             "&:hover": {
               color: colors.blue,
-              backgroundColor: "#f3f4f6",
+              backgroundColor: colors["blue.4"],
               transform: "translateY(-2px)", // subtle lift on hover
             },
           },
           "& .Mui-selected": {
-            color: colors["blue.1"],
+            color: "white",
             fontWeight: 600,
             backgroundColor: colors.blue,
             boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
