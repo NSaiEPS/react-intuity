@@ -613,7 +613,6 @@ const PaymentForm = () => {
       toast.warn("Please don't pay more than you owe!");
     }
   }, [amount, myCustomerDetails, setValue]);
-
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>

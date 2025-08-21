@@ -21,7 +21,7 @@ import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlas
 // import Button from '@mui/material/Button';
 // import { Button } from 'nsaicomponents';
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { z as zod } from "zod";
 
 import { authClient } from "@/lib/auth/client";
@@ -33,6 +33,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { Link as RouterLink } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
+import { setLocalStorage } from "@/utils/auth";
+import { RootState } from "@/state/store";
 
 // import Button from '../CommonComponents/Button;
 
@@ -52,7 +54,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
   const { checkSession } = useUser();
   const location = useLocation();
   const pathname = location.pathname;
-
+  const { companyInfo } = useSelector((state: RootState) => state?.Account);
   const [showPassword, setShowPassword] = React.useState<boolean>();
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
@@ -97,6 +99,9 @@ export function SignInForm({ user = false }): React.JSX.Element {
   const dispatch = useDispatch();
   const successCallBack = async (res: any) => {
     dispatch(setUserInfo(res));
+    if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
+      setLocalStorage("alias-details", companyInfo?.company);
+    }
     const companyAlias = res?.body?.alias || "intuityfe";
     if (res?.body?.is_verified == 1) {
       await checkSession?.();
