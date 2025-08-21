@@ -82,7 +82,9 @@ export default function InvoiceTransactionTabs({
             transition: "all 0.3s ease",
             borderRadius: "10px 10px 0 0",
             position: "relative",
-            backgroundColor: colors["blue.1"], // inactive tab background
+            backgroundColor: "white", // inactive tab background
+            boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
+
             "&:hover": {
               color: colors.blue,
               backgroundColor: colors["blue.3"],

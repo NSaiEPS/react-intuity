@@ -59,7 +59,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     paymentType: "card",
     street: "",
   });
-  const [customerDetails, setCustomerDetails] = useState({});
+  const [customerDetails, setCustomerDetails] = useState<any>({});
   type FormErrors = {
     accountNo?: string;
     invoiceAmount?: string;
@@ -118,10 +118,12 @@ export default function OneTimePaymentModal({ open, onClose }) {
       }
     }
     if (activeStep === 1) {
-      if (!formData.amountToPay)
+      if (Number(formData.amountToPay) === 0 || !formData.amountToPay)
         newErrors.amountToPay = "Amount to Pay is required";
       if (!formData.name) newErrors.name = "Name  is required";
       if (!formData.email) newErrors.email = "Email  is required";
+      if (Number(formData.amountToPay) > customerDetails.balance)
+        newErrors.amountToPay = `Amount can't be greater than the  Due Amount: $${customerDetails.balance}`;
     }
     if (activeStep === 2) {
       if (!formData.paymentType)
@@ -173,7 +175,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
           name: res?.customer_name,
           email: res?.email,
-          amountToPay: res?.last_bill_amount,
+          amountToPay: "0",
           convenienceFee: "0",
           totalPayment: "0",
           street: res?.street,
@@ -387,7 +389,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             {/* <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography> */}
             <Typography mb={2}>
-              Due Amount: ${formData.invoiceAmount}
+              Due Amount: ${customerDetails.balance}
             </Typography>
             <TextField
               fullWidth
@@ -620,7 +622,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
           {renderStepContent(activeStep)}
         </Box>
 
-        <Backdrop open={accountLoading} style={{ zIndex: 1300, color: "#fff" }}>
+        <Backdrop
+          open={accountLoading && activeStep === 2}
+          style={{ zIndex: 1300, color: "#fff" }}
+        >
           <CircularProgress color="success" />
         </Backdrop>
       </DialogContent>
