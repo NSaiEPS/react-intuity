@@ -73,7 +73,7 @@ export function MainNav(): React.JSX.Element {
           <Stack
             spacing={2}
             sx={{
-              p: 3,
+              p: 1.8,
               backgroundColor: colors.white,
 
               borderRightColor: "var(--mui-palette-divider)",
@@ -85,16 +85,28 @@ export function MainNav(): React.JSX.Element {
               to={paths.dashboard.overview()}
               sx={{ display: "inline-flex" }}
             >
-              <Logo
-                color="dark"
-                height={50}
-                width={140}
-                src={
-                  getLocalStorage("alias-details")
-                    ? getLocalStorage("alias-details")?.logo
-                    : null
-                }
-              />
+              {getLocalStorage("alias-details") ? (
+                <Avatar
+                  src={getLocalStorage("alias-details")?.logo}
+                  sx={{
+                    width: 70,
+                    height: 70,
+                    mr: 1.5,
+                    backgroundColor: "red",
+                  }}
+                />
+              ) : (
+                <Logo
+                  color="dark"
+                  height={50}
+                  width={140}
+                  src={
+                    getLocalStorage("alias-details")
+                      ? getLocalStorage("alias-details")?.logo
+                      : null
+                  }
+                />
+              )}
             </Box>
           </Stack>
           <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>

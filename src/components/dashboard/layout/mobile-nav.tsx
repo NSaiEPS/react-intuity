@@ -21,6 +21,7 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 import { paths } from "@/utils/paths";
 import { getLocalStorage } from "@/utils/auth";
+import { Avatar } from "@mui/material";
 
 export interface MobileNavProps {
   onClose?: () => void;
@@ -81,16 +82,23 @@ export function MobileNav({
             to={paths.dashboard.overview()}
             sx={{ display: "inline-flex" }}
           >
-            <Logo
-              color="dark"
-              height={50}
-              width={140}
-              src={
-                getLocalStorage("alias-details")
-                  ? getLocalStorage("alias-details")?.logo
-                  : null
-              }
-            />
+            {getLocalStorage("alias-details") ? (
+              <Avatar
+                src={getLocalStorage("alias-details")?.logo}
+                sx={{ width: 70, height: 70, mr: 1.5 }}
+              />
+            ) : (
+              <Logo
+                color="dark"
+                height={50}
+                width={140}
+                src={
+                  getLocalStorage("alias-details")
+                    ? getLocalStorage("alias-details")?.logo
+                    : null
+                }
+              />
+            )}
           </Box>
         </Stack>
 
