@@ -93,7 +93,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
 
-  const iframeUrlForCard = `https://iframe.icheckdev.com/iFrameCC.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
+  const iframeUrlForCard = `https://iframe.icheckgateway.com/iFrameCC.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
 
   useEffect(() => {
     const handleMessage = (event) => {

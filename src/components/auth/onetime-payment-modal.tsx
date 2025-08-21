@@ -81,7 +81,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const [processorDetails, setProcessorDetails] = useState<any>({});
   let app_id = "hdkmckqqCn7GdocWNo3pJsmRACgaOEjx";
   let app_secret = "CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV";
-  const iframeUrlForPayment = `https://iframe.icheckdev.com/${
+  const iframeUrlForPayment = `https://iframe.icheckgateway.com/${
     formData.paymentType == "card" ? "iFrameCC" : "iFrameBA"
   }.aspx?appId=${app_id}&appSecret=${app_secret}&custId=${
     formData?.accountNo

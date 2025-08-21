@@ -183,7 +183,7 @@ const PaymentForm = () => {
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
 
-  const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${
+  const iframeUrlForBank = `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${
     processorDetails?.app_id
   }&appSecret=${processorDetails?.app_secret}&custId=${
     CustomerInfo?.acctnum
@@ -193,7 +193,7 @@ const PaymentForm = () => {
     Number(watch("amount")) || 0
   }&entryClassCode=WEB&saveTokenDisabled=false`;
   //For New Card adding
-  const iframeUrlForCard = `https://iframe.icheckdev.com/iFrameCC.aspx?appId=${
+  const iframeUrlForCard = `https://iframe.icheckgateway.com/iFrameCC.aspx?appId=${
     processorDetails?.app_id
   }&appSecret=${processorDetails?.app_secret}&custId=${
     CustomerInfo?.acctnum

@@ -103,7 +103,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   const CustomerInfo: any = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
-  const iframeUrlForBank = `https://iframe.icheckdev.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
+  const iframeUrlForBank = `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -153,7 +153,21 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     formdata.append("token", data?.token);
     formdata.append("bank_account_number", data?.accountNumber);
     formdata.append("routing_number", data?.routingNumber);
-    formdata.append("account_type", data?.accountType);
+
+    formdata.append(
+      "account_type",
+      data?.accountType === "PC"
+        ? "Personal Checking"
+        : data?.accountType === "PS"
+        ? "Personal Savings"
+        : data?.accountType === "BC"
+        ? "Business Checking"
+        : data?.accountType === "BS"
+        ? "Business Savings"
+        : data?.accountType === "GL"
+        ? "General Ledger"
+        : " Other"
+    );
 
     dispatch(
       getPaymentDetails(stored?.body?.token, formdata, true, () => {
