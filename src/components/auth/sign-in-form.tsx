@@ -101,6 +101,8 @@ export function SignInForm({ user = false }): React.JSX.Element {
     dispatch(setUserInfo(res));
     if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
       setLocalStorage("alias-details", companyInfo?.company);
+    } else {
+      setLocalStorage("alias-details", null);
     }
     const companyAlias = res?.body?.alias || "intuityfe";
     if (res?.body?.is_verified == 1) {

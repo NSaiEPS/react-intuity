@@ -20,6 +20,7 @@ export function Logo({
   emblem,
   height = HEIGHT,
   width = WIDTH,
+  src = null,
 }: LogoProps): React.JSX.Element {
   let url: string;
 
@@ -35,7 +36,7 @@ export function Logo({
       component="img"
       height={height}
       width={width}
-      src={url}
+      src={src ?? url}
       loading="lazy" // Browser-native lazy image load
       sx={{ display: "block" }}
     />

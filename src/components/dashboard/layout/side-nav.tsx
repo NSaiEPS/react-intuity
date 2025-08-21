@@ -16,6 +16,7 @@ import { Logo } from "@/components/core/logo";
 import { navItems } from "./config";
 import { navIcons } from "./nav-icons";
 import { paths } from "@/utils/paths";
+import { getLocalStorage } from "@/utils/auth";
 
 export function SideNav(): React.JSX.Element {
   // const pathname = usePathname();
@@ -76,7 +77,16 @@ export function SideNav(): React.JSX.Element {
           to={paths.dashboard.overview()}
           sx={{ display: "inline-flex" }}
         >
-          <Logo color="dark" height={50} width={140} />
+          <Logo
+            color="dark"
+            height={50}
+            width={140}
+            src={
+              getLocalStorage("alias-details")
+                ? getLocalStorage("alias-details")?.logo
+                : null
+            }
+          />
         </Box>
       </Stack>
       <Divider sx={{ borderColor: "var(--mui-palette-neutral-700)" }} />

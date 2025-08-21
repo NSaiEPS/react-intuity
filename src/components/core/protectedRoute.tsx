@@ -14,10 +14,16 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
   const user = getLocalStorage("intuity-user");
+  const aliasUser: any = getLocalStorage("alias-details");
   const location = useLocation();
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to={aliasUser ? `/login-${aliasUser?.alias}` : `/login`}
+        replace
+      />
+    );
   }
 
   return (

@@ -20,6 +20,7 @@ import { navIcons } from "./nav-icons";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 import { paths } from "@/utils/paths";
+import { getLocalStorage } from "@/utils/auth";
 
 export interface MobileNavProps {
   onClose?: () => void;
@@ -80,7 +81,16 @@ export function MobileNav({
             to={paths.dashboard.overview()}
             sx={{ display: "inline-flex" }}
           >
-            <Logo color="dark" height={50} width={140} />
+            <Logo
+              color="dark"
+              height={50}
+              width={140}
+              src={
+                getLocalStorage("alias-details")
+                  ? getLocalStorage("alias-details")?.logo
+                  : null
+              }
+            />
           </Box>
         </Stack>
 

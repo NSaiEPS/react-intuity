@@ -47,6 +47,7 @@ export function MainNav(): React.JSX.Element {
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return parts[0].charAt(0).toUpperCase() + parts[1].charAt(0).toUpperCase();
   };
+  console.log(getLocalStorage("alias-details"), "liassdd");
   return (
     <React.Fragment>
       <Box
@@ -84,7 +85,16 @@ export function MainNav(): React.JSX.Element {
               to={paths.dashboard.overview()}
               sx={{ display: "inline-flex" }}
             >
-              <Logo color="dark" height={50} width={140} />
+              <Logo
+                color="dark"
+                height={50}
+                width={140}
+                src={
+                  getLocalStorage("alias-details")
+                    ? getLocalStorage("alias-details")?.logo
+                    : null
+                }
+              />
             </Box>
           </Stack>
           <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>

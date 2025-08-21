@@ -6,6 +6,7 @@ import { logger } from "@/lib/default-logger";
 import { useUser } from "@/hooks/use-user";
 import { paths } from "@/utils/paths";
 import { useNavigate } from "react-router";
+import { getLocalStorage } from "@/utils/auth";
 
 export interface AuthGuardProps {
   children: React.ReactNode;
@@ -40,7 +41,9 @@ export function AuthGuard({
       // router.replace(paths.auth.signIn);
       // router.replace(paths.auth.newLogin(company));
       // router.replace(paths.auth.newLogin(company == 'intuityfe' ? '' : company));
-      navigate(paths.auth.newLogin());
+      const aliasUser: any = getLocalStorage("alias-details");
+
+      navigate(paths.auth.newLogin(aliasUser?.alias ?? ""));
 
       return;
     }
