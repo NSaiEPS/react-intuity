@@ -30,8 +30,8 @@ import { boarderRadius, colors } from "@/utils";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const TABS = [
-  { label: "Invoice", value: "invoice" },
-  { label: "Transaction", value: "transaction" },
+  { label: "Invoices", value: "invoice" },
+  { label: "Transactions", value: "transaction" },
 ];
 
 export default function InvoiceTransactionTabs({
@@ -86,7 +86,7 @@ export default function InvoiceTransactionTabs({
             boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
 
             "&:hover": {
-              color: colors.blue,
+              color: colors.white,
               backgroundColor: colors["blue.3"],
               transform: "translateY(-2px)", // subtle lift on hover
             },
