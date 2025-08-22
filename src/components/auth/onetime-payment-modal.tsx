@@ -87,9 +87,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     formData?.accountNo
   }&firstName=${formData?.name}&email=${formData?.email}&amp;street1=${
     formData?.street
-  }+&amount=${
-    Number(formData.amountToPay) || 0
-  }&entryClassCode=WEB&saveTokenDisabled=false`;
+  }+&entryClassCode=WEB&saveTokenDisabled=false`;
   useEffect(() => {
     if (paymentProcessorDetails?.current_processor?.length > 0) {
       const details =

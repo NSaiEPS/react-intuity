@@ -86,3 +86,94 @@ export function getCurrentCompanySlug(): string | undefined {
   }
   return undefined;
 }
+
+type PaymentConfig = {
+  config_data_card?: Record<string, any>;
+  config_data_ach?: Record<string, any>;
+  [key: string]: any;
+};
+export const calculatePaymentAmount = ({
+  amount,
+  paymentType,
+  cardType = "other",
+  config = {},
+}: {
+  amount: number | string;
+  paymentType: string;
+  cardType?: string;
+  config?: PaymentConfig;
+}) => {
+  const parseNum = (v: any) => {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const base = parseNum(amount);
+  // PHP only calculates when amount > 0 in the keyup path — follow that
+  if (base <= 0)
+    return {
+      baseAmount: base,
+      convenienceFee: 0.0,
+      total: Number(base.toFixed(2)),
+    };
+
+  let conv = 0;
+  const cardConfig = (config && config.config_data_card) || {};
+  const achConfig = (config && config.config_data_ach) || {};
+
+  // Helper to compute same branching logic as PHP for a group of (fixed, percentage, minimum)
+  function computeFeeFromFields(baseAmount, fixedField, percField, minField) {
+    const fixed = parseNum(fixedField);
+    const perc = parseNum(percField);
+    const minimum = parseNum(minField);
+
+    if (fixed > 0 && perc > 0) {
+      conv = (baseAmount * perc) / 100 + fixed;
+      conv = Number(conv.toFixed(2)); // PHP does rounding here
+      return conv > minimum ? conv : minimum;
+    } else if (perc > 0) {
+      conv = Number(((baseAmount * perc) / 100).toFixed(2));
+      return conv > minimum ? conv : minimum;
+    } else if (fixed > 0) {
+      conv = Number(fixed.toFixed(2));
+      return conv > minimum ? conv : minimum;
+    } else {
+      // fallback to minimum (even if zero)
+      return minimum;
+    }
+  }
+
+  if (paymentType === "card") {
+    if (cardType === "amex") {
+      conv = computeFeeFromFields(
+        base,
+        cardConfig.credit_card_amex_amount_convenience_fee,
+        cardConfig.credit_card_amex_percentage_convenience_fee,
+        cardConfig.credit_card_amex_minimum_amount_convenience_fee
+      );
+    } else {
+      conv = computeFeeFromFields(
+        base,
+        cardConfig.credit_card_amount_convenience_fee,
+        cardConfig.credit_card_percentage_convenience_fee,
+        cardConfig.credit_card_minimum_amount_convenience_fee
+      );
+    }
+  } else if (paymentType === "bank_account") {
+    conv = computeFeeFromFields(
+      base,
+      achConfig.bank_amount_convenience_fee_ach,
+      achConfig.bank_percentage_convenience_fee_ach,
+      achConfig.bank_minimum_amount_convenience_fee_ach
+    );
+  }
+
+  const convenienceFee = Number(conv.toFixed(2));
+  const total = Number((base + convenienceFee).toFixed(2));
+
+  return {
+    baseAmount: Number(base.toFixed(2)),
+    convenienceFee,
+    total,
+  };
+};
