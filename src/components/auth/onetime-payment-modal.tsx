@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";
 import { Button } from "nsaicomponents";
-import { colors } from "@/utils";
+import { calculatePaymentAmount, colors } from "@/utils";
 import { X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
@@ -97,6 +97,25 @@ export default function OneTimePaymentModal({ open, onClose }) {
       setProcessorDetails(JSON.parse(details));
     }
   }, [paymentProcessorDetails]);
+
+  const convenienceFee = useSelector(
+    (state: RootState) => state?.Account.convenienceFee
+  );
+  useEffect(() => {
+    const fee = calculatePaymentAmount({
+      amount: formData.amountToPay || "0",
+      paymentType: formData.paymentType,
+      cardType: "visa",
+      config: convenienceFee,
+    }).convenienceFee.toFixed(2);
+
+    setFormData((prev) => ({
+      ...prev,
+
+      convenienceFee: fee,
+      totalPayment: (Number(fee) + Number(formData.amountToPay)).toFixed(2),
+    }));
+  }, [formData.amountToPay, convenienceFee]);
 
   // Validation per step
   const validateStep = () => {
@@ -446,11 +465,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             </Typography>
             <Typography>
               Total Payment: $
-              {parseFloat(
-                (
-                  Number(formData.amountToPay) + Number(formData.totalPayment)
-                ).toFixed(2)
-              )}
+              {parseFloat(Number(formData.totalPayment).toFixed(2))}
             </Typography>
 
             <Typography sx={{ mt: 2 }}>Select Payment Type</Typography>
@@ -464,7 +479,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 label="Credit Card"
               />
               <FormControlLabel
-                value="bank"
+                value="bank_account"
                 control={<Radio />}
                 label="Bank Account"
               />
