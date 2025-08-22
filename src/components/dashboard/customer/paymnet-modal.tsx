@@ -278,8 +278,10 @@ export function PaymentModal({
         <Button
           onClick={() => {
             if (
-              lastBillInfo?.pending_payment?.length > 0 &&
-              lastBillInfo?.pending_payment_text
+              (lastBillInfo?.pending_payment?.length > 0 &&
+                lastBillInfo?.pending_payment_text) ||
+              lastBillInfo.recurring_payment_msg1 ||
+              lastBillInfo.schedule_payment_msg
             ) {
               setConfirmationOpen(true);
             } else {
@@ -307,6 +309,10 @@ export function PaymentModal({
         message={
           deleteType
             ? `Are you sure you want to delete your ${deleteType} payment?`
+            : lastBillInfo.recurring_payment_msg1
+            ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
+            : lastBillInfo.schedule_payment_msg
+            ? `${lastBillInfo.schedule_payment_msg} Do you still want to make an additional payment?`
             : `${lastBillInfo?.pending_payment_text}`
         }
         confirmLabel="Yes, Confirm"
