@@ -174,7 +174,9 @@ const PaymentForm = () => {
     if (paymentProcessorDetails?.current_processor?.length > 0) {
       const details =
         paymentProcessorDetails[
-          paymentProcessorDetails?.current_processor[0]?.config_value
+          //TODO: dynamic here
+          // paymentProcessorDetails?.current_processor[0]?.config_value
+          "icheck_2"
         ]?.[0]?.config_value;
       setProcessorDetails(JSON.parse(details));
     }
