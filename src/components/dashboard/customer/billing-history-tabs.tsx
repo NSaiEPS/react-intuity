@@ -64,7 +64,12 @@ export default function InvoiceTransactionTabs({
     3: { label: "Authorization", color: "#1abc9c", textColor: colors.white },
   };
   return (
-    <Card sx={{ borderRadius: boarderRadius.card }}>
+    <Box
+      sx={{
+        backgroundColor: "white",
+        boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
+      }}
+    >
       {/* Tabs Top Bar */}
       <Tabs
         value={currentTab}
@@ -108,59 +113,68 @@ export default function InvoiceTransactionTabs({
           <Tab key={tab.value} value={tab.value} label={tab.label} />
         ))}
       </Tabs>
-      <Divider />
-      {/* Table Content */}
-      <Box sx={{ overflowX: "auto" }}>
-        <Table sx={{ minWidth: "800px" }}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Transaction Type</TableCell>
-              <TableCell>
-                {currentTab === "invoice" ? "Billing Date" : "Transition Date"}
-              </TableCell>
-              {/* {currentTab !== 'invoice' && <TableCell>Account Number</TableCell>} */}
 
-              <TableCell>Status</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Balance</TableCell>
-              {/* {currentTab !== 'invoice' && <TableCell>Balance Due</TableCell>} */}
-            </TableRow>
-          </TableHead>
-          {displayedData.map((item) => (
-            <TableBody key={item.id}>
-              <TableRow hover>
-                <TableCell>
-                  <Stack
-                    sx={{ alignItems: "center" }}
-                    direction="row"
-                    spacing={2}
-                  >
-                    {currentTab === "invoice" && (
-                      <IconButton onClick={() => handleInvoiceToggle(item.id)}>
-                        {isInvoice?.includes(item.id) ? (
-                          <Minus size={10} weight="bold" />
-                        ) : (
-                          <Plus size={10} weight="bold" />
-                        )}
-                      </IconButton>
-                    )}
-                    <Typography variant="subtitle2">
-                      {currentTab === "invoice" ? "invoice" : item?.type}
-                    </Typography>
-                  </Stack>
-                </TableCell>
+      {/* Table Content */}
+      <Card
+        sx={{
+          borderRadius: "0",
+        }}
+      >
+        <Box sx={{ overflowX: "auto" }}>
+          <Table sx={{ minWidth: "800px" }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Transaction Type</TableCell>
                 <TableCell>
                   {currentTab === "invoice"
-                    ? dayjs(item?.billing_date).format("MMM D, YYYY")
-                    : dayjs
-                        .tz(item.transaction_date, "America/Chicago") // or whichever US timezone server uses
-                        .tz(dayjs.tz.guess()) // convert to user's local time
-                        .format("YYYY-MM-DD hh:mm A z")}
-                  {/* // dayjs(item?.transaction_date).format('MMM D, YYYY')} */}
+                    ? "Billing Date"
+                    : "Transition Date"}
                 </TableCell>
-                {/* {currentTab !== 'invoice' && <TableCell>{item?.acctnum}</TableCell>} */}
+                {/* {currentTab !== 'invoice' && <TableCell>Account Number</TableCell>} */}
 
-                {/* <TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Balance</TableCell>
+                {/* {currentTab !== 'invoice' && <TableCell>Balance Due</TableCell>} */}
+              </TableRow>
+            </TableHead>
+            {displayedData.map((item) => (
+              <TableBody key={item.id}>
+                <TableRow hover>
+                  <TableCell>
+                    <Stack
+                      sx={{ alignItems: "center" }}
+                      direction="row"
+                      spacing={2}
+                    >
+                      {currentTab === "invoice" && (
+                        <IconButton
+                          onClick={() => handleInvoiceToggle(item.id)}
+                        >
+                          {isInvoice?.includes(item.id) ? (
+                            <Minus size={10} weight="bold" />
+                          ) : (
+                            <Plus size={10} weight="bold" />
+                          )}
+                        </IconButton>
+                      )}
+                      <Typography variant="subtitle2">
+                        {currentTab === "invoice" ? "invoice" : item?.type}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    {currentTab === "invoice"
+                      ? dayjs(item?.billing_date).format("MMM D, YYYY")
+                      : dayjs
+                          .tz(item.transaction_date, "America/Chicago") // or whichever US timezone server uses
+                          .tz(dayjs.tz.guess()) // convert to user's local time
+                          .format("YYYY-MM-DD hh:mm A z")}
+                    {/* // dayjs(item?.transaction_date).format('MMM D, YYYY')} */}
+                  </TableCell>
+                  {/* {currentTab !== 'invoice' && <TableCell>{item?.acctnum}</TableCell>} */}
+
+                  {/* <TableCell>
                   {item?.status == 1
                     ? "Success"
                     : item?.status == 0
@@ -171,99 +185,107 @@ export default function InvoiceTransactionTabs({
                     ? "Authorization"
                     : ""}
                 </TableCell> */}
-                <TableCell>
-                  {statusMap[item?.status] ? (
-                    <Chip
-                      label={statusMap[item?.status].label}
-                      sx={{
-                        backgroundColor: statusMap[item.status].color,
-                        color: statusMap[item.status].textColor,
-                        fontWeight: 600,
-                        fontSize: "0.75rem",
-                        height: 24,
-                      }}
-                      size="small"
-                    />
-                  ) : null}
-                </TableCell>
-                <TableCell>
-                  {/* ${item?.amount} */}
-                  {item?.amount < 0
-                    ? `($${Math.abs(parseFloat(item.amount)).toFixed(2)})`
-                    : `$${item?.amount}`}
-                </TableCell>
-
-                <TableCell>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    {/* ${item?.balance_due} */}$
-                    {item?.balance_due < 0
-                      ? `(${Math.abs(parseFloat(item.balance_due)).toFixed(2)})`
-                      : item?.balance_due}
-                    {currentTab === "invoice" && (
-                      <Box
-                        // onClick={() => setPdfModal(true)}
-                        onClick={() =>
-                          navigate(paths.dashboard.invoiceDetails(item?.id))
-                        }
+                  <TableCell>
+                    {statusMap[item?.status] ? (
+                      <Chip
+                        label={statusMap[item?.status].label}
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 0.5,
-                          cursor: "pointer",
-                          color: colors.blue,
+                          backgroundColor: statusMap[item.status].color,
+                          color: statusMap[item.status].textColor,
+                          fontWeight: 600,
+                          fontSize: "0.75rem",
+                          height: 24,
                         }}
-                      >
-                        <FileText size={18} weight="regular" />
-                        <Typography sx={{ color: colors.blue }} variant="body2">
-                          View Invoice
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
-                </TableCell>
-                {/* {currentTab !== 'invoice' && <TableCell>$ {item?.balance_due}</TableCell>} */}
-              </TableRow>
-              {Array.isArray(rows) &&
-                isInvoice.includes(item.id) &&
-                item?.[item?.id].map((row) => (
-                  <TableRow hover key={row.id}>
-                    <TableCell>
-                      <Stack
-                        sx={{ alignItems: "center" }}
-                        direction="row"
-                        spacing={2}
-                      >
-                        <Typography variant="subtitle2">{row.type}</Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      {dayjs(row.transaction_date).format("MMM D, YYYY")}
-                    </TableCell>
-                    <TableCell>
-                      {row.status == 1
-                        ? "Success"
-                        : row.status == 0
-                        ? "Declined"
-                        : row.status == 2
-                        ? "Pending"
-                        : row.status == 3
-                        ? "Authorization"
-                        : ""}
-                    </TableCell>
-                    <TableCell>${row.amount}</TableCell>
-                    <TableCell>${row.balance_due}</TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          ))}
-        </Table>
-      </Box>
+                        size="small"
+                      />
+                    ) : null}
+                  </TableCell>
+                  <TableCell>
+                    {/* ${item?.amount} */}
+                    {item?.amount < 0
+                      ? `($${Math.abs(parseFloat(item.amount)).toFixed(2)})`
+                      : `$${item?.amount}`}
+                  </TableCell>
+
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      {/* ${item?.balance_due} */}$
+                      {item?.balance_due < 0
+                        ? `(${Math.abs(parseFloat(item.balance_due)).toFixed(
+                            2
+                          )})`
+                        : item?.balance_due}
+                      {currentTab === "invoice" && (
+                        <Box
+                          // onClick={() => setPdfModal(true)}
+                          onClick={() =>
+                            navigate(paths.dashboard.invoiceDetails(item?.id))
+                          }
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                            cursor: "pointer",
+                            color: colors.blue,
+                          }}
+                        >
+                          <FileText size={18} weight="regular" />
+                          <Typography
+                            sx={{ color: colors.blue }}
+                            variant="body2"
+                          >
+                            View Invoice
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </TableCell>
+                  {/* {currentTab !== 'invoice' && <TableCell>$ {item?.balance_due}</TableCell>} */}
+                </TableRow>
+                {Array.isArray(rows) &&
+                  isInvoice.includes(item.id) &&
+                  item?.[item?.id].map((row) => (
+                    <TableRow hover key={row.id}>
+                      <TableCell>
+                        <Stack
+                          sx={{ alignItems: "center" }}
+                          direction="row"
+                          spacing={2}
+                        >
+                          <Typography variant="subtitle2">
+                            {row.type}
+                          </Typography>
+                        </Stack>
+                      </TableCell>
+                      <TableCell>
+                        {dayjs(row.transaction_date).format("MMM D, YYYY")}
+                      </TableCell>
+                      <TableCell>
+                        {row.status == 1
+                          ? "Success"
+                          : row.status == 0
+                          ? "Declined"
+                          : row.status == 2
+                          ? "Pending"
+                          : row.status == 3
+                          ? "Authorization"
+                          : ""}
+                      </TableCell>
+                      <TableCell>${row.amount}</TableCell>
+                      <TableCell>${row.balance_due}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            ))}
+          </Table>
+        </Box>
+      </Card>
       <Divider />
       {/* <TablePagination
         component="div"
@@ -274,6 +296,6 @@ export default function InvoiceTransactionTabs({
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
       /> */}
-    </Card>
+    </Box>
   );
 }
