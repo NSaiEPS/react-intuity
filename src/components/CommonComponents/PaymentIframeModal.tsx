@@ -4,6 +4,7 @@ import { RootState } from "@/state/store";
 import { useSelector } from "react-redux";
 import { getLocalStorage } from "@/utils/auth";
 import { CustomBackdrop, Loader } from "nsaicomponents";
+import crypto from "crypto";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -53,7 +54,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   const iframeUrl =
     type === "account"
       ? `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`
-      : `https://iframe.icheckgateway.com/iFrameCC.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`;
+      : `https://certtransaction.hostedpayments.com?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`;
 
   // Load external icheck script
   useEffect(() => {
@@ -78,6 +79,86 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
   }, [onSuccess]);
+
+  function decryptPass(encrypted) {
+    const algorithm = "aes-128-ctr";
+    const key = Buffer.from("Intuity", "utf8");
+    const iv = Buffer.from("1234567891011121", "utf8");
+
+    // Ensure key is exactly 16 bytes
+    const fixedKey = Buffer.alloc(16);
+    key.copy(fixedKey);
+
+    const decipher = crypto.createDecipheriv(algorithm, fixedKey, iv);
+    let decrypted = decipher.update(encrypted, "base64", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  }
+
+  /**
+   * Decide if a field should be decrypted based on rules
+   */
+  function shouldDecrypt(key, value) {
+    if (!value || typeof value !== "string") return false;
+
+    switch (key) {
+      case "site_id":
+      case "site_id_ach":
+        return value.length > 4;
+      case "account_id":
+        return value.length > 7;
+      case "merchant_id":
+        return value.length > 7;
+      case "sss":
+        return value.length > 3;
+      case "routing_no":
+        return value.length > 9;
+      case "biller_guid":
+        return !value.includes("-");
+      // generic rule: if value looks like base64 and is "too long"
+      default:
+        return /^[A-Za-z0-9+/=]+$/.test(value) && value.length > 15;
+    }
+  }
+
+  /**
+   * Walk through object and decrypt only when needed
+   */
+  function processConfig(config) {
+    const result = {};
+    for (const [key, value] of Object.entries(config)) {
+      if (shouldDecrypt(key, value)) {
+        try {
+          result[key] = decryptPass(value);
+        } catch (e) {
+          // fallback if decrypt fails (maybe already plain)
+          result[key] = value;
+        }
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  const config1 = {
+    site_id_ach: "f6togr==",
+    site_key_ach: "Fd8Z8b5WYzf=",
+    api_key_ach: "Ed9L/u1XfTdzNcJB",
+    app_id_ach: "T45BpOwIInEFOZQzuVhld7lQfdfdfdfdf6NtFkUkzohc=",
+    app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrererer=",
+  };
+
+  const config2 = {
+    site_id: "XABI",
+    site_key: "25381501",
+    api_key: "65a7b4275ba5",
+    app_id: "hdkmckqqCn7GdocWNo3pJsmRACrerererer",
+    app_secret: "CjWHKxwRDL1dV8dkam55ferererer",
+  };
+
+  console.log("Decrypted Config1:", processConfig(config1));
+  console.log("Config2 (already plain):", processConfig(config2));
 
   return (
     <Box>
