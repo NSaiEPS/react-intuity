@@ -27,6 +27,8 @@ import { X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import {
+  getConvenienceFee,
+  getPaymentProcessorDetails,
   guestPaymentRequest,
   oneTimePayment,
 } from "@/state/features/accountSlice";
@@ -305,6 +307,32 @@ export default function OneTimePaymentModal({ open, onClose }) {
     });
     onClose();
   };
+  useEffect(() => {
+    //     "acl_role_id:4
+    // company_id:2
+    // alias:cape-royale1"
+    const formdata = new FormData();
+    formdata.append("acl_role_id", "4");
+    formdata.append("company_id", companyInfo?.company?.id);
+    formdata.append("alias", companyInfo?.company?.alias);
+    if (activeStep == 2) {
+      dispatch(
+        getPaymentProcessorDetails(
+          undefined,
+          formdata,
+          false,
+          undefined,
+          () => {}
+        )
+      );
+
+      // const convenienceFeeFormdata = new FormData();
+      // convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
+      // convenienceFeeFormdata.append("customer_id", stored?.body?.customer_id);
+
+      dispatch(getConvenienceFee(undefined, formdata));
+    }
+  }, [activeStep]);
   const renderStepContent = (step) => {
     switch (step) {
       case 0:
