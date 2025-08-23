@@ -26,6 +26,7 @@ import { Question, X } from "@phosphor-icons/react";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";
 
 interface AddBankAccountModalProps {
   open: boolean;
@@ -204,7 +205,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent>
+      {/* <DialogContent>
         {iframeLoading && (
           <Box
             display="flex"
@@ -239,32 +240,15 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
             onLoad={() => setIframeLoading(false)}
           ></iframe>
         </div>
-      </DialogContent>
+      </DialogContent> */}
 
-      {/* <DialogActions sx={{ gap: 1, mb: 2, pr: 3 }}>
-        <Button
-          onClick={handleContinue}
-          variant="contained"
-          sx={{
-            backgroundColor: colors.blue,
-            '&:hover': {
-              backgroundColor: colors['blue.3'], // or any other hover color
-            },
-          }}
-        >
-          Continue
-        </Button>
-        <Button
-          onClick={handleReset}
-          variant="outlined"
-          sx={{
-            color: colors.blue,
-            borderColor: colors.blue,
-          }}
-        >
-          Reset
-        </Button>
-      </DialogActions> */}
+      <PaymentIframeModal
+        type="account"
+        open={true}
+        onSuccess={handleSaveDetails}
+        onClose={onClose}
+      />
+
       <CustomBackdrop
         open={accountLoading}
         style={{ zIndex: 1300, color: "#fff" }}

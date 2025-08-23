@@ -12,10 +12,10 @@ import {
   Typography,
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
-import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { colors } from "@/utils";
+import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";
 
 interface AddCardModalProps {
   open: boolean;
@@ -28,7 +28,6 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
   const [expiryMonth, setExpiryMonth] = useState<string>("");
   const [expiryYear, setExpiryYear] = useState<string>("");
   const [agreed, setAgreed] = useState<boolean>(false);
-  const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [iframeLoading, setIframeLoading] = useState(true);
 
   type IntuityUser = {
@@ -170,7 +169,13 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
-      <DialogContent>
+      <PaymentIframeModal
+        type="card"
+        open={true}
+        onSuccess={handleSaveDetails}
+        onClose={onClose}
+      />
+      {/* <DialogContent>
         {iframeLoading && (
           <Box
             display="flex"
@@ -205,13 +210,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
             onLoad={() => setIframeLoading(false)}
           ></iframe>
         </div>
-      </DialogContent>
-      <CustomBackdrop
-        open={accountLoading}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
-        <Loader />
-      </CustomBackdrop>
+      </DialogContent> */}
     </Dialog>
   );
 };
