@@ -198,7 +198,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
           amountToPay: "0",
           convenienceFee: "0",
           totalPayment: "0",
-          street: res?.street,
+          street: res?.service_address,
         }));
         handleNext();
       })
@@ -562,6 +562,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               onSuccess={(res) =>
                 handleSaveDetails(res, companyInfo, formData, customerDetails)
               }
+              oneTimePayment={formData}
             />
 
             <Box display="flex" justifyContent="space-between" mt={2}>

@@ -8,11 +8,13 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 interface PaymentIframeProps {
   type: "card" | "account";
   onSuccess: (data: any) => void; // handleSaveDetails
+  oneTimePayment: any;
 }
 
 const PaymentIframe: FC<PaymentIframeProps> = ({
   type = "card",
   onSuccess,
+  oneTimePayment = null,
 }) => {
   const [iframeLoading, setIframeLoading] = useState(true);
   const { accountLoading, paymentProcessorDetails } = useSelector(
@@ -44,10 +46,14 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   }, [paymentProcessorDetails]);
 
   // iframe url depends on type
+  const icheckParams = oneTimePayment
+    ? `custId=${oneTimePayment?.accountNo}&firstName=${oneTimePayment?.name}&street1=${oneTimePayment?.street}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`
+    : `custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&street1=${CustomerInfo?.customer_address}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
+
   const iframeUrl =
     type === "account"
-      ? `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`
-      : `https://iframe.icheckgateway.com/iFrameCC.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
+      ? `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`
+      : `https://iframe.icheckgateway.com/iFrameCC.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`;
 
   // Load external icheck script
   useEffect(() => {
