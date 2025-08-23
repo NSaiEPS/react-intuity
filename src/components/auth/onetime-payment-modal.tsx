@@ -34,6 +34,7 @@ import {
 } from "@/state/features/accountSlice";
 import { Question } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
+import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 
 const steps = ["Retrieve Bill", "Confirm Payment", "Select Payment Method"];
 
@@ -518,7 +519,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               </Typography>
             )}
 
-            {iframeLoading && (
+            {/* {iframeLoading && (
               <Box
                 display="flex"
                 justifyContent="center"
@@ -554,7 +555,14 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 title="ICG Payment"
                 onLoad={() => setIframeLoading(false)}
               ></iframe>
-            </div>
+            </div> */}
+
+            <PaymentIframe
+              type={formData.paymentType == "card" ? "card" : "account"}
+              onSuccess={(res) =>
+                handleSaveDetails(res, companyInfo, formData, customerDetails)
+              }
+            />
 
             <Box display="flex" justifyContent="space-between" mt={2}>
               <Button

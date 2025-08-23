@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { colors } from "@/utils";
 import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";
+import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
 
 interface AddCardModalProps {
   open: boolean;
@@ -169,12 +170,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
-      <PaymentIframeModal
-        type="card"
-        open={true}
-        onSuccess={handleSaveDetails}
-        onClose={onClose}
-      />
+      <PaymentIframe type="card" onSuccess={handleSaveDetails} />
       {/* <DialogContent>
         {iframeLoading && (
           <Box

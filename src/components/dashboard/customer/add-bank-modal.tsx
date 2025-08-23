@@ -27,6 +27,7 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";
+import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
 
 interface AddBankAccountModalProps {
   open: boolean;
@@ -242,12 +243,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
         </div>
       </DialogContent> */}
 
-      <PaymentIframeModal
-        type="account"
-        open={true}
-        onSuccess={handleSaveDetails}
-        onClose={onClose}
-      />
+      <PaymentIframe type="account" onSuccess={handleSaveDetails} />
 
       <CustomBackdrop
         open={accountLoading}

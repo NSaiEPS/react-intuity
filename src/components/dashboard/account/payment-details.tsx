@@ -56,6 +56,7 @@ import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 import { PaymentMethods } from "../customer/payment-methods";
 import PaymentSummaryModal from "../overview/payment-summary-modal";
+import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
 
 // Register plugins
 dayjs.extend(utc);
@@ -947,7 +948,7 @@ const PaymentForm = () => {
             </Box>
           )}
         </form>
-        {paymentType === "no-save" && iframeLoading && (
+        {/* {paymentType === "no-save" && iframeLoading && (
           <Box
             display="flex"
             justifyContent="center"
@@ -982,7 +983,15 @@ const PaymentForm = () => {
               onLoad={() => setIframeLoading(false)}
             ></iframe>
           </div>
+        )} */}
+
+        {paymentType === "no-save" && (
+          <PaymentIframe
+            type={debitType == "card" ? "card" : "account"}
+            onSuccess={(data: any) => handleSaveDetails(data, debitType)}
+          />
         )}
+
         {openPaymentModal && (
           <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
             <PaymentMethods
