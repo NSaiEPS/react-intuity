@@ -606,101 +606,137 @@ export default function InvoiceDetails() {
                 />
               </Box>
             </Stack>
-            {last_bill?.map((item, index) => (
-              <Grid container key={index} spacing={2}>
-                {/* Left Section */}
-                <Grid item xs={12} md={6} mt={"auto"}>
-                  <Box
+            <Grid container key={1} spacing={2}>
+              {/* Left Section */}
+              <Grid item xs={12} md={6} mt={"auto"}>
+                <Box
+                  sx={{
+                    border: "1px solid black",
+                    px: 1,
+                    py: 1,
+                    mb: 2,
+                    width: "90%",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
                     sx={{
-                      border: "1px solid black",
-                      // display: "inline-block",
-                      px: 1,
-                      py: 1,
-                      mb: 2,
-                      width: "90%",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 900,
-                        bgcolor: colors["blue.4"],
-                        color: "black",
-                        px: 2,
-                        padding: 1,
-                        alignItems: "center",
-                        textAlign: "center",
-                      }}
-                    >
-                      BILL PAYMENT
-                    </Typography>
-                  </Box>
-
-                  <Typography sx={{ fontWeight: 600 }}>
-                    {customer?.name}
-                  </Typography>
-                  <Typography>{customer?.address}</Typography>
-                  {/* <Typography>{customer?.city}</Typography> */}
-                </Grid>
-
-                {/* Right Section */}
-                <Grid item xs={12} md={6}>
-                  <Table size="small" sx={{ border: "1px solid black" }}>
-                    <TableBody>
-                      <TableRow sx={{ bgcolor: colors["blue.4"] }}>
-                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                          ACCOUNT NUMBER
-                        </TableCell>
-                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                          DUE DATE
-                        </TableCell>
-                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                          AMOUNT DUE
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>{customer?.acctnum}</TableCell>
-                        <TableCell>{item?.due_date}</TableCell>
-                        <TableCell>${item?.amount}</TableCell>
-                      </TableRow>
-
-                      <TableRow sx={{ bgcolor: colors["blue.4"] }}>
-                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                          BILL DATE
-                        </TableCell>
-                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                          LATE DATE
-                        </TableCell>
-                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                          LATE AMOUNT
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>{item?.billing_date}</TableCell>
-                        <TableCell>{item?.late_date}</TableCell>
-                        <TableCell>
-                          ${(item?.amount + item?.late_date_amount).toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-
-                  <Box
-                    sx={{
-                      border: "1px solid black",
-                      mt: 2,
-                      display: "inline-block",
+                      fontWeight: 900,
+                      bgcolor: colors["blue.4"],
+                      color: "black",
                       px: 2,
-                      py: 0.5,
+                      padding: 1,
+                      alignItems: "center",
+                      textAlign: "center",
                     }}
                   >
-                    <Typography variant="body2">
-                      Invoice#: <b>{item?.invoice_number}</b>
-                    </Typography>
-                  </Box>
-                </Grid>
+                    BILL PAYMENT
+                  </Typography>
+                </Box>
+
+                <Typography sx={{ fontWeight: 600 }}>
+                  {customer?.name}
+                </Typography>
+                <Typography>{customer?.address}</Typography>
+                {/* <Typography>{customer?.city}</Typography> */}
               </Grid>
-            ))}
+
+              {/* Right Section with vertical borders */}
+              <Grid item xs={12} md={6}>
+                <Table
+                  size="small"
+                  sx={{ border: "1px solid black", borderCollapse: "collapse" }}
+                >
+                  <TableBody>
+                    <TableRow sx={{ bgcolor: colors["blue.4"] }}>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          fontWeight: 600,
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        ACCOUNT NUMBER
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          fontWeight: 600,
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        DUE DATE
+                      </TableCell>
+                      <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                        AMOUNT DUE
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell sx={{ borderRight: "1px solid black" }}>
+                        {customer?.acctnum}
+                      </TableCell>
+                      <TableCell sx={{ borderRight: "1px solid black" }}>
+                        {last_bill?.[0]?.due_date}
+                      </TableCell>
+                      <TableCell>${last_bill?.[0]?.amount}</TableCell>
+                    </TableRow>
+
+                    <TableRow sx={{ bgcolor: colors["blue.4"] }}>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          fontWeight: 600,
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        BILL DATE
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          color: "black",
+                          fontWeight: 600,
+                          borderRight: "1px solid black",
+                        }}
+                      >
+                        LATE DATE
+                      </TableCell>
+                      <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                        LATE AMOUNT
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell sx={{ borderRight: "1px solid black" }}>
+                        {last_bill?.[0]?.billing_date}
+                      </TableCell>
+                      <TableCell sx={{ borderRight: "1px solid black" }}>
+                        {last_bill?.[0]?.late_date}
+                      </TableCell>
+                      <TableCell>
+                        $
+                        {(
+                          last_bill?.[0]?.amount +
+                          last_bill?.[0]?.late_date_amount
+                        ).toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+
+                <Box
+                  sx={{
+                    border: "1px solid black",
+                    mt: 2,
+                    display: "inline-block",
+                    px: 2,
+                    py: 0.5,
+                  }}
+                >
+                  <Typography variant="body2">
+                    Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
           </Paper>
           {/* Footer */}
           <Divider sx={{ my: 2 }} />
