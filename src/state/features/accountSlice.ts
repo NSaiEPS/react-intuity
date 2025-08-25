@@ -44,6 +44,7 @@ interface DahBoardState {
   selectedCardInfo: any;
   convenienceFee: any;
   oneTimePaymentInfo: any;
+  paymentRequiredKeyDetails: any;
 }
 
 const initialState = {
@@ -60,6 +61,7 @@ const initialState = {
   selectedCardInfo: {},
   convenienceFee: {},
   oneTimePaymentInfo: {},
+  paymentRequiredKeyDetails: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -105,6 +107,9 @@ const AccountSlice = createSlice({
     setOneTimePaymentInfo(state, action) {
       state.oneTimePaymentInfo = action.payload;
     },
+    setPaymentRequiredKeyDetails(state, action) {
+      state.paymentRequiredKeyDetails = action.payload;
+    },
   },
 });
 
@@ -121,6 +126,7 @@ export const {
   setPaymentProcessorDetails,
   setConvenienceFee,
   setOneTimePaymentInfo,
+  setPaymentRequiredKeyDetails,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;
@@ -319,6 +325,11 @@ export const getPaymentDetails: any =
         if (!isPost) {
           dispatch(setPaymentMethodInfo(res?.body?.mycards));
           dispatch(setSelectedCardInfo(res?.body?.selected_card));
+          dispatch(
+            setPaymentRequiredKeyDetails(
+              res?.body?.worldpay_transaction_set_up_id
+            )
+          );
         } else {
           toast.success(res?.message ? res?.message : "Payment method saved!");
         }

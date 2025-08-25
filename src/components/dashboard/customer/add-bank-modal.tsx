@@ -87,44 +87,6 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
       document.body.removeChild(script);
     };
   }, []);
-  const paymentProcessorDetails = useSelector(
-    (state: RootState) => state?.Account?.paymentProcessorDetails
-  );
-  const [processorDetails, setProcessorDetails] = useState<any>({});
-  const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
-
-  useEffect(() => {
-    if (paymentProcessorDetails?.current_processor?.length > 0) {
-      let details =
-        paymentProcessorDetails[
-          paymentProcessorDetails?.current_processor[0]?.config_value
-        ]?.[0]?.config_value;
-      setProcessorDetails(JSON.parse(details));
-    }
-  }, [paymentProcessorDetails]);
-  const CustomerInfo: any = dashBoardInfo?.body?.customer
-    ? dashBoardInfo?.body?.customer
-    : getLocalStorage("intuity-customerInfo");
-  const iframeUrlForBank = `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&amp;street1=${CustomerInfo?.customer_nameaddress}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
-
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event?.data?.custId) {
-        handleSaveDetails(event.data);
-      }
-      // if (event.origin !== 'https://iframe.icheckdev.com') return; // or use production origin
-
-      // // Check the message format
-      // if (event.data && typeof event.data === 'string') {
-      //
-      //   // Optional: Store in state
-      // }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
 
   type IntuityUser = {
     body?: {
@@ -141,6 +103,8 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const handleSaveDetails = (data) => {
+    console.log(data);
+
     if (data?.error) {
       toast.error(
         data?.error ? data?.error : "Try again something went wrong!"

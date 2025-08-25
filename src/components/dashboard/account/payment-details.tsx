@@ -259,20 +259,6 @@ const PaymentForm = () => {
   //     dispatch(getPaymentProcessorDetails(stored?.body?.token, formdata, false));
   //   }
   // }, [linkedAccountsInfo]);
-  const [iframeLoading, setIframeLoading] = useState(true);
-
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event?.data?.custId && !openPaymentModal) {
-        console.log(event?.data);
-        handleSaveDetails(event.data, debitType);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => window.removeEventListener("message", handleMessage);
-  }, [debitType, openPaymentModal]);
 
   const handleSaveDetails = (data, debitType) => {
     if (data?.error) {

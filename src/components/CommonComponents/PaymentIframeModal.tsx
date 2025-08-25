@@ -9,7 +9,7 @@ import crypto from "crypto";
 interface PaymentIframeProps {
   type: "card" | "account";
   onSuccess: (data: any) => void; // handleSaveDetails
-  oneTimePayment: any;
+  oneTimePayment?: any;
 }
 
 const PaymentIframe: FC<PaymentIframeProps> = ({
@@ -22,8 +22,12 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     (state: RootState) => state?.Account
   );
   const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
+  const { paymentRequiredKeyDetails } = useSelector(
+    (state: RootState) => state?.Account
+  );
 
   const [processorDetails, setProcessorDetails] = useState<any>({});
+  const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
   console.log(processorDetails, "processorDetails");
   const CustomerInfo: any = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
@@ -31,30 +35,49 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
   // Extract processor details
   useEffect(() => {
-    if (paymentProcessorDetails?.current_processor?.length > 0) {
-      const details =
-        paymentProcessorDetails[
-          // Replace with your required key (hardcoded "icheck_2" earlier)
-          paymentProcessorDetails?.current_processor[0]?.config_value
-          // "icheck_2"
-          // "icheck_4"
-        ]?.[0]?.config_value;
-      console.log(details, paymentProcessorDetails, "details");
-      if (details) {
-        setProcessorDetails(JSON.parse(details));
+    const isCard = type === "card";
+    const processorList = isCard
+      ? paymentProcessorDetails?.current_processor
+      : paymentProcessorDetails?.current_processor_ach;
+
+    if (processorList?.length > 0) {
+      const key = processorList[0]?.config_value;
+      const processor = paymentProcessorDetails?.[key]?.[0];
+
+      if (processor?.config_value) {
+        setIframeDynamicUrl(processor?.iframe_url);
+        setProcessorDetails(JSON.parse(processor?.config_value));
       }
     }
-  }, [paymentProcessorDetails]);
+  }, [paymentProcessorDetails, type]);
 
   // iframe url depends on type
   const icheckParams = oneTimePayment
     ? `custId=${oneTimePayment?.accountNo}&firstName=${oneTimePayment?.name}&street1=${oneTimePayment?.street}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`
     : `custId=${CustomerInfo?.acctnum}&firstName=${CustomerInfo?.customer_name}&street1=${CustomerInfo?.customer_address}+&amount=0.00&entryClassCode=WEB&saveTokenDisabled=false`;
 
-  const iframeUrl =
-    type === "account"
-      ? `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`
-      : `https://certtransaction.hostedpayments.com?appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}&${icheckParams}`;
+  const getGateDetails = () => {
+    if (!iframeDynamicUrl) return "";
+
+    if (iframeDynamicUrl.includes("icheckgateway")) {
+      // iCheck
+      return `appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}`;
+    }
+
+    if (iframeDynamicUrl.includes("certtransaction")) {
+      // WorldPay
+      return `TransactionSetupID=${paymentRequiredKeyDetails}`;
+    }
+
+    if (iframeDynamicUrl.includes("nacha_bank_frame")) {
+      // NACHA (currently assuming same param, adjust later if needed)
+      return `TransactionSetupID=${paymentRequiredKeyDetails}`;
+    }
+
+    return "";
+  };
+
+  const iframeUrl = `${iframeDynamicUrl}?${getGateDetails()}&${icheckParams}`;
 
   // Load external icheck script
   useEffect(() => {
@@ -71,6 +94,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   // Listen for iframe postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      console.log(event, "handleMessage");
       if (event?.data?.custId || event?.data?.token) {
         onSuccess(event.data); // parent callback
       }
