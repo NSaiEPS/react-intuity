@@ -1,6 +1,7 @@
 import * as React from "react";
-import Grid from "@mui/material/Unstable_Grid2";
+// import Grid from "@mui/material/Unstable_Grid2";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import Grid from "@mui/material/Grid";
 
 import { Budget } from "@/components/dashboard/overview/budget";
 
@@ -21,30 +22,39 @@ export default function DashBoardPage(): React.JSX.Element {
   const isLargeUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   return (
-    <Grid container spacing={2}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        maxWidth: "1600px", // ✅ keeps layout centered
+        // margin: "0 auto",
+      }}
+    >
       {/* First Row */}
-      <Grid container spacing={2} lg={9} xs={12}>
-        <Grid lg={6} sm={6} xs={12}>
-          <Budget diff={12} trend="up" sx={{ height: "100%" }} />
-        </Grid>
-        <Grid lg={6} sm={6} xs={12}>
-          <TotalProfit value="BillDue" sx={{ height: "100%" }} />
+      <Grid item xs={12} lg={9}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Budget diff={12} trend="up" sx={{ height: "100%" }} />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <TotalProfit value="BillDue" sx={{ height: "100%" }} />
+          </Grid>
         </Grid>
       </Grid>
 
-      <Grid lg={3} sm={6} xs={12}>
+      <Grid item xs={12} sm={6} lg={3}>
         <DashboardInfo
           sx={{ height: "100%" }}
           type="autoPay"
           typeofUser="customer"
           value="autopay"
-          isActive={true}
+          isActive
         />
       </Grid>
 
       {/* Paperless card for small screens */}
       {!isLargeUp && (
-        <Grid xs={12} sm={6} md={6} lg={12}>
+        <Grid item xs={12} sm={6} md={6} lg={12}>
           <DashboardInfo
             sx={{ height: "100%" }}
             value="paperless"
@@ -55,7 +65,7 @@ export default function DashBoardPage(): React.JSX.Element {
       )}
 
       {/* Sales Chart */}
-      <Grid lg={9} xs={12} order={{ xs: 3, lg: 1 }}>
+      <Grid item xs={12} lg={9} order={{ xs: 3, lg: 1 }}>
         <ScheduleRecurringBox />
         <React.Suspense fallback={<>Loading...</>}>
           <Sales
@@ -76,35 +86,32 @@ export default function DashBoardPage(): React.JSX.Element {
       </Grid>
 
       {/* Right Column */}
-      <Grid
-        container
-        spacing={2}
-        lg={3}
-        md={12}
-        xs={12}
-        order={{ xs: 2, lg: 2 }}
-      >
-        {isLargeUp && (
-          <Grid xs={12} sm={6} md={6} lg={12}>
+      <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
+        <Grid container spacing={2}>
+          {isLargeUp && (
+            <Grid item xs={12} sm={6} md={6} lg={12}>
+              <DashboardInfo
+                sx={{ height: "100%" }}
+                value="paperless"
+                typeofUser="customer"
+                type="paperLess"
+              />
+            </Grid>
+          )}
+
+          <Grid item xs={12} sm={6} md={6} lg={12}>
             <DashboardInfo
               sx={{ height: "100%" }}
-              value="paperless"
               typeofUser="customer"
-              type="paperLess"
+              value="notification_reminder"
+              type="notification"
+              apiCall
             />
           </Grid>
-        )}
-        <Grid xs={12} sm={6} md={6} lg={12}>
-          <DashboardInfo
-            sx={{ height: "100%" }}
-            typeofUser="customer"
-            value="notification_reminder"
-            type="notification"
-            apiCall
-          />
-        </Grid>
-        <Grid xs={12} sm={6} md={6} lg={12}>
-          <TotalProfit value="CustomerService" sx={{ height: "100%" }} />
+
+          <Grid item xs={12} sm={6} md={6} lg={12}>
+            <TotalProfit value="CustomerService" sx={{ height: "100%" }} />
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
