@@ -107,62 +107,93 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     return () => window.removeEventListener("message", handleMessage);
   }, [onSuccess]);
 
-  function decryptPass(encrypted) {
-    const algorithm = "aes-128-ctr";
-    const key = Buffer.from("Intuity", "utf8");
-    const iv = Buffer.from("1234567891011121", "utf8");
+  async function decryptPass(encrypted) {
+    const keyString = "Intuity";
+    const ivString = "1234567891011121";
 
-    // Ensure key is exactly 16 bytes
-    const fixedKey = Buffer.alloc(16);
-    key.copy(fixedKey);
+    const keyBytes = new TextEncoder().encode(keyString.padEnd(16, "\0"));
 
-    // Fix: pad Base64 if needed
-    const padded = encrypted + "=".repeat((4 - (encrypted.length % 4)) % 4);
+    const key = await window.crypto.subtle.importKey(
+      "raw",
+      keyBytes,
+      { name: "AES-CTR" },
+      false,
+      ["decrypt"]
+    );
 
-    const decipher = crypto.createDecipheriv(algorithm, fixedKey, iv);
-    let decrypted = decipher.update(padded, "base64", "utf8");
-    decrypted += decipher.final("utf8");
-    return decrypted;
+    // Fix base64 padding
+    const base64 =
+      encrypted.length % 4 === 0
+        ? encrypted
+        : encrypted + "=".repeat(4 - (encrypted.length % 4));
+
+    const data = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    const iv = new TextEncoder().encode(ivString);
+
+    const decryptedBuffer = await window.crypto.subtle.decrypt(
+      { name: "AES-CTR", counter: iv, length: 128 },
+      key,
+      data
+    );
+
+    return new TextDecoder().decode(decryptedBuffer);
   }
 
-  function processConfig(config) {
-    const decryptAll = true;
+  // Process config with conditions
+  async function processConfig(config) {
+    // Conditions (based on your PHP rules)
+    let shouldDecrypt = false;
+
+    if (config?.site_id_ach && config.site_id_ach.length > 4)
+      shouldDecrypt = true;
+    if (config?.account_id && config.account_id.length > 7)
+      shouldDecrypt = true;
+    if (config?.merchant_id && config.merchant_id.length > 7)
+      shouldDecrypt = true;
+    if (config?.autoAchworks?.sss && config.autoAchworks.sss.length > 3)
+      shouldDecrypt = true;
+    if (config?.autoNacha?.routing_no && config.autoNacha.routing_no.length > 9)
+      shouldDecrypt = true;
+    if (config?.biller_guid && !config.biller_guid.includes("-"))
+      shouldDecrypt = true;
+
     const result = {};
+
     for (const [key, value] of Object.entries(config)) {
       if (!value || typeof value !== "string") {
         result[key] = value;
         continue;
       }
 
-      if (decryptAll) {
+      if (shouldDecrypt) {
         try {
-          result[key] = decryptPass(value);
-          console.log(decryptPass(value), "Decrypted Config1:");
+          result[key] = await decryptPass(value);
+          console.log(result[key], "Decrypted Config1:");
         } catch (e) {
-          // if decryption fails, keep original
-          console.log(value, "Decrypted Config1:");
-
+          console.warn("Failed decrypt, keeping original:", key, value);
           result[key] = value;
         }
       } else {
-        console.log(value, "Decrypted Config1:");
-
         result[key] = value;
       }
     }
+
     return result;
   }
 
-  // Example
-  const config1 = {
-    site_id_ach: "f6togA==",
-    site_key_ach: "f6togA==",
-    api_key_ach: "Ed9L/u1XfTdzNcJB",
-    app_id_ach: "T45BpOwIInEFOZQzuVhld7lQlHBW5q076NtFkUkzohc",
-    app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=",
-  };
+  // Example usage
+  (async () => {
+    const config1 = {
+      site_id_ach: "f6togA==",
+      site_key_ach: "f6togA==",
+      api_key_ach: "Ed9L/u1XfTdzNcJB",
+      app_id_ach: "T45BpOwIInEFOZQzuVhld7lQlHBW5q076NtFkUkzohc",
+      app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=",
+    };
 
-  // console.log("Decrypted Config1:", processConfig(config1));
+    const decryptedConfig = await processConfig(config1);
+    console.log("Final Config:", decryptedConfig);
+  })();
 
   async function decryptPass1(encrypted) {
     const keyString = "Intuity";
@@ -199,10 +230,9 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   }
 
   // Example usage
-  decryptPass1("ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=")
-    .then(console.log)
-    .catch((res) => console.log(res));
-  // 👉 should log: hdkmckqqCn7GdocWNo3pJsmRACgaOEjx
+  // decryptPass1("ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=")
+  //   .then(console.log)
+  //   .catch((res) => console.log(res));
 
   return (
     <Box>
