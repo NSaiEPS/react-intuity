@@ -59,10 +59,14 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
   const getGateDetails = () => {
     if (!iframeDynamicUrl) return "";
-
+    const getField = (baseKey) => {
+      return (
+        decryptedDetails?.[`${baseKey}_ach`] ?? decryptedDetails?.[baseKey]
+      );
+    };
     if (iframeDynamicUrl.includes("icheckgateway")) {
       // iCheck
-      return `appId=${decryptedDetails?.app_id}&appSecret=${decryptedDetails?.app_secret}`;
+      return `appId=${getField("app_id")}&appSecret=${getField("app_secret")}`;
     }
 
     if (iframeDynamicUrl.includes("certtransaction")) {
@@ -196,14 +200,6 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   useEffect(() => {
     if (processorDetails) {
       (async () => {
-        const config1 = {
-          site_id_ach: "f6togA==",
-          site_key_ach: "f6togA==",
-          api_key_ach: "Ed9L/u1XfTdzNcJB",
-          app_id_ach: "T45BpOwIInEFOZQzuVhld7lQlHBW5q076NtFkUkzohc",
-          app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=",
-        };
-
         const decryptedConfig = await processConfig(processorDetails);
         console.log("Final Config:", decryptedConfig);
 
