@@ -11,7 +11,9 @@ import { colors, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
+  Checkbox,
   Divider,
+  FormControlLabel,
   Grid,
   Paper,
   Stack,
@@ -20,6 +22,7 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import html2canvas from "html2canvas";
@@ -281,7 +284,6 @@ export default function InvoiceDetails() {
               <Divider />
             </Grid>
           </Grid>
-
           {/* Invoice + Total Due Row */}
           <Grid container spacing={2} mt={3} alignItems="center">
             <Grid item xs={12} sm={7}>
@@ -356,7 +358,6 @@ export default function InvoiceDetails() {
               </Box>
             </Grid>
           </Grid>
-
           {/* Item Descriptions */}
           {Object?.entries(unique_by_utility).map(([key, items]: any) => {
             const [utilityName, , meterNumber, ...addressParts] =
@@ -507,7 +508,6 @@ export default function InvoiceDetails() {
               </Box>
             );
           })}
-
           {/* Previous Balance */}
           {extra_params?.map((item, index) => (
             <Box
@@ -526,7 +526,6 @@ export default function InvoiceDetails() {
               </Typography>
             </Box>
           ))}
-
           {/* Total Bill bar */}
           <Box
             textAlign="right"
@@ -545,7 +544,6 @@ export default function InvoiceDetails() {
               Total Due: ${last_bill?.[0]?.amount}
             </Typography>
           </Box>
-
           {/* Do Not Pay Text */}
           {customer?.autopay ? (
             <Box textAlign="right">
@@ -554,82 +552,156 @@ export default function InvoiceDetails() {
               </Typography>
             </Box>
           ) : null}
-
+          <Box
+            sx={{
+              width: "100%",
+              textAlign: "center",
+              fontSize: 14,
+              letterSpacing: 2,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "clip",
+              my: 2,
+            }}
+          >
+            {"- ".repeat(200)}
+          </Box>
           {/* Bottom Details */}
-          {last_bill?.map((item, index) => (
-            <Grid container spacing={2} sx={{ mb: 2 }} key={index}>
-              <Grid item xs={12}>
-                <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 1 }}>
-                  {customer?.name}
-                </Typography>
-                <TableContainer
-                  component={Paper}
-                  sx={{ boxShadow: 0, overflowX: "auto" }}
-                >
-                  <Table>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>Account No</TableCell>
-                        <TableCell>Due Date</TableCell>
-                        <TableCell>Amount Due</TableCell>
-                      </TableRow>
-                      <TableRow sx={{ bgcolor: colors["blue.4"] }}>
-                        <TableCell>{customer?.acctnum}</TableCell>
-                        <TableCell>
-                          {item?.due_date
-                            ? formatToMMDDYYYY(
-                                item?.due_date,
-                                false,
-                                false,
-                                true
-                              )
-                            : ""}
+          <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
+            <Stack
+              direction="column"
+              alignItems="flex-end"
+              spacing={2}
+              sx={{ pb: 1 }}
+            >
+              <Typography variant="body2" sx={{ fontSize: 13 }}>
+                Please detach and return with your payment. Make Checks Payable
+                to:
+                <b> Berkely Springs Water Works</b>
+              </Typography>
 
-                          {/* {item?.due_date} */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
+              >
+                <FormControlLabel
+                  control={<Checkbox size="small" />}
+                  label="I would like to go paperless."
+                  sx={{ m: 0, ".MuiFormControlLabel-label": { fontSize: 13 } }}
+                />
+                <Typography variant="body2" sx={{ fontSize: 13 }}>
+                  Here is my email address:
+                </Typography>
+                {/* looks like an underline on the bill */}
+                <TextField
+                  variant="standard"
+                  size="small"
+                  placeholder=""
+                  sx={{ minWidth: 240 }}
+                  InputProps={{ disableUnderline: false }}
+                />
+              </Box>
+            </Stack>
+            {last_bill?.map((item, index) => (
+              <Grid container key={index} spacing={2}>
+                {/* Left Section */}
+                <Grid item xs={12} md={6} mt={"auto"}>
+                  <Box
+                    sx={{
+                      border: "1px solid black",
+                      // display: "inline-block",
+                      px: 1,
+                      py: 1,
+                      mb: 2,
+                      width: "90%",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 900,
+                        bgcolor: colors["blue.4"],
+                        color: "black",
+                        px: 2,
+                        padding: 1,
+                        alignItems: "center",
+                        textAlign: "center",
+                      }}
+                    >
+                      BILL PAYMENT
+                    </Typography>
+                  </Box>
+
+                  <Typography sx={{ fontWeight: 600 }}>
+                    {customer?.name}
+                  </Typography>
+                  <Typography>{customer?.address}</Typography>
+                  {/* <Typography>{customer?.city}</Typography> */}
+                </Grid>
+
+                {/* Right Section */}
+                <Grid item xs={12} md={6}>
+                  <Table size="small" sx={{ border: "1px solid black" }}>
+                    <TableBody>
+                      <TableRow sx={{ bgcolor: colors["blue.4"] }}>
+                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                          ACCOUNT NUMBER
                         </TableCell>
+                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                          DUE DATE
+                        </TableCell>
+                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                          AMOUNT DUE
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>{customer?.acctnum}</TableCell>
+                        <TableCell>{item?.due_date}</TableCell>
                         <TableCell>${item?.amount}</TableCell>
                       </TableRow>
-                      <TableRow>
-                        <TableCell>Billing Date</TableCell>
-                        <TableCell>On/After</TableCell>
-                        <TableCell>Late Amount</TableCell>
-                      </TableRow>
+
                       <TableRow sx={{ bgcolor: colors["blue.4"] }}>
-                        <TableCell>
-                          {item?.billing_date
-                            ? formatToMMDDYYYY(
-                                item?.billing_date,
-                                false,
-                                false,
-                                true
-                              )
-                            : ""}
-
-                          {/* {item?.billing_date} */}
+                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                          BILL DATE
                         </TableCell>
-                        <TableCell>
-                          {item?.late_date
-                            ? formatToMMDDYYYY(
-                                item?.late_date,
-                                false,
-                                false,
-                                true
-                              )
-                            : ""}
-
-                          {/* {item?.late_date} */}
+                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                          LATE DATE
                         </TableCell>
+                        <TableCell sx={{ color: "black", fontWeight: 600 }}>
+                          LATE AMOUNT
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>{item?.billing_date}</TableCell>
+                        <TableCell>{item?.late_date}</TableCell>
                         <TableCell>
                           ${(item?.amount + item?.late_date_amount).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
-                </TableContainer>
-              </Grid>
-            </Grid>
-          ))}
 
+                  <Box
+                    sx={{
+                      border: "1px solid black",
+                      mt: 2,
+                      display: "inline-block",
+                      px: 2,
+                      py: 0.5,
+                    }}
+                  >
+                    <Typography variant="body2">
+                      Invoice#: <b>{item?.invoice_number}</b>
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            ))}
+          </Paper>
           {/* Footer */}
           <Divider sx={{ my: 2 }} />
           <Grid container p={3} pt={0} pb={0}>
@@ -644,7 +716,6 @@ export default function InvoiceDetails() {
               </Typography>
             </Grid>
           </Grid>
-
           <CustomBackdrop
             open={dashboardLoader}
             style={{ zIndex: 1300, color: "#fff" }}
