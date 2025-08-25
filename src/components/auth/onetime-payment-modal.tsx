@@ -78,29 +78,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
     setErrors({ ...errors, [field]: "" }); // clear error once user types
   };
 
-  const paymentProcessorDetails = useSelector(
-    (state: RootState) => state?.Account?.paymentProcessorDetails
-  );
-  const [processorDetails, setProcessorDetails] = useState<any>({});
-  let app_id = "hdkmckqqCn7GdocWNo3pJsmRACgaOEjx";
-  let app_secret = "CjWHKxwRDL1dV8dkam55ICpGBD2KQ1dV";
-  const iframeUrlForPayment = `https://iframe.icheckgateway.com/${
-    formData.paymentType == "card" ? "iFrameCC" : "iFrameBA"
-  }.aspx?appId=${app_id}&appSecret=${app_secret}&custId=${
-    formData?.accountNo
-  }&firstName=${formData?.name}&email=${formData?.email}&amp;street1=${
-    formData?.street
-  }+&entryClassCode=WEB&saveTokenDisabled=false`;
-  useEffect(() => {
-    if (paymentProcessorDetails?.current_processor?.length > 0) {
-      const details =
-        paymentProcessorDetails[
-          paymentProcessorDetails?.current_processor[0]?.config_value
-        ]?.[0]?.config_value;
-      setProcessorDetails(JSON.parse(details));
-    }
-  }, [paymentProcessorDetails]);
-
   const convenienceFee = useSelector(
     (state: RootState) => state?.Account.convenienceFee
   );
@@ -205,18 +182,18 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
   };
 
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event?.data?.custId) {
-        console.log(event?.data);
-        handleSaveDetails(event.data, companyInfo, formData, customerDetails);
-      }
-    };
+  // useEffect(() => {
+  //   const handleMessage = (event) => {
+  //     if (event?.data?.custId) {
+  //       console.log(event?.data);
+  //       handleSaveDetails(event.data, companyInfo, formData, customerDetails);
+  //     }
+  //   };
 
-    window.addEventListener("message", handleMessage);
+  //   window.addEventListener("message", handleMessage);
 
-    return () => window.removeEventListener("message", handleMessage);
-  }, [companyInfo, formData, customerDetails]);
+  //   return () => window.removeEventListener("message", handleMessage);
+  // }, [companyInfo, formData, customerDetails]);
   console.log(formData, "formData");
 
   const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
