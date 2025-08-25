@@ -26,23 +26,23 @@ export default function DashBoardPage(): React.JSX.Element {
       container
       spacing={2}
       sx={{
-        maxWidth: "1600px", // ✅ keeps layout centered
+        maxWidth: "1600px",
         // margin: "0 auto",
       }}
     >
-      {/* First Row */}
+      {/* First Row (Budget + BillDue + AutoPay) */}
       <Grid item xs={12} lg={9}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} lg={6}>
+          <Grid item xs={12} sm={6}>
             <Budget diff={12} trend="up" sx={{ height: "100%" }} />
           </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
+          <Grid item xs={12} sm={6}>
             <TotalProfit value="BillDue" sx={{ height: "100%" }} />
           </Grid>
         </Grid>
       </Grid>
 
-      <Grid item xs={12} sm={6} lg={3}>
+      <Grid item xs={12} sm={6} md={6} lg={3}>
         <DashboardInfo
           sx={{ height: "100%" }}
           type="autoPay"
@@ -54,7 +54,7 @@ export default function DashBoardPage(): React.JSX.Element {
 
       {/* Paperless card for small screens */}
       {!isLargeUp && (
-        <Grid item xs={12} sm={6} md={6} lg={12}>
+        <Grid item xs={12} sm={6} md={6}>
           <DashboardInfo
             sx={{ height: "100%" }}
             value="paperless"
@@ -64,32 +64,37 @@ export default function DashBoardPage(): React.JSX.Element {
         </Grid>
       )}
 
-      {/* Sales Chart */}
+      {/* Sales Chart with optional ScheduleRecurringBox */}
       <Grid item xs={12} lg={9} order={{ xs: 3, lg: 1 }}>
-        <ScheduleRecurringBox />
-        <React.Suspense fallback={<>Loading...</>}>
-          <Sales
-            chartSeries={[
-              {
-                name: "This year",
-                data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-              },
-              {
-                name: "Last year",
-                data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
-              },
-            ]}
-            sx={{ height: "100%" }}
-            dashboard
-          />
-        </React.Suspense>
+        <Box display="flex" flexDirection="column" height="100%">
+          <Box>
+            <ScheduleRecurringBox />
+          </Box>
+
+          <React.Suspense fallback={<>Loading...</>}>
+            <Sales
+              chartSeries={[
+                {
+                  name: "This year",
+                  data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
+                },
+                {
+                  name: "Last year",
+                  data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
+                },
+              ]}
+              sx={{ flexGrow: 1 }}
+              dashboard
+            />
+          </React.Suspense>
+        </Box>
       </Grid>
 
       {/* Right Column */}
       <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} height="-webkit-fill-available">
           {isLargeUp && (
-            <Grid item xs={12} sm={6} md={6} lg={12}>
+            <Grid item xs={12}>
               <DashboardInfo
                 sx={{ height: "100%" }}
                 value="paperless"
