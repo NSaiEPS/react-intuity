@@ -98,7 +98,6 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   // Listen for iframe postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      console.log(event, "handleMessage");
       if (event?.data?.custId || event?.data?.token) {
         onSuccess(event.data); // parent callback
       }
@@ -117,67 +116,93 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     const fixedKey = Buffer.alloc(16);
     key.copy(fixedKey);
 
+    // Fix: pad Base64 if needed
+    const padded = encrypted + "=".repeat((4 - (encrypted.length % 4)) % 4);
+
     const decipher = crypto.createDecipheriv(algorithm, fixedKey, iv);
-    let decrypted = decipher.update(encrypted, "base64", "utf8");
+    let decrypted = decipher.update(padded, "base64", "utf8");
     decrypted += decipher.final("utf8");
     return decrypted;
   }
 
-  /**
-   * Decide if a field should be decrypted based on rules
-   */
-  function shouldDecrypt(key, value) {
-    if (!value || typeof value !== "string") return false;
-
-    switch (key) {
-      case "site_id":
-      case "site_id_ach":
-        return value.length > 4;
-      case "account_id":
-        return value.length > 7;
-      case "merchant_id":
-        return value.length > 7;
-      case "sss":
-        return value.length > 3;
-      case "routing_no":
-        return value.length > 9;
-      case "biller_guid":
-        return !value.includes("-");
-      // generic rule: if value looks like base64 and is "too long"
-      default:
-        return /^[A-Za-z0-9+/=]+$/.test(value) && value.length > 15;
-    }
-  }
-
-  /**
-   * Walk through object and decrypt only when needed
-   */
   function processConfig(config) {
+    const decryptAll = true;
     const result = {};
     for (const [key, value] of Object.entries(config)) {
-      if (shouldDecrypt(key, value)) {
+      if (!value || typeof value !== "string") {
+        result[key] = value;
+        continue;
+      }
+
+      if (decryptAll) {
         try {
           result[key] = decryptPass(value);
+          console.log(decryptPass(value), "Decrypted Config1:");
         } catch (e) {
-          // fallback if decrypt fails (maybe already plain)
+          // if decryption fails, keep original
+          console.log(value, "Decrypted Config1:");
+
           result[key] = value;
         }
       } else {
+        console.log(value, "Decrypted Config1:");
+
         result[key] = value;
       }
     }
     return result;
   }
 
+  // Example
   const config1 = {
-    site_id_ach: "f6togr==",
+    site_id_ach: "f6togA==",
     site_key_ach: "f6togA==",
     api_key_ach: "Ed9L/u1XfTdzNcJB",
-    app_id_ach: "T45BpOwIInEFOZQzuVhld7lQfdfdfdfdf6NtFkUkzohc=",
-    app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrererer=",
+    app_id_ach: "T45BpOwIInEFOZQzuVhld7lQlHBW5q076NtFkUkzohc",
+    app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=",
   };
 
-  console.log("Decrypted Config1:", processConfig(config1));
+  // console.log("Decrypted Config1:", processConfig(config1));
+
+  async function decryptPass1(encrypted) {
+    const keyString = "Intuity";
+    const ivString = "1234567891011121";
+
+    // Pad key to 16 bytes
+    const keyBytes = new TextEncoder().encode(keyString.padEnd(16, "\0"));
+
+    const key = await window.crypto.subtle.importKey(
+      "raw",
+      keyBytes,
+      { name: "AES-CTR" },
+      false,
+      ["decrypt"]
+    );
+
+    // Fix base64 padding
+    const base64 =
+      encrypted.length % 4 === 0
+        ? encrypted
+        : encrypted + "=".repeat(4 - (encrypted.length % 4));
+
+    const data = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+    const iv = new TextEncoder().encode(ivString);
+
+    const decryptedBuffer = await window.crypto.subtle.decrypt(
+      { name: "AES-CTR", counter: iv, length: 128 },
+      key,
+      data
+    );
+
+    return new TextDecoder().decode(decryptedBuffer);
+  }
+
+  // Example usage
+  decryptPass1("ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=")
+    .then(console.log)
+    .catch((res) => console.log(res));
+  // 👉 should log: hdkmckqqCn7GdocWNo3pJsmRACgaOEjx
 
   return (
     <Box>
