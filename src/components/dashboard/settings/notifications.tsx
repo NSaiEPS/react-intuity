@@ -281,42 +281,11 @@ export function Notifications(): React.JSX.Element {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ borderRadius: boarderRadius.card }}>
         <CardHeader
-          subheader="Manage the notifications"
+          subheader="Manage Your Notifications"
           title="Notifications"
         />
         <Divider />
         <CardContent>
-          <Stack
-            direction="row"
-            spacing={3}
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ maxWidth: "sm", marginBottom: "25px" }}
-          >
-            <Typography variant="h5" fontWeight={600}>
-              Opt out of voice calls
-            </Typography>
-
-            <Stack
-              component="button"
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                e.stopPropagation()
-              }
-              sx={{
-                all: "unset",
-                display: "flex",
-              }}
-            >
-              <IOSSwitch
-                checked={clickedState}
-                onChange={handleChange}
-                onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  e.stopPropagation()
-                }
-              />
-            </Stack>
-          </Stack>
-
           <Stack spacing={3} sx={{ maxWidth: "sm" }}>
             <FormControl fullWidth error={!!errors.email}>
               <InputLabel htmlFor="email">Notification Email</InputLabel>
@@ -360,7 +329,37 @@ export function Notifications(): React.JSX.Element {
               </Box>
             )}
           </Stack>
+          <Stack
+            direction="row"
+            spacing={3}
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ maxWidth: "sm", marginBottom: "25px" }}
+            mt={7}
+          >
+            <Typography variant="h5" fontWeight={600}>
+              Enable Emergency Calls to My Phone
+            </Typography>
 
+            <Stack
+              component="button"
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                e.stopPropagation()
+              }
+              sx={{
+                all: "unset",
+                display: "flex",
+              }}
+            >
+              <IOSSwitch
+                checked={clickedState}
+                onChange={handleChange}
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  e.stopPropagation()
+                }
+              />
+            </Stack>
+          </Stack>
           <Stack spacing={3} sx={{ maxWidth: "sm" }} pt={3}>
             <FormControl fullWidth error={!!errors.phone}>
               <InputLabel htmlFor="phone">Notification Phone No.</InputLabel>
