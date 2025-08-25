@@ -27,6 +27,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   );
 
   const [processorDetails, setProcessorDetails] = useState<any>({});
+  const [decryptedDetails, setDecryptedDetails] = useState<any>({});
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
   console.log(processorDetails, "processorDetails");
   const CustomerInfo: any = dashBoardInfo?.body?.customer
@@ -61,7 +62,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
     if (iframeDynamicUrl.includes("icheckgateway")) {
       // iCheck
-      return `appId=${processorDetails?.app_id}&appSecret=${processorDetails?.app_secret}`;
+      return `appId=${decryptedDetails?.app_id}&appSecret=${decryptedDetails?.app_secret}`;
     }
 
     if (iframeDynamicUrl.includes("certtransaction")) {
@@ -144,16 +145,27 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     // Conditions (based on your PHP rules)
     let shouldDecrypt = false;
 
-    if (config?.site_id_ach && config.site_id_ach.length > 4)
+    // site_id or site_id_ach
+    if ((config?.site_id || config?.site_id_ach)?.length > 4)
       shouldDecrypt = true;
-    if (config?.account_id && config.account_id.length > 7)
+
+    // account_id or account_id_ach
+    if ((config?.account_id || config?.account_id_ach)?.length > 7)
       shouldDecrypt = true;
-    if (config?.merchant_id && config.merchant_id.length > 7)
+
+    // merchant_id or merchant_id_ach
+    if ((config?.merchant_id || config?.merchant_id_ach)?.length > 7)
       shouldDecrypt = true;
+
+    // autoAchworks.sss
     if (config?.autoAchworks?.sss && config.autoAchworks.sss.length > 3)
       shouldDecrypt = true;
+
+    // autoNacha.routing_no
     if (config?.autoNacha?.routing_no && config.autoNacha.routing_no.length > 9)
       shouldDecrypt = true;
+
+    // biller_guid (must not contain "-")
     if (config?.biller_guid && !config.biller_guid.includes("-"))
       shouldDecrypt = true;
 
@@ -181,19 +193,24 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     return result;
   }
 
-  // Example usage
-  (async () => {
-    const config1 = {
-      site_id_ach: "f6togA==",
-      site_key_ach: "f6togA==",
-      api_key_ach: "Ed9L/u1XfTdzNcJB",
-      app_id_ach: "T45BpOwIInEFOZQzuVhld7lQlHBW5q076NtFkUkzohc",
-      app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=",
-    };
+  useEffect(() => {
+    if (processorDetails) {
+      (async () => {
+        const config1 = {
+          site_id_ach: "f6togA==",
+          site_key_ach: "f6togA==",
+          api_key_ach: "Ed9L/u1XfTdzNcJB",
+          app_id_ach: "T45BpOwIInEFOZQzuVhld7lQlHBW5q076NtFkUkzohc",
+          app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=",
+        };
 
-    const decryptedConfig = await processConfig(config1);
-    console.log("Final Config:", decryptedConfig);
-  })();
+        const decryptedConfig = await processConfig(processorDetails);
+        console.log("Final Config:", decryptedConfig);
+
+        setDecryptedDetails(decryptedConfig);
+      })();
+    }
+  }, [processorDetails]);
 
   async function decryptPass1(encrypted) {
     const keyString = "Intuity";
