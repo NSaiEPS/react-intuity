@@ -71,7 +71,11 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
     if (iframeDynamicUrl.includes("nacha_bank_frame")) {
       // NACHA (currently assuming same param, adjust later if needed)
-      return `TransactionSetupID=${paymentRequiredKeyDetails}`;
+      return `companyName=South & Center Chautauqua Lake Sewer District&sec_code=ppd,ccd`;
+    }
+    if (iframeDynamicUrl.includes("achworks_frame")) {
+      // NACHA (currently assuming same param, adjust later if needed)
+      return `companyName=South & Center Chautauqua Lake Sewer District`;
     }
 
     return "";
@@ -167,22 +171,13 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
   const config1 = {
     site_id_ach: "f6togr==",
-    site_key_ach: "Fd8Z8b5WYzf=",
+    site_key_ach: "f6togA==",
     api_key_ach: "Ed9L/u1XfTdzNcJB",
     app_id_ach: "T45BpOwIInEFOZQzuVhld7lQfdfdfdfdf6NtFkUkzohc=",
     app_secret_ach: "ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrererer=",
   };
 
-  const config2 = {
-    site_id: "XABI",
-    site_key: "25381501",
-    api_key: "65a7b4275ba5",
-    app_id: "hdkmckqqCn7GdocWNo3pJsmRACrerererer",
-    app_secret: "CjWHKxwRDL1dV8dkam55ferererer",
-  };
-
   console.log("Decrypted Config1:", processConfig(config1));
-  console.log("Config2 (already plain):", processConfig(config2));
 
   return (
     <Box>
