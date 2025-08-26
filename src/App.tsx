@@ -85,6 +85,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: "/invoice-detail",
+    element: LoginSuspense(
+      <Authorization>
+        <InvoiceDetailsPage />
+      </Authorization>
+    ),
+  },
+  {
     path: "/sign-up",
     element: LoginSuspense(
       <Authorization>
