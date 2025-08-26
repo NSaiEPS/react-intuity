@@ -422,19 +422,6 @@ const PaymentForm = () => {
     }
   };
 
-  // const resultCard = calculatePaymentAmount({
-  //   amount: 10,
-  //   paymentType: "card",
-  //   cardType: "visa", // or 'amex'
-  //   config: convenienceFee,
-  // });
-
-  // const resultACH = calculatePaymentAmount({
-  //   amount: 200,
-  //   paymentType: "bank_account",
-  //   config: convenienceFee,
-  // });
-
   const amount = watch("amount");
 
   useEffect(() => {
@@ -473,24 +460,21 @@ const PaymentForm = () => {
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Section Title + Link */}
           <Box
             display="flex"
             justifyContent="space-between"
             alignItems="center"
             mb={2}
             sx={{
-              flexDirection: { xs: "column", sm: "row" }, // column for small, row for larger
+              flexDirection: { xs: "column", sm: "row" },
               alignItems: { xs: "flex-start", sm: "center" },
-              gap: { xs: 1, sm: 0 }, // spacing in column mode
+              gap: { xs: 1, sm: 0 },
             }}
           >
-            {/* Left Side */}
             <Typography variant="h6" color="text.secondary">
               Name/Email For Payment Receipt
             </Typography>
 
-            {/* Right Side */}
             <Box
               display="flex"
               sx={{
@@ -603,6 +587,10 @@ const PaymentForm = () => {
             <Controller
               name="amount"
               control={control}
+              rules={{
+                required: "Amount is required",
+                min: { value: 1, message: "Amount must be greater than 0" },
+              }}
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -614,6 +602,23 @@ const PaymentForm = () => {
                   InputProps={{
                     startAdornment: <span style={{ marginRight: 4 }}>$</span>,
                   }}
+                  onChange={(e) => {
+                    let value = e.target.value;
+
+                    // Prevent empty or 0
+                    if (value === "" || Number(value) <= 0) {
+                      toast.warn("Amount should be more than 0");
+                      return;
+                    }
+
+                    field.onChange(value);
+                  }}
+                  // onBlur={(e) => {
+                  //   // Also enforce on blur (in case user clears and leaves field)
+                  //   if (!e.target.value || Number(e.target.value) <= 0) {
+                  //     field.onChange("1");
+                  //   }
+                  // }}
                 />
               )}
             />
