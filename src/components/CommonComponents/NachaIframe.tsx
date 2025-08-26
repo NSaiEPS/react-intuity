@@ -373,6 +373,13 @@ export default function NachaIframe({ onSuccess }) {
         mx: "auto",
       }}
     >
+      <Typography
+        variant="body1"
+        align="center"
+        sx={{ color: "red", fontWeight: "bold", mb: 1 }}
+      >
+        ⚠️ WARNING! Only click this button ONCE!
+      </Typography>
       <TextField
         fullWidth
         label="Routing Number"

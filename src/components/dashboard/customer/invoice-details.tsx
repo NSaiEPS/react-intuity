@@ -229,9 +229,9 @@ export default function InvoiceDetails() {
     setOpen(true);
   };
 
-  React.useEffect(() => {
-    handlePreview();
-  }, []);
+  // React.useEffect(() => {
+  //   handlePreview();
+  // }, []);
   return (
     <SkeletonWrapper>
       {/* <Button variant="contained" onClick={handleDownloadPDF} sx={{ mb: 2 }}>
@@ -264,7 +264,7 @@ export default function InvoiceDetails() {
       <div ref={pdfRef} id="print-section">
         <InvoiceMainDetails />
       </div>
-      <button onClick={handlePreview}>Preview Invoice PDF</button>
+      {/* <button onClick={handlePreview}>Preview Invoice PDF</button> */}
 
       <PdfViewer open={open} onClose={() => setOpen(false)} fileUrl={pdfUrl} />
     </SkeletonWrapper>

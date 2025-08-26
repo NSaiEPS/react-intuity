@@ -200,31 +200,21 @@ const PaymentForm = () => {
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
 
-  useEffect(() => {
-    // Dynamically load the external iCG script
-
-    if (paymentType === "no-save") {
-      // Skip loading script if saved payment method is selected
-      const script = document.createElement("script");
-      script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
-      script.async = true;
-      document.body.appendChild(script);
-
-      return () => {
-        // Clean up when component unmounts
-        document.body.removeChild(script);
-      };
-    }
-  }, [paymentType]);
   // useEffect(() => {
-  //   if (linkedAccountsInfo?.id) {
-  //     const formdata = new FormData();
-  //     formdata.append('acl_role_id', stored?.body?.acl_role_id);
-  //     formdata.append('company_id', linkedAccountsInfo?.id);
 
-  //     dispatch(getPaymentProcessorDetails(stored?.body?.token, formdata, false));
+  //   if (paymentType === "no-save") {
+  //     // Skip loading script if saved payment method is selected
+  //     const script = document.createElement("script");
+  //     script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
+  //     script.async = true;
+  //     document.body.appendChild(script);
+
+  //     return () => {
+  //       // Clean up when component unmounts
+  //       document.body.removeChild(script);
+  //     };
   //   }
-  // }, [linkedAccountsInfo]);
+  // }, [paymentType]);
 
   const handleSaveDetails = (data, debitType) => {
     if (data?.error) {
@@ -693,9 +683,15 @@ const PaymentForm = () => {
             <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
               <RadioGroup
                 value={paymentType}
-                onChange={(e) =>
-                  setPaymentType(e.target.value as "saved" | "no-save")
-                }
+                onChange={(e) => {
+                  if (e.target.value == "no-save") {
+                    if (Number(watch("amount")) === 0) {
+                      toast.warn("Amount should be more than 0");
+                      return;
+                    }
+                  }
+                  setPaymentType(e.target.value as "saved" | "no-save");
+                }}
               >
                 <FormControlLabel
                   value="saved"
@@ -901,42 +897,6 @@ const PaymentForm = () => {
             </Box>
           )}
         </form>
-        {/* {paymentType === "no-save" && iframeLoading && (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height={500}
-            width={500}
-            sx={{ border: "1px solid #ccc", mb: 2 }}
-          >
-            Loading...
-          </Box>
-        )}
-        {paymentType === "no-save" && (
-          <div className="projects-section-line" style={{ marginTop: "20px" }}>
-            {!iframeLoading && (
-              <Typography
-                variant="body1"
-                // align="center"
-                sx={{ color: "red", fontWeight: "bold" }}
-              >
-                ⚠️ WARNING! Only click this button ONCE!
-              </Typography>
-            )}
-            <iframe
-              id="iFrameBA"
-              name="iFrameBA"
-              src={debitType == "card" ? iframeUrlForCard : iframeUrlForBank}
-              scrolling="no"
-              width="500"
-              height="500"
-              frameBorder="0"
-              title="ICG Payment"
-              onLoad={() => setIframeLoading(false)}
-            ></iframe>
-          </div>
-        )} */}
 
         {paymentType === "no-save" && (
           <PaymentIframe
