@@ -303,6 +303,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
           () => {}
         )
       );
+      formdata.append("customer_id", customerDetails?.id);
 
       // const convenienceFeeFormdata = new FormData();
       // convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
