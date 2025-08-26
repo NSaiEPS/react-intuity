@@ -79,15 +79,20 @@ export default function PaymentSummaryModal({
 
       <DialogContent>
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Payment Type
-          </Typography>
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
           >
+            <Typography variant="body1">Payment Type</Typography>
             <Typography variant="body1">{cardType}</Typography>
+          </Stack>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="body1">Card/Bank No.</Typography>
             <Typography variant="body1">{cardLast4}</Typography>
           </Stack>
         </Box>

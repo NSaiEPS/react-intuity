@@ -215,7 +215,7 @@ const PaymentForm = () => {
   //     };
   //   }
   // }, [paymentType]);
-
+  const [cardBankDetails, setCardBankDetails] = useState(null);
   const handleSaveDetails = (data, debitType) => {
     if (data?.error) {
       toast.error(
@@ -906,7 +906,8 @@ const PaymentForm = () => {
         {paymentType === "no-save" && (
           <PaymentIframe
             type={debitType == "card" ? "card" : "account"}
-            onSuccess={(data: any) => handleSaveDetails(data, debitType)}
+            // onSuccess={(data: any) => handleSaveDetails(data, debitType)}
+            onSuccess={(data: any) => setCardBankDetails(data)}
           />
         )}
 
@@ -929,17 +930,35 @@ const PaymentForm = () => {
             />
           </Dialog>
         )}
-        {showPaymentSummary && (
+        {(showPaymentSummary || cardBankDetails) && (
           <PaymentSummaryModal
-            open={showPaymentSummary}
-            onClose={() => setShowPaymentSummary(false)}
-            onPay={handlePay}
+            open={showPaymentSummary || cardBankDetails}
+            onClose={() => {
+              if (cardBankDetails) {
+                setCardBankDetails(null);
+              }
+              if (showPaymentSummary) setShowPaymentSummary(false);
+            }}
+            onPay={() => {
+              if (cardBankDetails) {
+                setCardBankDetails(null);
+                handleSaveDetails(cardBankDetails, debitType);
+              } else {
+                handlePay();
+              }
+            }}
             amount={Number(amount || 0)}
             fee={Number(watch("convenienceFee") || 0)}
-            cardType={selectedCardDetails?.card_type || "Bank Account"}
+            cardType={
+              cardBankDetails
+                ? cardBankDetails?.cardType ?? "Bank Account"
+                : selectedCardDetails?.card_type || "Bank Account"
+            }
             cardLast4={
-              selectedCardDetails?.card_number ??
-              selectedCardDetails?.bank_account_number
+              cardBankDetails
+                ? cardBankDetails?.cardNumber ?? cardBankDetails?.accountNumber
+                : selectedCardDetails?.card_number ??
+                  selectedCardDetails?.bank_account_number
             }
             dueDate={isSchedule ? watch("duedate") : null}
             Recurring={recurringPaymentEnabled ? frequency : null}
