@@ -35,6 +35,7 @@ export function MobileNav({
 }: MobileNavProps): React.JSX.Element {
   const location = useLocation();
   const pathname = location.pathname;
+  let aliasUser: any = getLocalStorage("alias-details");
 
   return (
     <>
@@ -82,9 +83,9 @@ export function MobileNav({
             to={paths.dashboard.overview()}
             sx={{ display: "inline-flex" }}
           >
-            {getLocalStorage("alias-details") ? (
+            {aliasUser ? (
               <Avatar
-                src={getLocalStorage("alias-details")?.logo}
+                src={aliasUser?.logo}
                 sx={{ width: 70, height: 70, mr: 1.5 }}
               />
             ) : (
@@ -92,11 +93,7 @@ export function MobileNav({
                 color="dark"
                 height={50}
                 width={140}
-                src={
-                  getLocalStorage("alias-details")
-                    ? getLocalStorage("alias-details")?.logo
-                    : null
-                }
+                src={aliasUser ? aliasUser?.logo : null}
               />
             )}
           </Box>

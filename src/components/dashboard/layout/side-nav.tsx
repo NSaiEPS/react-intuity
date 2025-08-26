@@ -23,6 +23,8 @@ export function SideNav(): React.JSX.Element {
   // console.log(pathname.split('/'), 'pathnamepathname');
   const location = useLocation();
   const pathname = location.pathname;
+  let aliasUser: any = getLocalStorage("alias-details");
+
   return (
     <Box
       sx={{
@@ -81,11 +83,7 @@ export function SideNav(): React.JSX.Element {
             color="dark"
             height={50}
             width={140}
-            src={
-              getLocalStorage("alias-details")
-                ? getLocalStorage("alias-details")?.logo
-                : null
-            }
+            src={aliasUser ? aliasUser?.logo : null}
           />
         </Box>
       </Stack>

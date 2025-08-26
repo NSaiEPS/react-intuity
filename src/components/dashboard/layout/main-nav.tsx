@@ -35,7 +35,7 @@ export function MainNav(): React.JSX.Element {
 
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo");
-
+  let aliasUser: any = getLocalStorage("alias-details");
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 
@@ -85,9 +85,9 @@ export function MainNav(): React.JSX.Element {
               to={paths.dashboard.overview()}
               sx={{ display: "inline-flex" }}
             >
-              {getLocalStorage("alias-details") ? (
+              {aliasUser ? (
                 <Avatar
-                  src={getLocalStorage("alias-details")?.logo}
+                  src={aliasUser?.logo}
                   sx={{
                     width: 70,
                     height: 70,
@@ -100,11 +100,7 @@ export function MainNav(): React.JSX.Element {
                   color="dark"
                   height={50}
                   width={140}
-                  src={
-                    getLocalStorage("alias-details")
-                      ? getLocalStorage("alias-details")?.logo
-                      : null
-                  }
+                  src={aliasUser ? aliasUser?.logo : null}
                 />
               )}
             </Box>
