@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { getLocalStorage } from "@/utils/auth";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import crypto from "crypto";
+import NachaIframe from "./NachaIframe";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -35,6 +36,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     : getLocalStorage("intuity-customerInfo");
 
   // Extract processor details
+  const [curentProcessor, setCurentProcessor] = useState("");
   useEffect(() => {
     const isCard = type === "card";
     const processorList = isCard
@@ -43,10 +45,15 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
     if (processorList?.length > 0) {
       const key = processorList[0]?.config_value;
+      setCurentProcessor(key);
       const processor = paymentProcessorDetails?.[key]?.[0];
 
       if (processor?.config_value) {
-        setIframeDynamicUrl(processor?.iframe_url);
+        setIframeDynamicUrl(
+          isCard
+            ? processor?.iframe_url ?? processor?.iframe_url_ach
+            : processor?.iframe_url_ach ?? processor?.iframe_url
+        );
         setProcessorDetails(JSON.parse(processor?.config_value));
       }
     }
@@ -87,6 +94,8 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   };
 
   const iframeUrl = `${iframeDynamicUrl}?${getGateDetails()}&${icheckParams}`;
+  // const iframeUrl =
+  //   "https://test-intuity-backend.pay.waterbill.com/nacha_bank_frame.php?companyName=South & Center Chautauqua Lake Sewer District&sec_code=ppd,ccd";
 
   // Load external icheck script
   useEffect(() => {
@@ -247,6 +256,9 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   //   .then(console.log)
   //   .catch((res) => console.log(res));
 
+  if (curentProcessor?.includes("nacha")) {
+    return <NachaIframe onSuccess={onSuccess} />;
+  }
   return (
     <Box>
       {iframeLoading && (

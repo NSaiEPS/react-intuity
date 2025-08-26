@@ -139,14 +139,10 @@ const PaymentForm = () => {
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const navigate = useNavigate();
 
-  const paymentProcessorDetails = useSelector(
-    (state: RootState) => state?.Account?.paymentProcessorDetails
-  );
   const paymentMethodInfoCards = useSelector(
     (state: RootState) => state?.Account?.selectedCardInfo
   );
 
-  const [processorDetails, setProcessorDetails] = useState<any>({});
   // const [maxPaymentModal, setMaxPaymentModal] = useState<any>(false);
   const [myCustomerDetails, setCustomerDetails] = useState<any>({
     allow_overpayments: 0,
@@ -171,40 +167,10 @@ const PaymentForm = () => {
   React.useEffect(() => {
     paymentDetails();
   }, [stored]);
-  useEffect(() => {
-    if (paymentProcessorDetails?.current_processor?.length > 0) {
-      const details =
-        paymentProcessorDetails[
-          //TODO: dynamic here
-          // paymentProcessorDetails?.current_processor[0]?.config_value
-          "icheck_2"
-        ]?.[0]?.config_value;
-      setProcessorDetails(JSON.parse(details));
-    }
-  }, [paymentProcessorDetails]);
+
   const CustomerInfo: any = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
-
-  const iframeUrlForBank = `https://iframe.icheckgateway.com/iFrameBA.aspx?appId=${
-    processorDetails?.app_id
-  }&appSecret=${processorDetails?.app_secret}&custId=${
-    CustomerInfo?.acctnum
-  }&firstName=${watch("name") ?? CustomerInfo?.customer_name}&email=${watch(
-    "email"
-  )}&amp;street1=${
-    CustomerInfo?.customer_nameaddress
-  }+&entryClassCode=WEB&saveTokenDisabled=false`;
-  //For New Card adding
-  const iframeUrlForCard = `https://iframe.icheckgateway.com/iFrameCC.aspx?appId=${
-    processorDetails?.app_id
-  }&appSecret=${processorDetails?.app_secret}&custId=${
-    CustomerInfo?.acctnum
-  }&firstName=${watch("name") ?? CustomerInfo?.customer_name}&email=${watch(
-    "email"
-  )}&amp;street1=${
-    CustomerInfo?.customer_nameaddress
-  }+&entryClassCode=WEB&saveTokenDisabled=false`;
 
   useEffect(() => {
     if (CustomerInfo?.acctnum) {
@@ -268,6 +234,7 @@ const PaymentForm = () => {
 
       return;
     }
+
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);

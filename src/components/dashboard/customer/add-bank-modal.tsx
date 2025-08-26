@@ -103,8 +103,6 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const handleSaveDetails = (data) => {
-    console.log(data);
-
     if (data?.error) {
       toast.error(
         data?.error ? data?.error : "Try again something went wrong!"
