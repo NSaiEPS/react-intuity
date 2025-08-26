@@ -88,7 +88,7 @@ export default function PaymentSummaryModal({
             alignItems="center"
           >
             <Typography variant="body1">{cardType}</Typography>
-            <Typography variant="body1">{"************1111"}</Typography>
+            <Typography variant="body1">{cardLast4}</Typography>
           </Stack>
         </Box>
 
@@ -114,14 +114,16 @@ export default function PaymentSummaryModal({
             ${total}
           </Typography>
         </Stack>
-        <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            Date To Pay
-          </Typography>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            {dayjs(dueDate).format("MMM D, YYYY")}
-          </Typography>
-        </Stack>
+        {dueDate && (
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              Date To Pay
+            </Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              {dayjs(dueDate).format("MMM D, YYYY")}
+            </Typography>
+          </Stack>
+        )}
         {Recurring && (
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>

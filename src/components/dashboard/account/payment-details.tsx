@@ -652,7 +652,7 @@ const PaymentForm = () => {
                       control={control}
                       render={({ field }) => (
                         <DatePicker
-                          label="Requested Stop Date"
+                          label="Date to Pay"
                           value={dayjs(field.value)}
                           minDate={dayjs()}
                           disablePast
