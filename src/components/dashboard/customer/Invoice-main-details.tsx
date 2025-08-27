@@ -367,7 +367,7 @@ export const InvoiceMainDetails = () => {
       <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
         <Stack
           direction="column"
-          spacing={2}
+          // spacing={2}
           sx={{
             minWidth: "50%",
             // backgroundColor: "red",
@@ -391,28 +391,25 @@ export const InvoiceMainDetails = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1,
               flexWrap: "wrap",
+              // justifyContent: "flex-start", // force left align
               justifyContent: {
-                xs: "flex-start", // 👈 forces left align on mobile
-                md: "flex-end", // 👈 right align on desktop
+                xs: "flex-start", // below 900px
+                md: "flex-end", // 900px and above
               },
-              width: "100%", // take full width for proper alignment
+              pt: 1,
+
+              width: "100%",
             }}
           >
-            <FormControlLabel
-              control={<Checkbox size="small" />}
-              label="I would like to go paperless."
-              sx={{ m: 0, ".MuiFormControlLabel-label": { fontSize: 13 } }}
-            />
+            <Checkbox size="small" sx={{ p: 0, mr: 1 }} />
             <Typography variant="body2" sx={{ fontSize: 13 }}>
-              Here is my email address:
+              I would like to go paperless. Here is my email address:
             </Typography>
             <TextField
               variant="standard"
               size="small"
-              placeholder=""
-              sx={{ minWidth: 240 }}
+              sx={{ minWidth: 240, mt: -1 }}
               InputProps={{ disableUnderline: false }}
             />
           </Box>
@@ -427,17 +424,7 @@ export const InvoiceMainDetails = () => {
             mb: { xs: 2, md: 0 }, // margin-bottom for mobile/tablet, none for desktop
           }}
         >
-          {/* Left Section */}
-          {/* <Typography sx={{ fontWeight: 600 }}>
-                {customer?.customer_name}, {customer?.address}
-              </Typography> */}
-          <Grid
-            item
-            xs={12}
-            md={6}
-            mt={"auto"}
-            // sx={{ backgroundColor: "red" }}
-          >
+          <Grid item xs={12} md={6} mt={"auto"}>
             <Grid item xs={12} md={6}>
               <Typography sx={{ fontWeight: 600 }}>
                 {customer?.customer_name}
@@ -471,12 +458,9 @@ export const InvoiceMainDetails = () => {
             </Box>
 
             <Typography sx={{ fontWeight: 600 }}>
-              {/* {customer?.name} */}
-
               {company?.company_name}
             </Typography>
             <Typography>{customer?.address}</Typography>
-            {/* <Typography>{customer?.city}</Typography> */}
           </Grid>
 
           {/* Right Section with vertical borders */}
