@@ -132,7 +132,17 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
           <X size={24} color={colors.blue} />
         </IconButton>
       </DialogTitle>
-      <PaymentIframe type="card" onSuccess={handleSaveDetails} />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+
+          width: "100%", // full width
+        }}
+      >
+        <PaymentIframe type="card" onSuccess={handleSaveDetails} />
+      </Box>
       {/* <DialogContent>
         {iframeLoading && (
           <Box
