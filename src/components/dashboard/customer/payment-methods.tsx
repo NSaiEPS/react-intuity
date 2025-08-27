@@ -5,7 +5,12 @@ import {
   getPaymentProcessorDetails,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors, formatToMMDDYYYY } from "@/utils";
+import {
+  boarderRadius,
+  colors,
+  decryptFunction,
+  formatToMMDDYYYY,
+} from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
@@ -90,7 +95,9 @@ const CardRow = React.memo(function CardRow({
     },
     [onDelete, row]
   );
-
+  // const cardNumber = decryptFunction(row.number)
+  //   .then((res) => console.log(res))
+  //   .catch((res) => console.log(res));
   return (
     <TableRow hover key={row.id} selected={isSelected}>
       <TableCell>
@@ -108,7 +115,8 @@ const CardRow = React.memo(function CardRow({
           fontFamily: "monospace", // ensures * and numbers align perfectly
         }}
       >
-        {row.number}
+        {decryptFunction(row.number)}
+        {/* {cardNumber} */}
       </TableCell>
       <TableCell>{row.type}</TableCell>
       {/* <TableCell>{formatToMMDDYYYY(row.createdAt, true)}</TableCell> */}

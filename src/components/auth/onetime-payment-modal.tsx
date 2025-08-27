@@ -220,8 +220,14 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
     paymentData.append("token", data?.token);
     paymentData.append("is_one_time", "1");
-    paymentData.append("amount", formData.amountToPay);
-    paymentData.append("convenienceFee", formData.convenienceFee);
+    // paymentData.append("amount", formData.amountToPay);
+    // paymentData.append("convenienceFee", formData.convenienceFee);
+
+    paymentData.append("amount", Number(formData.amountToPay).toFixed(2));
+    paymentData.append(
+      "convenienceFee",
+      Number(formData.convenienceFee).toFixed(2)
+    );
 
     if (debitType === "card") {
       paymentData.append("credit_card_number", data?.cardNumber);

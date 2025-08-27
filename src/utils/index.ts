@@ -1,5 +1,6 @@
 // import { alpha } from '@mui/material/styles';
 import dayjs from "dayjs";
+import CryptoJS from "crypto-js";
 
 export const colors = {
   darkBlue: "#172D56",
@@ -177,3 +178,35 @@ export const calculatePaymentAmount = ({
     total,
   };
 };
+
+export function decryptFunction(encrypted: string): string {
+  const keyString = "Intuity";
+  const ivString = "1234567891011121";
+
+  try {
+    // If the value is just a plain number/string with `**`, return as is
+    if (!encrypted || /^\d+$/.test(encrypted) || encrypted.includes("**")) {
+      return encrypted;
+    }
+
+    // Decode base64 to bytes
+    const ciphertext = CryptoJS.enc.Base64.parse(encrypted);
+
+    // Create key/iv as WordArrays
+    const key = CryptoJS.enc.Utf8.parse(keyString.padEnd(16, "\0"));
+    const iv = CryptoJS.enc.Utf8.parse(ivString);
+
+    // AES CTR decrypt
+    const decrypted = CryptoJS.AES.decrypt({ ciphertext }, key, {
+      iv,
+      mode: CryptoJS.mode.CTR,
+      padding: CryptoJS.pad.NoPadding,
+    });
+
+    const result = decrypted.toString(CryptoJS.enc.Utf8);
+
+    return result || encrypted; // if fails, fallback
+  } catch (err) {
+    return encrypted; // safe fallback
+  }
+}

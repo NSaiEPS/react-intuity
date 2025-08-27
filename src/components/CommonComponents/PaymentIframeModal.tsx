@@ -217,45 +217,6 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     }
   }, [processorDetails]);
 
-  async function decryptPass1(encrypted) {
-    const keyString = "Intuity";
-    const ivString = "1234567891011121";
-
-    // Pad key to 16 bytes
-    const keyBytes = new TextEncoder().encode(keyString.padEnd(16, "\0"));
-
-    const key = await window.crypto.subtle.importKey(
-      "raw",
-      keyBytes,
-      { name: "AES-CTR" },
-      false,
-      ["decrypt"]
-    );
-
-    // Fix base64 padding
-    const base64 =
-      encrypted.length % 4 === 0
-        ? encrypted
-        : encrypted + "=".repeat(4 - (encrypted.length % 4));
-
-    const data = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-
-    const iv = new TextEncoder().encode(ivString);
-
-    const decryptedBuffer = await window.crypto.subtle.decrypt(
-      { name: "AES-CTR", counter: iv, length: 128 },
-      key,
-      data
-    );
-
-    return new TextDecoder().decode(decryptedBuffer);
-  }
-
-  // Example usage
-  // decryptPass1("ZIB9gcQbJFICG5IQiw9iS5ZSkjVV1rAu69wQu1dHrDk=")
-  //   .then(console.log)
-  //   .catch((res) => console.log(res));
-
   if (
     curentProcessor?.includes("nacha") ||
     curentProcessor?.includes("achworks")
