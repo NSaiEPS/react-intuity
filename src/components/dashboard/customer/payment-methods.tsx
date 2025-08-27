@@ -192,7 +192,7 @@ export const PaymentMethods = ({
       ? (raw as IntuityUser)
       : null;
   }, []);
-  // 🧠 1. Fetch once on mount
+
   React.useEffect(() => {
     const formdata = new FormData();
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
@@ -236,7 +236,7 @@ export const PaymentMethods = ({
       })
     );
   };
-  // 🧠 2. UseSelector returns object, convert to row list
+
   const myCards = React.useMemo(() => {
     if (!paymentMethodInfoCards) return [];
     return Object.keys(paymentMethodInfoCards).map((key) => {

@@ -184,9 +184,9 @@ export function decryptFunction(encrypted: string): string {
   const ivString = "1234567891011121";
 
   try {
-    // If the value is just a plain number/string with `**`, return as is
+    // If the value is just a plain number/string with `**`, return masked
     if (!encrypted || /^\d+$/.test(encrypted) || encrypted.includes("**")) {
-      return encrypted;
+      return maskValue(encrypted);
     }
 
     // Decode base64 to bytes
@@ -205,8 +205,15 @@ export function decryptFunction(encrypted: string): string {
 
     const result = decrypted.toString(CryptoJS.enc.Utf8);
 
-    return result || encrypted; // if fails, fallback
+    return maskValue(result || encrypted);
   } catch (err) {
-    return encrypted; // safe fallback
+    return maskValue(encrypted);
   }
+}
+
+function maskValue(value: string): string {
+  if (!value) return value;
+
+  const last4 = value.slice(-4);
+  return "********" + last4;
 }
