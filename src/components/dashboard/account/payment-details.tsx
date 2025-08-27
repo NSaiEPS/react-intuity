@@ -243,7 +243,7 @@ const PaymentForm = () => {
       formdata.append("is_card_one_time", "1");
     }
     if (debitType == "bank_account") {
-      // formdata.append("bank_account_number", data?.accountNumber);
+      formdata.append("bank_account_number", data?.accountNumber);
       formdata.append("routing_number", data?.routingNumber);
       // formdata.append('account_type', data?.accountType);
       formdata.append(
