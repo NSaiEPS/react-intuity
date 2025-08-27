@@ -25,6 +25,7 @@ import EmailDialog from "./confirm-email-modal";
 import PhoneModal from "./confirm-phone-modal";
 import { paths } from "@/utils/paths";
 import { useNavigate } from "react-router";
+import TwoFAModal from "./2fa-login";
 
 export function ConfirmInfoDetails(): React.JSX.Element {
   // const router = useRouter();
@@ -83,6 +84,8 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     navigate(paths.dashboard.overview());
     // router.refresh();
   };
+
+  const [twoFAModalVisble, setTwoFAModalVisble] = useState(true);
   return (
     <Box>
       <Typography variant="subtitle1" mb={3}>
@@ -255,6 +258,12 @@ export function ConfirmInfoDetails(): React.JSX.Element {
       {/* <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
         <Loader />
       </CustomBackdrop> */}
+      <TwoFAModal
+        open={twoFAModalVisble}
+        onClose={() => {
+          setTwoFAModalVisble(false);
+        }}
+      />
 
       {accountLoading && (
         <Box

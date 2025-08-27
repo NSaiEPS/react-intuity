@@ -243,7 +243,7 @@ const PaymentForm = () => {
       formdata.append("is_card_one_time", "1");
     }
     if (debitType == "bank_account") {
-      formdata.append("bank_account_number", data?.accountNumber);
+      // formdata.append("bank_account_number", data?.accountNumber);
       formdata.append("routing_number", data?.routingNumber);
       // formdata.append('account_type', data?.accountType);
       formdata.append(
@@ -263,10 +263,21 @@ const PaymentForm = () => {
     }
     formdata.append("token", data?.token);
 
-    formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
+    // formdata.append(
+    //   "convenienceFee",
+    //   String(
+    //     watch("convenienceFee") == 0 ? "0.00" : watch("convenienceFee") || 0.0
+    //   )
+    // );
 
     formdata.append("payment_method", "0");
-    formdata.append("price", String(watch("amount") || 0));
+    // formdata.append("price", String(watch("amount") || 0));
+    formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+
+    formdata.append(
+      "convenienceFee",
+      Number(watch("convenienceFee") || 0).toFixed(2)
+    );
 
     // "id:26286
     // acl_role_id:4

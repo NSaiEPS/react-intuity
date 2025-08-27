@@ -295,9 +295,7 @@ export default function NachaIframe({ onSuccess }) {
     );
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
-  ) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,

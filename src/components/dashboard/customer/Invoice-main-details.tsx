@@ -369,6 +369,8 @@ export const InvoiceMainDetails = () => {
           direction="column"
           spacing={2}
           sx={{
+            minWidth: "50%",
+            // backgroundColor: "red",
             pb: 1,
             alignItems: {
               xs: "flex-start", // below 900px
@@ -382,7 +384,7 @@ export const InvoiceMainDetails = () => {
         >
           <Typography variant="body2" sx={{ fontSize: 13 }}>
             Please detach and return with your payment. Make Checks Payable to:
-            <b> Berkely Springs Water Works</b>
+            <b> {company?.company_name} </b>
           </Typography>
 
           <Box
