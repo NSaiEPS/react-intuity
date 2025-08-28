@@ -160,17 +160,24 @@ export function Notifications(): React.JSX.Element {
   const dispatch = useDispatch();
   const [clickedState, setClickedState] = React.useState(false);
 
-  const userInfo: any = getLocalStorage("intuity-customerInfo");
+  // const userInfo: any = getLocalStorage("intuity-customerInfo");
 
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+  const userInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
+  console.log(userInfo, "userInfo");
   React.useEffect(() => {
     if (userInfo) {
       setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
       reset((prev) => ({
         ...prev,
-        email: userInfo?.updated_email,
+        email: userInfo?.email,
       }));
     }
-  }, [reset]);
+  }, [reset, userInfo]);
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
