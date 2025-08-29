@@ -236,22 +236,27 @@ export default function OneTimePaymentModal({ open, onClose }) {
       paymentData.append("is_card_one_time", "1");
     }
     if (debitType == "bank_account") {
-      paymentData.append("bank_account_number", data?.accountNumber);
-      paymentData.append("routing_number", data?.routingNumber);
+      // paymentData.append("bank_account_number", data?.accountNumber);
       paymentData.append(
-        "account_type",
-        data?.accountType === "PC"
-          ? "Personal Checking"
-          : data?.accountType === "PS"
-          ? "Personal Savings"
-          : data?.accountType === "BC"
-          ? "Business Checking"
-          : data?.accountType === "BS"
-          ? "Business Savings"
-          : data?.accountType === "GL"
-          ? "General Ledger"
-          : " Other"
+        "bank_account_number",
+        data?.accountNumber?.slice(-4) || ""
       );
+      paymentData.append("is_card", "0");
+      paymentData.append("routing_number", data?.routingNumber);
+      // paymentData.append(
+      //   "account_type",
+      //   data?.accountType === "PC"
+      //     ? "Personal Checking"
+      //     : data?.accountType === "PS"
+      //     ? "Personal Savings"
+      //     : data?.accountType === "BC"
+      //     ? "Business Checking"
+      //     : data?.accountType === "BS"
+      //     ? "Business Savings"
+      //     : data?.accountType === "GL"
+      //     ? "General Ledger"
+      //     : " Other"
+      // );
     }
     //    "account_number:0125
     // invoice_amount:62.99
