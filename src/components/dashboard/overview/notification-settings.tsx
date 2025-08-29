@@ -26,6 +26,11 @@ function NotificationsSettings() {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
+
+  const userInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
+  console.log(userInfo, "userInfo");
   const { setContextLoading } = useLoading();
 
   React.useLayoutEffect(() => {
