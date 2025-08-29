@@ -175,6 +175,7 @@ export function Notifications(): React.JSX.Element {
       reset((prev) => ({
         ...prev,
         email: userInfo?.email,
+        phone: userInfo?.phone_no,
       }));
     }
   }, [reset, userInfo]);

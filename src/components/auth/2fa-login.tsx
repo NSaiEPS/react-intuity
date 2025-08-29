@@ -22,16 +22,19 @@ import { RootState } from "@/state/store";
 export default function TwoFAModal({
   open,
   onClose,
+  customerData,
 }: {
   open: boolean;
   onClose: () => void;
+  customerData: any;
 }) {
   const [method, setMethod] = useState<string>("");
   const [isVerifyModalOPen, setIsVerifyModalOPen] = useState(false);
   const confirmInfo = useSelector(
     (state: RootState) => state?.Account?.confirmInfo
   );
-  const customerInfo = confirmInfo?.customers?.[0];
+
+  const customerInfo = customerData;
 
   const handleSendCode = () => {
     setIsVerifyModalOPen(true);
@@ -107,13 +110,11 @@ export default function TwoFAModal({
         </RadioGroup>
 
         <Typography variant="body2" sx={{ mb: 2 }}>
-          The code expires 10 minutes after you request it.
+          {confirmInfo?.["2fa_expire_code_text"]}
         </Typography>
 
         <Typography variant="caption" color="text.secondary">
-          You are consenting to be contacted at the phone number selected for
-          the purpose of receiving an authorization code. If you selected text
-          message, Wireless and text message fees may apply from your carrier.
+          {confirmInfo?.["2fa_consent_message"]}
         </Typography>
       </DialogContent>
 
@@ -144,6 +145,7 @@ export default function TwoFAModal({
           onClose();
         }}
         onVerify={onVerifyText}
+        customerData={customerData}
       />
     </Dialog>
   );

@@ -15,14 +15,14 @@ import {
   Select,
   Tooltip,
   Typography,
+  Chip,
 } from "@mui/material";
-import { Question } from "@phosphor-icons/react";
+import { Question, Trash, ArrowClockwise } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 
 function NotificationsSettings() {
-  // const CustomerInfo: any = getLocalStorage('intuity-customerInfo');
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
@@ -30,15 +30,32 @@ function NotificationsSettings() {
   const userInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
-  console.log(userInfo, "userInfo");
+
   const { setContextLoading } = useLoading();
+  const dispatch = useDispatch();
 
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
+
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
+
+  // mock contact list (normally from API)
+  const [contacts, setContacts] = useState([
+    {
+      type: "phone",
+      value: userInfo?.phone_no,
+      verified: userInfo?.is_phone_verified == 1 ? true : false,
+    },
+    {
+      type: "email",
+      value: userInfo?.email,
+      verified: userInfo?.is_email_verified == 1 ? true : false,
+    },
+  ]);
+
   const TextToValueFormat = {
     Text: "2",
     Email: "1",
@@ -51,6 +68,7 @@ function NotificationsSettings() {
     Both: "2",
     None: "3",
   };
+
   const [preferences, setPreferences] = useState({
     new_bill: "1",
     payment_confirmation: "1",
@@ -61,6 +79,17 @@ function NotificationsSettings() {
   const handleChange = (field: string, value: string) => {
     setPreferences((prev) => ({ ...prev, [field]: value }));
   };
+
+  // contact actions
+  const handleRemoveContact = (value: string) => {
+    setContacts((prev) => prev.filter((c) => c.value !== value));
+  };
+
+  const handleResendVerification = (value: string) => {
+    console.log("Resend verification for:", value);
+    // API call here
+  };
+
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
@@ -69,16 +98,13 @@ function NotificationsSettings() {
     };
   };
   const raw = getLocalStorage("intuity-user");
-  const dispatch = useDispatch();
-
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
   const handleSave = () => {
-    // Add save logic here (e.g., API call)
     console.log("Saved preferences:", preferences);
 
     const formData = new FormData();
-
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
     let token = stored?.body?.token;
@@ -98,6 +124,7 @@ function NotificationsSettings() {
   useEffect(() => {
     getPrefDetails();
   }, []);
+
   const getPrefDetails = () => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
@@ -120,8 +147,8 @@ function NotificationsSettings() {
       )
     );
   };
+
   const successCallBack = (res) => {
-    // console.log(res, 'successCallBack');
     setPreferences({
       new_bill: TextToValueFormat[res?.new_bill?.selected] || "1",
       payment_confirmation:
@@ -139,7 +166,7 @@ function NotificationsSettings() {
           <CardHeader
             title={
               <Typography ml={1} variant="h5">
-                Notification Settings
+                Communication Settings
               </Typography>
             }
           />
@@ -160,9 +187,101 @@ function NotificationsSettings() {
 
         <Divider />
 
+        {/* Contact methods section */}
+        <Box p={2}>
+          <Typography variant="h6" fontWeight="bold" mb={2}>
+            Your Contact Information
+          </Typography>
+          {contacts.map((contact) => (
+            <Grid
+              container
+              key={contact.value}
+              alignItems="center"
+              justifyContent="space-between"
+              mb={1}
+            >
+              <Grid item>
+                <Typography>
+                  {contact.type === "phone" ? "📱" : "📧"} {contact.value}
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                display="flex"
+                alignItems="center"
+                justifyContent="flex-start"
+                gap={1}
+              >
+                {contact.verified ? (
+                  <Chip label="Verified" color="success" size="small" />
+                ) : (
+                  <>
+                    <Chip label="Not Verified" color="warning" size="small" />
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<ArrowClockwise size={16} />}
+                      onClick={() => handleResendVerification(contact.value)}
+                    >
+                      Resend
+                    </Button>
+                  </>
+                )}
+                {contact.type === "phone" && (
+                  <Button
+                    color="error"
+                    size="small"
+                    variant="outlined"
+                    startIcon={<Trash size={18} />}
+                    onClick={() => handleRemoveContact(contact.value)}
+                    sx={{
+                      borderColor: "error.main",
+                      color: "error.main",
+                      "& .MuiButton-startIcon svg": { color: "currentColor" }, // ensure svg follows text color
+                    }}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </Grid>
+            </Grid>
+          ))}
+        </Box>
+
+        <Divider />
+
         <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
           Select your notification preference for each type of notice
         </Typography>
+        {userInfo?.is_phone_verified != 1 && (
+          <Box
+            sx={{
+              // backgroundColor: (theme) => theme.palette.error.light,
+              color: (theme) => theme.palette.error.dark,
+              m: 2,
+              borderRadius: 1,
+              mb: 2,
+              p: 2,
+            }}
+          >
+            <Typography variant="body2">
+              Text messaging is not available as an option until you first
+              validate your mobile phone number by selecting{" "}
+              <Typography
+                component="span"
+                sx={{
+                  color: "primary.main",
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                }}
+                // onClick={openValidatePhoneModal}
+              >
+                Validate mobile phone number
+              </Typography>
+              .
+            </Typography>
+          </Box>
+        )}
 
         <Grid container p={2} alignItems="center">
           <Grid item xs={12} sm={6}>
@@ -279,7 +398,7 @@ function NotificationsSettings() {
             sx={{
               backgroundColor: colors.blue,
               "&:hover": {
-                backgroundColor: colors["blue.3"], // or any other hover color
+                backgroundColor: colors["blue.3"],
               },
             }}
             color="primary"

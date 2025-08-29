@@ -31,6 +31,7 @@ type AuthCodeModalProps = {
 
   onClose: () => void;
   onVerify: (code: string) => void;
+  customerData: any;
 };
 
 export default function AuthCodeModal({
@@ -38,6 +39,7 @@ export default function AuthCodeModal({
 
   onClose,
   onVerify,
+  customerData,
 }: AuthCodeModalProps) {
   const {
     register,
@@ -50,7 +52,7 @@ export default function AuthCodeModal({
   const confirmInfo = useSelector(
     (state: RootState) => state?.Account?.confirmInfo
   );
-  const customerInfo = confirmInfo?.customers?.[0];
+  const customerInfo = customerData;
 
   const onSubmit = (data: FormValues) => {
     onVerify(data.code);

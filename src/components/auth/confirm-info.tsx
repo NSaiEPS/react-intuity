@@ -63,10 +63,19 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   //   formData.append("customer_id", user_id);
   //   dispatch(getConfirmInfo(token, formData));
   // }, []);
+  const user_id = stored?.body?.customer_id;
 
+  const reqCustomer = () => {
+    if (Array.isArray(confirmInfo?.customers)) {
+      const customer = confirmInfo?.customers?.filter(
+        (item) => item?.id == user_id
+      );
+      return customer?.[0];
+    }
+    return [];
+  };
   const hanldeConfirm = () => {
     const role_id = stored?.body?.acl_role_id;
-    const user_id = stored?.body?.customer_id;
     const token = stored?.body?.token;
     const formData = new FormData();
 
@@ -89,7 +98,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   useEffect(() => {
     if (
       confirmInfo?.company?.require_2fa == 1 &&
-      confirmInfo?.company?.is_phone_verified == 1
+      reqCustomer()?.is_phone_verified == 1
     ) {
       setTwoFAModalVisible(true);
     }
@@ -271,6 +280,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         onClose={() => {
           setTwoFAModalVisible(false);
         }}
+        customerData={reqCustomer()}
       />
 
       {accountLoading && (
