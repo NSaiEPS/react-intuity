@@ -349,6 +349,19 @@ export const InvoiceMainDetails = () => {
           </Typography>
         </Box>
       ) : null}
+      <Divider sx={{ my: 2 }} />
+      <Grid container p={3} pt={0} pb={0}>
+        <Grid item xs={12} sm={6}>
+          <Typography sx={{ color: "#444", fontSize: 14 }}>
+            {last_bill?.[0]?.last_payment_info}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Typography align="right" sx={{ color: "#444", fontSize: 14 }}>
+            {company_settings?.invoice_footer_column_3}
+          </Typography>
+        </Grid>
+      </Grid>
       <Box
         sx={{
           width: "100%",
@@ -585,19 +598,7 @@ export const InvoiceMainDetails = () => {
         </Grid>
       </Paper>
       {/* Footer */}
-      <Divider sx={{ my: 2 }} />
-      <Grid container p={3} pt={0} pb={0}>
-        <Grid item xs={12} sm={6}>
-          <Typography sx={{ color: "#444", fontSize: 14 }}>
-            {last_bill?.[0]?.last_payment_info}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography align="right" sx={{ color: "#444", fontSize: 14 }}>
-            {company_settings?.invoice_footer_column_3}
-          </Typography>
-        </Grid>
-      </Grid>
+
       <CustomBackdrop
         open={dashboardLoader}
         style={{ zIndex: 1300, color: "#fff" }}

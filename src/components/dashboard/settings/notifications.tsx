@@ -345,7 +345,7 @@ export function Notifications(): React.JSX.Element {
             sx={{ maxWidth: "sm", marginBottom: "25px" }}
             mt={7}
           >
-            <Typography variant="h5" fontWeight={600}>
+            <Typography variant="h6" fontWeight={500}>
               Enable Emergency Calls to My Phone
             </Typography>
 
