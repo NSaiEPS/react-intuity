@@ -15,6 +15,9 @@ import {
 import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
 import { X } from "@phosphor-icons/react";
+import VerifyModal from "../CommonComponents/VerifyModal";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 export default function TwoFAModal({
   open,
@@ -24,13 +27,19 @@ export default function TwoFAModal({
   onClose: () => void;
 }) {
   const [method, setMethod] = useState<string>("");
+  const [isVerifyModalOPen, setIsVerifyModalOPen] = useState(false);
+  const confirmInfo = useSelector(
+    (state: RootState) => state?.Account?.confirmInfo
+  );
+  const customerInfo = confirmInfo?.customers?.[0];
 
   const handleSendCode = () => {
+    setIsVerifyModalOPen(true);
     console.log("Selected method:", method);
     // Call API to send code here
-    onClose();
+    // onClose();
   };
-
+  const onVerifyText = () => {};
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       {/* <DialogTitle sx={{ fontWeight: 600 }}>
@@ -44,10 +53,10 @@ export default function TwoFAModal({
           alignItems="center"
         >
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            2FA Login (Account No. 1146)
+            2FA Login (Account No. {customerInfo?.acctnum ?? ""})
           </Typography>
 
-          <IconButton
+          {/* <IconButton
             aria-label="close"
             onClick={onClose}
             sx={{
@@ -58,7 +67,7 @@ export default function TwoFAModal({
             }}
           >
             <X size={24} color={colors.blue} />
-          </IconButton>
+          </IconButton> */}
         </Stack>
       </DialogTitle>
 
@@ -68,7 +77,7 @@ export default function TwoFAModal({
         </Typography>
 
         <Typography variant="body2" sx={{ fontWeight: 500, mb: 2 }}>
-          xxx-xxx-8103
+          xxx-xxx-{customerInfo?.phone_no?.slice(-4)}
         </Typography>
 
         <Typography variant="body1" gutterBottom>
@@ -93,7 +102,7 @@ export default function TwoFAModal({
           <FormControlLabel
             value="email"
             control={<Radio />}
-            label="Email (xxxxxxxil.com)"
+            label={`Email (xxxxxxx${customerInfo?.email?.slice(-6)})`}
           />
         </RadioGroup>
 
@@ -128,6 +137,11 @@ export default function TwoFAModal({
           SEND CODE
         </Button>
       </DialogActions>
+      <VerifyModal
+        open={isVerifyModalOPen}
+        onClose={() => setIsVerifyModalOPen(false)}
+        onVerify={onVerifyText}
+      />
     </Dialog>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { getConfirmInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
@@ -85,7 +85,12 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     // router.refresh();
   };
 
-  const [twoFAModalVisble, setTwoFAModalVisble] = useState(true);
+  const [twoFAModalVisible, setTwoFAModalVisible] = useState(false);
+  useEffect(() => {
+    if (confirmInfo?.company?.require_2fa == 1) {
+      setTwoFAModalVisible(false);
+    }
+  }, [confirmInfo]);
   return (
     <Box>
       <Typography variant="subtitle1" mb={3}>
@@ -259,9 +264,9 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         <Loader />
       </CustomBackdrop> */}
       <TwoFAModal
-        open={twoFAModalVisble}
+        open={twoFAModalVisible}
         onClose={() => {
-          setTwoFAModalVisble(false);
+          setTwoFAModalVisible(false);
         }}
       />
 
