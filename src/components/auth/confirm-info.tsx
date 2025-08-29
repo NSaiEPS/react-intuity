@@ -88,7 +88,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   const [twoFAModalVisible, setTwoFAModalVisible] = useState(false);
   useEffect(() => {
     if (confirmInfo?.company?.require_2fa == 1) {
-      setTwoFAModalVisible(false);
+      setTwoFAModalVisible(true);
     }
   }, [confirmInfo]);
   return (

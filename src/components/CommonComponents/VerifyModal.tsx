@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import {
   Dialog,
@@ -8,10 +9,23 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { colors } from "@/utils";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "nsaicomponents";
+import { colors } from "@/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+
+// ✅ Zod schema
+const schema = z.object({
+  code: z
+    .string()
+    .min(4, "Authorization code must be at least 4 characters")
+    .max(12, "Authorization code must not exceed 12 characters"),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 type AuthCodeModalProps = {
   open: boolean;
@@ -20,20 +34,29 @@ type AuthCodeModalProps = {
   onVerify: (code: string) => void;
 };
 
-export default function VerifyModal({
+export default function AuthCodeModal({
   open,
 
   onClose,
   onVerify,
 }: AuthCodeModalProps) {
-  const [code, setCode] = React.useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+  });
   const confirmInfo = useSelector(
     (state: RootState) => state?.Account?.confirmInfo
   );
   const customerInfo = confirmInfo?.customers?.[0];
-  const handleVerify = () => {
-    onVerify(code);
-    setCode("");
+
+  const onSubmit = (data: FormValues) => {
+    onVerify(data.code);
+    reset();
+    onClose();
   };
 
   return (
@@ -45,57 +68,57 @@ export default function VerifyModal({
         </Typography>
       </DialogTitle>
 
-      <DialogContent>
-        <Box mt={1}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Authorization Code"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            sx={{
-              "& .MuiInputBase-input::placeholder": {
-                color: "gray !important", // gray
-                opacity: 1,
-              },
-            }}
-          />
-        </Box>
-      </DialogContent>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <DialogContent>
+          <Box mt={1}>
+            <TextField
+              fullWidth
+              placeholder="Authorization Code"
+              {...register("code")}
+              error={!!errors.code}
+              helperText={errors.code?.message}
+              sx={{
+                "& .MuiInputBase-input::placeholder": {
+                  color: "rgba(0,0,0,0.6) !important", // gray placeholder
+                  opacity: 1,
+                },
+              }}
+            />
+          </Box>
+        </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-          onClick={onClose}
-          variant="outlined"
-          textTransform="none"
-          style={{
-            color: colors.blue,
-            borderColor: colors.blue,
-            borderRadius: "12px",
-            height: "41px",
-          }}
-        >
-          Cancel
-        </Button>
-        <Button
-          // disabled={isPending}
-          //         loading={isPending}
-          type="submit"
-          onClick={handleVerify}
-          variant="contained"
-          textTransform="none"
-          bgColor={colors.blue}
-          hoverBackgroundColor={colors["blue.3"]}
-          hoverColor="white"
-          style={{
-            borderRadius: "12px",
-            height: "41px",
-            // backgroundColor: 'red',
-          }}
-        >
-          Verify
-        </Button>
-      </DialogActions>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            textTransform="none"
+            style={{
+              color: colors.blue,
+              borderColor: colors.blue,
+              borderRadius: "12px",
+              height: "41px",
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            //   onClick={handleVerify}
+            variant="contained"
+            textTransform="none"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+            hoverColor="white"
+            style={{
+              borderRadius: "12px",
+              height: "41px",
+              // backgroundColor: 'red',
+            }}
+          >
+            Verify
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

@@ -139,7 +139,10 @@ export default function TwoFAModal({
       </DialogActions>
       <VerifyModal
         open={isVerifyModalOPen}
-        onClose={() => setIsVerifyModalOPen(false)}
+        onClose={() => {
+          setIsVerifyModalOPen(false);
+          onClose();
+        }}
         onVerify={onVerifyText}
       />
     </Dialog>
