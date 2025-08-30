@@ -16,8 +16,11 @@ import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
 import { X } from "@phosphor-icons/react";
 import VerifyModal from "../CommonComponents/VerifyModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { updateAccountInfo } from "@/state/features/accountSlice";
+import { toast } from "react-toastify";
 
 export default function TwoFAModal({
   open,
@@ -33,11 +36,58 @@ export default function TwoFAModal({
   const confirmInfo = useSelector(
     (state: RootState) => state?.Account?.confirmInfo
   );
+  const accountLoading = useSelector(
+    (state: RootState) => state?.Account?.accountLoading
+  );
+  const raw = getLocalStorage("intuity-user");
+
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const role_id = stored?.body?.acl_role_id;
 
   const customerInfo = customerData;
+  const dispatch = useDispatch();
 
   const handleSendCode = () => {
-    setIsVerifyModalOPen(true);
+    if (!method) {
+      toast.warning("Please select the method");
+
+      return;
+    }
+    // id:810
+    // 2fa:1
+    // phone_no:(194) 920-0811
+    // model_open:13
+    // acl_role_id:4
+    // customer_id:810
+    // country_code:1
+    // selected_value:method
+
+    let roleId = stored?.body?.acl_role_id;
+    let userId = stored?.body?.customer_id;
+    let token = stored?.body?.token;
+
+    const formData = new FormData();
+
+    formData.append("id", userId);
+    formData.append("2fa", "1");
+    if (method == "text_message") {
+      formData.append("phone_no", customerInfo?.phone_no);
+      formData.append("country_code", "1");
+    }
+    if (method == "email") {
+      formData.append("email", customerInfo?.email);
+    }
+    formData.append("model_open", "13");
+    formData.append("acl_role_id", role_id);
+    formData.append("customer_id", userId);
+
+    formData.append("selected_value", method);
+
+    dispatch(
+      updateAccountInfo(token, formData, true, () => setIsVerifyModalOPen(true))
+    );
+
     console.log("Selected method:", method);
     // Call API to send code here
     // onClose();
@@ -93,12 +143,12 @@ export default function TwoFAModal({
           sx={{ mb: 2 }}
         >
           <FormControlLabel
-            value="sms"
+            value="text_message"
             control={<Radio />}
             label="Text message"
           />
           <FormControlLabel
-            value="call"
+            value="phone_call"
             control={<Radio />}
             label="Phone call"
           />
@@ -121,6 +171,8 @@ export default function TwoFAModal({
       <DialogActions>
         <Box sx={{ flexGrow: 1 }} />
         <Button
+          loading={accountLoading}
+          disabled={accountLoading}
           onClick={handleSendCode}
           type="button"
           variant="contained"
@@ -142,7 +194,7 @@ export default function TwoFAModal({
         open={isVerifyModalOPen}
         onClose={() => {
           setIsVerifyModalOPen(false);
-          onClose();
+          // onClose();
         }}
         onVerify={onVerifyText}
         customerData={customerData}

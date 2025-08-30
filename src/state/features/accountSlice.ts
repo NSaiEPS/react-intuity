@@ -264,10 +264,10 @@ export const updateAccountInfo: any =
           clearLocalStorage();
           location.reload();
         }
-        toast.error(res?.message ?? "Something went wrong!");
+        toast.error(res?.message ?? "Something went wrong!!!!!");
       }
     } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+      toast.error(e?.response?.data?.message ?? "Error Try again!!!!!");
       // toast(e?.response?.data?.message);
       // message.error(e?.response?.data?.message);
     } finally {
