@@ -44,14 +44,12 @@ type Action =
   | { type: "OPEN_VERIFY_MODAL" }
   | { type: "CLOSE_VERIFY_MODAL" };
 
-// -------------------- Helpers --------------------
 const maskPhone = (phone?: string) =>
   phone ? `xxx-xxx-${phone.slice(-4)}` : "xx-xxx-";
 
 const maskEmail = (email?: string) =>
   email ? `Email (xxxxxxx${email.slice(-6)})` : "Email (xxxxxxx";
 
-// -------------------- Reducer --------------------
 const initialState: State = {
   method: "",
   isVerifyModalOpen: false,
@@ -70,7 +68,6 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-// -------------------- Component --------------------
 export default function TwoFAModal({
   open,
   onClose,
@@ -93,7 +90,6 @@ export default function TwoFAModal({
 
   const dispatch = useDispatch();
 
-  // -------------------- Handlers --------------------
   const handleSendCode = () => {
     if (!state.method) {
       toast.warning("Please select the method");
@@ -126,17 +122,14 @@ export default function TwoFAModal({
     // TODO: handle verification
   };
 
-  // -------------------- Methods Config --------------------
   const methods = [
     { value: "text_message", label: "Text message" },
     { value: "phone_call", label: "Phone call" },
     { value: "email", label: maskEmail(customerData?.email) },
   ];
 
-  // -------------------- Render --------------------
   return (
     <Dialog open={open} maxWidth="sm" fullWidth onClose={onClose}>
-      {/* ---------- Title ---------- */}
       <DialogTitle>
         <Stack
           direction="row"
@@ -152,7 +145,6 @@ export default function TwoFAModal({
         </Stack>
       </DialogTitle>
 
-      {/* ---------- Content ---------- */}
       <DialogContent dividers>
         <Typography gutterBottom>
           To verify your identity, we need to send an authorization code to you.
@@ -194,7 +186,6 @@ export default function TwoFAModal({
         )}
       </DialogContent>
 
-      {/* ---------- Actions ---------- */}
       <DialogActions>
         <Box sx={{ flexGrow: 1 }} />
         <Button
@@ -213,7 +204,6 @@ export default function TwoFAModal({
         </Button>
       </DialogActions>
 
-      {/* ---------- Verify Modal ---------- */}
       <VerifyModal
         open={state.isVerifyModalOpen}
         onClose={() => dispatchLocal({ type: "CLOSE_VERIFY_MODAL" })}
