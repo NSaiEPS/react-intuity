@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useReducer } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -10,11 +10,10 @@ import {
   Typography,
   Box,
   Stack,
-  IconButton,
 } from "@mui/material";
 import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
-import { X } from "@phosphor-icons/react";
+// import { X } from "@phosphor-icons/react";
 import VerifyModal from "../CommonComponents/VerifyModal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
@@ -22,180 +21,202 @@ import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { toast } from "react-toastify";
 
+// -------------------- Types --------------------
+interface CustomerData {
+  acctnum?: string;
+  phone_no?: string;
+  email?: string;
+}
+
+interface TwoFAModalProps {
+  open: boolean;
+  onClose: () => void;
+  customerData: CustomerData;
+}
+
+interface State {
+  method: string;
+  isVerifyModalOpen: boolean;
+}
+
+type Action =
+  | { type: "SET_METHOD"; payload: string }
+  | { type: "OPEN_VERIFY_MODAL" }
+  | { type: "CLOSE_VERIFY_MODAL" };
+
+// -------------------- Helpers --------------------
+const maskPhone = (phone?: string) =>
+  phone ? `xxx-xxx-${phone.slice(-4)}` : "xx-xxx-";
+
+const maskEmail = (email?: string) =>
+  email ? `Email (xxxxxxx${email.slice(-6)})` : "Email (xxxxxxx";
+
+// -------------------- Reducer --------------------
+const initialState: State = {
+  method: "",
+  isVerifyModalOpen: false,
+};
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "SET_METHOD":
+      return { ...state, method: action.payload };
+    case "OPEN_VERIFY_MODAL":
+      return { ...state, isVerifyModalOpen: true };
+    case "CLOSE_VERIFY_MODAL":
+      return { ...state, isVerifyModalOpen: false };
+    default:
+      return state;
+  }
+}
+
+// -------------------- Component --------------------
 export default function TwoFAModal({
   open,
   onClose,
   customerData,
-}: {
-  open: boolean;
-  onClose: () => void;
-  customerData: any;
-}) {
-  const [method, setMethod] = useState<string>("");
-  const [isVerifyModalOPen, setIsVerifyModalOPen] = useState(false);
-  const confirmInfo = useSelector(
-    (state: RootState) => state?.Account?.confirmInfo
-  );
-  const accountLoading = useSelector(
-    (state: RootState) => state?.Account?.accountLoading
-  );
-  const raw = getLocalStorage("intuity-user");
+}: TwoFAModalProps) {
+  const [state, dispatchLocal] = useReducer(reducer, initialState);
 
+  const confirmInfo = useSelector((s: RootState) => s?.Account?.confirmInfo);
+  const accountLoading = useSelector(
+    (s: RootState) => s?.Account?.accountLoading
+  );
+
+  const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const role_id = stored?.body?.acl_role_id;
 
-  const customerInfo = customerData;
+  const roleId = stored?.body?.acl_role_id ?? "";
+  const userId = stored?.body?.customer_id ?? "";
+  const token = stored?.body?.token ?? "";
+
   const dispatch = useDispatch();
 
+  // -------------------- Handlers --------------------
   const handleSendCode = () => {
-    if (!method) {
+    if (!state.method) {
       toast.warning("Please select the method");
-
       return;
     }
-    // id:810
-    // 2fa:1
-    // phone_no:(194) 920-0811
-    // model_open:13
-    // acl_role_id:4
-    // customer_id:810
-    // country_code:1
-    // selected_value:method
-
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
 
     const formData = new FormData();
-
     formData.append("id", userId);
     formData.append("2fa", "1");
-    if (method == "text_message") {
-      formData.append("phone_no", customerInfo?.phone_no);
-      formData.append("country_code", "1");
-    }
-    if (method == "email") {
-      formData.append("email", customerInfo?.email);
-    }
     formData.append("model_open", "13");
-    formData.append("acl_role_id", role_id);
+    formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
+    formData.append("selected_value", state.method);
 
-    formData.append("selected_value", method);
+    if (state.method === "text_message") {
+      formData.append("phone_no", customerData?.phone_no ?? "");
+      formData.append("country_code", "1");
+    } else if (state.method === "email") {
+      formData.append("email", customerData?.email ?? "");
+    }
 
     dispatch(
-      updateAccountInfo(token, formData, true, () => setIsVerifyModalOPen(true))
+      updateAccountInfo(token, formData, true, () =>
+        dispatchLocal({ type: "OPEN_VERIFY_MODAL" })
+      )
     );
-
-    console.log("Selected method:", method);
-    // Call API to send code here
-    // onClose();
   };
-  const onVerifyText = () => {};
-  return (
-    <Dialog open={open} maxWidth="sm" fullWidth>
-      {/* <DialogTitle sx={{ fontWeight: 600 }}>
-        2FA Login (Account No. 1146)
-      </DialogTitle> */}
 
+  const onVerifyText = () => {
+    // TODO: handle verification
+  };
+
+  // -------------------- Methods Config --------------------
+  const methods = [
+    { value: "text_message", label: "Text message" },
+    { value: "phone_call", label: "Phone call" },
+    { value: "email", label: maskEmail(customerData?.email) },
+  ];
+
+  // -------------------- Render --------------------
+  return (
+    <Dialog open={open} maxWidth="sm" fullWidth onClose={onClose}>
+      {/* ---------- Title ---------- */}
       <DialogTitle>
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            2FA Login (Account No. {customerInfo?.acctnum ?? ""})
+          <Typography variant="h5" fontWeight={600}>
+            2FA Login (Account No. {customerData?.acctnum ?? ""})
           </Typography>
-
-          {/* <IconButton
-            aria-label="close"
-            onClick={onClose}
-            sx={{
-              position: "absolute",
-              right: 13,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
+          {/* <IconButton aria-label="close" onClick={onClose}>
             <X size={24} color={colors.blue} />
           </IconButton> */}
         </Stack>
       </DialogTitle>
 
+      {/* ---------- Content ---------- */}
       <DialogContent dividers>
-        <Typography variant="body1" gutterBottom>
+        <Typography gutterBottom>
           To verify your identity, we need to send an authorization code to you.
         </Typography>
 
-        <Typography variant="body2" sx={{ fontWeight: 500, mb: 2 }}>
-          xxx-xxx-{customerInfo?.phone_no?.slice(-4)}
+        <Typography fontWeight={500} mb={2}>
+          {maskPhone(customerData?.phone_no)}
         </Typography>
 
-        <Typography variant="body1" gutterBottom>
-          How would you like to receive it?
-        </Typography>
+        <Typography gutterBottom>How would you like to receive it?</Typography>
 
         <RadioGroup
-          value={method}
-          onChange={(e) => setMethod(e.target.value)}
+          value={state.method}
+          onChange={(e) =>
+            dispatchLocal({ type: "SET_METHOD", payload: e.target.value })
+          }
           sx={{ mb: 2 }}
         >
-          <FormControlLabel
-            value="text_message"
-            control={<Radio />}
-            label="Text message"
-          />
-          <FormControlLabel
-            value="phone_call"
-            control={<Radio />}
-            label="Phone call"
-          />
-          <FormControlLabel
-            value="email"
-            control={<Radio />}
-            label={`Email (xxxxxxx${customerInfo?.email?.slice(-6)})`}
-          />
+          {methods.map((m) => (
+            <FormControlLabel
+              key={m.value}
+              value={m.value}
+              control={<Radio />}
+              label={m.label}
+            />
+          ))}
         </RadioGroup>
 
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          {confirmInfo?.["2fa_expire_code_text"]}
-        </Typography>
+        {confirmInfo?.["2fa_expire_code_text"] && (
+          <Typography variant="body2" mb={2}>
+            {confirmInfo?.["2fa_expire_code_text"]}
+          </Typography>
+        )}
 
-        <Typography variant="caption" color="text.secondary">
-          {confirmInfo?.["2fa_consent_message"]}
-        </Typography>
+        {confirmInfo?.["2fa_consent_message"] && (
+          <Typography variant="caption" color="text.secondary">
+            {confirmInfo?.["2fa_consent_message"]}
+          </Typography>
+        )}
       </DialogContent>
 
+      {/* ---------- Actions ---------- */}
       <DialogActions>
         <Box sx={{ flexGrow: 1 }} />
         <Button
           loading={accountLoading}
-          disabled={accountLoading}
+          disabled={!state.method || accountLoading}
           onClick={handleSendCode}
           type="button"
           variant="contained"
           textTransform="none"
           bgColor={colors.blue}
-          // onClick={onSubmit}
           hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
-          style={{
-            borderRadius: "12px",
-            height: "41px",
-            // backgroundColor: 'red',
-          }}
+          style={{ borderRadius: 12, height: 41 }}
         >
           SEND CODE
         </Button>
       </DialogActions>
+
+      {/* ---------- Verify Modal ---------- */}
       <VerifyModal
-        open={isVerifyModalOPen}
-        onClose={() => {
-          setIsVerifyModalOPen(false);
-          // onClose();
-        }}
+        open={state.isVerifyModalOpen}
+        onClose={() => dispatchLocal({ type: "CLOSE_VERIFY_MODAL" })}
         onVerify={onVerifyText}
         customerData={customerData}
       />

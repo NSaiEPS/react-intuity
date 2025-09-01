@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect, useReducer } from "react";
 import { getConfirmInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
@@ -18,26 +17,62 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-
 import { useUser } from "@/hooks/use-user";
-
 import EmailDialog from "./confirm-email-modal";
 import PhoneModal from "./confirm-phone-modal";
 import { paths } from "@/utils/paths";
 import { useNavigate } from "react-router";
 import TwoFAModal from "./2fa-login";
 
+type State = {
+  phoneModalOpen: boolean;
+  emailModalOpen: boolean;
+  clickedDetails: any;
+  twoFAModalVisible: boolean;
+};
+
+type Action =
+  | { type: "PHONE_MODAL"; payload: boolean }
+  | { type: "EMAIL_MODAL"; payload: boolean }
+  | { type: "TWO_FA_MODAL"; payload: boolean }
+  | { type: "CLICKED_DETAILS"; payload: any };
+
+// -------------------- Reducer --------------------
+const initialState: State = {
+  phoneModalOpen: false,
+  emailModalOpen: false,
+  clickedDetails: {},
+  twoFAModalVisible: false,
+};
+
+const reducer = (state: State, action: Action) => {
+  switch (action.type) {
+    case "PHONE_MODAL":
+      return { ...state, phoneModalOpen: action.payload };
+    case "EMAIL_MODAL":
+      return { ...state, emailModalOpen: action.payload };
+    case "TWO_FA_MODAL":
+      return { ...state, twoFAModalVisible: action.payload };
+
+    case "CLICKED_DETAILS":
+      return { ...state, clickedDetails: action.payload };
+    default:
+      return state;
+  }
+};
+
+// -------------------- Component --------------------
 export function ConfirmInfoDetails(): React.JSX.Element {
-  // const router = useRouter();
-  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
-  const [clickedDetails, setClickedDetails] = useState({});
-  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [
+    { phoneModalOpen, emailModalOpen, clickedDetails, twoFAModalVisible },
+    localDispatch,
+  ] = useReducer(reducer, initialState);
+
   const { accountLoading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
 
   const navigate = useNavigate();
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const dispatch = useDispatch();
@@ -49,20 +84,11 @@ export function ConfirmInfoDetails(): React.JSX.Element {
       token?: string;
     };
   };
-  const raw = getLocalStorage("intuity-user");
 
+  const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  // React.useEffect(() => {
-  //   let role_id = stored?.body?.acl_role_id;
-  //   let user_id = stored?.body?.customer_id;
-  //   let token = stored?.body?.token;
-  //   const formData = new FormData();
 
-  //   formData.append("acl_role_id", role_id);
-  //   formData.append("customer_id", user_id);
-  //   dispatch(getConfirmInfo(token, formData));
-  // }, []);
   const user_id = stored?.body?.customer_id;
 
   const reqCustomer = () => {
@@ -74,6 +100,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     }
     return [];
   };
+
   const hanldeConfirm = () => {
     const role_id = stored?.body?.acl_role_id;
     const token = stored?.body?.token;
@@ -85,24 +112,24 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     formData.append("company_login", "cape-royale1");
     dispatch(getConfirmInfo(token, formData, successCallBack));
   };
+
   const { checkSession } = useUser();
 
   const successCallBack = async () => {
     await checkSession?.();
-
     navigate(paths.dashboard.overview());
-    // router.refresh();
   };
 
-  const [twoFAModalVisible, setTwoFAModalVisible] = useState(false);
   useEffect(() => {
     if (
       confirmInfo?.company?.require_2fa == 1 &&
       reqCustomer()?.is_phone_verified == 1
     ) {
-      setTwoFAModalVisible(true);
+      // setTwoFAModalVisible(true);
+      localDispatch({ type: "TWO_FA_MODAL", payload: true });
     }
   }, [confirmInfo]);
+
   return (
     <Box>
       <Typography variant="subtitle1" mb={3}>
@@ -121,7 +148,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
             <Card
               sx={{
                 borderRadius: boarderRadius.card,
-                height: "100%", // so all cards match height
+                height: "100%",
               }}
               variant="outlined"
             >
@@ -159,8 +186,11 @@ export function ConfirmInfoDetails(): React.JSX.Element {
                       </Typography>
                       <Typography
                         onClick={() => {
-                          setClickedDetails(account);
-                          setPhoneModalOpen(true);
+                          localDispatch({
+                            type: "CLICKED_DETAILS",
+                            payload: account,
+                          });
+                          localDispatch({ type: "PHONE_MODAL", payload: true });
                         }}
                         sx={{
                           fontSize: "0.875rem",
@@ -202,8 +232,11 @@ export function ConfirmInfoDetails(): React.JSX.Element {
                       </Typography>
                       <Typography
                         onClick={() => {
-                          setClickedDetails(account);
-                          setEmailModalOpen(true);
+                          localDispatch({
+                            type: "CLICKED_DETAILS",
+                            payload: account,
+                          });
+                          localDispatch({ type: "EMAIL_MODAL", payload: true });
                         }}
                         sx={{
                           fontSize: "0.875rem",
@@ -252,33 +285,28 @@ export function ConfirmInfoDetails(): React.JSX.Element {
               },
               fontSize: { xs: "0.8rem", sm: "1rem" },
             }}
-            // onClick={() => {
-            //   router.replace(paths.dashboard.overview);
-            // }}
             onClick={hanldeConfirm}
           >
-            {/* CONFIRM &gt;&gt; */}
             CONFIRM
           </Button>
         </Grid>
       </Grid>
+
+      {/* Modals */}
       <PhoneModal
         open={phoneModalOpen}
         clickedDetails={clickedDetails}
-        onClose={() => setPhoneModalOpen(false)}
+        onClose={() => localDispatch({ type: "PHONE_MODAL", payload: false })}
       />
       <EmailDialog
         open={emailModalOpen}
         clickedDetails={clickedDetails}
-        onClose={() => setEmailModalOpen(false)}
+        onClose={() => localDispatch({ type: "EMAIL_MODAL", payload: false })}
       />
-      {/* <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
-        <Loader />
-      </CustomBackdrop> */}
       <TwoFAModal
         open={twoFAModalVisible}
         onClose={() => {
-          setTwoFAModalVisible(false);
+          localDispatch({ type: "TWO_FA_MODAL", payload: false });
         }}
         customerData={reqCustomer()}
       />
