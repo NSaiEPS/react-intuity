@@ -30,13 +30,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { z as zod } from "zod";
 
 import Button from "../CommonComponents/Button";
-
+type PhoneModal = {
+  open: boolean;
+  onClose: () => void;
+  clickedDetails?: any;
+  notificationPage?: boolean;
+  notificationNumber?: number | string | null;
+};
 export default function PhoneModal({
   open,
   onClose,
-  clickedDetails,
+  clickedDetails = null,
   notificationPage = false,
-  notificationNumber,
+  notificationNumber = null,
 }) {
   const { confirmInfo, notificationPreferenceDetails } = useSelector(
     (state: RootState) => state?.Account
