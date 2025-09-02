@@ -129,10 +129,10 @@ export function PaymentModal({
                     value: "payNow",
                     title: "Pay Now",
                     description:
+                      lastBillInfo?.pay_now_text ??
                       lastBillInfo?.nacha_pay_now_text ??
                       lastBillInfo?.achworks_pay_now_text ??
                       // lastBillInfo?.achworks_pay_now_text ??
-                      lastBillInfo?.pay_now_text ??
                       "Payment will be processed immediately.",
                     extraInfo: (
                       <>
@@ -193,11 +193,11 @@ export function PaymentModal({
                     value: "payNow",
                     title: "Pay Now",
                     description:
+                      lastBillInfo?.pay_now_text ??
                       lastBillInfo?.nacha_pay_now_text ??
                       lastBillInfo?.achworks_pay_now_text ??
                       // lastBillInfo?.achworks_pay_now_text ??
 
-                      lastBillInfo?.pay_now_text ??
                       "Payment will be processed immediately.",
                   },
                   {
