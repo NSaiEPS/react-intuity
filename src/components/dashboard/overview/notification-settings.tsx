@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
+import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 function NotificationsSettings() {
   const dashBoardInfo = useSelector(
@@ -34,6 +35,7 @@ function NotificationsSettings() {
 
   const { setContextLoading } = useLoading();
   const dispatch = useDispatch();
+  const [openConfirm, setOpenConfirm] = useState(false);
 
   React.useLayoutEffect(() => {
     setContextLoading(true);
@@ -44,6 +46,9 @@ function NotificationsSettings() {
     : getLocalStorage("intuity-customerInfo");
 
   // mock contact list (normally from API)
+  const { accountLoading, notificationPreferenceDetails } = useSelector(
+    (state: RootState) => state?.Account
+  );
 
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const TextToValueFormat = {
@@ -82,13 +87,36 @@ function NotificationsSettings() {
       verified: preferences?.email_updated_date == 1 ? true : false,
     },
   ]);
+
+  useEffect(() => {
+    if (notificationPreferenceDetails) {
+      setContacts([
+        {
+          type: "phone",
+          value: notificationPreferenceDetails?.phone_no,
+          verified:
+            notificationPreferenceDetails?.is_phone_verified == 1
+              ? true
+              : false,
+        },
+        {
+          type: "email",
+          value: notificationPreferenceDetails?.email,
+          verified:
+            notificationPreferenceDetails?.email_updated_date == 1
+              ? true
+              : false,
+        },
+      ]);
+    }
+  }, [notificationPreferenceDetails]);
   const handleChange = (field: string, value: string) => {
     setPreferences((prev) => ({ ...prev, [field]: value }));
   };
 
   // contact actions
-  const handleRemoveContact = (value: string) => {
-    console.log(value);
+  const handleConfirm = () => {
+    // console.log(value);
 
     const formData = new FormData();
 
@@ -100,8 +128,9 @@ function NotificationsSettings() {
     formData.append("remove_phone", "1");
 
     dispatch(
-      updateAccountInfo(token, formData, true, (res) => {
+      updateAccountInfo(token, formData, true, () => {
         getPrefDetails();
+        setOpenConfirm(false);
       })
     );
 
@@ -110,7 +139,7 @@ function NotificationsSettings() {
     // acl_role_id:4
     // customer_id:810"
 
-    setContacts((prev) => prev.filter((c) => c.value !== value));
+    // setContacts((prev) => prev.filter((c) => c.value !== value));
   };
 
   const handleResendVerification = (value: string) => {
@@ -285,22 +314,24 @@ function NotificationsSettings() {
                     </Button>
                   </>
                 )}
-                {contact.type === "phone" && (
-                  <Button
-                    color="error"
-                    size="small"
-                    variant="outlined"
-                    startIcon={<Trash size={18} />}
-                    onClick={() => handleRemoveContact(contact.value)}
-                    sx={{
-                      borderColor: "error.main",
-                      color: "error.main",
-                      "& .MuiButton-startIcon svg": { color: "currentColor" }, // ensure svg follows text color
-                    }}
-                  >
-                    Remove
-                  </Button>
-                )}
+                {contact.type === "phone" &&
+                  contact.value &&
+                  contact.value !== "0" && (
+                    <Button
+                      color="error"
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Trash size={18} />}
+                      onClick={() => setOpenConfirm(true)}
+                      sx={{
+                        borderColor: "error.main",
+                        color: "error.main",
+                        "& .MuiButton-startIcon svg": { color: "currentColor" }, // ensure svg follows text color
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  )}
               </Grid>
             </Grid>
           ))}
@@ -357,9 +388,19 @@ function NotificationsSettings() {
                 value={preferences.new_bill}
                 onChange={(e) => handleChange("new_bill", e.target.value)}
               >
-                <MenuItem value="2">Text</MenuItem>
+                <MenuItem
+                  value="2"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Text
+                </MenuItem>
                 <MenuItem value="1">Email</MenuItem>
-                <MenuItem value="3">Both</MenuItem>
+                <MenuItem
+                  value="3"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Both
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -377,19 +418,25 @@ function NotificationsSettings() {
                   handleChange("payment_confirmation", e.target.value)
                 }
               >
-                <MenuItem value="2">Text</MenuItem>
+                <MenuItem
+                  value="2"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Text
+                </MenuItem>
                 <MenuItem value="1">Email</MenuItem>
-                <MenuItem value="3">Both</MenuItem>
+                <MenuItem
+                  value="3"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Both
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
 
         <Grid container p={2} alignItems="center" pt={0}>
-          {/* <Grid item xs={12} sm={6}>
-          <Typography>Due date reminder (5 days ahead)</Typography>
-        </Grid> */}
-
           <Grid item xs={12} sm={6} display="flex" alignItems="center">
             <Typography>Due date reminder (5 days ahead)</Typography>
             <Tooltip
@@ -407,9 +454,19 @@ function NotificationsSettings() {
                 value={preferences.reminders}
                 onChange={(e) => handleChange("reminders", e.target.value)}
               >
-                <MenuItem value="2">Text</MenuItem>
+                <MenuItem
+                  value="2"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Text
+                </MenuItem>
                 <MenuItem value="1">Email</MenuItem>
-                <MenuItem value="3">Both</MenuItem>
+                <MenuItem
+                  value="3"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Both
+                </MenuItem>
                 <MenuItem value="4">None</MenuItem>
               </Select>
             </FormControl>
@@ -438,9 +495,19 @@ function NotificationsSettings() {
                   handleChange("biller_announcements", e.target.value)
                 }
               >
-                <MenuItem value="1">Text</MenuItem>
+                <MenuItem
+                  value="1"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Text
+                </MenuItem>
                 <MenuItem value="0">Email</MenuItem>
-                <MenuItem value="2">Both</MenuItem>
+                <MenuItem
+                  value="2"
+                  disabled={preferences.is_phone_verified !== 1}
+                >
+                  Both
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -472,7 +539,17 @@ function NotificationsSettings() {
           </Button>
         </Box>
       </Box>
-
+      <ConfirmDialog
+        open={openConfirm}
+        title={"Remove Phone Number"}
+        message={`Are you sure want to Remove this ${preferences?.phone_no} 
+          Phone Number?`}
+        confirmLabel="Yes, Confirm"
+        cancelLabel="Cancel"
+        onConfirm={handleConfirm}
+        onCancel={() => setOpenConfirm(false)}
+        loader={accountLoading}
+      />
       <PhoneModal
         open={phoneModalOpen}
         // clickedDetails={clickedDetails}

@@ -169,7 +169,7 @@ export function PaymentModal({
                                 handleDeleteRecurring("Next Recurring")
                               }
                             >
-                              Delete just the next payment?
+                              Remove just the next payment?
                             </Typography>{" "}
                             OR{" "}
                             <Typography
@@ -180,7 +180,7 @@ export function PaymentModal({
                                 handleDeleteRecurring("All Recurring")
                               }
                             >
-                              Delete all remaining recurring payments?
+                              Remove all remaining recurring payments?
                             </Typography>
                           </Box>
                         )}
@@ -311,11 +311,11 @@ export function PaymentModal({
       <ConfirmDialog
         open={confirmationOpen || deleteType ? true : false}
         title={
-          deleteType ? `Delete ${deleteType}` : "Pending Payment Confirmation"
+          deleteType ? `Remove ${deleteType}` : "Pending Payment Confirmation"
         }
         message={
           deleteType
-            ? `Are you sure you want to delete your ${deleteType} payment?`
+            ? `Are you sure you want to remove your ${deleteType} payment?`
             : lastBillInfo.recurring_payment_msg1
             ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
             : lastBillInfo.schedule_payment_msg

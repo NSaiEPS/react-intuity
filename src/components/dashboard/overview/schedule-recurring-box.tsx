@@ -128,7 +128,7 @@ export function ScheduleRecurringBox() {
               sx={{ color: "error.main", cursor: "pointer" }}
               onClick={() => handleDeleteRecurring("Next Recurring")}
             >
-              Delete just the next payment
+              Remove just the next payment
             </Typography>
           </Stack>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -142,7 +142,7 @@ export function ScheduleRecurringBox() {
               sx={{ color: "error.main", cursor: "pointer" }}
               onClick={() => handleDeleteRecurring("All Recurring")}
             >
-              Delete all remaining recurring payments
+              Remove all remaining recurring payments
             </Typography>
           </Stack>
         </Stack>
@@ -151,11 +151,11 @@ export function ScheduleRecurringBox() {
       <ConfirmDialog
         open={Boolean(deleteType)}
         title={
-          deleteType ? `Delete ${deleteType}` : "Pending Payment Confirmation"
+          deleteType ? `Remove ${deleteType}` : "Pending Payment Confirmation"
         }
         message={
           deleteType
-            ? `Are you sure you want to delete your ${deleteType} payment?`
+            ? `Are you sure you want to remove your ${deleteType} payment?`
             : `${lastBillInfo?.pending_payment_text}`
         }
         confirmLabel="Yes, Confirm"

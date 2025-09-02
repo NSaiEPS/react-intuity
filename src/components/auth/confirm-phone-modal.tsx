@@ -36,12 +36,19 @@ export default function PhoneModal({
   onClose,
   clickedDetails,
   notificationPage = false,
+  notificationNumber,
 }) {
   const { confirmInfo, notificationPreferenceDetails } = useSelector(
     (state: RootState) => state?.Account
   );
   const [isPending, setIsPending] = useState(false);
   const [isOtpModal, setIsOtp] = useState(false);
+  console.log(isOtpModal, notificationNumber, "isOtpModal");
+  useEffect(() => {
+    if (notificationNumber) {
+      setIsOtp(true);
+    }
+  }, [notificationNumber]);
   const [phoneNumber, setPhoneNumber] = useState();
   const schema = zod.object({
     countryCode: zod.union([zod.string(), zod.number()]),
@@ -67,6 +74,7 @@ export default function PhoneModal({
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -98,8 +106,33 @@ export default function PhoneModal({
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
   const successCallBack = () => {
     setIsPending(false);
+
+    if (notificationPage) {
+      const formData = new FormData();
+
+      formData.append("acl_role_id", role_id);
+      formData.append("customer_id", user_id);
+      formData.append("id", user_id);
+      formData.append("model_open", "15");
+
+      dispatch(
+        updateAccountInfo(
+          token,
+          formData,
+          true,
+          () => {
+            onClose();
+          },
+          true,
+          null,
+          true
+        )
+      );
+      return;
+    }
 
     if (isOtpModal) {
       onClose();
@@ -111,9 +144,6 @@ export default function PhoneModal({
       setIsOtp(true);
     }
 
-    let role_id = stored?.body?.acl_role_id;
-    let user_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", role_id);
@@ -138,6 +168,9 @@ export default function PhoneModal({
   const user_id = stored?.body?.customer_id;
   const token = stored?.body?.token;
   const onSubmit = (data) => {
+    if (!isOtpModal) {
+      setPhoneNumber(data.phone);
+    }
     setIsPending(true);
     if (notificationPage) {
       const formData = new FormData();
@@ -146,16 +179,22 @@ export default function PhoneModal({
       formData.append("customer_id", user_id);
       formData.append("id", user_id);
       formData.append("country_code", "1");
-      formData.append("model_open", "2");
 
-      formData.append("phone", toUSPhoneFormat(data.phone));
+      if (isOtpModal) {
+        formData.append("model_open", "4");
+        formData.append("otp", data.phone);
+        formData.append("phone_no", notificationNumber ?? phoneNumber);
+      } else {
+        formData.append("model_open", "2");
+        formData.append("phone_no", toUSPhoneFormat(watch("phone")));
+      }
 
       dispatch(
         updateAccountInfo(
           token,
           formData,
           true,
-          successCallBack,
+          () => isOtpModal && successCallBack(),
           false,
           setIsPending
         )
@@ -206,6 +245,7 @@ export default function PhoneModal({
 
     return () => {
       setIsPending(false);
+      setIsOtp(false);
     };
   }, [open, reset]);
   const dashBoardInfo = useSelector(

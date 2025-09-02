@@ -154,7 +154,7 @@ export function Notifications(): React.JSX.Element {
 
   const watchEmail = watch("email");
   const watchPhone = watch("phone");
-
+  console.log(watchPhone, "watchPhone");
   React.useEffect(() => {
     setEmailUpdated(true);
   }, [watchEmail]);
@@ -177,6 +177,7 @@ export function Notifications(): React.JSX.Element {
   React.useEffect(() => {
     if (userInfo) {
       setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
+
       reset((prev) => ({
         ...prev,
         email: notificationPreferenceDetails?.email,
@@ -217,7 +218,7 @@ export function Notifications(): React.JSX.Element {
     }
   };
   const successCallBack = (type) => {
-    getPrefDetails();
+    // getPrefDetails();
     if (type) {
       updateLocalStorageValue(
         "intuity-customerInfo",
@@ -245,7 +246,7 @@ export function Notifications(): React.JSX.Element {
       return;
     }
 
-    console.log("Updated email:", getValues("email"));
+    // console.log("Updated email:", getValues("email"));
     setUserUpdating("phone");
 
     const formData = new FormData();
@@ -256,9 +257,14 @@ export function Notifications(): React.JSX.Element {
     formData.append("country_code", "1");
     formData.append("model_open", "2");
 
-    formData.append("phone", getValues("phone"));
+    formData.append("phone_no", getValues("phone"));
 
-    dispatch(updateAccountInfo(token, formData, true, successCallBack));
+    dispatch(
+      updateAccountInfo(token, formData, true, (res) => {
+        successCallBack(res);
+        setPhoneModalOpen(true);
+      })
+    );
 
     // setEmailUpdated(false);
   };
@@ -457,24 +463,36 @@ export function Notifications(): React.JSX.Element {
           </Box>
         </CardActions> */}
       </Card>
-      <ConfirmDialog
-        open={openConfirm}
-        title={"Voice Call"}
-        message={`Are you sure want to ${clickedState ? "ON" : "OFF"} it`}
-        confirmLabel="Yes, Confirm"
-        cancelLabel="Cancel"
-        onConfirm={handleConfirm}
-        onCancel={() => {
-          setOpenConfirm(false);
-          setClickedState((prev) => !prev);
-        }}
-      />
-      <PhoneModal
-        open={phoneModalOpen}
-        // clickedDetails={clickedDetails}
-        onClose={() => setPhoneModalOpen(false)}
-        notificationPage={true}
-      />
+      {openConfirm && (
+        <ConfirmDialog
+          open={openConfirm}
+          title={"Voice Call"}
+          message={`Are you sure want to ${clickedState ? "ON" : "OFF"} it`}
+          confirmLabel="Yes, Confirm"
+          cancelLabel="Cancel"
+          onConfirm={handleConfirm}
+          onCancel={() => {
+            setOpenConfirm(false);
+            setClickedState((prev) => !prev);
+          }}
+        />
+      )}
+      {phoneModalOpen && (
+        <PhoneModal
+          open={phoneModalOpen}
+          // clickedDetails={clickedDetails}
+          onClose={() => setPhoneModalOpen(false)}
+          notificationPage={true}
+          notificationNumber={
+            getValues("phone")
+              ? getValues("phone")
+              : notificationPreferenceDetails?.phone_no &&
+                notificationPreferenceDetails?.phone_no !== "0"
+              ? notificationPreferenceDetails?.phone_no
+              : getValues("phone")
+          }
+        />
+      )}
 
       <CustomBackdrop
         open={accountLoading && !contextLoading}
