@@ -194,7 +194,16 @@ export default function PhoneModal({
           token,
           formData,
           true,
-          () => isOtpModal && successCallBack(),
+          () => {
+            if (isOtpModal) {
+              successCallBack();
+            } else {
+              reset({
+                phone: "",
+              });
+              setIsOtp(true);
+            }
+          },
           false,
           setIsPending
         )

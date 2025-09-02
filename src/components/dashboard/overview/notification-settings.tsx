@@ -108,6 +108,29 @@ function NotificationsSettings() {
               : false,
         },
       ]);
+
+      setPreferences({
+        new_bill:
+          TextToValueFormat[
+            notificationPreferenceDetails?.new_bill?.selected
+          ] || "1",
+        payment_confirmation:
+          TextToValueFormat[
+            notificationPreferenceDetails?.payment_confirmation?.selected
+          ] || "1",
+        reminders:
+          TextToValueFormat[
+            notificationPreferenceDetails?.reminders?.selected
+          ] || "1",
+        biller_announcements:
+          billerTextToValueFormat[
+            notificationPreferenceDetails?.biller_announcements?.selected
+          ] || "1",
+        email: notificationPreferenceDetails?.email,
+        email_updated_date: notificationPreferenceDetails?.email_updated_date,
+        is_phone_verified: notificationPreferenceDetails?.is_phone_verified,
+        phone_no: notificationPreferenceDetails?.phone_no,
+      });
     }
   }, [notificationPreferenceDetails]);
   const handleChange = (field: string, value: string) => {
