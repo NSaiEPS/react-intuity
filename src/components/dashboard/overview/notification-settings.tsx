@@ -17,7 +17,7 @@ import {
   Typography,
   Chip,
 } from "@mui/material";
-import { Question, Trash, ArrowClockwise } from "@phosphor-icons/react";
+import { Question, Trash, ArrowClockwise, Plus } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
@@ -44,18 +44,6 @@ function NotificationsSettings() {
     : getLocalStorage("intuity-customerInfo");
 
   // mock contact list (normally from API)
-  const [contacts, setContacts] = useState([
-    {
-      type: "phone",
-      value: userInfo?.phone_no,
-      verified: userInfo?.is_phone_verified == 1 ? true : false,
-    },
-    {
-      type: "email",
-      value: userInfo?.email,
-      verified: userInfo?.is_email_verified == 1 ? true : false,
-    },
-  ]);
 
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const TextToValueFormat = {
@@ -76,18 +64,64 @@ function NotificationsSettings() {
     payment_confirmation: "1",
     reminders: "1",
     biller_announcements: "1",
+    email: "",
+    email_updated_date: "",
+    is_phone_verified: 0,
+    phone: "",
   });
 
+  const [contacts, setContacts] = useState([
+    {
+      type: "phone",
+      value: preferences?.phone_no,
+      verified: preferences?.is_phone_verified == 1 ? true : false,
+    },
+    {
+      type: "email",
+      value: preferences?.email,
+      verified: preferences?.email_updated_date == 1 ? true : false,
+    },
+  ]);
   const handleChange = (field: string, value: string) => {
     setPreferences((prev) => ({ ...prev, [field]: value }));
   };
 
   // contact actions
   const handleRemoveContact = (value: string) => {
+    console.log(value);
+
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("model_open", "5");
+    formData.append("notification", "1");
+    formData.append("remove_phone", "1");
+
+    dispatch(
+      updateAccountInfo(token, formData, true, (res) => {
+        console.log(res);
+      })
+    );
+
+    // model_open:5
+    // remove_phone:1
+    // acl_role_id:4
+    // customer_id:810"
+
     setContacts((prev) => prev.filter((c) => c.value !== value));
   };
 
   const handleResendVerification = (value: string) => {
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("notification_email", value);
+
+    dispatch(updateAccountInfo(token, formData, true, null));
+
     console.log("Resend verification for:", value);
     // API call here
   };
@@ -102,14 +136,13 @@ function NotificationsSettings() {
   const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
   const handleSave = () => {
     console.log("Saved preferences:", preferences);
 
     const formData = new FormData();
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
@@ -128,9 +161,6 @@ function NotificationsSettings() {
   }, []);
 
   const getPrefDetails = () => {
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -145,7 +175,8 @@ function NotificationsSettings() {
         true,
         successCallBack,
         true,
-        setContextLoading
+        setContextLoading,
+        true
       )
     );
   };
@@ -158,7 +189,23 @@ function NotificationsSettings() {
       reminders: TextToValueFormat[res?.reminders?.selected] || "1",
       biller_announcements:
         billerTextToValueFormat[res?.biller_announcements?.selected] || "1",
+      email: res?.email,
+      email_updated_date: res?.email_updated_date,
+      is_phone_verified: res?.is_phone_verified,
+      phone_no: res?.phone_no,
     });
+    setContacts([
+      {
+        type: "phone",
+        value: res?.phone_no,
+        verified: res?.is_phone_verified == 1 ? true : false,
+      },
+      {
+        type: "email",
+        value: res?.email,
+        verified: res?.email_updated_date == 1 ? true : false,
+      },
+    ]);
   };
 
   return (
@@ -214,7 +261,16 @@ function NotificationsSettings() {
                 justifyContent="flex-start"
                 gap={1}
               >
-                {contact.verified ? (
+                {!contact?.value ? (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<Plus size={16} />}
+                    onClick={() => handleResendVerification(contact.value)}
+                  >
+                    Add
+                  </Button>
+                ) : contact.verified ? (
                   <Chip label="Verified" color="success" size="small" />
                 ) : (
                   <>

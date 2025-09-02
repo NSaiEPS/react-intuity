@@ -127,10 +127,12 @@ const IOSSwitch = styled((props: any) => (
 export function Notifications(): React.JSX.Element {
   const [emailUpdated, setEmailUpdated] = React.useState(false);
   const [phoneUpdated, setPhoneUpdated] = React.useState(false);
-  const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  const { accountLoading, notificationPreferenceDetails } = useSelector(
+    (state: RootState) => state?.Account
+  );
   const [userUpdating, setUserUpdating] = React.useState("");
   const { contextLoading } = useLoading();
-
+  console.log(notificationPreferenceDetails, "notificationPreferenceDetails");
   const {
     control,
     handleSubmit,
@@ -174,11 +176,11 @@ export function Notifications(): React.JSX.Element {
       setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
       reset((prev) => ({
         ...prev,
-        email: userInfo?.email,
-        phone: userInfo?.phone_no,
+        email: notificationPreferenceDetails?.email,
+        phone: notificationPreferenceDetails?.phone_no,
       }));
     }
-  }, [reset, userInfo]);
+  }, [reset, userInfo, notificationPreferenceDetails]);
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
@@ -212,6 +214,7 @@ export function Notifications(): React.JSX.Element {
     }
   };
   const successCallBack = (type) => {
+    getPrefDetails();
     if (type) {
       updateLocalStorageValue(
         "intuity-customerInfo",
@@ -220,6 +223,20 @@ export function Notifications(): React.JSX.Element {
       );
     }
     console.log("Email updated successfully");
+  };
+
+  const getPrefDetails = () => {
+    let roleId = stored?.body?.acl_role_id;
+    let userId = stored?.body?.customer_id;
+    let token = stored?.body?.token;
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("model_open", "15");
+
+    dispatch(updateAccountInfo(token, formData, true, null, true, null, true));
   };
 
   const handlePhoneUpdate = async () => {

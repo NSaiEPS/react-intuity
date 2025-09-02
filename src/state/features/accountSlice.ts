@@ -45,6 +45,7 @@ interface DahBoardState {
   convenienceFee: any;
   oneTimePaymentInfo: any;
   paymentRequiredKeyDetails: any;
+  notificationPreferenceDetails: any;
 }
 
 const initialState = {
@@ -62,6 +63,7 @@ const initialState = {
   convenienceFee: {},
   oneTimePaymentInfo: {},
   paymentRequiredKeyDetails: {},
+  notificationPreferenceDetails: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -110,6 +112,9 @@ const AccountSlice = createSlice({
     setPaymentRequiredKeyDetails(state, action) {
       state.paymentRequiredKeyDetails = action.payload;
     },
+    setNotificationPreferenceDetails(state, action) {
+      state.notificationPreferenceDetails = action.payload;
+    },
   },
 });
 
@@ -127,6 +132,7 @@ export const {
   setConvenienceFee,
   setOneTimePaymentInfo,
   setPaymentRequiredKeyDetails,
+  setNotificationPreferenceDetails,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;
@@ -226,7 +232,8 @@ export const updateAccountInfo: any =
     profile = false,
     successCallBack,
     dataRequired = false,
-    setContextLoading
+    setContextLoading,
+    reduxNeeded = false
   ) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
@@ -237,14 +244,19 @@ export const updateAccountInfo: any =
       } else {
         res = await updatePassword({ token, formData });
       }
+      console.log(res, dataRequired);
 
       if (res.status) {
+        if (reduxNeeded) {
+          dispatch(setNotificationPreferenceDetails(res?.body));
+        }
         if (!dataRequired) {
+          console.log(res);
           toast.success(
             res?.status == 200
               ? res?.data
               : res?.message
-              ? res?.message
+              ? res?.body?.notification_email_message ?? res?.message
               : profile
               ? "Updated User Info"
               : "Updated Password!"
