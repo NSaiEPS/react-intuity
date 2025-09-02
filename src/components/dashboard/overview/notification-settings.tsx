@@ -59,7 +59,7 @@ function NotificationsSettings() {
     None: "3",
   };
 
-  const [preferences, setPreferences] = useState({
+  const [preferences, setPreferences] = useState<any>({
     new_bill: "1",
     payment_confirmation: "1",
     reminders: "1",
@@ -67,7 +67,7 @@ function NotificationsSettings() {
     email: "",
     email_updated_date: "",
     is_phone_verified: 0,
-    phone: "",
+    phone_no: "",
   });
 
   const [contacts, setContacts] = useState([
@@ -311,7 +311,7 @@ function NotificationsSettings() {
         <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
           Select your notification preference for each type of notice
         </Typography>
-        {userInfo?.is_phone_verified == 1 && (
+        {(userInfo?.is_phone_verified == 1 || !preferences?.phone_no) && (
           <Box
             sx={{
               // backgroundColor: (theme) => theme.palette.error.light,
@@ -336,7 +336,9 @@ function NotificationsSettings() {
                   setPhoneModalOpen(true);
                 }}
               >
-                Validate mobile phone number
+                {preferences?.phone_no
+                  ? "Validate mobile phone number"
+                  : "Add mobile phone number"}
               </Typography>
               .
             </Typography>

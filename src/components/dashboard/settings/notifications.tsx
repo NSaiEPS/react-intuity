@@ -30,6 +30,8 @@ import * as z from "zod";
 
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { useLoading } from "@/components/core/skeletion-context";
+import { toast } from "react-toastify";
+import PhoneModal from "@/components/auth/confirm-phone-modal";
 
 const schema = z.object({
   email: z.string().email("Invalid email"),
@@ -148,6 +150,7 @@ export function Notifications(): React.JSX.Element {
       phone: "",
     },
   });
+  const [phoneModalOpen, setPhoneModalOpen] = React.useState(false);
 
   const watchEmail = watch("email");
   const watchPhone = watch("phone");
@@ -170,7 +173,7 @@ export function Notifications(): React.JSX.Element {
   const userInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
-  console.log(userInfo, "userInfo");
+
   React.useEffect(() => {
     if (userInfo) {
       setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
@@ -192,15 +195,15 @@ export function Notifications(): React.JSX.Element {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
+
   const handleEmailUpdate = async () => {
     const valid = await trigger("email");
     if (valid) {
       console.log("Updated email:", getValues("email"));
       setUserUpdating("email");
-
-      let roleId = stored?.body?.acl_role_id;
-      let userId = stored?.body?.customer_id;
-      let token = stored?.body?.token;
 
       const formData = new FormData();
 
@@ -226,9 +229,6 @@ export function Notifications(): React.JSX.Element {
   };
 
   const getPrefDetails = () => {
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -240,30 +240,27 @@ export function Notifications(): React.JSX.Element {
   };
 
   const handlePhoneUpdate = async () => {
-    const valid = await trigger("phone");
-    if (valid) {
-      console.log("Updated phone:", getValues("phone"));
-      // setPhoneUpdated(false);
-
-      if (valid) {
-        console.log("Updated email:", getValues("email"));
-        setUserUpdating("phone");
-
-        let roleId = stored?.body?.acl_role_id;
-        let userId = stored?.body?.customer_id;
-        let token = stored?.body?.token;
-
-        const formData = new FormData();
-
-        formData.append("acl_role_id", roleId);
-        formData.append("customer_id", userId);
-        formData.append("phone", getValues("email"));
-
-        dispatch(updateAccountInfo(token, formData, true, successCallBack));
-
-        // setEmailUpdated(false);
-      }
+    if (getValues("phone")?.length < 10) {
+      toast.warn("Phone Number must be atleast of 10 digits");
+      return;
     }
+
+    console.log("Updated email:", getValues("email"));
+    setUserUpdating("phone");
+
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("country_code", "1");
+    formData.append("model_open", "2");
+
+    formData.append("phone", getValues("phone"));
+
+    dispatch(updateAccountInfo(token, formData, true, successCallBack));
+
+    // setEmailUpdated(false);
   };
 
   const onSubmit = (data: FormData) => {
@@ -276,10 +273,6 @@ export function Notifications(): React.JSX.Element {
   const [openConfirm, setOpenConfirm] = React.useState(false);
 
   const handleConfirm = () => {
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -396,10 +389,10 @@ export function Notifications(): React.JSX.Element {
                     {...field}
                     label="Notification Phone No."
                     type="tel"
-                    inputProps={{
-                      inputMode: "numeric",
-                      pattern: "[0-9]*",
-                    }}
+                    // inputProps={{
+                    //   inputMode: "numeric",
+                    //   pattern: "[0-9]*",
+                    // }}
                     id="phone"
                   />
                 )}
@@ -475,6 +468,11 @@ export function Notifications(): React.JSX.Element {
           setOpenConfirm(false);
           setClickedState((prev) => !prev);
         }}
+      />
+      <PhoneModal
+        open={phoneModalOpen}
+        // clickedDetails={clickedDetails}
+        onClose={() => setPhoneModalOpen(false)}
       />
 
       <CustomBackdrop
