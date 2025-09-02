@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getConfirmInfo } from "@/state/features/accountSlice";
+import {
+  getConfirmInfo,
+  updateAccountInfo,
+} from "@/state/features/accountSlice";
 import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
@@ -28,8 +31,13 @@ import { z as zod } from "zod";
 
 import Button from "../CommonComponents/Button";
 
-export default function PhoneModal({ open, onClose, clickedDetails }) {
-  const { accountLoading, confirmInfo } = useSelector(
+export default function PhoneModal({
+  open,
+  onClose,
+  clickedDetails,
+  notificationPage = false,
+}) {
+  const { confirmInfo, notificationPreferenceDetails } = useSelector(
     (state: RootState) => state?.Account
   );
   const [isPending, setIsPending] = useState(false);
@@ -45,13 +53,13 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
           ? "Otp is must be atleast of 4 digits"
           : "Phone number is too short"
       )
-      .max(15, isOtpModal ? "Otp is too long" : "Phone number is too long")
-      .regex(
-        /^[0-9]+$/,
-        isOtpModal
-          ? "Otp must contain only digits"
-          : "Phone number must contain only digits"
-      ),
+      .max(15, isOtpModal ? "Otp is too long" : "Phone number is too long"),
+    // .regex(
+    //   /^[0-9]+$/,
+    //   isOtpModal
+    //     ? "Otp must contain only digits"
+    //     : "Phone number must contain only digits"
+    // ),
   });
   type FormData = zod.infer<typeof schema>;
 
@@ -126,13 +134,36 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
       return "Invalid number";
     }
   }
-
+  const role_id = stored?.body?.acl_role_id;
+  const user_id = stored?.body?.customer_id;
+  const token = stored?.body?.token;
   const onSubmit = (data) => {
     setIsPending(true);
+    if (notificationPage) {
+      const formData = new FormData();
 
-    let role_id = stored?.body?.acl_role_id;
-    let user_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
+      formData.append("acl_role_id", role_id);
+      formData.append("customer_id", user_id);
+      formData.append("id", user_id);
+      formData.append("country_code", "1");
+      formData.append("model_open", "2");
+
+      formData.append("phone", toUSPhoneFormat(data.phone));
+
+      dispatch(
+        updateAccountInfo(
+          token,
+          formData,
+          true,
+          successCallBack,
+          false,
+          setIsPending
+        )
+      );
+
+      return;
+    }
+
     if (!isOtpModal) {
       setPhoneNumber(data.phone);
     }
@@ -172,8 +203,18 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
         phone: "",
       });
     }
-  }, [open, reset]);
 
+    return () => {
+      setIsPending(false);
+    };
+  }, [open, reset]);
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+
+  const CustomerInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle
@@ -183,7 +224,8 @@ export default function PhoneModal({ open, onClose, clickedDetails }) {
           alignItems: "center",
         }}
       >
-        Change Notification Phone No. (Account No. 1146)
+        Change Notification Phone No. (Account No.
+        {notificationPage ? CustomerInfo?.acctnum : clickedDetails?.acctnum})
         <IconButton onClick={onClose}>
           <X size={24} color={colors.blue} />
         </IconButton>

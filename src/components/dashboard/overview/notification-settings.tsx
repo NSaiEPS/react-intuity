@@ -101,7 +101,7 @@ function NotificationsSettings() {
 
     dispatch(
       updateAccountInfo(token, formData, true, (res) => {
-        console.log(res);
+        getPrefDetails();
       })
     );
 
@@ -261,12 +261,12 @@ function NotificationsSettings() {
                 justifyContent="flex-start"
                 gap={1}
               >
-                {!contact?.value ? (
+                {!contact?.value || contact?.value == "0" ? (
                   <Button
                     size="small"
                     variant="outlined"
                     startIcon={<Plus size={16} />}
-                    onClick={() => handleResendVerification(contact.value)}
+                    onClick={() => setPhoneModalOpen(true)}
                   >
                     Add
                   </Button>
@@ -311,7 +311,9 @@ function NotificationsSettings() {
         <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
           Select your notification preference for each type of notice
         </Typography>
-        {(userInfo?.is_phone_verified == 1 || !preferences?.phone_no) && (
+        {(userInfo?.is_phone_verified !== 1 ||
+          !preferences?.phone_no ||
+          preferences?.phone_no == "0") && (
           <Box
             sx={{
               // backgroundColor: (theme) => theme.palette.error.light,
@@ -336,7 +338,7 @@ function NotificationsSettings() {
                   setPhoneModalOpen(true);
                 }}
               >
-                {preferences?.phone_no
+                {preferences?.phone_no && preferences?.phone_no !== "0"
                   ? "Validate mobile phone number"
                   : "Add mobile phone number"}
               </Typography>
@@ -475,6 +477,7 @@ function NotificationsSettings() {
         open={phoneModalOpen}
         // clickedDetails={clickedDetails}
         onClose={() => setPhoneModalOpen(false)}
+        notificationPage={true}
       />
     </SkeletonWrapper>
   );

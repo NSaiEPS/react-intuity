@@ -473,6 +473,7 @@ export function Notifications(): React.JSX.Element {
         open={phoneModalOpen}
         // clickedDetails={clickedDetails}
         onClose={() => setPhoneModalOpen(false)}
+        notificationPage={true}
       />
 
       <CustomBackdrop
