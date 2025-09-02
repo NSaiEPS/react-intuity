@@ -209,6 +209,7 @@ export default function TwoFAModal({
         onClose={() => dispatchLocal({ type: "CLOSE_VERIFY_MODAL" })}
         onVerify={onVerifyText}
         customerData={customerData}
+        selectedVal={state.method}
       />
     </Dialog>
   );

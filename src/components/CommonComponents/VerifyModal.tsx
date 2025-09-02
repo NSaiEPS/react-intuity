@@ -33,7 +33,7 @@ type FormValues = z.infer<typeof schema>;
 
 type AuthCodeModalProps = {
   open: boolean;
-
+  selectedVal: string;
   onClose: () => void;
   onVerify: (code: string) => void;
   customerData: any;
@@ -41,7 +41,7 @@ type AuthCodeModalProps = {
 
 export default function AuthCodeModal({
   open,
-
+  selectedVal,
   onClose,
   onVerify,
   customerData,
@@ -96,6 +96,7 @@ export default function AuthCodeModal({
     formData.append("country_code", "1");
     formData.append("phone_no", "0");
     formData.append("otp", data.code);
+    formData.append("selected_value", selectedVal);
 
     // "id:810
     // 2fa:1

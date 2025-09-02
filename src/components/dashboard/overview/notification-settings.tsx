@@ -21,6 +21,7 @@ import { Question, Trash, ArrowClockwise } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import PhoneModal from "@/components/auth/confirm-phone-modal";
 
 function NotificationsSettings() {
   const dashBoardInfo = useSelector(
@@ -56,6 +57,7 @@ function NotificationsSettings() {
     },
   ]);
 
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const TextToValueFormat = {
     Text: "2",
     Email: "1",
@@ -253,7 +255,7 @@ function NotificationsSettings() {
         <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
           Select your notification preference for each type of notice
         </Typography>
-        {userInfo?.is_phone_verified != 1 && (
+        {userInfo?.is_phone_verified == 1 && (
           <Box
             sx={{
               // backgroundColor: (theme) => theme.palette.error.light,
@@ -274,7 +276,9 @@ function NotificationsSettings() {
                   textDecoration: "underline",
                   cursor: "pointer",
                 }}
-                // onClick={openValidatePhoneModal}
+                onClick={() => {
+                  setPhoneModalOpen(true);
+                }}
               >
                 Validate mobile phone number
               </Typography>
@@ -408,6 +412,12 @@ function NotificationsSettings() {
           </Button>
         </Box>
       </Box>
+
+      <PhoneModal
+        open={phoneModalOpen}
+        // clickedDetails={clickedDetails}
+        onClose={() => setPhoneModalOpen(false)}
+      />
     </SkeletonWrapper>
   );
 }
