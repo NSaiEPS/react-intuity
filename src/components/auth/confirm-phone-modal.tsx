@@ -271,7 +271,7 @@ export default function PhoneModal({
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle
         sx={{
           display: "flex",

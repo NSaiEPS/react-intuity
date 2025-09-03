@@ -129,13 +129,7 @@ export default function TwoFAModal({
   ];
 
   return (
-    <Dialog
-      open={open}
-      maxWidth="sm"
-      fullWidth
-
-      // onClose={onClose}
-    >
+    <Dialog open={open} maxWidth="sm" fullWidth onClose={onClose}>
       <DialogTitle>
         <Stack
           direction="row"

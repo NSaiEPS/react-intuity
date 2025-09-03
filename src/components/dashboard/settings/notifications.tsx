@@ -212,7 +212,12 @@ export function Notifications(): React.JSX.Element {
       formData.append("customer_id", userId);
       formData.append("notification_email", getValues("email"));
 
-      dispatch(updateAccountInfo(token, formData, true, successCallBack));
+      dispatch(
+        updateAccountInfo(token, formData, true, (res) => {
+          successCallBack(res);
+          getPrefDetails();
+        })
+      );
 
       // setEmailUpdated(false);
     }
@@ -481,7 +486,10 @@ export function Notifications(): React.JSX.Element {
         <PhoneModal
           open={phoneModalOpen}
           // clickedDetails={clickedDetails}
-          onClose={() => setPhoneModalOpen(false)}
+          onClose={() => {
+            setPhoneModalOpen(false);
+            getPrefDetails();
+          }}
           notificationPage={true}
           notificationNumber={
             getValues("phone")

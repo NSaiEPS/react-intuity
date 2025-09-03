@@ -73,6 +73,7 @@ function NotificationsSettings() {
     email_updated_date: "",
     is_phone_verified: 0,
     phone_no: "",
+    updated_email: "",
   });
 
   const [contacts, setContacts] = useState([
@@ -101,7 +102,9 @@ function NotificationsSettings() {
         },
         {
           type: "email",
-          value: notificationPreferenceDetails?.email,
+          value:
+            notificationPreferenceDetails?.updated_email ??
+            notificationPreferenceDetails?.email,
           verified:
             notificationPreferenceDetails?.email_updated_date == 1
               ? true
@@ -126,10 +129,13 @@ function NotificationsSettings() {
           billerTextToValueFormat[
             notificationPreferenceDetails?.biller_announcements?.selected
           ] || "1",
-        email: notificationPreferenceDetails?.email,
+        email:
+          notificationPreferenceDetails?.updated_email ??
+          notificationPreferenceDetails.email,
         email_updated_date: notificationPreferenceDetails?.email_updated_date,
         is_phone_verified: notificationPreferenceDetails?.is_phone_verified,
         phone_no: notificationPreferenceDetails?.phone_no,
+        updated_email: notificationPreferenceDetails.updated_email,
       });
     }
   }, [notificationPreferenceDetails]);
@@ -241,10 +247,11 @@ function NotificationsSettings() {
       reminders: TextToValueFormat[res?.reminders?.selected] || "1",
       biller_announcements:
         billerTextToValueFormat[res?.biller_announcements?.selected] || "1",
-      email: res?.email,
+      email: res?.updated_email ?? res?.email,
       email_updated_date: res?.email_updated_date,
       is_phone_verified: res?.is_phone_verified,
       phone_no: res?.phone_no,
+      updated_email: res?.updated_email,
     });
     setContacts([
       {
@@ -254,7 +261,7 @@ function NotificationsSettings() {
       },
       {
         type: "email",
-        value: res?.email,
+        value: res?.updated_email ?? res?.email,
         verified: res?.email_updated_date == 1 ? true : false,
       },
     ]);
@@ -322,6 +329,8 @@ function NotificationsSettings() {
                   >
                     Add
                   </Button>
+                ) : contact.type === "email" && !preferences.updated_email ? (
+                  <Chip label="Verified" color="success" size="small" />
                 ) : contact.verified ? (
                   <Chip label="Verified" color="success" size="small" />
                 ) : (
@@ -375,7 +384,7 @@ function NotificationsSettings() {
               m: 2,
               borderRadius: 1,
               mb: 2,
-              p: 2,
+              // p: 2,
             }}
           >
             <Typography variant="body2">
