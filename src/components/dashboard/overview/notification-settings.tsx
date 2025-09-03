@@ -94,7 +94,11 @@ function NotificationsSettings() {
       setContacts([
         {
           type: "phone",
-          value: notificationPreferenceDetails?.phone_no,
+          value:
+            notificationPreferenceDetails?.phone_no &&
+            notificationPreferenceDetails?.phone_no != 0
+              ? notificationPreferenceDetails?.phone_no
+              : "",
           verified:
             notificationPreferenceDetails?.is_phone_verified == 1
               ? true
@@ -134,7 +138,12 @@ function NotificationsSettings() {
           notificationPreferenceDetails.email,
         email_updated_date: notificationPreferenceDetails?.email_updated_date,
         is_phone_verified: notificationPreferenceDetails?.is_phone_verified,
-        phone_no: notificationPreferenceDetails?.phone_no,
+        phone_no:
+          notificationPreferenceDetails?.phone_no &&
+          notificationPreferenceDetails?.phone_no != 0
+            ? notificationPreferenceDetails?.phone_no
+            : "",
+        // notificationPreferenceDetails?.phone_no,
         updated_email: notificationPreferenceDetails.updated_email,
       });
     }
@@ -250,13 +259,15 @@ function NotificationsSettings() {
       email: res?.updated_email ?? res?.email,
       email_updated_date: res?.email_updated_date,
       is_phone_verified: res?.is_phone_verified,
-      phone_no: res?.phone_no,
+      phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
       updated_email: res?.updated_email,
     });
     setContacts([
       {
         type: "phone",
-        value: res?.phone_no,
+        // value: res?.phone_no,
+        value: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
+
         verified: res?.is_phone_verified == 1 ? true : false,
       },
       {

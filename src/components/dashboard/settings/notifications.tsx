@@ -181,7 +181,12 @@ export function Notifications(): React.JSX.Element {
       reset((prev) => ({
         ...prev,
         email: notificationPreferenceDetails?.email,
-        phone: notificationPreferenceDetails?.phone_no,
+        // phone: notificationPreferenceDetails?.phone_no,
+        phone:
+          notificationPreferenceDetails?.phone_no &&
+          notificationPreferenceDetails?.phone_no != 0
+            ? notificationPreferenceDetails?.phone_no
+            : "",
       }));
     }
   }, [reset, userInfo, notificationPreferenceDetails]);
