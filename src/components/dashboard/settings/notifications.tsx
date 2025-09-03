@@ -38,8 +38,8 @@ const schema = z.object({
   phone: z
     .string()
     .min(10, "Phone must be at least 10 digits")
-    .max(15, "Phone must be no more than 15 digits")
-    .regex(/^[0-9]+$/, "Phone must contain only digits"),
+    .max(15, "Phone must be no more than 15 digits"),
+  // .regex(/^[0-9]+$/, "Phone must contain only digits"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -341,30 +341,29 @@ export function Notifications(): React.JSX.Element {
                 </Box>
               )}
             </FormControl>
-            {emailUpdated && (
-              <Box textAlign="right">
-                <Button
-                  disabled={
-                    (accountLoading && userUpdating === "email") ||
-                    watch("email") === notificationPreferenceDetails?.email
-                  }
-                  loading={accountLoading && userUpdating === "email"}
-                  variant="contained"
-                  textTransform="none"
-                  bgColor={colors.blue}
-                  hoverBackgroundColor={colors["blue.3"]}
-                  hoverColor="white"
-                  style={{
-                    borderRadius: "12px",
-                    height: "41px",
-                    // backgroundColor: 'red',
-                  }}
-                  onClick={handleEmailUpdate}
-                >
-                  Update Email
-                </Button>
-              </Box>
-            )}
+
+            <Box textAlign="right">
+              <Button
+                disabled={
+                  (accountLoading && userUpdating === "email") ||
+                  watch("email") === notificationPreferenceDetails?.email
+                }
+                loading={accountLoading && userUpdating === "email"}
+                variant="contained"
+                textTransform="none"
+                bgColor={colors.blue}
+                hoverBackgroundColor={colors["blue.3"]}
+                hoverColor="white"
+                style={{
+                  borderRadius: "12px",
+                  height: "41px",
+                  // backgroundColor: 'red',
+                }}
+                onClick={handleEmailUpdate}
+              >
+                Update Email
+              </Button>
+            </Box>
           </Stack>
           <Stack
             direction="row"
@@ -422,30 +421,29 @@ export function Notifications(): React.JSX.Element {
                 </Box>
               )}
             </FormControl>
-            {phoneUpdated && (
-              <Box textAlign="right">
-                <Button
-                  disabled={
-                    (accountLoading && userUpdating === "phone") ||
-                    watch("phone") === notificationPreferenceDetails?.phone_no
-                  }
-                  loading={accountLoading && userUpdating === "phone"}
-                  variant="contained"
-                  textTransform="none"
-                  bgColor={colors.blue}
-                  hoverBackgroundColor={colors["blue.3"]}
-                  hoverColor="white"
-                  style={{
-                    borderRadius: "12px",
-                    height: "41px",
-                    // backgroundColor: 'red',
-                  }}
-                  onClick={handlePhoneUpdate}
-                >
-                  Update Phone
-                </Button>
-              </Box>
-            )}
+
+            <Box textAlign="right">
+              <Button
+                disabled={
+                  (accountLoading && userUpdating === "phone") ||
+                  watch("phone") === notificationPreferenceDetails?.phone_no
+                }
+                loading={accountLoading && userUpdating === "phone"}
+                variant="contained"
+                textTransform="none"
+                bgColor={colors.blue}
+                hoverBackgroundColor={colors["blue.3"]}
+                hoverColor="white"
+                style={{
+                  borderRadius: "12px",
+                  height: "41px",
+                  // backgroundColor: 'red',
+                }}
+                onClick={handlePhoneUpdate}
+              >
+                Update Phone
+              </Button>
+            </Box>
           </Stack>
         </CardContent>
         {/* <Divider />
