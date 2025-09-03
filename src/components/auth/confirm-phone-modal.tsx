@@ -57,7 +57,10 @@ export default function PhoneModal({
   }, [notificationNumber]);
   const [phoneNumber, setPhoneNumber] = useState();
   const schema = zod.object({
-    countryCode: zod.union([zod.string(), zod.number()]),
+    // countryCode: zod.union([zod.string(), zod.number()]),
+    countryCode: isOtpModal
+      ? zod.union([zod.string(), zod.number()]).optional()
+      : zod.union([zod.string(), zod.number()]),
     phone: zod
       .string()
       .min(
