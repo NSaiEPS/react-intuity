@@ -218,7 +218,7 @@ function maskValue(value: string): string {
   return "********" + last4;
 }
 
-export const countriesList = [
+export const dummyCountriesList = [
   {
     id: 172,
     name: "Heard Island and Mcdonald Islands",

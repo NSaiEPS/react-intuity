@@ -5,7 +5,7 @@ import {
 } from "@/state/features/accountSlice";
 import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+import { colors, dummyCountriesList } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -93,7 +93,8 @@ export default function PhoneModal({
   // Optimize the country list so it doesn't re-render every time
   const countries = useMemo(() => {
     return (
-      confirmInfo?.countries?.map((item) => ({
+      // confirmInfo?.countries?.map((item) => ({
+      dummyCountriesList?.map((item) => ({
         code: item?.phone_code,
         name: item?.name,
         id: item?.id,
@@ -184,7 +185,8 @@ export default function PhoneModal({
       formData.append("acl_role_id", role_id);
       formData.append("customer_id", user_id);
       formData.append("id", user_id);
-      formData.append("country_code", "1");
+      // formData.append("country_code", "1");
+      formData.append("country_code", data?.countryCode ?? "1");
 
       if (isOtpModal) {
         formData.append("model_open", "4");
@@ -294,27 +296,33 @@ export default function PhoneModal({
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2 }}>
-          <FormControl sx={{ minWidth: 150 }} error={!!errors.countryCode}>
-            <InputLabel id="country-code-label">Country</InputLabel>
-            <Controller
-              name="countryCode"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} labelId="country-code-label" label="Country">
-                  {countries.map((country) => (
-                    <MenuItem key={country?.code} value={country?.code}>
-                      {country?.code} - {country?.name}
-                    </MenuItem>
-                  ))}
-                </Select>
+          {!isOtpModal && (
+            <FormControl sx={{ minWidth: 150 }} error={!!errors.countryCode}>
+              <InputLabel id="country-code-label">Country</InputLabel>
+              <Controller
+                name="countryCode"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    labelId="country-code-label"
+                    label="Country"
+                  >
+                    {countries.map((country) => (
+                      <MenuItem key={country?.code} value={country?.code}>
+                        {country?.code} - {country?.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.countryCode && (
+                <Typography variant="caption" color="error">
+                  {errors.countryCode.message}
+                </Typography>
               )}
-            />
-            {errors.countryCode && (
-              <Typography variant="caption" color="error">
-                {errors.countryCode.message}
-              </Typography>
-            )}
-          </FormControl>
+            </FormControl>
+          )}
 
           <Controller
             name="phone"
