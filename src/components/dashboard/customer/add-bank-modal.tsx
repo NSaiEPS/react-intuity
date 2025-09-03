@@ -204,9 +204,17 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
           ></iframe>
         </div>
       </DialogContent> */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
 
-      <PaymentIframe type="account" onSuccess={handleSaveDetails} />
-
+          width: "100%", // full width
+        }}
+      >
+        <PaymentIframe type="account" onSuccess={handleSaveDetails} />
+      </Box>
       <CustomBackdrop
         open={accountLoading}
         style={{ zIndex: 1300, color: "#fff" }}

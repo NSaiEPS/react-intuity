@@ -74,7 +74,7 @@ const withSuspense = (element: React.ReactNode) => {
     </React.Suspense>
   );
 };
-console.log("1.0.1", "version");
+console.log("1.0.2", "version");
 export const router = createBrowserRouter([
   {
     path: "/login",
