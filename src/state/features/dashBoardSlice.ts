@@ -228,6 +228,9 @@ export const getNotificationList: any =
         if (setData) {
           dispatch(setNotificationList(res?.body));
         }
+        if (res?.body?.otp) {
+          toast.success(`Otp is ${res?.body?.otp}`);
+        }
         if (!setData) {
           if (res?.message?.includes("Otp is invalid")) {
             toast.error(res?.message);

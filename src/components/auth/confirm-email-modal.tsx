@@ -86,7 +86,12 @@ export default function EmailDialog({ open, onClose, clickedDetails }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      // onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle
         sx={{
           display: "flex",

@@ -250,11 +250,12 @@ export const updateAccountInfo: any =
         if (reduxNeeded) {
           dispatch(setNotificationPreferenceDetails(res?.body));
         }
+        if (res?.body?.otp) {
+          toast.success(`Otp is ${res?.body?.otp}`);
+        }
         if (!dataRequired) {
           console.log(res);
-          if (res?.body?.otp) {
-            toast.success(`Otp is ${res?.body?.otp}`);
-          }
+
           toast.success(
             res?.status == 200
               ? res?.data

@@ -118,7 +118,12 @@ export default function AuthCodeModal({
     onClose();
   };
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog
+      open={open}
+      // onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+    >
       <DialogTitle>
         <Typography variant="h6" fontWeight={500}>
           Enter the authorization code you received: (Account No.{" "}
