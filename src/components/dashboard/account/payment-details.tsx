@@ -9,7 +9,7 @@ import {
   schedulePayment,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { calculatePaymentAmount, colors } from "@/utils";
+import { calculatePaymentAmount, colors, decryptFunction } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { paths } from "@/utils/paths";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -845,8 +845,13 @@ const PaymentForm = () => {
                       fontFamily: "monospace", // ensures * and numbers align perfectly
                     }}
                   >
-                    {selectedCardDetails?.card_number ??
-                      selectedCardDetails?.bank_account_number}
+                    {selectedCardDetails?.card_number
+                      ? decryptFunction(selectedCardDetails?.card_number)
+                      : selectedCardDetails?.bank_account_number
+                      ? decryptFunction(
+                          selectedCardDetails?.bank_account_number
+                        )
+                      : ""}
                   </Typography>
                   <Typography>
                     {selectedCardDetails?.card_number ? "Card" : "Bank Account"}
