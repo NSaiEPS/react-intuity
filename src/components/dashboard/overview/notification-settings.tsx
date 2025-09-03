@@ -385,7 +385,7 @@ function NotificationsSettings() {
         <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
           Select your notification preference for each type of notice
         </Typography>
-        {(userInfo?.is_phone_verified !== 1 ||
+        {(preferences?.is_phone_verified !== 1 ||
           !preferences?.phone_no ||
           preferences?.phone_no == "0") && (
           <Box
@@ -434,7 +434,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="2"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -445,7 +445,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="3"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -472,7 +472,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="2"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -483,7 +483,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="3"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -516,7 +516,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="2"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -527,7 +527,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="3"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -565,7 +565,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="1"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
@@ -576,7 +576,7 @@ function NotificationsSettings() {
                 <MenuItem
                   value="2"
                   disabled={
-                    userInfo?.is_phone_verified !== 1 ||
+                    preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
                     preferences?.phone_no == "0"
                   }
