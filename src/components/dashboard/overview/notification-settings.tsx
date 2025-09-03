@@ -225,7 +225,7 @@ function NotificationsSettings() {
 
   useEffect(() => {
     getPrefDetails();
-  }, []);
+  }, [userId]);
 
   const getPrefDetails = () => {
     const formData = new FormData();
