@@ -433,14 +433,22 @@ function NotificationsSettings() {
               >
                 <MenuItem
                   value="2"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Text
                 </MenuItem>
                 <MenuItem value="1">Email</MenuItem>
                 <MenuItem
                   value="3"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Both
                 </MenuItem>
@@ -463,14 +471,22 @@ function NotificationsSettings() {
               >
                 <MenuItem
                   value="2"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Text
                 </MenuItem>
                 <MenuItem value="1">Email</MenuItem>
                 <MenuItem
                   value="3"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Both
                 </MenuItem>
@@ -499,14 +515,22 @@ function NotificationsSettings() {
               >
                 <MenuItem
                   value="2"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Text
                 </MenuItem>
                 <MenuItem value="1">Email</MenuItem>
                 <MenuItem
                   value="3"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Both
                 </MenuItem>
@@ -540,14 +564,22 @@ function NotificationsSettings() {
               >
                 <MenuItem
                   value="1"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Text
                 </MenuItem>
                 <MenuItem value="0">Email</MenuItem>
                 <MenuItem
                   value="2"
-                  disabled={preferences.is_phone_verified !== 1}
+                  disabled={
+                    userInfo?.is_phone_verified !== 1 ||
+                    !preferences?.phone_no ||
+                    preferences?.phone_no == "0"
+                  }
                 >
                   Both
                 </MenuItem>
