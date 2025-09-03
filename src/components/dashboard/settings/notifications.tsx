@@ -344,7 +344,10 @@ export function Notifications(): React.JSX.Element {
             {emailUpdated && (
               <Box textAlign="right">
                 <Button
-                  disabled={accountLoading && userUpdating === "email"}
+                  disabled={
+                    (accountLoading && userUpdating === "email") ||
+                    watch("email") === notificationPreferenceDetails?.email
+                  }
                   loading={accountLoading && userUpdating === "email"}
                   variant="contained"
                   textTransform="none"
@@ -422,7 +425,10 @@ export function Notifications(): React.JSX.Element {
             {phoneUpdated && (
               <Box textAlign="right">
                 <Button
-                  disabled={accountLoading && userUpdating === "phone"}
+                  disabled={
+                    (accountLoading && userUpdating === "phone") ||
+                    watch("phone") === notificationPreferenceDetails?.phone_no
+                  }
                   loading={accountLoading && userUpdating === "phone"}
                   variant="contained"
                   textTransform="none"
