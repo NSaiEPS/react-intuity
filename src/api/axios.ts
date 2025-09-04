@@ -1,8 +1,7 @@
 import axios from "axios";
 import secureLocalStorage from "react-secure-storage";
 
-export const BASE_URL = "https://test-intuity-backend.pay.waterbill.com/"; //ETNYRE BACKEND BASE_URL
-// export const UserDetails = JSON.parse(localStorage.getItem('intuity-user'));
+export const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const api = axios.create({
   baseURL: BASE_URL,
