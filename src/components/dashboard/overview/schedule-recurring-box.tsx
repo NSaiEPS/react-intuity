@@ -7,14 +7,14 @@ import { getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
-import { Box, Typography, Divider, Stack } from "@mui/material";
+import { Box, Typography, Divider, Stack, Card } from "@mui/material";
 import {
   CalendarBlank,
   ArrowsClockwise,
   Trash,
 } from "@phosphor-icons/react/dist/ssr";
 
-export function ScheduleRecurringBox() {
+export function ScheduleRecurringBox({ isSmallScreen = false }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
@@ -77,15 +77,15 @@ export function ScheduleRecurringBox() {
   if (!schedule_payment_msg && !recurring_payment_msg1) return null;
 
   return (
-    <Box
+    <Card
       sx={{
         backgroundColor: "white",
         px: 3,
-        py: 2,
-        borderRadius: 2,
-        border: "1px solid #e0e0e0",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-        mb: 2,
+        py: 2.5,
+        borderRadius: 1,
+        // border: "1px solid #e0e0e0",
+        // boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+        mb: isSmallScreen ? 0 : 2,
       }}
     >
       <Stack direction="row" spacing={2} alignItems="center">
@@ -166,6 +166,6 @@ export function ScheduleRecurringBox() {
         onCancel={() => setDeleteType("")}
         loader={paymentLoader}
       />
-    </Box>
+    </Card>
   );
 }

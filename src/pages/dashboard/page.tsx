@@ -30,6 +30,7 @@ export default function DashBoardPage(): React.JSX.Element {
 
   const { allow_auto_payment } =
     dashBoardInfo?.body?.company || companyDetails || {};
+
   return (
     <Grid
       container
@@ -78,9 +79,11 @@ export default function DashBoardPage(): React.JSX.Element {
       {/* Sales Chart with optional ScheduleRecurringBox */}
       <Grid item xs={12} lg={9} order={{ xs: 3, lg: 1 }}>
         <Box display="flex" flexDirection="column" height="100%">
-          <Box>
-            <ScheduleRecurringBox />
-          </Box>
+          {(isLargeUp || allow_auto_payment == 1) && (
+            <Box>
+              <ScheduleRecurringBox />
+            </Box>
+          )}
 
           <React.Suspense fallback={<>Loading...</>}>
             <Sales
@@ -138,6 +141,11 @@ export default function DashBoardPage(): React.JSX.Element {
           <Grid item xs={12} sm={6} md={6} lg={12}>
             <TotalProfit value="CustomerService" sx={{ height: "100%" }} />
           </Grid>
+          {!isLargeUp && allow_auto_payment !== 1 && (
+            <Grid item xs={12} sm={6} md={6} lg={12}>
+              <ScheduleRecurringBox isSmallScreen={true} />
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Grid>
