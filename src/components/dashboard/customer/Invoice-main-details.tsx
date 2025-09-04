@@ -377,7 +377,21 @@ export const InvoiceMainDetails = () => {
         {"- ".repeat(200)}
       </Box>
       {/* Bottom Details */}
+
       <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
+        <Box
+          sx={{
+            border: "1px solid black",
+            mb: 2,
+            display: "inline-block",
+            px: 2,
+            py: 0.5,
+          }}
+        >
+          <Typography variant="body2">
+            Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
+          </Typography>
+        </Box>
         <Stack
           direction="column"
           // spacing={2}
@@ -422,7 +436,7 @@ export const InvoiceMainDetails = () => {
             <TextField
               variant="standard"
               size="small"
-              sx={{ minWidth: 240, mt: -1 }}
+              sx={{ minWidth: "55%", mt: -1, maxWidth: "100%" }}
               InputProps={{ disableUnderline: false }}
             />
           </Box>
@@ -473,7 +487,10 @@ export const InvoiceMainDetails = () => {
             <Typography sx={{ fontWeight: 600 }}>
               {company?.company_name}
             </Typography>
-            <Typography>{customer?.address}</Typography>
+            <Typography>
+              {company?.city} {company?.street ? `,${company?.street},` : ""}
+              {company?.zip ? `,${company?.zip},` : ""}
+            </Typography>
           </Grid>
 
           {/* Right Section with vertical borders */}
@@ -580,20 +597,6 @@ export const InvoiceMainDetails = () => {
                 </TableRow>
               </TableBody>
             </Table>
-
-            <Box
-              sx={{
-                border: "1px solid black",
-                mt: 2,
-                display: "inline-block",
-                px: 2,
-                py: 0.5,
-              }}
-            >
-              <Typography variant="body2">
-                Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
-              </Typography>
-            </Box>
           </Grid>
         </Grid>
       </Paper>
