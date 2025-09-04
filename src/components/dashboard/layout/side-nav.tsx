@@ -17,14 +17,22 @@ import { navItems } from "./config";
 import { navIcons } from "./nav-icons";
 import { paths } from "@/utils/paths";
 import { getLocalStorage } from "@/utils/auth";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 export function SideNav(): React.JSX.Element {
   // const pathname = usePathname();
   // console.log(pathname.split('/'), 'pathnamepathname');
   const location = useLocation();
   const pathname = location.pathname;
-  let aliasUser: any = getLocalStorage("alias-details");
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+  const aliasUser: any = getLocalStorage("alias-details");
+  const companyDetails: any = getLocalStorage("intuity-company");
 
+  const { allow_auto_payment } =
+    dashBoardInfo?.body?.company || companyDetails || {};
   return (
     <Box
       sx={{
@@ -92,7 +100,7 @@ export function SideNav(): React.JSX.Element {
         component="nav"
         sx={{ flex: "1 1 auto", p: "10px", paddingLeft: "0px", mt: 1 }}
       >
-        {renderNavItems({ pathname, items: navItems })}
+        {renderNavItems({ pathname, items: navItems, allow_auto_payment })}
       </Box>
       <Divider sx={{ borderColor: "var(--mui-palette-neutral-700)" }} />
     </Box>
@@ -102,15 +110,19 @@ export function SideNav(): React.JSX.Element {
 function renderNavItems({
   items = [],
   pathname,
+  allow_auto_payment,
 }: {
   items?: NavItemConfig[];
   pathname: string;
+  allow_auto_payment: string | number;
 }): React.JSX.Element {
   const children = items.reduce(
     (acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
       const { key, ...item } = curr;
-
-      acc.push(<NavItem key={key} pathname={pathname} {...item} />);
+      // if key is "auto-pay then show if allow_auto_payment is 1
+      if (key !== "auto-pay" || allow_auto_payment === 0) {
+        acc.push(<NavItem key={key} pathname={pathname} {...item} />);
+      }
 
       return acc;
     },

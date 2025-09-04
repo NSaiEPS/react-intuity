@@ -102,6 +102,7 @@ export const getDashboardInfo: any =
         // localStorage.setItem('linked-customerInfo', JSON.stringify(res?.body?.linked_customers));
 
         secureLocalStorage.setItem("intuity-customerInfo", res?.body?.customer);
+        secureLocalStorage.setItem("intuity-company", res?.body?.company);
         secureLocalStorage.setItem(
           "linked-customerInfo",
           res?.body?.linked_customers

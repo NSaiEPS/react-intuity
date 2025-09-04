@@ -22,6 +22,8 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { paths } from "@/utils/paths";
 import { getLocalStorage } from "@/utils/auth";
 import { Avatar } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 export interface MobileNavProps {
   onClose?: () => void;
@@ -35,7 +37,14 @@ export function MobileNav({
 }: MobileNavProps): React.JSX.Element {
   const location = useLocation();
   const pathname = location.pathname;
-  let aliasUser: any = getLocalStorage("alias-details");
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+  const aliasUser: any = getLocalStorage("alias-details");
+  const companyDetails: any = getLocalStorage("intuity-company");
+
+  const { allow_auto_payment } =
+    dashBoardInfo?.body?.company || companyDetails || {};
 
   return (
     <>
@@ -105,7 +114,12 @@ export function MobileNav({
           component="nav"
           sx={{ flex: "1 1 auto", p: "10px", paddingLeft: "0px", mt: 1 }}
         >
-          {renderNavItems({ pathname, items: navItems, onClose })}
+          {renderNavItems({
+            pathname,
+            items: navItems,
+            onClose,
+            allow_auto_payment,
+          })}
         </Box>
 
         <Divider sx={{ borderColor: "var(--mui-palette-neutral-700)" }} />
@@ -141,17 +155,21 @@ function renderNavItems({
   items = [],
   pathname,
   onClose,
+  allow_auto_payment,
 }: {
   items?: NavItemConfig[];
   pathname: string;
   onClose?: () => void;
+  allow_auto_payment: number | string;
 }): React.JSX.Element {
   const children = items.reduce(
     (acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
       const { key, ...item } = curr;
-      acc.push(
-        <NavItem key={key} pathname={pathname} {...item} onClose={onClose} />
-      );
+      if (key !== "auto-pay" || allow_auto_payment == 0) {
+        acc.push(
+          <NavItem key={key} pathname={pathname} {...item} onClose={onClose} />
+        );
+      }
       return acc;
     },
     []
