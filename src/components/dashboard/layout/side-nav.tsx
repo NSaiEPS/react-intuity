@@ -120,7 +120,7 @@ function renderNavItems({
     (acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
       const { key, ...item } = curr;
       // if key is "auto-pay then show if allow_auto_payment is 1
-      if (key !== "auto-pay" || allow_auto_payment === 0) {
+      if (key !== "auto-pay" || allow_auto_payment === 1) {
         acc.push(<NavItem key={key} pathname={pathname} {...item} />);
       }
 

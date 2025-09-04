@@ -10,6 +10,9 @@ import { DashboardInfo } from "@/components/dashboard/overview/dashboard-info";
 
 import { TotalProfit } from "@/components/dashboard/overview/total-profit";
 import { ScheduleRecurringBox } from "@/components/dashboard/overview/schedule-recurring-box";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
+import { getLocalStorage } from "@/utils/auth";
 
 const Sales = React.lazy(() =>
   import("@/components/dashboard/overview/sales").then((module) => ({
@@ -20,7 +23,13 @@ const Sales = React.lazy(() =>
 export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
   const isLargeUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+  const companyDetails: any = getLocalStorage("intuity-company");
 
+  const { allow_auto_payment } =
+    dashBoardInfo?.body?.company || companyDetails || {};
   return (
     <Grid
       container
@@ -31,7 +40,7 @@ export default function DashBoardPage(): React.JSX.Element {
       }}
     >
       {/* First Row (Budget + BillDue + AutoPay) */}
-      <Grid item xs={12} lg={9}>
+      <Grid item xs={12} lg={allow_auto_payment === 1 ? 9 : 12}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <Budget diff={12} trend="up" sx={{ height: "100%" }} />
@@ -41,19 +50,21 @@ export default function DashBoardPage(): React.JSX.Element {
           </Grid>
         </Grid>
       </Grid>
-
-      <Grid item xs={12} sm={6} md={6} lg={3}>
-        <DashboardInfo
-          sx={{ height: "100%" }}
-          type="autoPay"
-          typeofUser="customer"
-          value="autopay"
-          isActive
-        />
-      </Grid>
+      {allow_auto_payment === 1 && (
+        <Grid item xs={12} sm={6} md={6} lg={3}>
+          <DashboardInfo
+            sx={{ height: "100%" }}
+            type="autoPay"
+            typeofUser="customer"
+            value="autopay"
+            isActive
+          />
+        </Grid>
+      )}
 
       {/* Paperless card for small screens */}
-      {!isLargeUp && (
+
+      {!isLargeUp && allow_auto_payment === 1 && (
         <Grid item xs={12} sm={6} md={6}>
           <DashboardInfo
             sx={{ height: "100%" }}
@@ -93,6 +104,16 @@ export default function DashBoardPage(): React.JSX.Element {
       {/* Right Column */}
       <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
         <Grid container spacing={2} height="-webkit-fill-available">
+          {!isLargeUp && allow_auto_payment !== 1 && (
+            <Grid item xs={12} sm={6} md={6}>
+              <DashboardInfo
+                sx={{ height: "100%" }}
+                value="paperless"
+                typeofUser="customer"
+                type="paperLess"
+              />
+            </Grid>
+          )}
           {isLargeUp && (
             <Grid item xs={12}>
               <DashboardInfo
