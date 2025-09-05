@@ -7,7 +7,9 @@ import Layout from "./components/core/layout";
 import { router } from "./App";
 import { LoadingProvider } from "./components/core/skeletion-context";
 import { UserProvider } from "./contexts/user-context";
+import { setRouter } from "./utils/navigation";
 
+setRouter(router);
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <UserProvider>

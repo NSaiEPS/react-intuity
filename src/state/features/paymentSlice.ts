@@ -1,5 +1,6 @@
 import { getLastBillInfoAPI } from "@/api/dashboard";
-import { clearLocalStorage } from "@/utils/auth";
+
+import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
 
 import { toast } from "react-toastify";
@@ -51,10 +52,7 @@ export const getLastBillInfo: any =
       } else {
         dispatch(setLastBillInfo({}));
 
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");

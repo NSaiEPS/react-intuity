@@ -23,12 +23,12 @@ import {
   updateVoicePreferenceAPi,
   usageAlertsAPI,
 } from "@/api/dashboard";
-import { clearLocalStorage } from "@/utils/auth";
+
+import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
 
 import { toast } from "react-toastify";
 
-type Users = {};
 interface DahBoardState {
   userInfo: any;
   accountInfo: any;
@@ -148,10 +148,7 @@ export const getAccountInfo: any =
         console.log(res, "accountDetailsAPI");
         dispatch(setAccountInfo(res?.body));
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -179,10 +176,8 @@ export const updateAccountCustomerInfo: any =
           successCallback();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -209,10 +204,8 @@ export const stopTransferService: any =
         }
         // message.success(res?.data?.message);
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -275,10 +268,8 @@ export const updateAccountInfo: any =
         //toast(res?.data?.message);
         // message.success(res?.data?.message);
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!!!!!");
       }
     } catch (e: any) {
@@ -312,10 +303,8 @@ export const updatePaperLessInfo: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -349,10 +338,8 @@ export const getPaymentDetails: any =
           toast.success(res?.message ? res?.message : "Payment method saved!");
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         if (isPost) {
           toast.error(res?.message ?? "Something went wrong!");
         }
@@ -386,10 +373,8 @@ export const deleteCardAndBankAccount: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -412,10 +397,8 @@ export const updateVoicePreference: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -440,10 +423,8 @@ export const contactCustomerService: any =
           toast.success(res?.message ? res?.message : "Message Sent!");
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -469,10 +450,8 @@ export const getConfirmInfo: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -499,10 +478,7 @@ export const getCompanyDetails: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         toast.error(res?.message ?? "Something went wrong!");
         if (failureCallBack) {
@@ -538,10 +514,8 @@ export const registerApiRequest: any =
           successCallBack(res?.body);
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(
           res?.message
             ? typeof res?.message == "string"
@@ -576,10 +550,8 @@ export const linkAnotherAccount: any =
           successCallBack(res?.body);
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(
           res?.message
             ? typeof res?.message == "string"
@@ -611,10 +583,8 @@ export const getUsageAlerts: any =
           successCallback();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -639,10 +609,8 @@ export const paymentWithoutSavingDetails: any =
 
         toast.success(res?.message ? res?.message : "Payment SuccessFull!");
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         if (isPost) {
           toast.error(res?.message ?? "Something went wrong!");
         }
@@ -669,10 +637,8 @@ export const getPaymentProcessorDetails: any =
 
         dispatch(setPaymentProcessorDetails(res?.body));
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         if (isPost) {
           toast.error(res?.message ?? "Something went wrong!");
         }
@@ -704,10 +670,8 @@ export const saveDefaultPaymentMethod: any =
           res?.message ? res?.message : "Payment Saved SuccessFully!"
         );
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         if (isPost) {
           toast.error(res?.message ?? "Something went wrong!");
         }
@@ -733,10 +697,7 @@ export const getConvenienceFee: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         toast.error(res?.message ?? "Something went wrong!");
       }
@@ -763,10 +724,7 @@ export const schedulePayment: any =
           res?.message ? res?.message : "Payment SuccessFully Scheduled!"
         );
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         toast.error(res?.message ?? "Something went wrong!");
       }
@@ -790,10 +748,7 @@ export const guestPaymentRequest: any =
           successCallBack(res?.body?.customer);
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         toast.error(res?.message ?? "Something went wrong!");
         if (failureCallBack) {
@@ -828,10 +783,8 @@ export const saveAcknowledgeForRecurringPayment: any =
           successCallBack();
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -855,10 +808,7 @@ export const oneTimePayment: any =
           successCallBack(res?.body?.customer);
         }
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         toast.error(res?.message ?? "Something went wrong!");
         if (failureCallBack) {

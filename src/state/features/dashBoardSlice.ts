@@ -9,7 +9,8 @@ import {
   usageMonthlyGraphAPI,
   usageUtilityFiltersAPI,
 } from "@/api/dashboard";
-import { clearLocalStorage } from "@/utils/auth";
+
+import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import secureLocalStorage from "react-secure-storage";
@@ -115,10 +116,7 @@ export const getDashboardInfo: any =
 
         dispatch(setDashboardInfo(res));
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -151,10 +149,7 @@ export const getAccountInfo: any =
         // message.success(res?.data?.message);
         // dispatch(setDashboardInfo(res));
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -250,10 +245,7 @@ export const getNotificationList: any =
         }
         toast.error(res?.message ?? "some thing went wrong");
 
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -276,10 +268,7 @@ export const getUsageGraph: any = (formData, token) => async (dispatch) => {
     if (res?.status) {
       dispatch(setusageGraph(res?.body));
     } else {
-      if (res?.message == "You are not authorised to use this api") {
-        clearLocalStorage();
-        location.reload();
-      }
+      navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -306,10 +295,8 @@ export const getInvoiceDetails: any =
       if (res?.status) {
         dispatch(setInvoiceDetails(res?.body));
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
         toast.error(res?.message ?? "Something went wrong!");
       }
     } catch (e: any) {
@@ -331,10 +318,7 @@ export const usageMonthlyGraph: any = (formData, token) => async (dispatch) => {
     if (res?.status) {
       dispatch(setMonthlyUsageGraph(res?.body?.data));
     } else {
-      if (res?.message == "You are not authorised to use this api") {
-        clearLocalStorage();
-        location.reload();
-      }
+      navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -357,10 +341,7 @@ export const usageUtilityFilters: any =
         dispatch(setUsageUtilityFilters(res?.body));
         successCallBack(res?.body);
       } else {
-        if (res?.message == "You are not authorised to use this api") {
-          clearLocalStorage();
-          location.reload();
-        }
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
