@@ -28,6 +28,7 @@ export function MainNav(): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
 
   const userPopover = usePopover<HTMLDivElement>();
+  const notificationPopover = usePopover<HTMLDivElement>();
 
   const { dashBoardInfo, notificationList } = useSelector(
     (state: RootState) => state?.DashBoard
@@ -57,7 +58,7 @@ export function MainNav(): React.JSX.Element {
           position: "sticky",
           top: 0,
           zIndex: "var(--mui-zIndex-appBar)",
-          boxShadow: 2, // 👈 MUI's default shadow level 2
+          boxShadow: 2,
         }}
       >
         <Stack
@@ -77,7 +78,7 @@ export function MainNav(): React.JSX.Element {
               backgroundColor: colors.white,
 
               borderRightColor: "var(--mui-palette-divider)",
-              display: { xs: "none", lg: "flex" }, // 👈 visible on lg+, hidden below
+              display: { xs: "none", lg: "flex" },
             }}
           >
             <Box
@@ -119,19 +120,18 @@ export function MainNav(): React.JSX.Element {
           <Stack direction="row" spacing={2} alignItems="center">
             {/* Notifications */}
             <Box
-              ref={userPopover.anchorRef}
+              ref={notificationPopover.anchorRef}
               onClick={() => {
-                // notificationPopover.handleOpen();
                 setClickedType("notification");
-
-                userPopover.handleOpen();
+                requestAnimationFrame(() => {
+                  notificationPopover.handleOpen();
+                });
               }}
               sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
             >
               <Badge
                 color="error"
-                // badgeContent={notificationList?.notifications?.length} // 👈 show number here (can be dynamic)
-                badgeContent={notificationList?.unread_count} // 👈 show number here (can be dynamic)
+                badgeContent={notificationList?.unread_count}
                 overlap="circular"
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
                 sx={{
@@ -150,7 +150,6 @@ export function MainNav(): React.JSX.Element {
               </Badge>
             </Box>
 
-            {/* User Info Block */}
             <Box
               ref={userPopover.anchorRef}
               sx={{
@@ -160,20 +159,12 @@ export function MainNav(): React.JSX.Element {
               }}
               onClick={() => {
                 setClickedType("email");
-
-                userPopover.handleOpen();
+                requestAnimationFrame(() => {
+                  userPopover.handleOpen();
+                });
               }}
             >
-              {/* <Avatar
-                src={company_logo}
-                sx={{ width: 40, height: 40, mr: 1.5 }}
-              /> */}
-              {/* <Avatar
-                src={company_logo}
-                sx={{ width: 40, height: 40, mr: 1.5 }}
-              /> */}
               <Avatar
-                // sx={{ bgcolor: colors.blue }}
                 sx={{
                   width: 40,
                   height: 40,
@@ -199,6 +190,15 @@ export function MainNav(): React.JSX.Element {
           </Stack>
         </Stack>
       </Box>
+      {/* {userPopover.open && (
+        <UserPopover
+          type={clickedType}
+          anchorEl={userPopover.anchorRef.current}
+          onClose={userPopover.handleClose}
+          open={userPopover.open}
+        />
+      )} */}
+
       <UserPopover
         type={clickedType}
         anchorEl={userPopover.anchorRef.current}
@@ -206,26 +206,13 @@ export function MainNav(): React.JSX.Element {
         open={userPopover.open}
       />
 
-      {/* {notificationPopover.open && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: notificationPopover.anchorRef.current?.getBoundingClientRect().bottom + 8,
-            left: notificationPopover.anchorRef.current?.getBoundingClientRect().left,
-            zIndex: 1200,
-            bgcolor: 'background.paper',
-            boxShadow: 3,
-            borderRadius: 1,
-            p: 2,
-            minWidth: 250,
-          }}
-        >
-          <Typography variant="subtitle2">Notifications</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Coming soon or add your logic here
-          </Typography>
-        </Box>
-      )} */}
+      <UserPopover
+        type={clickedType}
+        anchorEl={notificationPopover.anchorRef.current}
+        onClose={notificationPopover.handleClose}
+        open={notificationPopover.open}
+        openType={"email"}
+      />
 
       <MobileNav
         onClose={() => {

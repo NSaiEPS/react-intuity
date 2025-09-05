@@ -56,6 +56,7 @@ export interface UserPopoverProps {
   onClose: () => void;
   open: boolean;
   type: string;
+  openType?: string;
 }
 
 export function UserPopover({
@@ -63,6 +64,7 @@ export function UserPopover({
   onClose,
   open,
   type = "email",
+  openType,
 }: UserPopoverProps): React.JSX.Element {
   const { checkSession } = useUser();
   type IntuityUser = {
@@ -148,7 +150,9 @@ export function UserPopover({
   // console.log(linkedAccounts, 'linkedAccounts');
 
   React.useEffect(() => {
-    successCallBack();
+    if (openType == "email") {
+      successCallBack();
+    }
   }, [onlyUnread]);
   const navigate = useNavigate();
 
@@ -163,7 +167,6 @@ export function UserPopover({
 
     dispatch(getNotificationList(token, formData, successCallBack));
 
-    console.log(item, "itemmm");
     if (item?.type === "paperless_status") {
       navigate(paths.dashboard.paperless());
     } else if (item?.type === "autopay_status") {
