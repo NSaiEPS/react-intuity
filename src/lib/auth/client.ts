@@ -173,9 +173,7 @@ class AuthClient {
   }
 
   async signOut(): Promise<{ error?: string }> {
-    removeLocalStorage("custom-auth-token");
-    removeLocalStorage("intuity-user");
-    // clearLocalStorage();
+    clearLocalStorage();
     return {};
   }
 }
