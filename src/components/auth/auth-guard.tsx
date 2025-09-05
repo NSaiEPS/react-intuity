@@ -16,6 +16,7 @@ export function AuthGuard({
   children,
 }: AuthGuardProps): React.JSX.Element | null {
   // const { company } = useParams() as { company: string };
+  const loginUser = getLocalStorage("intuity-user");
 
   // const router = useRouter();
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export function AuthGuard({
       return;
     }
 
-    if (!user) {
+    if (!user && !loginUser) {
       logger.debug(
         "[AuthGuard]: User is not logged in, redirecting to sign in"
       );

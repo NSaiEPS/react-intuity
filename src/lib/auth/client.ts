@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 import type { User } from "@/types/user";
 
-import { removeLocalStorage } from "../../utils/auth";
+import { clearLocalStorage, removeLocalStorage } from "../../utils/auth";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
@@ -175,7 +175,7 @@ class AuthClient {
   async signOut(): Promise<{ error?: string }> {
     removeLocalStorage("custom-auth-token");
     removeLocalStorage("intuity-user");
-
+    // clearLocalStorage();
     return {};
   }
 }

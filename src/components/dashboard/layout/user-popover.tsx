@@ -111,35 +111,28 @@ export function UserPopover({
         return;
       }
 
-      // Refresh the auth state
       await checkSession?.();
-
-      // UserProvider, for this case, will not refresh the router and we need to do it manually
-      // router.refresh();
-      // After refresh, AuthGuard will handle the redirect
     } catch (err) {
       logger.error("Sign out error", err);
     }
   }, [checkSession]);
-  const successCallBack = (id?: string | number) => {
-    // console.log(id, 'idsuccessCallBack');
 
+  const successCallBack = (id?: string | number) => {
     if (id) {
       let newLinkedAccounts = [...linkedAccounts];
       newLinkedAccounts = newLinkedAccounts.filter(
         (account) => account.id !== id
       );
-      // linkedAccounts = newLinkedAccounts;
+
       setLinkedAccounts(newLinkedAccounts);
-      // localStorage.setItem('linked-customerInfo', JSON.stringify(linkedAccounts));
 
       secureLocalStorage.setItem("linked-customerInfo", linkedAccounts);
 
       setOpenConfirm(false);
-      // Handle linked case
+
       return;
     }
-    // console.log(linkedAccounts, 'linkedAccounts');
+
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
