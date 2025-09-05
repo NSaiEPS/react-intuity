@@ -20,6 +20,9 @@ const ConfirmInformation = React.lazy(
 );
 const DashBoardPage = React.lazy(() => import("./pages/dashboard/page"));
 const PayNowPage = React.lazy(() => import("./pages/dashboard/pay-now/page"));
+const AlertsScreen = React.lazy(
+  () => import("./pages/dashboard/usage-alerts/page")
+);
 const NotificationSettingsPage = React.lazy(
   () => import("./pages/dashboard/notification-settings/page")
 );
@@ -145,6 +148,14 @@ export const router = createBrowserRouter([
             element: withSuspense(
               <ProtectedRoute title="Billing">
                 <PayNowPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "usage-alerts",
+            element: withSuspense(
+              <ProtectedRoute title="Billing">
+                <AlertsScreen />
               </ProtectedRoute>
             ),
           },
