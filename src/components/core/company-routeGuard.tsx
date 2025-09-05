@@ -8,7 +8,7 @@ export default function CompanyRouteGuard() {
   const user = getLocalStorage("intuity-user");
   const storedCompanyId = secureLocalStorage.getItem("intuity-companyId");
   const aliasUser: any = getLocalStorage("alias-details");
-  console.log(aliasUser, "aliasUseraliasUser");
+
   const { company } = useParams();
   const { pathname } = useLocation();
 

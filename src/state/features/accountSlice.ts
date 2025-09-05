@@ -244,7 +244,6 @@ export const updateAccountInfo: any =
       } else {
         res = await updatePassword({ token, formData });
       }
-      console.log(res, dataRequired);
 
       if (res.status) {
         if (reduxNeeded) {

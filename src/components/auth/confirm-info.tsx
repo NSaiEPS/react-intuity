@@ -10,12 +10,14 @@ import {
   CardContent,
   CircularProgress,
   Grid,
-  Link,
   Stack,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { Link as MUILink } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
+
 import { useDispatch, useSelector } from "react-redux";
 import { useUser } from "@/hooks/use-user";
 import EmailDialog from "./confirm-email-modal";
@@ -260,8 +262,10 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
       <Grid container spacing={2} mt={2} alignItems="center">
         <Grid item xs={6}>
-          <Link
-            href={paths.dashboard.overview()}
+          <MUILink
+            to={paths.dashboard.overview()}
+            component={RouterLink}
+            onClick={successCallBack}
             underline="none"
             fontWeight="bold"
             sx={{
@@ -271,7 +275,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
             }}
           >
             SKIP
-          </Link>
+          </MUILink>
         </Grid>
         <Grid item xs={6} textAlign="right">
           <Button
