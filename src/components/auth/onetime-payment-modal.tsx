@@ -50,7 +50,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
     (state: RootState) => state.Account.accountLoading
   );
 
-  console.log(companyInfo, "companyInfo");
   const [formData, setFormData] = useState({
     accountNo: "",
     invoiceAmount: "",
@@ -165,7 +164,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     // company_alias:RiverPark-1
     dispatch(
       guestPaymentRequest(paymentData, companyInfo?.company?.alias, (res) => {
-        console.log(res, "companyInfo");
+        // console.log(res, "companyInfo");
         setCustomerDetails(res);
         setFormData((prev) => ({
           ...prev,
@@ -194,7 +193,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   //   return () => window.removeEventListener("message", handleMessage);
   // }, [companyInfo, formData, customerDetails]);
-  console.log(formData, "formData");
+  // console.log(formData, "formData");
 
   const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
     if (data?.error) {
@@ -204,7 +203,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
       return;
     }
-    console.log(companyInfo, "companyInfo");
+    // console.log(companyInfo, "companyInfo");
     const debitType = data?.cardNumber ? "card" : "bank_account";
     const paymentData = new FormData();
     paymentData.append("account_number", formData.accountNo);

@@ -18,14 +18,12 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
     <>
       <ToastContainer position="top-right" />
       <LocalizationProvider>
-        <UserProvider>
-          <ThemeProvider>
-            <Providers>
-              {/* <RouteLoader /> */}
-              {children}
-            </Providers>
-          </ThemeProvider>
-        </UserProvider>
+        <ThemeProvider>
+          <Providers>
+            {/* <RouteLoader /> */}
+            {children}
+          </Providers>
+        </ThemeProvider>
       </LocalizationProvider>
     </>
   );
