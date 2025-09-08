@@ -17,15 +17,18 @@ import {
   TableRow,
   TextField,
   Typography,
+  TableSortLabel,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "nsaicomponents";
 
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
 import dayjs, { Dayjs } from "dayjs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
+import { getUsageAlerts } from "@/state/features/accountSlice";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 
 export default function AlertsScreen() {
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
@@ -34,15 +37,16 @@ export default function AlertsScreen() {
   const { usageAlerts } = useSelector((state: RootState) => state?.Account);
 
   const [selected, setSelected] = React.useState<number[]>([]);
+  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 
   const alertsList = usageAlerts?.usage_alerts || [];
 
   const allSelected =
     alertsList.length > 0 && selected.length === alertsList.length;
 
-  const handleToggle = (index: number) => {
+  const handleToggle = (id: number) => {
     setSelected((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
@@ -50,14 +54,13 @@ export default function AlertsScreen() {
     if (allSelected) {
       setSelected([]);
     } else {
-      setSelected(alertsList.map((_: any, idx: number) => idx));
+      setSelected(alertsList.map((item: any) => item?.id));
     }
   };
 
-  const handleDeleteRow = (index: number) => {
-    setSelected((prev) => prev.filter((i) => i !== index));
-
-    console.log("Delete row:", alertsList[index]);
+  const handleDeleteRow = (id: number) => {
+    setSelected((prev) => prev.filter((i) => i !== id));
+    console.log("Delete row:", alertsList[id]);
   };
 
   const handleBulkDelete = () => {
@@ -68,6 +71,44 @@ export default function AlertsScreen() {
     );
     setSelected([]);
   };
+
+  const handleSortDate = () => {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
+  const sortedAlerts = React.useMemo(() => {
+    return [...alertsList].sort((a: any, b: any) => {
+      const dateA = dayjs(a.data);
+      const dateB = dayjs(b.data);
+
+      return sortOrder === "asc"
+        ? dateA.valueOf() - dateB.valueOf()
+        : dateB.valueOf() - dateA.valueOf();
+    });
+  }, [alertsList, sortOrder]);
+
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    const roleId = stored?.body?.acl_role_id;
+    const userId = stored?.body?.customer_id;
+    const token = stored?.body?.token;
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+
+    //     acl_role_id:4
+    // customer_id:810
+    // formData.append('is_form', '0');
+
+    dispatch(getUsageAlerts(token, formData));
+  }, [stored]);
 
   return (
     <Grid container spacing={2}>
@@ -178,7 +219,15 @@ export default function AlertsScreen() {
                       onChange={handleToggleAll}
                     />
                   </TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Alert Date</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>
+                    <TableSortLabel
+                      active
+                      direction={sortOrder}
+                      onClick={handleSortDate}
+                    >
+                      Alert Date
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Acct Num</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Utility</TableCell>
@@ -188,26 +237,26 @@ export default function AlertsScreen() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {alertsList.length === 0 ? (
+                {sortedAlerts.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
                       No Alerts
                     </TableCell>
                   </TableRow>
                 ) : (
-                  alertsList.map((row: any, index: number) => (
+                  sortedAlerts.map((row: any, index: number) => (
                     <TableRow
                       key={index}
                       sx={{ bgcolor: index % 2 ? "#f9fcff" : "white" }}
                     >
                       <TableCell padding="checkbox">
                         <Checkbox
-                          checked={selected.includes(index)}
-                          onChange={() => handleToggle(index)}
+                          checked={selected.includes(row?.id)}
+                          onChange={() => handleToggle(row?.id)}
                         />
                       </TableCell>
                       <TableCell>
-                        {dayjs(row.date).format("DD/MM/YYYY")}
+                        {row.data ? dayjs(row.data).format("DD/MM/YYYY") : "-"}
                       </TableCell>
                       <TableCell>{row.acctnum || "-"}</TableCell>
                       <TableCell>{row.customer_name || "-"}</TableCell>
@@ -218,7 +267,7 @@ export default function AlertsScreen() {
                         <IconButton
                           color="error"
                           size="small"
-                          onClick={() => handleDeleteRow(index)}
+                          onClick={() => handleDeleteRow(row?.id)}
                         >
                           <Trash size={18} weight="bold" />
                         </IconButton>
