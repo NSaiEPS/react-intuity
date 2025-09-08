@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   Box,
-  Button,
   Card,
   Checkbox,
   Grid,
@@ -20,12 +19,14 @@ import {
   Typography,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Button } from "nsaicomponents";
 
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
 
 import dayjs, { Dayjs } from "dayjs";
 import { useSelector } from "react-redux"; // to get alerts from redux
 import { RootState } from "@/state/store";
+import { colors } from "@/utils";
 
 export default function AlertsScreen() {
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
@@ -70,11 +71,20 @@ export default function AlertsScreen() {
           <Button
             fullWidth
             variant="contained"
-            sx={{ bgcolor: "grey.500", mb: 1 }}
+            style={{
+              marginBottom: "16px",
+            }}
+            hoverBackgroundColor={colors.blue}
+            bgColor={"gray"}
           >
             RESET ALL FILTERS
           </Button>
-          <Button fullWidth variant="contained" sx={{ bgcolor: "#1e73be" }}>
+          <Button
+            fullWidth
+            variant="contained"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+          >
             SUBMIT
           </Button>
         </Card>
@@ -182,7 +192,7 @@ export default function AlertsScreen() {
                 color="error"
                 sx={{ cursor: "pointer" }}
               >
-                Trash
+                Delete
               </Typography>
             </Typography>
           </Box>
