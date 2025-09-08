@@ -10,7 +10,7 @@ import {
   getNotificationList,
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { getLocalStorage, setLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser, setLocalStorage } from "@/utils/auth";
 import {
   Avatar,
   Grid,
@@ -67,19 +67,14 @@ export function UserPopover({
   openType,
 }: UserPopoverProps): React.JSX.Element {
   const { checkSession } = useUser();
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
+
   const raw = getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const roleId = stored?.body?.acl_role_id;
+  const loginUserEmail = stored?.body?.email;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
   const { dashBoardInfo, notificationList, notificationLoader } = useSelector(
@@ -106,7 +101,17 @@ export function UserPopover({
   const [accountDetails, setAccountDetails] = React.useState<any>({});
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
-      const { error } = await authClient.signOut();
+      //       "email:Scima001@yahoo.com
+      // acl_role_id:4
+      // customer_id:810"
+
+      const formData = new FormData();
+
+      formData.append("email", loginUserEmail);
+      formData.append("acl_role_id", roleId);
+      formData.append("customer_id", userId);
+
+      const { error } = await authClient.signOut(token, formData);
 
       if (error) {
         logger.error("Sign out error", error);

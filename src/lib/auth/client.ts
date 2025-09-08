@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 
 import { clearLocalStorage, removeLocalStorage } from "../../utils/auth";
+import { navigateTo } from "@/utils/navigation";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
@@ -102,7 +103,7 @@ class AuthClient {
     if (!res.ok || data?.body?.errors?.[0]) {
       return { error: data?.body?.errors?.[0] || "Login failed" };
     }
-
+    data.body.email = email;
     // Save user data (not token!) in localStorage
     // localStorage.setItem('intuity-user', JSON.stringify(data));
     // localStorage.setItem('custom-auth-token', data?.body?.token);
@@ -172,8 +173,22 @@ class AuthClient {
     return { data: token };
   }
 
-  async signOut(): Promise<{ error?: string }> {
-    clearLocalStorage();
+  async signOut(token, formData): Promise<{ error?: string }> {
+    const res = await fetch(`${BASE_URL}logout`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (data?.status) {
+      clearLocalStorage();
+    } else {
+      navigateTo("/login", { replace: true }, data?.message);
+    }
     return {};
   }
 }

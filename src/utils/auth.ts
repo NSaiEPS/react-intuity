@@ -56,5 +56,6 @@ export type IntuityUser = {
     acl_role_id?: string;
     customer_id?: string;
     token?: string;
+    email?: string;
   };
 };
