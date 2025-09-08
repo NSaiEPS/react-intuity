@@ -31,7 +31,7 @@ export async function homeApi({ role_id, user_id, token }: DashBoardAPIParams) {
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -64,7 +64,7 @@ export async function accountDetailsAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -87,7 +87,7 @@ export async function accountCustomerInfo({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -107,7 +107,7 @@ export async function transferService({ token, formData }: AccountUpdateForm) {
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -135,7 +135,7 @@ export async function paperLessUpdate({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -161,7 +161,7 @@ export async function updatePassword({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -187,7 +187,7 @@ export async function updateUserInfo({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -212,7 +212,7 @@ export async function getPaymentDetailsApi({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -242,7 +242,7 @@ export async function deleteCardAndBankAccountApi({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -264,7 +264,7 @@ export async function deleteCardAndBankAccountApi({
 
 //     headers: {
 //       Accept: 'application/json',
-//       Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+//       Authorization: `Bearer ${token}`,
 //     },
 //     body: formData,
 //   });
@@ -288,7 +288,7 @@ export async function updateVoicePreferenceAPi({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -311,7 +311,7 @@ export async function contactCustomerServiceApi({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -334,7 +334,7 @@ export async function getConfirmInfoApi({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -397,7 +397,7 @@ export async function listAnotherAccountAPI({ token, formData }: any) {
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -417,7 +417,7 @@ export async function usageAlertsAPI({ token, formData }: AccountUpdateForm) {
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -438,7 +438,7 @@ export async function usageGraphAPI({ token, formData }: AccountUpdateForm) {
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -463,7 +463,7 @@ export async function getInvoiceDetailsAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -486,7 +486,7 @@ export async function usageMonthlyGraphAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -509,7 +509,7 @@ export async function usageUtilityFiltersAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -532,7 +532,7 @@ export async function getLastBillInfoAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -557,7 +557,7 @@ export async function paymentWithoutSavingDetailsAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -582,7 +582,7 @@ export async function getPaymentProcessorDetailsAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -607,7 +607,7 @@ export async function saveDefaultPaymentMethodAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -632,7 +632,7 @@ export async function getConvenienceFeeAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -657,7 +657,7 @@ export async function schedulePaymentAPI({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -701,7 +701,7 @@ export async function saveAcknowledgeForRecurringPaymentApi({
 
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -726,7 +726,7 @@ export async function saveAcknowledgeForRecurringPaymentApi({
 
 //     headers: {
 //       Accept: "application/json",
-//       Authorization: `Bearer ${token}`, // ✅ Add the token to headers
+//       Authorization: `Bearer ${token}`,
 //     },
 //     body: formData,
 //   });

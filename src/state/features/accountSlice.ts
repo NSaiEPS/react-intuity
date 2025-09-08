@@ -178,7 +178,9 @@ export const updateAccountCustomerInfo: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Something went wrong!");
@@ -206,7 +208,9 @@ export const stopTransferService: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Something went wrong!");
@@ -305,7 +309,9 @@ export const updatePaperLessInfo: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
@@ -341,7 +347,9 @@ export const getPaymentDetails: any =
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         if (isPost) {
-          toast.error(res?.message ?? "Something went wrong!");
+          if (res?.message !== "You are not authorised to use this api") {
+            toast.error(res?.message ?? "Something went wrong!");
+          }
         }
       }
     } catch (e: any) {
@@ -375,7 +383,9 @@ export const deleteCardAndBankAccount: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
@@ -399,7 +409,9 @@ export const updateVoicePreference: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
@@ -425,7 +437,9 @@ export const contactCustomerService: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
@@ -452,7 +466,9 @@ export const getConfirmInfo: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
@@ -480,7 +496,9 @@ export const getCompanyDetails: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
         if (failureCallBack) {
           failureCallBack();
         }
@@ -585,7 +603,9 @@ export const getUsageAlerts: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Something went wrong!");
@@ -612,7 +632,9 @@ export const paymentWithoutSavingDetails: any =
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         if (isPost) {
-          toast.error(res?.message ?? "Something went wrong!");
+          if (res?.message !== "You are not authorised to use this api") {
+            toast.error(res?.message ?? "Something went wrong!");
+          }
         }
       }
     } catch (e: any) {
@@ -640,7 +662,9 @@ export const getPaymentProcessorDetails: any =
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         if (isPost) {
-          toast.error(res?.message ?? "Something went wrong!");
+          if (res?.message !== "You are not authorised to use this api") {
+            toast.error(res?.message ?? "Something went wrong!");
+          }
         }
       }
     } catch (e: any) {
@@ -673,7 +697,9 @@ export const saveDefaultPaymentMethod: any =
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
         if (isPost) {
-          toast.error(res?.message ?? "Something went wrong!");
+          if (res?.message !== "You are not authorised to use this api") {
+            toast.error(res?.message ?? "Something went wrong!");
+          }
         }
       }
     } catch (e: any) {
@@ -699,7 +725,9 @@ export const getConvenienceFee: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -726,7 +754,9 @@ export const schedulePayment: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -750,7 +780,9 @@ export const guestPaymentRequest: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
         if (failureCallBack) {
           failureCallBack();
         }
@@ -785,7 +817,9 @@ export const saveAcknowledgeForRecurringPayment: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!");
@@ -810,7 +844,9 @@ export const oneTimePayment: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
         if (failureCallBack) {
           failureCallBack();
         }

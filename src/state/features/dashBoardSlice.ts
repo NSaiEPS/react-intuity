@@ -297,7 +297,9 @@ export const getInvoiceDetails: any =
       } else {
         navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
 
-        toast.error(res?.message ?? "Something went wrong!");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
