@@ -100,6 +100,7 @@ const PaymentForm = () => {
     dueDate,
     customer_acknowledgement_text = "",
   } = location.state || {};
+  console.log(isSchedule, dueDate, customer_acknowledgement_text);
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState("1");
   const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
