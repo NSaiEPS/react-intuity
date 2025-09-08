@@ -12,6 +12,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
+import { paths } from "@/utils/paths";
 
 function UsageHeader() {
   const dashBoardInfo = useSelector(
@@ -60,6 +62,8 @@ function UsageHeader() {
   }, [userInfo]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
   return (
     <Grid container spacing={2} direction="column">
       {/* Row 1: Usage History & Alerts */}
@@ -80,6 +84,12 @@ function UsageHeader() {
             mt={0.5}
             mr={"auto"}
             ml={!isMobile ? 2 : 0}
+            sx={{
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              navigate(paths.dashboard.usageAlerts());
+            }}
           >
             <Typography variant={isMobile ? "body1" : "h6"} fontWeight={500}>
               Usage Alerts
@@ -98,17 +108,17 @@ function UsageHeader() {
             />
           </Box>
         </Box>
-      </Grid>
-
-      {/* Row 2: Account Info */}
-      <Grid item>
         <Box
           display="flex"
           flexDirection={"column"}
           justifyContent={isMobile ? "flex-start" : "flex-end"}
           alignItems={isMobile ? "flex-start" : "flex-end"}
           gap={0}
-          mt={isMobile ? 0 : -5}
+          mt={isMobile ? 2 : -5}
+          sx={{
+            // width: "30%",
+            marginLeft: isMobile ? 0 : "auto",
+          }}
         >
           <Typography variant={isMobile ? "body1" : "h6"}>
             Account No: {CustomerInfo?.acctnum}

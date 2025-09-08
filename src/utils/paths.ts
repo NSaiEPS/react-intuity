@@ -70,6 +70,12 @@ export const paths = {
         ? `/${slug}/dashboard/usage-history`
         : "/intuityfe/dashboard/usage-history";
     },
+    usageAlerts: (company?: string) => {
+      const slug = company ?? getCurrentCompanySlug();
+      return slug
+        ? `/${slug}/dashboard/usage-alerts`
+        : "/intuityfe/dashboard/usage-alerts";
+    },
     service: (company?: string) => {
       const slug = company ?? getCurrentCompanySlug();
       return slug
