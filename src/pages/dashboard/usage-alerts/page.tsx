@@ -22,9 +22,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "nsaicomponents";
 
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
-
 import dayjs, { Dayjs } from "dayjs";
-import { useSelector } from "react-redux"; // to get alerts from redux
+import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 
@@ -33,7 +32,43 @@ export default function AlertsScreen() {
   const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
 
   const { usageAlerts } = useSelector((state: RootState) => state?.Account);
-  const alertsList = [];
+
+  const [selected, setSelected] = React.useState<number[]>([]);
+
+  const alertsList = usageAlerts?.usage_alerts || [];
+
+  const allSelected =
+    alertsList.length > 0 && selected.length === alertsList.length;
+
+  const handleToggle = (index: number) => {
+    setSelected((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
+  const handleToggleAll = () => {
+    if (allSelected) {
+      setSelected([]);
+    } else {
+      setSelected(alertsList.map((_: any, idx: number) => idx));
+    }
+  };
+
+  const handleDeleteRow = (index: number) => {
+    setSelected((prev) => prev.filter((i) => i !== index));
+
+    console.log("Delete row:", alertsList[index]);
+  };
+
+  const handleBulkDelete = () => {
+    if (selected.length === 0) return;
+    console.log(
+      "Bulk delete rows:",
+      selected.map((i) => alertsList[i])
+    );
+    setSelected([]);
+  };
+
   return (
     <Grid container spacing={2}>
       {/* Sidebar Filter */}
@@ -71,9 +106,7 @@ export default function AlertsScreen() {
           <Button
             fullWidth
             variant="contained"
-            style={{
-              marginBottom: "16px",
-            }}
+            style={{ marginBottom: "16px" }}
             hoverBackgroundColor={colors.blue}
             bgColor={"gray"}
           >
@@ -93,7 +126,7 @@ export default function AlertsScreen() {
       {/* Alerts Table */}
       <Grid item xs={12} md={9}>
         <Card sx={{ p: 2 }}>
-          {/* Header with MagnifyingGlass */}
+          {/* Header with Search */}
           <Box
             display="flex"
             justifyContent="space-between"
@@ -103,7 +136,7 @@ export default function AlertsScreen() {
             <Typography variant="h6">ALERTS</Typography>
 
             <TextField
-              placeholder="MagnifyingGlass alert"
+              placeholder="Search alert"
               size="small"
               sx={{ width: 300 }}
               InputProps={{
@@ -136,7 +169,14 @@ export default function AlertsScreen() {
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
-                    <Checkbox />
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={
+                        selected.length > 0 &&
+                        selected.length < alertsList.length
+                      }
+                      onChange={handleToggleAll}
+                    />
                   </TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Alert Date</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>Acct Num</TableCell>
@@ -148,32 +188,39 @@ export default function AlertsScreen() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {usageAlerts?.usage_alerts?.length === 0 ? (
+                {alertsList.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
                       No Alerts
                     </TableCell>
                   </TableRow>
                 ) : (
-                  usageAlerts?.usage_alerts?.map((row: any, index: number) => (
+                  alertsList.map((row: any, index: number) => (
                     <TableRow
                       key={index}
                       sx={{ bgcolor: index % 2 ? "#f9fcff" : "white" }}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox />
+                        <Checkbox
+                          checked={selected.includes(index)}
+                          onChange={() => handleToggle(index)}
+                        />
                       </TableCell>
                       <TableCell>
-                        {dayjs(row.data).format("DD/MM/YYYY")}
+                        {dayjs(row.date).format("DD/MM/YYYY")}
                       </TableCell>
-                      <TableCell>{row.acctnum}</TableCell>
-                      <TableCell>{row.customer_name}</TableCell>
-                      <TableCell>{row.utility_type_name}</TableCell>
-                      <TableCell>{row.meter_number}</TableCell>
-                      <TableCell>{row.message}</TableCell>
+                      <TableCell>{row.acctnum || "-"}</TableCell>
+                      <TableCell>{row.customer_name || "-"}</TableCell>
+                      <TableCell>{row.utility_type_name || "-"}</TableCell>
+                      <TableCell>{row.meter_number || "-"}</TableCell>
+                      <TableCell>{row.message || "-"}</TableCell>
                       <TableCell>
-                        <IconButton color="error" size="small">
-                          <Trash fontSize="small" />
+                        <IconButton
+                          color="error"
+                          size="small"
+                          onClick={() => handleDeleteRow(index)}
+                        >
+                          <Trash size={18} weight="bold" />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -189,8 +236,12 @@ export default function AlertsScreen() {
               Bulk actions:{" "}
               <Typography
                 component="span"
-                color="error"
-                sx={{ cursor: "pointer" }}
+                color={selected.length > 0 ? "error" : "text.disabled"}
+                sx={{
+                  cursor: selected.length > 0 ? "pointer" : "not-allowed",
+                  fontWeight: "bold",
+                }}
+                onClick={handleBulkDelete}
               >
                 Delete
               </Typography>
