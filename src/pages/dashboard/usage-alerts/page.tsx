@@ -4,10 +4,12 @@ import {
   Button,
   Card,
   Checkbox,
-  Divider,
   Grid,
   IconButton,
   InputAdornment,
+  MenuItem,
+  Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -16,24 +18,26 @@ import {
   TableRow,
   TextField,
   Typography,
-  Select,
-  MenuItem,
-  Paper,
 } from "@mui/material";
-// import { Search } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
+import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
+
 import dayjs, { Dayjs } from "dayjs";
+import { useSelector } from "react-redux"; // to get alerts from redux
+import { RootState } from "@/state/store";
 
 export default function AlertsScreen() {
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
   const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
-  const [rows, setRows] = React.useState<any[]>([]);
 
+  const { usageAlerts } = useSelector((state: RootState) => state?.Account);
+  const alertsList = [];
   return (
     <Grid container spacing={2}>
       {/* Sidebar Filter */}
       <Grid item xs={12} md={3}>
-        <Card sx={{ p: 2, bgcolor: "#1d2a38", color: "white" }}>
+        <Card sx={{ p: 2, bgcolor: "#1d2a38", color: "white", height: "100%" }}>
           <Typography variant="h6" sx={{ mb: 2, color: "#4da3ff" }}>
             FILTER ALERTS
           </Typography>
@@ -43,7 +47,6 @@ export default function AlertsScreen() {
           </Typography>
 
           <DatePicker
-            label="Start Date"
             value={startDate}
             onChange={setStartDate}
             slotProps={{
@@ -54,7 +57,6 @@ export default function AlertsScreen() {
             }}
           />
           <DatePicker
-            label="End Date"
             value={endDate}
             onChange={setEndDate}
             slotProps={{
@@ -81,6 +83,7 @@ export default function AlertsScreen() {
       {/* Alerts Table */}
       <Grid item xs={12} md={9}>
         <Card sx={{ p: 2 }}>
+          {/* Header with MagnifyingGlass */}
           <Box
             display="flex"
             justifyContent="space-between"
@@ -90,12 +93,15 @@ export default function AlertsScreen() {
             <Typography variant="h6">ALERTS</Typography>
 
             <TextField
-              placeholder="Search alert"
+              placeholder="MagnifyingGlass alert"
               size="small"
+              sx={{ width: 300 }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton>{/* <Search /> */}</IconButton>
+                    <IconButton>
+                      <MagnifyingGlass />
+                    </IconButton>
                   </InputAdornment>
                 ),
               }}
@@ -105,7 +111,7 @@ export default function AlertsScreen() {
           {/* Display per page */}
           <Box display="flex" alignItems="center" mb={2} gap={1}>
             <Typography variant="body2">Display per page:</Typography>
-            <Select defaultValue={50} size="small">
+            <Select defaultValue={20} size="small">
               {[1, 5, 10, 20, 50, 100].map((n) => (
                 <MenuItem key={n} value={n}>
                   {n}
@@ -114,6 +120,7 @@ export default function AlertsScreen() {
             </Select>
           </Box>
 
+          {/* Alerts Table */}
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -121,35 +128,44 @@ export default function AlertsScreen() {
                   <TableCell padding="checkbox">
                     <Checkbox />
                   </TableCell>
-                  <TableCell>Alert Date</TableCell>
-                  <TableCell>Acct Num</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Utility</TableCell>
-                  <TableCell>Meter No</TableCell>
-                  <TableCell>Message</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Alert Date</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Acct Num</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Utility</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Meter No</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Message</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.length === 0 ? (
+                {usageAlerts?.usage_alerts?.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} align="center">
                       No Alerts
                     </TableCell>
                   </TableRow>
                 ) : (
-                  rows.map((row, index) => (
-                    <TableRow key={index}>
+                  usageAlerts?.usage_alerts?.map((row: any, index: number) => (
+                    <TableRow
+                      key={index}
+                      sx={{ bgcolor: index % 2 ? "#f9fcff" : "white" }}
+                    >
                       <TableCell padding="checkbox">
                         <Checkbox />
                       </TableCell>
-                      <TableCell>{row.date}</TableCell>
-                      <TableCell>{row.acct}</TableCell>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.utility}</TableCell>
-                      <TableCell>{row.meter}</TableCell>
+                      <TableCell>
+                        {dayjs(row.data).format("DD/MM/YYYY")}
+                      </TableCell>
+                      <TableCell>{row.acctnum}</TableCell>
+                      <TableCell>{row.customer_name}</TableCell>
+                      <TableCell>{row.utility_type_name}</TableCell>
+                      <TableCell>{row.meter_number}</TableCell>
                       <TableCell>{row.message}</TableCell>
-                      <TableCell>{row.actions}</TableCell>
+                      <TableCell>
+                        <IconButton color="error" size="small">
+                          <Trash fontSize="small" />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -161,8 +177,12 @@ export default function AlertsScreen() {
           <Box mt={2}>
             <Typography variant="body2">
               Bulk actions:{" "}
-              <Typography component="span" color="error">
-                Delete
+              <Typography
+                component="span"
+                color="error"
+                sx={{ cursor: "pointer" }}
+              >
+                Trash
               </Typography>
             </Typography>
           </Box>
