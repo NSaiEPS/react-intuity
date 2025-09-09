@@ -17,6 +17,7 @@ import { MuiRadio } from "./muiRadio";
 import { MuiCheckbox } from "./muiCheckBox";
 import { MuiSelect } from "./muiSelect";
 import { MuiOutlinedInput } from "./muiInput";
+import { MuiInputBase } from "./MuiInputBase";
 
 import { MuiTextField } from "./muiTextField";
 import { MuiInputLabel } from "./muiInputLabel";
@@ -37,6 +38,7 @@ export const components = {
   MuiCheckbox,
   MuiSelect,
   MuiOutlinedInput,
+  MuiInputBase,
 
   MuiTextField,
   MuiInputLabel,
