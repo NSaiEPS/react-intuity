@@ -19,7 +19,18 @@ export const MuiOutlinedInput: Components<Theme>["MuiOutlinedInput"] = {
     },
     input: {
       "&::placeholder": {
-        color: "green",
+        color: "gray",
+        opacity: 1,
+      },
+    },
+  },
+};
+
+export const MuiInputBase: Components<Theme>["MuiInputBase"] = {
+  styleOverrides: {
+    input: {
+      "&::placeholder": {
+        color: "gray",
         opacity: 1,
       },
     },

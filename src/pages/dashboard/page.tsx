@@ -85,7 +85,21 @@ export default function DashBoardPage(): React.JSX.Element {
             </Box>
           )}
 
-          <React.Suspense fallback={<>Loading...</>}>
+          <React.Suspense
+            fallback={
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                Loading...
+              </div>
+            }
+          >
             <Sales
               chartSeries={[
                 {

@@ -32,8 +32,38 @@ import {
   getUsageAlerts,
 } from "@/state/features/accountSlice";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+
+type ConfirmDialogState = {
+  open: boolean;
+  ids: number[];
+  type?: "single" | "multiple";
+};
+
+const initialState: ConfirmDialogState = {
+  open: false,
+  ids: [],
+  type: "single",
+};
+const reducer = (state: ConfirmDialogState, action: any) => {
+  switch (action.type) {
+    case "OPEN_DIALOG": {
+      const { payload } = action;
+      return { open: true, ids: payload.ids, type: payload.type || "multiple" };
+    }
+    case "CLOSE_DIALOG":
+      return { open: false, ids: [], type: "single" };
+    default:
+      return state;
+  }
+};
 
 export default function AlertsScreen() {
+  const [{ open, ids, type }, localDispatch] = React.useReducer(
+    reducer,
+    initialState
+  );
+  console.log(ids, type, open);
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
   const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
 
@@ -343,7 +373,13 @@ export default function AlertsScreen() {
                         <IconButton
                           color="error"
                           size="small"
-                          onClick={() => handleDeleteRow(row?.id)}
+                          // onClick={() => handleDeleteRow(row?.id)}
+                          onClick={() =>
+                            localDispatch({
+                              type: "OPEN_DIALOG",
+                              payload: { ids: [row?.id], type: "single" },
+                            })
+                          }
                         >
                           <Trash size={18} weight="bold" />
                         </IconButton>
@@ -366,7 +402,12 @@ export default function AlertsScreen() {
                   cursor: selected.length > 0 ? "pointer" : "not-allowed",
                   fontWeight: "bold",
                 }}
-                onClick={handleBulkDelete}
+                onClick={() => {
+                  localDispatch({
+                    type: "OPEN_DIALOG",
+                    payload: { ids: selected },
+                  });
+                }}
               >
                 Delete
               </Typography>
@@ -374,6 +415,29 @@ export default function AlertsScreen() {
           </Box>
         </Card>
       </Grid>
+
+      <ConfirmDialog
+        open={open}
+        title={"Delete Alert"}
+        message={`Are you sure want to delete ${
+          ids.length == 1 ? "This Alert" : `these ${ids.length} Alerts`
+        } ?`}
+        confirmLabel="Yes, Confirm"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          if (type === "single") {
+            handleDeleteRow(ids[0]);
+            localDispatch({ type: "CLOSE_DIALOG" });
+          } else {
+            handleBulkDelete();
+            localDispatch({ type: "CLOSE_DIALOG" });
+          }
+        }}
+        onCancel={() => {
+          localDispatch({ type: "CLOSE_DIALOG" });
+        }}
+        loader={accountLoading}
+      />
       <CustomBackdrop
         open={accountLoading}
         style={{ zIndex: 1300, color: "#fff" }}
