@@ -125,6 +125,26 @@ export default function AlertsScreen() {
     }, 300);
   }, [SearchedValue, stored]);
 
+  const usageApiCall = () => {
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    if (SearchedValue) {
+      formData.append("search", SearchedValue);
+    }
+    if (startDate) {
+      formData.append("start_date", dayjs(startDate).format("DD/MM/YYYY"));
+    }
+    if (endDate) {
+      formData.append("end_date", dayjs(endDate).format("DD/MM/YYYY"));
+    }
+    if (page) {
+      formData.append("limit", page.toString());
+    }
+    dispatch(getUsageAlerts(token, formData));
+  };
+
   return (
     <Grid container spacing={2}>
       {/* Sidebar Filter */}
@@ -165,6 +185,10 @@ export default function AlertsScreen() {
             style={{ marginBottom: "16px" }}
             hoverBackgroundColor={colors.blue}
             bgColor={"gray"}
+            onClick={() => {
+              setStartDate(null);
+              setEndDate(null);
+            }}
           >
             RESET ALL FILTERS
           </Button>
@@ -173,6 +197,8 @@ export default function AlertsScreen() {
             variant="contained"
             bgColor={colors.blue}
             hoverBackgroundColor={colors["blue.3"]}
+            disabled={!(startDate || endDate)}
+            onClick={usageApiCall}
           >
             SUBMIT
           </Button>
