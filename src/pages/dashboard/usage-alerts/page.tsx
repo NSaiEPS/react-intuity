@@ -38,8 +38,11 @@ export default function AlertsScreen() {
 
   const [selected, setSelected] = React.useState<number[]>([]);
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
-
-  const alertsList = usageAlerts?.usage_alerts || [];
+  const [SearchedValue, setSearchedValue] = React.useState("");
+  const [page, setPage] = React.useState(20);
+  const alertsList = usageAlerts?.usage_alerts?.length
+    ? usageAlerts.usage_alerts
+    : [];
 
   const allSelected =
     alertsList.length > 0 && selected.length === alertsList.length;
@@ -94,21 +97,33 @@ export default function AlertsScreen() {
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const dispatch = useDispatch();
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
+  // React.useEffect(() => {
+  //   const formData = new FormData();
+
+  //   formData.append("acl_role_id", roleId);
+  //   formData.append("customer_id", userId);
+
+  //   dispatch(getUsageAlerts(token, formData));
+  // }, [stored]);
+  const timeRef = React.useRef(null);
   React.useEffect(() => {
-    const roleId = stored?.body?.acl_role_id;
-    const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-
-    //     acl_role_id:4
-    // customer_id:810
-    // formData.append('is_form', '0');
-
-    dispatch(getUsageAlerts(token, formData));
-  }, [stored]);
+    if (SearchedValue) {
+      formData.append("search", SearchedValue);
+    }
+    if (timeRef.current) {
+      clearTimeout(timeRef.current);
+    }
+    timeRef.current = setTimeout(() => {
+      dispatch(getUsageAlerts(token, formData));
+    }, 300);
+  }, [SearchedValue, stored]);
 
   return (
     <Grid container spacing={2}>
@@ -180,6 +195,8 @@ export default function AlertsScreen() {
               placeholder="Search alert"
               size="small"
               sx={{ width: 300 }}
+              onChange={(e) => setSearchedValue(e.target.value)}
+              value={SearchedValue}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -195,7 +212,15 @@ export default function AlertsScreen() {
           {/* Display per page */}
           <Box display="flex" alignItems="center" mb={2} gap={1}>
             <Typography variant="body2">Display per page:</Typography>
-            <Select defaultValue={20} size="small">
+            <Select
+              defaultValue={20}
+              size="small"
+              value={page}
+              onChange={(e) =>
+                // setSearchedValue((prev) => ({ ...prev, page: e.target.value }))
+                setPage(e.target.value as number)
+              }
+            >
               {[1, 5, 10, 20, 50, 100].map((n) => (
                 <MenuItem key={n} value={n}>
                   {n}
