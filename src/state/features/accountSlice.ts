@@ -2,6 +2,7 @@ import {
   accountCustomerInfo,
   accountDetailsAPI,
   contactCustomerServiceApi,
+  deleteAlertsAPI,
   deleteCardAndBankAccountApi,
   getCompanyDetailsApi,
   getConfirmInfoApi,
@@ -856,6 +857,31 @@ export const oneTimePayment: any =
       if (failureCallBack) {
         failureCallBack();
       }
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const deleteUsageAlerts: any =
+  (token, formData, successCallback) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await deleteAlertsAPI({ token, formData });
+
+      if (res?.status) {
+        if (successCallback) {
+          successCallback();
+        }
+      } else {
+        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Something went wrong!");
     } finally {
       dispatch(setAccountLoading(false));
     }

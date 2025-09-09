@@ -20,21 +20,26 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { Button } from "nsaicomponents";
+import { Button, CustomBackdrop, Loader } from "nsaicomponents";
 
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
 import dayjs, { Dayjs } from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
-import { getUsageAlerts } from "@/state/features/accountSlice";
+import {
+  deleteUsageAlerts,
+  getUsageAlerts,
+} from "@/state/features/accountSlice";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 
 export default function AlertsScreen() {
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
   const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
 
-  const { usageAlerts } = useSelector((state: RootState) => state?.Account);
+  const { usageAlerts, accountLoading } = useSelector(
+    (state: RootState) => state?.Account
+  );
 
   const [selected, setSelected] = React.useState<number[]>([]);
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
@@ -62,17 +67,37 @@ export default function AlertsScreen() {
   };
 
   const handleDeleteRow = (id: number) => {
-    setSelected((prev) => prev.filter((i) => i !== id));
-    console.log("Delete row:", alertsList[id]);
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("Ids[]", id.toString());
+
+    dispatch(
+      deleteUsageAlerts(token, formData, () => {
+        setSelected((prev) => prev.filter((i) => i !== id));
+      })
+    );
+
+    console.log("Delete row:", id);
   };
 
   const handleBulkDelete = () => {
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
     if (selected.length === 0) return;
-    console.log(
-      "Bulk delete rows:",
-      selected.map((i) => alertsList[i])
+
+    selected.forEach((id) => {
+      formData.append("Ids[]", id.toString());
+    });
+    dispatch(
+      deleteUsageAlerts(token, formData, () => {
+        setSelected([]);
+      })
     );
-    setSelected([]);
+    // setSelected([]);
   };
 
   const handleSortDate = () => {
@@ -349,6 +374,12 @@ export default function AlertsScreen() {
           </Box>
         </Card>
       </Grid>
+      <CustomBackdrop
+        open={accountLoading}
+        style={{ zIndex: 1300, color: "#fff" }}
+      >
+        <Loader />
+      </CustomBackdrop>
     </Grid>
   );
 }

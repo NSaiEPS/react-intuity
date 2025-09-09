@@ -431,6 +431,26 @@ export async function usageAlertsAPI({ token, formData }: AccountUpdateForm) {
   return data;
 }
 
+export async function deleteAlertsAPI({ token, formData }: AccountUpdateForm) {
+  const res = await fetch(`${BASE_URL}usage/front/delete-alerts`, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}
+
 export async function usageGraphAPI({ token, formData }: AccountUpdateForm) {
   // const res = await fetch('https://test-intuity-backend.pay.waterbill.com/usage', {
   const res = await fetch(`${BASE_URL}usage-bar-chart`, {
