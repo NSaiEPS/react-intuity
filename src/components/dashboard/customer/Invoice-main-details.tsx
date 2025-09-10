@@ -398,10 +398,8 @@ export const InvoiceMainDetails = () => {
         </Box>
         <Stack
           direction="column"
-          // spacing={2}
           sx={{
             minWidth: "50%",
-            // backgroundColor: "red",
             pb: 1,
             alignItems: {
               xs: "flex-start", // below 900px
@@ -411,6 +409,7 @@ export const InvoiceMainDetails = () => {
               xs: "left",
               md: "right",
             },
+            width: "100%",
           }}
         >
           <Typography variant="body2" sx={{ fontSize: 13 }}>
@@ -423,24 +422,25 @@ export const InvoiceMainDetails = () => {
               display: "flex",
               alignItems: "center",
               flexWrap: "wrap",
-              // justifyContent: "flex-start", // force left align
               justifyContent: {
-                xs: "flex-start", // below 900px
-                md: "flex-end", // 900px and above
+                xs: "flex-start", // mobile: left
+                md: "flex-end", // desktop: right
               },
               pt: 1,
-
               width: "100%",
             }}
           >
             <Checkbox size="small" sx={{ p: 0, mr: 1 }} />
-            <Typography variant="body2" sx={{ fontSize: 13 }}>
+            <Typography
+              variant="body2"
+              sx={{ fontSize: 13, whiteSpace: "nowrap" }}
+            >
               I would like to go paperless. Here is my email address:
             </Typography>
             <TextField
               variant="standard"
               size="small"
-              sx={{ minWidth: "55%", mt: -1, maxWidth: "100%" }}
+              sx={{ minWidth: "55%", ml: 1, mt: -1, maxWidth: "100%" }}
               InputProps={{ disableUnderline: false }}
             />
           </Box>
