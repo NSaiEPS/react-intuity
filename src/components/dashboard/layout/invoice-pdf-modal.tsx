@@ -98,7 +98,7 @@ export default function CustomModal({
           </PDFDownloadLink>
 
           <div style={{ height: "600px", marginTop: "20px" }}>
-            <PDFViewer width="100%" height="600">
+            <PDFViewer width="'100%" height="600">
               <InvoicePdfDocument invoiceDetails={invoiceDetails} />
             </PDFViewer>
           </div>

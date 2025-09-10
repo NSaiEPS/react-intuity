@@ -31,6 +31,12 @@ export default function DashBoardPage(): React.JSX.Element {
   const { allow_auto_payment } =
     dashBoardInfo?.body?.company || companyDetails || {};
 
+  const {
+    recurring_payment_msg1,
+
+    schedule_payment_msg,
+  } = dashBoardInfo?.body || {};
+
   return (
     <Grid
       container
@@ -152,7 +158,26 @@ export default function DashBoardPage(): React.JSX.Element {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={12}>
+          <Grid
+            item
+            xs={12}
+            sm={
+              !schedule_payment_msg &&
+              !recurring_payment_msg1 &&
+              !allow_auto_payment
+                ? 12
+                : 6
+            }
+            md={
+              !schedule_payment_msg &&
+              !recurring_payment_msg1 &&
+              !allow_auto_payment
+                ? 12
+                : 6
+            }
+            // md={!schedule_payment_msg && !recurring_payment_msg1 ? 12 : 6}
+            lg={12}
+          >
             <TotalProfit value="CustomerService" sx={{ height: "100%" }} />
           </Grid>
           {!isLargeUp && allow_auto_payment !== 1 && (
