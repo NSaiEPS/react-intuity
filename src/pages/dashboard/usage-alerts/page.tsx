@@ -63,7 +63,7 @@ export default function AlertsScreen() {
     reducer,
     initialState
   );
-  console.log(ids, type, open);
+
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
   const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
 
@@ -180,11 +180,12 @@ export default function AlertsScreen() {
     }, 300);
   }, [SearchedValue, stored]);
 
-  const usageApiCall = () => {
+  const usageApiCall = (perpageNum = page) => {
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
+    formData.append("id", userId);
     if (SearchedValue) {
       formData.append("search", SearchedValue);
     }
@@ -194,8 +195,9 @@ export default function AlertsScreen() {
     if (endDate) {
       formData.append("end_date", dayjs(endDate).format("DD/MM/YYYY"));
     }
-    if (page) {
-      formData.append("limit", page.toString());
+    if (perpageNum) {
+      formData.append("perpage", perpageNum.toString());
+      formData.append("page", "1");
     }
     dispatch(getUsageAlerts(token, formData));
   };
@@ -297,10 +299,11 @@ export default function AlertsScreen() {
               defaultValue={20}
               size="small"
               value={page}
-              onChange={(e) =>
+              onChange={(e) => {
                 // setSearchedValue((prev) => ({ ...prev, page: e.target.value }))
-                setPage(e.target.value as number)
-              }
+                setPage(e.target.value as number);
+                usageApiCall(e.target.value as number);
+              }}
             >
               {[1, 5, 10, 20, 50, 100].map((n) => (
                 <MenuItem key={n} value={n}>
