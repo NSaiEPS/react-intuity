@@ -7,25 +7,10 @@ import {
 import { RootState } from "@/state/store";
 import { colors, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
-import {
-  Box,
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Grid,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  TextField,
-  Typography,
-} from "@mui/material";
+
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { CustomBackdrop, Loader } from "nsaicomponents";
+
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -170,43 +155,6 @@ export default function InvoiceDetails() {
     dispatch(setDashboardLoader(false));
   };
 
-  // const handleDownloadPDF = async () => {
-  //   dispatch(setDashboardLoader(true));
-
-  //   const input = pdfRef.current;
-  //   if (!input) {
-  //     dispatch(setDashboardLoader(false));
-  //     return;
-  //   }
-
-  //   // Clone node & force desktop width
-  //   const clonedElement = input.cloneNode(true) as HTMLElement;
-  //   clonedElement.style.width = '1224px'; // Force desktop view
-  //   clonedElement.style.maxWidth = '1224px';
-  //   clonedElement.style.position = 'absolute';
-  //   clonedElement.style.top = '-9999px'; // Hide off-screen
-  //   clonedElement.style.left = '0';
-  //   clonedElement.style.zIndex = '-1';
-  //   document.body.appendChild(clonedElement);
-
-  //   // Capture desktop view
-  //   const canvas = await html2canvas(clonedElement, {
-  //     scale: 2, // High resolution
-  //     useCORS: true,
-  //   });
-
-  //   document.body.removeChild(clonedElement); // Cleanup
-
-  //   const imgData = canvas.toDataURL('image/png');
-  //   const pdf = new jsPDF('p', 'mm', 'a4');
-  //   const pdfWidth = pdf.internal.pageSize.getWidth();
-  //   const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-  //   pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-  //   pdf.save(`invoice_${invoiceDetails?.customer?.customer_name || 'customer'}.pdf`);
-
-  //   dispatch(setDashboardLoader(false));
-  // };
   const [open, setOpen] = React.useState(false);
 
   const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);

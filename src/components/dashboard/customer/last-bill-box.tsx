@@ -17,9 +17,12 @@ import { useSelector } from "react-redux";
 
 import { paths } from "@/utils/paths";
 
-import PdfViewer from "../layout/invoice-pdf-view";
+// import PdfViewer from "../layout/invoice-pdf-view";
 import UtilityList from "./last-bill-itemInfo";
 import { PaymentModal } from "./paymnet-modal";
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import InvoicePdfDocument from "../layout/invoice-pdf-view";
+import CustomModal from "../layout/invoice-pdf-modal";
 
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -67,6 +70,14 @@ export function LastBill(): React.JSX.Element {
   //     router.prefetch(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));
   //   }
   // }, [lastBillInfo]);
+  const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+  const handlePreviewInvoice = () => {
+    if (true) {
+      setPdfPreviewInvocie(true);
+    } else {
+      navigate(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));
+    }
+  };
   return (
     <Paper elevation={2} sx={{ p: 4, backgroundColor: "#f5f9fc" }}>
       <Grid container spacing={4}>
@@ -248,9 +259,8 @@ export function LastBill(): React.JSX.Element {
           <Typography
             onClick={() => {
               // setPdfModal(true);
-              navigate(
-                paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id)
-              );
+
+              handlePreviewInvoice();
             }}
             variant="body2"
             sx={{ textDecoration: "underline", cursor: "pointer" }}
@@ -276,13 +286,23 @@ export function LastBill(): React.JSX.Element {
           setOpen(false);
         }}
       />
-      <PdfViewer
+      {previewInvoicePdf && (
+        <CustomModal
+          open={previewInvoicePdf}
+          onClose={() => {
+            setPdfPreviewInvocie(false);
+          }}
+          id={lastBillInfo?.last_bill?.id}
+        />
+      )}
+      {/* <PdfViewer
         open={pdfModal}
         onClose={() => {
           setPdfModal(false);
         }}
         fileUrl=""
-      />
+      /> */}
+
       <CustomBackdrop
         open={paymentLoader}
         style={{ zIndex: 1300, color: "#fff" }}

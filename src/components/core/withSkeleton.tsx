@@ -5,14 +5,16 @@ import { useLoading } from "./skeletion-context";
 
 interface WithSkeletonProps {
   children?: ReactNode;
+  customLoader?: boolean;
 }
 export const SkeletonWrapper = withSkeleton(({ children }) => <>{children}</>);
 
 export default function withSkeleton<P>(Component: React.ComponentType<P>) {
   return function WrappedComponent(props: P & WithSkeletonProps) {
+    const { customLoader = false, ...rest } = props;
     const { contextLoading } = useLoading();
 
-    if (contextLoading) {
+    if (contextLoading || customLoader) {
       return (
         <div style={{ width: "100%", height: "100%" }}>
           <Skeleton animation="wave" variant="rectangular" height={50} />

@@ -34,6 +34,7 @@ export default defineConfig({
     sourcemap: false, // disable in prod for smaller size
   },
   optimizeDeps: {
-    include: ["react", "react-dom"], // pre-bundle common deps
+    include: ["react", "react-dom"],
+    // exclude: ["@react-pdf/renderer"],
   },
 });
