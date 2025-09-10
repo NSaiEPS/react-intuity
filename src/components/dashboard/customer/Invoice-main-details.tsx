@@ -492,8 +492,9 @@ export const InvoiceMainDetails = () => {
               {company?.company_name}
             </Typography>
             <Typography>
-              {company?.city} {company?.street ? `,${company?.street},` : ""}
-              {company?.zip ? `,${company?.zip},` : ""}
+              {company?.city ? `${company?.city},` : ""}{" "}
+              {company?.street ? `${company?.street},` : ""}
+              {company?.zip ? `${company?.zip},` : ""}
             </Typography>
           </Grid>
 

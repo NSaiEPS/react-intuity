@@ -601,7 +601,7 @@ const PaymentForm = () => {
               control={control}
               rules={{
                 required: "Amount is required",
-                min: { value: 1, message: "Amount must be greater than 0" },
+                min: { value: 0, message: "Amount must be greater than 0" },
               }}
               render={({ field }) => (
                 <TextField
@@ -618,7 +618,7 @@ const PaymentForm = () => {
                     let value = e.target.value;
 
                     // Prevent empty or 0
-                    if (value === "" || Number(value) <= 0) {
+                    if (Number(value) < 0) {
                       toast.warn("Amount should be more than 0");
                       return;
                     }
@@ -869,7 +869,7 @@ const PaymentForm = () => {
                 {/* Confirm Button */}
                 <Button
                   onClick={() => {
-                    if (Number(watch("amount")) === 0) {
+                    if (Number(watch("amount")) <= 0) {
                       toast.warn("Amount should be more than 0");
                       return;
                     }
@@ -920,13 +920,18 @@ const PaymentForm = () => {
           )}
         </form>
 
-        {paymentType === "no-save" && (
-          <PaymentIframe
-            type={debitType == "card" ? "card" : "account"}
-            // onSuccess={(data: any) => handleSaveDetails(data, debitType)}
-            onSuccess={(data: any) => setCardBankDetails(data)}
-          />
-        )}
+        {paymentType === "no-save" &&
+          (Number(watch("amount")) <= 0 ? (
+            <Typography color="error" textAlign={"center"}>
+              Amount must be greater than 0 to proceed for the payment{" "}
+            </Typography>
+          ) : (
+            <PaymentIframe
+              type={debitType == "card" ? "card" : "account"}
+              // onSuccess={(data: any) => handleSaveDetails(data, debitType)}
+              onSuccess={(data: any) => setCardBankDetails(data)}
+            />
+          ))}
 
         {openPaymentModal && (
           <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
