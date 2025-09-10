@@ -262,13 +262,13 @@ export function BillingHistory({
       >
         <Loader />
       </CustomBackdrop>
-      <PdfViewer
+      {/* <PdfViewer
         open={pdfModal}
         onClose={() => {
           setPdfModal(false);
         }}
         fileUrl=""
-      />
+      /> */}
     </Grid>
   );
 }

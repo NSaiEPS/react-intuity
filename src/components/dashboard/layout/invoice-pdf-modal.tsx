@@ -23,7 +23,7 @@ export default function CustomModal({
   open,
   onClose,
   title,
-  children,
+
   width = "800px",
   id,
 }: ModalProps) {
@@ -90,11 +90,9 @@ export default function CustomModal({
         <>
           <PDFDownloadLink
             document={<InvoicePdfDocument invoiceDetails={invoiceDetails} />}
-            fileName={`invoice_${"customer"}.pdf`}
+            fileName={`invoice.pdf`}
           >
-            {({ loading }) =>
-              loading ? "Preparing PDF..." : "⬇️ Download Invoice PDF"
-            }
+            {({ loading }) => (loading ? "Preparing PDF..." : "")}
           </PDFDownloadLink>
 
           <div style={{ height: "600px", marginTop: "20px" }}>

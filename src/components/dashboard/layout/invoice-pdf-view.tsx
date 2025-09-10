@@ -431,6 +431,8 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     color: "#999",
     fontSize: 10,
+    maxWidth: "100%",
+    overflow: "hidden",
   },
 
   // bottom paper / paystub
@@ -623,7 +625,7 @@ export default function InvoicePdfDocument({
               String(key).split(";");
             const serviceAddress = addressParts.join(";");
             const utilityDetails = items?.[0] ?? {};
-            console.log(utilityDetails, "utilityDetails");
+
             return (
               <View
                 key={String(key) + uIdx}
@@ -756,7 +758,7 @@ export default function InvoicePdfDocument({
           </Text>
         </View>
         {/* Divider */}
-        <Text style={styles.dashed}>{"- ".repeat(80)}</Text>
+        <Text style={styles.dashed}>{"- ".repeat(90)}</Text>
 
         {/* Bottom Paper / Payment stub */}
         <View style={styles.paper}>
