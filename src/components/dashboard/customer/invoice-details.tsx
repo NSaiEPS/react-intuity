@@ -214,7 +214,7 @@ export default function InvoiceDetails() {
       </div>
       {/* <button onClick={handlePreview}>Preview Invoice PDF</button> */}
 
-      <PdfViewer open={open} onClose={() => setOpen(false)} fileUrl={pdfUrl} />
+      {/* <PdfViewer open={open} onClose={() => setOpen(false)} fileUrl={pdfUrl} /> */}
     </SkeletonWrapper>
   );
 }

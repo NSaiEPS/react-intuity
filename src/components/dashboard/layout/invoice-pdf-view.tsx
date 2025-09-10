@@ -164,6 +164,57 @@ import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 // PDF styles (replace sx with StyleSheet rules)
 const styles = StyleSheet.create({
+  section1: {
+    padding: 12,
+    border: "1pt solid black",
+    marginBottom: 12,
+  },
+  inline: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  table: {
+    // display: "table",
+    width: "100%",
+    border: "1pt solid black",
+    borderCollapse: "collapse",
+    marginTop: 8,
+
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginVertical: 8,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  cell: {
+    flex: 1,
+    padding: 6,
+    borderRight: "1pt solid black",
+    borderBottom: "1pt solid black",
+    fontSize: 10,
+  },
+  headerCell: {
+    flex: 1,
+    padding: 6,
+    borderRight: "1pt solid black",
+    borderBottom: "1pt solid black",
+    backgroundColor: "#dbeafe", // light blue
+    fontWeight: "bold",
+    fontSize: 11,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
+    backgroundColor: "#dbeafe",
+    padding: 6,
+    marginBottom: 8,
+  },
+  smallText: {
+    fontSize: 10,
+  },
   page: {
     padding: 24,
     fontSize: 12,
@@ -211,12 +262,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-  table: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginVertical: 8,
-  },
+  // table: {
+  //   width: "100%",
+  //   borderWidth: 1,
+  //   borderColor: "#ddd",
+  //   marginVertical: 8,
+  // },
   tableRow: {
     flexDirection: "row",
   },
@@ -366,6 +417,88 @@ export default function InvoicePdfDocument({
         {/* Footer */}
         <View style={styles.footer}>
           <Text>{company_settings?.invoice_footer_column_3}</Text>
+        </View>
+
+        {/* //footer */}
+        <View style={styles.section1}>
+          {/* Invoice Number */}
+          <Text style={styles.smallText}>
+            Invoice#:{" "}
+            <Text style={{ fontWeight: "bold" }}>
+              {last_bill?.[0]?.invoice_number}
+            </Text>
+          </Text>
+
+          {/* Instruction */}
+          <Text style={[styles.smallText, { marginTop: 6 }]}>
+            Please detach and return with your payment. Make Checks Payable to:
+            <Text style={{ fontWeight: "bold" }}> {company?.company_name}</Text>
+          </Text>
+
+          {/* Checkbox + Email row */}
+          <View style={styles.inline}>
+            <Text style={[styles.smallText, { marginRight: 4 }]}>☐</Text>
+            <Text style={styles.smallText}>
+              I would like to go paperless. Here is my email address:
+              _____________________
+            </Text>
+          </View>
+
+          {/* Left Column (Customer + Bill Payment) */}
+          <View style={{ marginTop: 12 }}>
+            <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+              {customer?.customer_name}
+            </Text>
+            <Text style={styles.smallText}>{customer?.address}</Text>
+
+            <Text style={styles.title}>BILL PAYMENT</Text>
+
+            <Text style={{ fontWeight: "bold", fontSize: 12 }}>
+              {company?.company_name}
+            </Text>
+            <Text style={styles.smallText}>
+              {company?.city} {company?.street ? `, ${company?.street},` : ""}
+              {company?.zip ? ` ${company?.zip}` : ""}
+            </Text>
+          </View>
+
+          {/* Right Column (Table) */}
+          <View style={styles.table}>
+            {/* Header Row */}
+            <View style={styles.row}>
+              <Text style={styles.headerCell}>ACCOUNT NUMBER</Text>
+              <Text style={styles.headerCell}>DUE DATE</Text>
+              <Text style={[styles.headerCell, { borderRight: "none" }]}>
+                AMOUNT DUE
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>{customer?.acctnum}</Text>
+              <Text style={styles.cell}>{last_bill?.[0]?.due_date}</Text>
+              <Text style={[styles.cell, { borderRight: "none" }]}>
+                ${last_bill?.[0]?.amount}
+              </Text>
+            </View>
+
+            {/* Second Header Row */}
+            <View style={styles.row}>
+              <Text style={styles.headerCell}>BILL DATE</Text>
+              <Text style={styles.headerCell}>LATE DATE</Text>
+              <Text style={[styles.headerCell, { borderRight: "none" }]}>
+                LATE AMOUNT
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.cell}>{last_bill?.[0]?.billing_date}</Text>
+              <Text style={styles.cell}>{last_bill?.[0]?.late_date}</Text>
+              <Text style={[styles.cell, { borderRight: "none" }]}>
+                $
+                {(
+                  last_bill?.[0]?.amount + last_bill?.[0]?.late_date_amount
+                ).toFixed(2)}
+              </Text>
+            </View>
+          </View>
         </View>
       </Page>
     </Document>
