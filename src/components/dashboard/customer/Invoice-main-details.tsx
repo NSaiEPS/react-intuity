@@ -232,20 +232,24 @@ export const InvoiceMainDetails = () => {
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
                               From:{" "}
-                              {formatToMMDDYYYY(
-                                utilityDetails?.start_date,
-                                false,
-                                false,
-                                true
-                              )}
+                              {utilityDetails?.start_date
+                                ? formatToMMDDYYYY(
+                                    utilityDetails?.start_date,
+                                    false,
+                                    false,
+                                    true
+                                  )
+                                : ""}
                               <br />
                               To:{" "}
-                              {formatToMMDDYYYY(
-                                utilityDetails?.end_date,
-                                false,
-                                false,
-                                true
-                              )}
+                              {utilityDetails?.end_date
+                                ? formatToMMDDYYYY(
+                                    utilityDetails?.end_date,
+                                    false,
+                                    false,
+                                    true
+                                  )
+                                : ""}
                             </Typography>
                           </Grid>
 
