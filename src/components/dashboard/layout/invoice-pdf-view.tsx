@@ -299,6 +299,67 @@ const styles = StyleSheet.create({
   },
 });
 
+const headerStyles = StyleSheet.create({
+  page: {
+    fontSize: 12,
+    padding: 30,
+    fontFamily: "Helvetica",
+  },
+  section: {
+    marginBottom: 15,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  subHeader: {
+    fontSize: 12,
+    color: "#777",
+    marginBottom: 5,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  box: {
+    backgroundColor: "#38699C",
+    color: "white",
+    padding: 10,
+    borderRadius: 4,
+  },
+  table: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginTop: 10,
+  },
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+    padding: 6,
+  },
+  tableCell: {
+    flex: 1,
+    fontSize: 12,
+  },
+  totalBox: {
+    marginTop: 10,
+    alignSelf: "flex-end",
+    backgroundColor: "#38699C",
+    color: "white",
+    padding: 10,
+    borderRadius: 4,
+  },
+  divider: {
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    marginVertical: 10,
+  },
+});
+
 export default function InvoicePdfDocument({
   invoiceDetails,
 }: {
@@ -316,103 +377,89 @@ export default function InvoicePdfDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.companyName}>{company?.company_name}</Text>
-            <Text style={styles.subHeadline}>
-              {company_settings?.invoice_subheadline}
-            </Text>
+        {/* Company Header */}
+        <View style={headerStyles.section}>
+          <Text style={headerStyles.header}>{company?.company_name}</Text>
+          <Text style={headerStyles.subHeader}>
+            {company_settings?.invoice_subheadline}
+          </Text>
+        </View>
+
+        {/* Invoice To */}
+        <View style={headerStyles.section}>
+          <Text style={headerStyles.subHeader}>INVOICE TO</Text>
+          <Text>{customer?.customer_name}</Text>
+          <Text>
+            {customer?.address}, {customer?.city}
+          </Text>
+          <Text>Email: {customer?.email}</Text>
+          <Text>Phone: {customer?.phone}</Text>
+        </View>
+
+        {/* Invoice Box */}
+        <View style={[headerStyles.section, headerStyles.box]}>
+          <View style={headerStyles.row}>
+            <Text>Invoice Date:</Text>
+            <Text>{last_bill?.[0]?.billing_date}</Text>
           </View>
-          <View style={styles.rightHeader}>
-            <Text>{company_settings?.invoice_text_header_email}</Text>
-            <Text>{company_settings?.invoice_text_header_open}</Text>
-            <Text>
-              {company_settings?.invoice_text_header_web} {"\n"}
-              {company_settings?.direct_debit}
-            </Text>
+          <View style={headerStyles.row}>
+            <Text>Total Due:</Text>
+            <Text>${last_bill?.[0]?.amount}</Text>
           </View>
         </View>
 
-        {/* Invoice Title + Box */}
-        <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.label}>INVOICE TO</Text>
-            <Text style={styles.value}>{customer?.customer_name}</Text>
-            <Text>
-              {customer?.address}, {customer?.city}
-            </Text>
-            <Text>Email: {customer?.email}</Text>
-            <Text>Phone: {customer?.phone}</Text>
-          </View>
-          <View>
-            <Text style={styles.invoiceTitle}>INVOICE</Text>
-            <View style={styles.invoiceBox}>
-              <Text>Invoice Date: {last_bill?.[0]?.billing_date}</Text>
-              <Text>Total Due: ${last_bill?.[0]?.amount}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Items by Utility */}
-        {Object.entries(unique_by_utility).map(([key, items]: any) => {
+        {/* Item Descriptions */}
+        {Object.entries(unique_by_utility || {}).map(([key, items]: any) => {
           const [utilityName, , meterNumber, ...addressParts] = key.split(";");
           const serviceAddress = addressParts.join(";");
-          const utilityDetails = items?.[0] ?? {};
 
           return (
-            <View key={key} style={styles.section}>
-              <Text style={styles.value}>Item Description</Text>
+            <View key={key} style={headerStyles.section}>
+              <Text style={headerStyles.header}>Item Description</Text>
               <Text>
                 {utilityName} - {meterNumber} - {serviceAddress}
               </Text>
 
               {/* Table */}
-              <View style={styles.table}>
-                {items.map((item: any, idx: number) => (
-                  <View style={styles.tableRow} key={idx}>
-                    <Text style={[styles.tableCell, styles.tableHeader]}>
+              <View style={headerStyles.table}>
+                {items.map((item: any, index: number) => (
+                  <View key={index} style={headerStyles.tableRow}>
+                    <Text style={headerStyles.tableCell}>
                       {item.product_id}
                     </Text>
-                    <Text style={styles.tableCell}>
+                    <Text style={headerStyles.tableCell}>
                       ${item.amount.toFixed(2)}
                     </Text>
                   </View>
                 ))}
-              </View>
-
-              {/* Utility Info */}
-              <View style={styles.section}>
-                <Text>Service Address: {utilityDetails.service_address}</Text>
-                <Text>
-                  From: {utilityDetails?.start_date} To:{" "}
-                  {utilityDetails?.end_date}
-                </Text>
-                <Text>Days: {utilityDetails.consumption_days}</Text>
-                <Text>
-                  Meter Start: {utilityDetails.previous_reading} / End:{" "}
-                  {utilityDetails.current_reading}
-                </Text>
-                <Text>
-                  Usage (Gallons): {utilityDetails.consumption} (Meter #{" "}
-                  {utilityDetails.meter_number})
-                </Text>
               </View>
             </View>
           );
         })}
 
         {/* Previous Balance */}
-        {extra_params.map((item: any, idx: number) => (
-          <View key={idx} style={styles.section}>
-            <Text>PREVIOUS BALANCE: ${item.amount}</Text>
+        {extra_params?.map((item: any, index: number) => (
+          <View key={index} style={headerStyles.row}>
+            <Text>PREVIOUS BALANCE</Text>
+            <Text>${item.amount}</Text>
           </View>
         ))}
 
         {/* Total Box */}
-        <View style={styles.totalBox}>
+        <View style={headerStyles.totalBox}>
           <Text>Total Due: ${last_bill?.[0]?.amount}</Text>
         </View>
+
+        {/* Autopay */}
+        {customer?.autopay && (
+          <View style={headerStyles.section}>
+            <Text style={{ color: "red", fontWeight: "bold" }}>
+              {invoiceDetails?.autopay_do_not_pay_text}
+            </Text>
+          </View>
+        )}
+
+        <View style={headerStyles.divider} />
 
         {/* Footer */}
         <View style={styles.footer}>
