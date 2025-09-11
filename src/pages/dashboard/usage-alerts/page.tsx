@@ -206,12 +206,23 @@ export default function AlertsScreen() {
     <Grid container spacing={2}>
       {/* Sidebar Filter */}
       <Grid item xs={12} md={3}>
-        <Card sx={{ p: 2, bgcolor: "#1d2a38", color: "white", height: "100%" }}>
-          <Typography variant="h6" sx={{ mb: 2, color: "#4da3ff" }}>
+        <Card
+          sx={{
+            p: 2,
+            bgcolor: colors.darkBlue,
+            color: "white",
+            height: "100%",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ mb: 2, color: colors.blue }}
+            textAlign={"center"}
+          >
             FILTER ALERTS
           </Typography>
 
-          <Typography variant="body2" sx={{ mb: 1 }}>
+          <Typography textAlign={"center"} variant="body2" sx={{ mb: 1 }}>
             Alert Date between
           </Typography>
 
@@ -274,13 +285,27 @@ export default function AlertsScreen() {
             justifyContent="space-between"
             alignItems="center"
             mb={2}
+            sx={{
+              display: "flex",
+              flexDirection: "row", // default
+              "@media (max-width:450px)": {
+                flexDirection: "column",
+              },
+            }}
           >
             <Typography variant="h6">ALERTS</Typography>
 
             <TextField
               placeholder="Search alert"
               size="small"
-              sx={{ width: 300 }}
+              sx={{
+                width: 300,
+
+                "@media (max-width:450px)": {
+                  marginTop: 1,
+                  width: "100%",
+                },
+              }}
               onChange={(e) => setSearchedValue(e.target.value)}
               value={SearchedValue}
               InputProps={{

@@ -422,10 +422,7 @@ export const InvoiceMainDetails = () => {
               display: "flex",
               alignItems: "center",
               flexWrap: "wrap",
-              justifyContent: {
-                xs: "flex-start", // mobile: left
-                md: "flex-end", // desktop: right
-              },
+              justifyContent: "flex-start",
               pt: 1,
               width: "100%",
             }}
@@ -440,7 +437,7 @@ export const InvoiceMainDetails = () => {
             <TextField
               variant="standard"
               size="small"
-              sx={{ minWidth: "55%", ml: 1, mt: -1, maxWidth: "100%" }}
+              sx={{ minWidth: "64%", ml: 1, mt: -1, maxWidth: "100%" }}
               InputProps={{ disableUnderline: false }}
             />
           </Box>
