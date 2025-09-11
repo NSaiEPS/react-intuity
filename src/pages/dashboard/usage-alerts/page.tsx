@@ -218,6 +218,7 @@ export default function AlertsScreen() {
           <DatePicker
             value={startDate}
             onChange={setStartDate}
+            maxDate={endDate || dayjs()}
             slotProps={{
               textField: {
                 fullWidth: true,
@@ -228,6 +229,8 @@ export default function AlertsScreen() {
           <DatePicker
             value={endDate}
             onChange={setEndDate}
+            maxDate={dayjs()}
+            minDate={startDate || undefined}
             slotProps={{
               textField: {
                 fullWidth: true,

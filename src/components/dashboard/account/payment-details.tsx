@@ -483,7 +483,7 @@ const PaymentForm = () => {
               gap: { xs: 1, sm: 0 },
             }}
           >
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="h6" color="black">
               Name/Email For Payment Receipt
             </Typography>
 
