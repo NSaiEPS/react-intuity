@@ -149,7 +149,10 @@ export const getAccountInfo: any =
         console.log(res, "accountDetailsAPI");
         dispatch(setAccountInfo(res?.body));
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -177,7 +180,7 @@ export const updateAccountCustomerInfo: any =
           successCallback();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -207,7 +210,7 @@ export const stopTransferService: any =
         }
         // message.success(res?.data?.message);
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -273,7 +276,7 @@ export const updateAccountInfo: any =
         //toast(res?.data?.message);
         // message.success(res?.data?.message);
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         toast.error(res?.message ?? "Something went wrong!!!!!");
       }
@@ -308,7 +311,7 @@ export const updatePaperLessInfo: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -345,7 +348,7 @@ export const getPaymentDetails: any =
           toast.success(res?.message ? res?.message : "Payment method saved!");
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (isPost) {
           if (res?.message !== "You are not authorised to use this api") {
@@ -382,7 +385,7 @@ export const deleteCardAndBankAccount: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -408,7 +411,7 @@ export const updateVoicePreference: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -436,7 +439,7 @@ export const contactCustomerService: any =
           toast.success(res?.message ? res?.message : "Message Sent!");
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -465,7 +468,7 @@ export const getConfirmInfo: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -495,7 +498,7 @@ export const getCompanyDetails: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -533,7 +536,7 @@ export const registerApiRequest: any =
           successCallBack(res?.body);
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         toast.error(
           res?.message
@@ -569,7 +572,7 @@ export const linkAnotherAccount: any =
           successCallBack(res?.body);
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         toast.error(
           res?.message
@@ -602,7 +605,7 @@ export const getUsageAlerts: any =
           successCallback();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -630,7 +633,7 @@ export const paymentWithoutSavingDetails: any =
 
         toast.success(res?.message ? res?.message : "Payment SuccessFull!");
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (isPost) {
           if (res?.message !== "You are not authorised to use this api") {
@@ -660,7 +663,7 @@ export const getPaymentProcessorDetails: any =
 
         dispatch(setPaymentProcessorDetails(res?.body));
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (isPost) {
           if (res?.message !== "You are not authorised to use this api") {
@@ -695,7 +698,7 @@ export const saveDefaultPaymentMethod: any =
           res?.message ? res?.message : "Payment Saved SuccessFully!"
         );
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (isPost) {
           if (res?.message !== "You are not authorised to use this api") {
@@ -724,7 +727,7 @@ export const getConvenienceFee: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -753,7 +756,7 @@ export const schedulePayment: any =
           res?.message ? res?.message : "Payment SuccessFully Scheduled!"
         );
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -779,7 +782,7 @@ export const guestPaymentRequest: any =
           successCallBack(res?.body?.customer);
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -816,7 +819,7 @@ export const saveAcknowledgeForRecurringPayment: any =
           successCallBack();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -843,7 +846,7 @@ export const oneTimePayment: any =
           successCallBack(res?.body?.customer);
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -874,7 +877,7 @@ export const deleteUsageAlerts: any =
           successCallback();
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");

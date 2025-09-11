@@ -116,13 +116,13 @@ export const getDashboardInfo: any =
 
         dispatch(setDashboardInfo(res));
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-      // toast(e?.response?.data?.message);
-      // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setDashboardLoader(false));
     }
@@ -149,13 +149,13 @@ export const getAccountInfo: any =
         // message.success(res?.data?.message);
         // dispatch(setDashboardInfo(res));
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-      // toast(e?.response?.data?.message);
-      // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setDashboardLoader(false));
     }
@@ -174,6 +174,10 @@ export const setPaperLessSettings: any = (data) => async (dispatch) => {
       //toast(res?.data?.message);
       // message.success(res?.data?.message);
       dispatch(setDashboardInfo(res?.data?.data?.data));
+    } else {
+      if (res?.data?.message !== "You are not authorised to use this api") {
+        toast.error(res?.data?.message ?? "Something went wrong!");
+      }
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -199,6 +203,10 @@ export const setAutoPaySettings: any = (data) => async (dispatch) => {
       //toast(res?.data?.message);
       // message.success(res?.data?.message);
       dispatch(setDashboardInfo(res?.data?.data?.data));
+    } else {
+      if (res?.data?.message !== "You are not authorised to use this api") {
+        toast.error(res?.data?.message ?? "Something went wrong!");
+      }
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -243,16 +251,15 @@ export const getNotificationList: any =
         if (failureCallBack) {
           failureCallBack();
         }
-        toast.error(res?.message ?? "some thing went wrong");
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
 
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
       failureCallBack();
-
-      // toast(e?.response?.data?.message);
-      // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setDashboardLoader(false));
       dispatch(setNotificationLoader(false));
@@ -268,7 +275,10 @@ export const getUsageGraph: any = (formData, token) => async (dispatch) => {
     if (res?.status) {
       dispatch(setusageGraph(res?.body));
     } else {
-      navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+      navigateTo("/login", { replace: true }, res?.message);
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
+      }
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -295,7 +305,7 @@ export const getInvoiceDetails: any =
       if (res?.status) {
         dispatch(setInvoiceDetails(res?.body));
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
@@ -320,7 +330,10 @@ export const usageMonthlyGraph: any = (formData, token) => async (dispatch) => {
     if (res?.status) {
       dispatch(setMonthlyUsageGraph(res?.body?.data));
     } else {
-      navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+      navigateTo("/login", { replace: true }, res?.message);
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
+      }
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
@@ -343,13 +356,13 @@ export const usageUtilityFilters: any =
         dispatch(setUsageUtilityFilters(res?.body));
         successCallBack(res?.body);
       } else {
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-      // toast(e?.response?.data?.message);
-      // message.error(e?.response?.data?.message);
     } finally {
       dispatch(setDashboardLoader(false));
     }

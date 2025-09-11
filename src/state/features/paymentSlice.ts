@@ -52,7 +52,10 @@ export const getLastBillInfo: any =
       } else {
         dispatch(setLastBillInfo({}));
 
-        navigateTo("/login", { replace: true }, res?.message); // ✅ no reload
+        navigateTo("/login", { replace: true }, res?.message);
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
