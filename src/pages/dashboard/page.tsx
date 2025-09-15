@@ -1,6 +1,6 @@
 import * as React from "react";
 // import Grid from "@mui/material/Unstable_Grid2";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import Grid from "@mui/material/Grid";
 
 import { Budget } from "@/components/dashboard/overview/budget";
@@ -13,6 +13,7 @@ import { ScheduleRecurringBox } from "@/components/dashboard/overview/schedule-r
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage } from "@/utils/auth";
+import { usePreloadDashboardRoutes } from "@/hooks/usePreloadDashboardRoutes";
 
 const Sales = React.lazy(() =>
   import("@/components/dashboard/overview/sales").then((module) => ({
@@ -36,6 +37,9 @@ export default function DashBoardPage(): React.JSX.Element {
 
     schedule_payment_msg,
   } = dashBoardInfo?.body || {};
+
+  //preloading some important dashboard routes
+  usePreloadDashboardRoutes();
 
   return (
     <Grid

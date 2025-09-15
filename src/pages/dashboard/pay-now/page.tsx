@@ -4,7 +4,7 @@ import Stack from "@mui/material/Stack";
 
 //import { companySlugs, config } from "@/config";
 import { LastBill } from "@/components/dashboard/customer/last-bill-box";
-import withSkeleton, { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage } from "@/utils/auth";
