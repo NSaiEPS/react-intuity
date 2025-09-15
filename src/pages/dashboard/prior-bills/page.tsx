@@ -60,11 +60,3 @@ export default function PriorBillsPage(): React.JSX.Element {
     </SkeletonWrapper>
   );
 }
-
-function applyPagination(
-  rows: Customer[],
-  page: number,
-  rowsPerPage: number
-): Customer[] {
-  return rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-}

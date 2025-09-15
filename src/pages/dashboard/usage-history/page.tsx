@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Grid } from "@mui/material";
+import { Box, Card, Grid } from "@mui/material";
 import Stack from "@mui/material/Stack";
 
 //import { companySlugs, config } from "@/config";
@@ -12,6 +12,7 @@ const Sales = React.lazy(() =>
 );
 import UsageFilter from "@/components/dashboard/overview/usage-filter";
 import UsageHeader from "@/components/dashboard/overview/usage-header";
+import { boarderRadius } from "@/utils";
 
 //export const metadata = {
 //   title: `Usage - ${config.site.name}`,
@@ -21,7 +22,11 @@ import UsageHeader from "@/components/dashboard/overview/usage-header";
 // }
 export default function UsageHistoryPage(): React.JSX.Element {
   return (
-    <Stack spacing={3}>
+    <Card
+      sx={{
+        borderRadius: boarderRadius.card,
+      }}
+    >
       <UsageHeader />
       <Grid lg={8} xs={12}>
         <UsageFilter />
@@ -40,6 +45,6 @@ export default function UsageHistoryPage(): React.JSX.Element {
 
         <BarChart />
       </Grid>
-    </Stack>
+    </Card>
   );
 }

@@ -3,13 +3,22 @@ import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 
 import { getLocalStorage } from "@/utils/auth";
-import { CardHeader, FormControl, Grid, MenuItem, Select } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardHeader,
+  FormControl,
+  Grid,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 
 import PdfViewer from "../layout/invoice-pdf-view";
 import InvoiceTransactionTabs from "./billing-history-tabs";
+import { boarderRadius } from "@/utils";
 
 function noop(): void {
   // do nothing
@@ -100,11 +109,17 @@ export function BillingHistory({
     dispatch(getLastBillInfo(formData, token));
   };
   return (
-    <Grid>
+    <Card
+      sx={{
+        borderRadius: boarderRadius.card,
+      }}
+    >
       <Grid container spacing={2} justifyContent="space-between">
         <CardHeader
           title={
-            <Typography variant="h5">Payment & billing history</Typography>
+            <Typography variant="h5" ml={1}>
+              Payment & billing history
+            </Typography>
           }
         />
 
@@ -129,7 +144,7 @@ export function BillingHistory({
           <Select
             value={selectedYear}
             onChange={handleChange}
-            sx={{ height: 40, mb: 1 }}
+            sx={{ height: 40, mb: 1, mr: 2 }}
           >
             {years.map((year) => (
               <MenuItem key={year} value={year}>
@@ -269,6 +284,6 @@ export function BillingHistory({
         }}
         fileUrl=""
       /> */}
-    </Grid>
+    </Card>
   );
 }

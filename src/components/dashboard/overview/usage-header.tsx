@@ -74,16 +74,22 @@ function UsageHeader() {
           justifyContent="space-between"
           alignItems={isMobile ? "flex-start" : "center"}
         >
-          <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600}>
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            m={2.5}
+            fontWeight={600}
+            ml={2}
+            mb={0}
+          >
             Usage History
           </Typography>
 
           <Box
             display="flex"
             alignItems="center"
-            mt={0.5}
+            mt={!isMobile ? 2 : 0}
             mr={"auto"}
-            ml={!isMobile ? 2 : 0}
+            ml={2}
             sx={{
               cursor: "pointer",
             }}
@@ -114,16 +120,16 @@ function UsageHeader() {
           justifyContent={isMobile ? "flex-start" : "flex-end"}
           alignItems={isMobile ? "flex-start" : "flex-end"}
           gap={0}
-          mt={isMobile ? 2 : -5}
+          mt={isMobile ? 2 : -3}
           sx={{
             // width: "30%",
-            marginLeft: isMobile ? 0 : "auto",
+            marginLeft: isMobile ? 2 : "auto",
           }}
         >
-          <Typography variant={isMobile ? "body1" : "h6"}>
+          <Typography variant={isMobile ? "body1" : "h6"} mr={2}>
             Account No: {CustomerInfo?.acctnum}
           </Typography>
-          <Typography variant={isMobile ? "body2" : "subtitle1"}>
+          <Typography variant={isMobile ? "body2" : "subtitle1"} mr={2}>
             Name: {CustomerInfo?.customer_name}
           </Typography>
         </Box>
