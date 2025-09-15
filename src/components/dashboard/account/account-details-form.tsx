@@ -153,7 +153,7 @@ export function AccountDetailsForm(): React.JSX.Element {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card sx={{ borderRadius: boarderRadius.card }}>
+        <Card sx={{ borderRadius: 0 }}>
           <CardHeader
             title="Current Information"
             action={

@@ -13,6 +13,8 @@ import { getLocalStorage } from "@/utils/auth";
 import { stopTransferService } from "@/state/features/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+import { Card } from "@mui/material";
+import { boarderRadius } from "@/utils";
 
 //export const metadata = {
 //   title: `Stop | Transfer - ${config.site.name}`,
@@ -64,9 +66,16 @@ export default function StopTransferServicePage(): React.JSX.Element {
   }, [userInfo]);
   return (
     <SkeletonWrapper>
-      <Stack spacing={3}>
+      <Card
+        sx={{
+          borderRadius: boarderRadius.card,
+        }}
+      >
         <div>
-          <Typography variant="h4"> Stop/Transfer Service</Typography>
+          <Typography variant="h5" m={2}>
+            {" "}
+            Stop/Transfer Service
+          </Typography>
         </div>
         <Grid container spacing={3}>
           <Grid lg={12} md={12} xs={12}>
@@ -74,7 +83,7 @@ export default function StopTransferServicePage(): React.JSX.Element {
             <SendBillDetailsForm />
           </Grid>
         </Grid>
-      </Stack>
+      </Card>
     </SkeletonWrapper>
   );
 }

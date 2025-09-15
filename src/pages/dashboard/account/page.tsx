@@ -14,6 +14,8 @@ import { getLocalStorage } from "@/utils/auth";
 import { getAccountInfo } from "@/state/features/accountSlice";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
+import { Card } from "@mui/material";
+import { boarderRadius } from "@/utils";
 
 //export const metadata = {
 //   title: `Account  - ${config.site.name}`,
@@ -53,9 +55,15 @@ export default function AccountPage(): React.JSX.Element {
   }, [userInfo]);
   return (
     <SkeletonWrapper>
-      <Stack spacing={3}>
+      <Card
+        sx={{
+          borderRadius: boarderRadius.card,
+        }}
+      >
         <div>
-          <Typography variant="h4">Account</Typography>
+          <Typography variant="h5" m={2}>
+            Account
+          </Typography>
         </div>
         <Grid container spacing={3}>
           <Grid lg={6} md={6} xs={12}>
@@ -67,7 +75,7 @@ export default function AccountPage(): React.JSX.Element {
             {/* <NewDetailsForm /> */}
           </Grid>
         </Grid>
-      </Stack>
+      </Card>
     </SkeletonWrapper>
   );
 }

@@ -192,7 +192,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
   return (
     <SkeletonWrapper>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card sx={{ borderRadius: boarderRadius.card }}>
+        <Card sx={{ borderRadius: 0 }}>
           <CardContent>
             <Grid container spacing={3}>
               <Grid md={6} xs={12}>

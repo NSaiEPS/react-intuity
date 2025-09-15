@@ -42,7 +42,7 @@ export function TransferDetailsForm(): React.JSX.Element {
       >
         <Card
           sx={{
-            borderRadius: boarderRadius.card,
+            borderRadius: 0,
           }}
         >
           <CardContent>

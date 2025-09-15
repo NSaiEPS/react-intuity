@@ -30,7 +30,7 @@ export function AccountInfo(): React.JSX.Element {
   return (
     <Card
       sx={{
-        borderRadius: boarderRadius.card,
+        borderRadius: 0,
       }}
     >
       <CardContent>

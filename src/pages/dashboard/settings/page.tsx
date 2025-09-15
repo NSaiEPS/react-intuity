@@ -7,6 +7,8 @@ import Typography from "@mui/material/Typography";
 import { AccountSettingsForm } from "@/components/dashboard/settings/account-settings";
 import { Notifications } from "@/components/dashboard/settings/notifications";
 import { UpdatePasswordForm } from "@/components/dashboard/settings/update-password-form";
+import { Card } from "@mui/material";
+import { boarderRadius } from "@/utils";
 
 // //export const metadata = {
 //   title: `Settings  - ${config.site.name}`,
@@ -16,14 +18,20 @@ import { UpdatePasswordForm } from "@/components/dashboard/settings/update-passw
 // }
 export default function SettingsPage(): React.JSX.Element {
   return (
-    <Stack spacing={3}>
+    <Card
+      sx={{
+        borderRadius: boarderRadius.card,
+      }}
+    >
       <div>
-        <Typography variant="h4">Update Login and Password</Typography>
+        <Typography variant="h5" m={2}>
+          Update Login and Password
+        </Typography>
       </div>
       {/* no need as of now */}
       {/* <Notifications /> */}
       <AccountSettingsForm />
       <UpdatePasswordForm />
-    </Stack>
+    </Card>
   );
 }

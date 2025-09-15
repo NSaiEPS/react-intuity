@@ -6,6 +6,8 @@ import Grid from "@mui/material/Unstable_Grid2";
 
 //import { companySlugs, config } from "@/config";
 import { CustomerDetailsForm } from "@/components/dashboard/service/customer-service";
+import { Card } from "@mui/material";
+import { boarderRadius } from "@/utils";
 
 //export const metadata = {
 //   title: `Customer - ${config.site.name}`,
@@ -15,15 +17,21 @@ import { CustomerDetailsForm } from "@/components/dashboard/service/customer-ser
 // }
 export default function CustomerServicePage(): React.JSX.Element {
   return (
-    <Stack spacing={3}>
+    <Card
+      sx={{
+        borderRadius: boarderRadius.card,
+      }}
+    >
       <div>
-        <Typography variant="h4">Contact Customer Service</Typography>
+        <Typography variant="h5" m={2}>
+          Contact Customer Service
+        </Typography>
       </div>
       <Grid container spacing={3}>
         <Grid lg={12} md={12} xs={12}>
           <CustomerDetailsForm />
         </Grid>
       </Grid>
-    </Stack>
+    </Card>
   );
 }

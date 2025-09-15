@@ -226,7 +226,7 @@ export function Sales({
     },
   };
   return (
-    <Card sx={{ borderRadius: boarderRadius.card, ...sx }}>
+    <Card sx={{ borderRadius: 0, ...sx }}>
       <CardHeader
         sx={{ px: isMobile ? 2 : 3, py: isMobile ? 2 : 3 }}
         // avatar={
