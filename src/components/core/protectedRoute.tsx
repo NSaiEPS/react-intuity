@@ -31,8 +31,13 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
       <Helmet key={location.pathname}>
         <title>{title ? `${title} - Intuity` : "Intuity"}</title>
       </Helmet>
-
-      {children}
+      <div
+        style={{
+          marginTop: "17px",
+        }}
+      >
+        {children}
+      </div>
     </>
   );
 };

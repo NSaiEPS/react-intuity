@@ -90,7 +90,13 @@ const PayerTermsConditionsModal = () => {
   return (
     <Grid>
       <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader title={<Typography variant="h5">Paperless</Typography>} />
+        <CardHeader
+          title={
+            <Typography variant="h5" ml={1}>
+              Paperless
+            </Typography>
+          }
+        />
 
         <CardHeader
           subheader={

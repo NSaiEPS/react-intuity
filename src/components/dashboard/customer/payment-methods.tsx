@@ -336,11 +336,19 @@ export const PaymentMethods = ({
   );
   return (
     <SkeletonWrapper>
-      <Grid>
+      <Card
+        sx={{
+          borderRadius: boarderRadius.card,
+        }}
+      >
         {accountInfo && (
           <Grid container spacing={2} justifyContent="space-between">
             <CardHeader
-              title={<Typography variant="h5"> Payment Method</Typography>}
+              title={
+                <Typography variant="h5" ml={1}>
+                  Payment Method
+                </Typography>
+              }
             />
 
             <CardHeader
@@ -518,7 +526,7 @@ export const PaymentMethods = ({
         >
           <Loader />
         </CustomBackdrop>
-      </Grid>
+      </Card>
     </SkeletonWrapper>
   );
 };
