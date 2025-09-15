@@ -37,4 +37,5 @@ export default defineConfig({
     include: ["react", "react-dom"],
     // exclude: ["@react-pdf/renderer"],
   },
+  base: "/",
 });

@@ -10,6 +10,14 @@ import { UserProvider } from "./contexts/user-context";
 import { setRouter } from "./utils/navigation";
 
 setRouter(router);
+
+window.addEventListener("error", (e) => {
+  if (e.message?.includes("Failed to fetch dynamically imported module")) {
+    console.warn("Chunk load failed. Reloading app...");
+    window.location.reload();
+  }
+});
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <UserProvider>
