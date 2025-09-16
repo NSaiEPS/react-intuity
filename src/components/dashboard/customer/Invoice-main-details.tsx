@@ -1,7 +1,6 @@
-import * as React from "react";
-
-import { RootState } from "@/state/store";
-import { colors, formatToMMDDYYYY } from "@/utils";
+import * as React from 'react';
+import { RootState } from '@/state/store';
+import { colors, formatToMMDDYYYY } from '@/utils';
 import {
   Box,
   Checkbox,
@@ -17,17 +16,13 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material";
-import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useSelector } from "react-redux";
+} from '@mui/material';
+import { CustomBackdrop, Loader } from 'nsaicomponents';
+import { useSelector } from 'react-redux';
 
 export const InvoiceMainDetails = () => {
-  const invoiceDetails = useSelector(
-    (state: RootState) => state.DashBoard.invoiceDetails
-  );
-  const dashboardLoader = useSelector(
-    (state: RootState) => state.DashBoard.dashboardLoader
-  );
+  const invoiceDetails = useSelector((state: RootState) => state.DashBoard.invoiceDetails);
+  const dashboardLoader = useSelector((state: RootState) => state.DashBoard.dashboardLoader);
   const {
     company,
     company_settings,
@@ -39,7 +34,7 @@ export const InvoiceMainDetails = () => {
     //   } = InvoiceDetails?.body ?? {};
   } = invoiceDetails ?? {};
   return (
-    <Box sx={{ mx: "auto", my: 4, p: { xs: 1.5, sm: 2 }, bgcolor: "#F7F7F7" }}>
+    <Box sx={{ mx: 'auto', my: 4, p: { xs: 1.5, sm: 2 }, bgcolor: '#F7F7F7' }}>
       {/* Header */}
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
@@ -52,30 +47,21 @@ export const InvoiceMainDetails = () => {
           >
             {company?.company_name}
           </Typography>
-          <Typography variant="subtitle2" sx={{ color: "#999" }}>
+          <Typography variant="subtitle2" sx={{ color: '#999' }}>
             {company_settings?.invoice_subheadline}
           </Typography>
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={6}
-          sx={{ textAlign: { xs: "left", sm: "right" } }}
-        >
+        <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
           <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction={{ xs: 'column', sm: 'row' }}
             spacing={2}
             justifyContent="flex-end"
-            alignItems={{ xs: "flex-start", sm: "center" }}
+            alignItems={{ xs: 'flex-start', sm: 'center' }}
             sx={{ mb: 1 }}
           >
-            <Typography sx={{ fontSize: 14, color: "#888" }}>
-              {company_settings?.invoice_text_header_email}
-            </Typography>
-            <Typography sx={{ fontSize: 14, color: "#888" }}>
-              {company_settings?.invoice_text_header_open}
-            </Typography>
-            <Typography sx={{ fontSize: 14, color: "#888" }}>
+            <Typography sx={{ fontSize: 14, color: '#888' }}>{company_settings?.invoice_text_header_email}</Typography>
+            <Typography sx={{ fontSize: 14, color: '#888' }}>{company_settings?.invoice_text_header_open}</Typography>
+            <Typography sx={{ fontSize: 14, color: '#888' }}>
               {company_settings?.invoice_text_header_web}
               <br />
               {company_settings?.direct_debit}
@@ -87,10 +73,8 @@ export const InvoiceMainDetails = () => {
       {/* Invoice + Total Due Row */}
       <Grid container spacing={2} mt={3} alignItems="center">
         <Grid item xs={12} sm={7}>
-          <Typography sx={{ mb: 1, color: "#777" }}>INVOICE TO</Typography>
-          <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>
-            {customer?.customer_name}
-          </Typography>
+          <Typography sx={{ mb: 1, color: '#777' }}>INVOICE TO</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>{customer?.customer_name}</Typography>
           <Typography variant="body2">
             Billing address: {customer?.address}, {customer?.city}
           </Typography>
@@ -101,17 +85,11 @@ export const InvoiceMainDetails = () => {
             Phone: {customer?.phone}
           </Typography>
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={5}
-          textAlign={{ xs: "left", sm: "right" }}
-          alignSelf="center"
-        >
+        <Grid item xs={12} sm={5} textAlign={{ xs: 'left', sm: 'right' }} alignSelf="center">
           <Typography
             sx={{
               fontSize: { xs: 32, sm: 44 },
-              color: "#aaa",
+              color: '#aaa',
               fontWeight: 700,
               letterSpacing: 1,
             }}
@@ -120,15 +98,15 @@ export const InvoiceMainDetails = () => {
           </Typography>
           <Box
             sx={{
-              bgcolor: "#38699C",
-              color: "white",
+              bgcolor: '#38699C',
+              color: 'white',
               borderRadius: 1,
-              textAlign: "left",
+              textAlign: 'left',
               p: 2,
               mt: 1,
-              width: "100%",
+              width: '100%',
               maxWidth: 300,
-              ml: { xs: 0, sm: "auto" },
+              ml: { xs: 0, sm: 'auto' },
             }}
           >
             <Grid container>
@@ -137,12 +115,7 @@ export const InvoiceMainDetails = () => {
               </Grid>
               <Grid item xs={6} textAlign="right">
                 <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
-                  {formatToMMDDYYYY(
-                    last_bill?.[0]?.billing_date,
-                    false,
-                    false,
-                    true
-                  )}
+                  {formatToMMDDYYYY(last_bill?.[0]?.billing_date, false, false, true)}
                   {/* {last_bill?.[0]?.billing_date} */}
                 </Typography>
               </Grid>
@@ -150,9 +123,7 @@ export const InvoiceMainDetails = () => {
                 <Typography sx={{ fontSize: 15 }}>Total Due:</Typography>
               </Grid>
               <Grid item xs={6} textAlign="right">
-                <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
-                  ${last_bill?.[0]?.amount}
-                </Typography>
+                <Typography sx={{ fontSize: 20, fontWeight: 600 }}>${last_bill?.[0]?.amount}</Typography>
               </Grid>
             </Grid>
           </Box>
@@ -160,8 +131,8 @@ export const InvoiceMainDetails = () => {
       </Grid>
       {/* Item Descriptions */}
       {Object?.entries(unique_by_utility).map(([key, items]: any) => {
-        const [utilityName, , meterNumber, ...addressParts] = key.split(";");
-        const serviceAddress = addressParts.join(";");
+        const [utilityName, , meterNumber, ...addressParts] = key.split(';');
+        const serviceAddress = addressParts.join(';');
         const utilityDetails = items?.[0] ?? {};
 
         return (
@@ -179,24 +150,17 @@ export const InvoiceMainDetails = () => {
             <Typography sx={{ mb: 1, fontWeight: 700, color: colors.blue }}>
               <strong>{utilityName}</strong> - {meterNumber} - {serviceAddress}
             </Typography>
-            <TableContainer
-              component={Paper}
-              sx={{ mb: 2, boxShadow: 0, overflowX: "auto" }}
-            >
+            <TableContainer component={Paper} sx={{ mb: 2, boxShadow: 0, overflowX: 'auto' }}>
               <Table>
                 <TableBody>
                   {items.map((item, index) => (
                     <TableRow
                       key={item.item}
                       sx={{
-                        bgcolor: index % 2 !== 0 ? colors["blue.4"] : "white",
+                        bgcolor: index % 2 !== 0 ? colors['blue.4'] : 'white',
                       }}
                     >
-                      <TableCell
-                        sx={{ fontWeight: 600, fontSize: 16, border: 0 }}
-                      >
-                        {item.product_id}
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: 16, border: 0 }}>{item.product_id}</TableCell>
                       <TableCell align="right" sx={{ border: 0 }}>
                         ${item.amount.toFixed(2)}
                       </TableCell>
@@ -208,58 +172,36 @@ export const InvoiceMainDetails = () => {
                         sx={{
                           mt: 3,
                           p: 2,
-                          border: "1px solid #ddd",
+                          border: '1px solid #ddd',
                           borderRadius: 2,
-                          backgroundColor: "#f9f9f9",
+                          backgroundColor: '#f9f9f9',
                         }}
                       >
                         <Grid container spacing={3}>
                           {/* Service Address + Dates */}
                           <Grid item xs={12} sm={3}>
-                            <Typography
-                              variant="subtitle2"
-                              color="text.secondary"
-                              gutterBottom
-                            >
+                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                               {utilityName} Service at
                             </Typography>
-                            <Typography
-                              variant="body1"
-                              fontWeight={500}
-                              gutterBottom
-                            >
+                            <Typography variant="body1" fontWeight={500} gutterBottom>
                               {utilityDetails.service_address}
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
-                              From:{" "}
+                              From:{' '}
                               {utilityDetails?.start_date
-                                ? formatToMMDDYYYY(
-                                    utilityDetails?.start_date,
-                                    false,
-                                    false,
-                                    true
-                                  )
-                                : ""}
+                                ? formatToMMDDYYYY(utilityDetails?.start_date, false, false, true)
+                                : ''}
                               <br />
-                              To:{" "}
+                              To:{' '}
                               {utilityDetails?.end_date
-                                ? formatToMMDDYYYY(
-                                    utilityDetails?.end_date,
-                                    false,
-                                    false,
-                                    true
-                                  )
-                                : ""}
+                                ? formatToMMDDYYYY(utilityDetails?.end_date, false, false, true)
+                                : ''}
                             </Typography>
                           </Grid>
 
                           {/* Number of Days */}
                           <Grid item xs={12} sm={2}>
-                            <Typography
-                              variant="subtitle2"
-                              color="text.secondary"
-                              gutterBottom
-                            >
+                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                               Number of Days
                             </Typography>
                             <Typography variant="h6" fontWeight={600}>
@@ -269,11 +211,7 @@ export const InvoiceMainDetails = () => {
 
                           {/* Meter Readings */}
                           <Grid item xs={12} sm={4}>
-                            <Typography
-                              variant="subtitle2"
-                              color="text.secondary"
-                              gutterBottom
-                            >
+                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                               Meter Readings
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
@@ -285,11 +223,7 @@ export const InvoiceMainDetails = () => {
 
                           {/* Usage Info */}
                           <Grid item xs={12} sm={3}>
-                            <Typography
-                              variant="subtitle2"
-                              color="text.secondary"
-                              gutterBottom
-                            >
+                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                               Usage in Gallons
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>
@@ -311,33 +245,22 @@ export const InvoiceMainDetails = () => {
       })}
       {/* Previous Balance */}
       {extra_params?.map((item, index) => (
-        <Box
-          key={index}
-          display="flex"
-          justifyContent="space-between"
-          mb={3}
-          pt={0}
-          pb={0}
-        >
-          <Typography sx={{ fontWeight: 700, color: "#666" }}>
-            PREVIOUS BALANCE
-          </Typography>
-          <Typography sx={{ fontWeight: 700, color: "#666" }}>
-            ${item?.amount}
-          </Typography>
+        <Box key={index} display="flex" justifyContent="space-between" mb={3} pt={0} pb={0}>
+          <Typography sx={{ fontWeight: 700, color: '#666' }}>PREVIOUS BALANCE</Typography>
+          <Typography sx={{ fontWeight: 700, color: '#666' }}>${item?.amount}</Typography>
         </Box>
       ))}
       {/* Total Bill bar */}
       <Box
         textAlign="right"
         sx={{
-          bgcolor: "#38699C",
-          color: "white",
+          bgcolor: '#38699C',
+          color: 'white',
           borderRadius: 1,
           p: 2,
           // width: '100%',
           maxWidth: 250,
-          ml: "auto",
+          ml: 'auto',
           mb: 2,
         }}
       >
@@ -348,7 +271,7 @@ export const InvoiceMainDetails = () => {
       {/* Do Not Pay Text */}
       {customer?.autopay ? (
         <Box textAlign="right">
-          <Typography sx={{ fontWeight: 700, fontSize: 22, color: "red" }}>
+          <Typography sx={{ fontWeight: 700, fontSize: 22, color: 'red' }}>
             {invoiceDetails?.autopay_do_not_pay_text}
           </Typography>
         </Box>
@@ -356,38 +279,36 @@ export const InvoiceMainDetails = () => {
       <Divider sx={{ my: 2 }} />
       <Grid container p={3} pt={0} pb={0}>
         <Grid item xs={12} sm={6}>
-          <Typography sx={{ color: "#444", fontSize: 14 }}>
-            {last_bill?.[0]?.last_payment_info}
-          </Typography>
+          <Typography sx={{ color: '#444', fontSize: 14 }}>{last_bill?.[0]?.last_payment_info}</Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Typography align="right" sx={{ color: "#444", fontSize: 14 }}>
+          <Typography align="right" sx={{ color: '#444', fontSize: 14 }}>
             {company_settings?.invoice_footer_column_3}
           </Typography>
         </Grid>
       </Grid>
       <Box
         sx={{
-          width: "100%",
-          textAlign: "center",
+          width: '100%',
+          textAlign: 'center',
           fontSize: 14,
           letterSpacing: 2,
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "clip",
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'clip',
           my: 2,
         }}
       >
-        {"- ".repeat(200)}
+        {'- '.repeat(200)}
       </Box>
       {/* Bottom Details */}
 
-      <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
+      <Paper sx={{ p: 3, maxWidth: '100%', mx: 'auto' }}>
         <Box
           sx={{
-            border: "1px solid black",
+            border: '1px solid black',
             mb: 2,
-            display: "inline-block",
+            display: 'inline-block',
             px: 2,
             py: 0.5,
           }}
@@ -399,17 +320,17 @@ export const InvoiceMainDetails = () => {
         <Stack
           direction="column"
           sx={{
-            minWidth: "50%",
+            minWidth: '50%',
             pb: 1,
             alignItems: {
-              xs: "flex-start", // below 900px
-              md: "flex-end", // 900px and above
+              xs: 'flex-start', // below 900px
+              md: 'flex-end', // 900px and above
             },
             textAlign: {
-              xs: "left",
-              md: "right",
+              xs: 'left',
+              md: 'right',
             },
-            width: "100%",
+            width: '100%',
           }}
         >
           <Typography variant="body2" sx={{ fontSize: 13 }}>
@@ -419,25 +340,22 @@ export const InvoiceMainDetails = () => {
 
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-              justifyContent: "flex-start",
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start',
               pt: 1,
-              width: "100%",
+              width: '100%',
             }}
           >
             <Checkbox size="small" sx={{ p: 0, mr: 1 }} />
-            <Typography
-              variant="body2"
-              sx={{ fontSize: 13, whiteSpace: "nowrap" }}
-            >
+            <Typography variant="body2" sx={{ fontSize: 13, whiteSpace: 'nowrap' }}>
               I would like to go paperless. Here is my email address:
             </Typography>
             <TextField
               variant="standard"
               size="small"
-              sx={{ minWidth: "64%", ml: 1, mt: -1, maxWidth: "100%" }}
+              sx={{ minWidth: '64%', ml: 1, mt: -1, maxWidth: '100%' }}
               InputProps={{ disableUnderline: false }}
             />
           </Box>
@@ -452,46 +370,41 @@ export const InvoiceMainDetails = () => {
             mb: { xs: 2, md: 0 }, // margin-bottom for mobile/tablet, none for desktop
           }}
         >
-          <Grid item xs={12} md={6} mt={"auto"}>
+          <Grid item xs={12} md={6} mt={'auto'}>
             <Grid item xs={12} md={6}>
-              <Typography sx={{ fontWeight: 600 }}>
-                {customer?.customer_name}
-              </Typography>
+              <Typography sx={{ fontWeight: 600 }}>{customer?.customer_name}</Typography>
               <Typography>{customer?.address}</Typography>
             </Grid>
             <Box
               sx={{
-                border: "1px solid black",
+                border: '1px solid black',
                 px: 1,
                 py: 1,
                 mb: 2,
 
-                width: { xs: "100%", md: "90%" },
+                width: { xs: '100%', md: '90%' },
               }}
             >
               <Typography
                 variant="h6"
                 sx={{
                   fontWeight: 900,
-                  bgcolor: colors["blue.4"],
-                  color: "black",
+                  bgcolor: colors['blue.4'],
+                  color: 'black',
                   px: 2,
                   padding: 1,
-                  alignItems: "center",
-                  textAlign: "center",
+                  alignItems: 'center',
+                  textAlign: 'center',
                 }}
               >
                 BILL PAYMENT
               </Typography>
             </Box>
 
-            <Typography sx={{ fontWeight: 600 }}>
-              {company?.company_name}
-            </Typography>
+            <Typography sx={{ fontWeight: 600 }}>{company?.company_name}</Typography>
             <Typography>
-              {company?.city ? `${company?.city},` : ""}{" "}
-              {company?.street ? `${company?.street},` : ""}
-              {company?.zip ? `${company?.zip},` : ""}
+              {[company?.city, company?.street, company?.zip].filter(Boolean).length > 0 &&
+                [company?.city, company?.street, company?.zip].filter(Boolean).join(', ')}
             </Typography>
           </Grid>
 
@@ -505,97 +418,68 @@ export const InvoiceMainDetails = () => {
               mb: { xs: 2, md: 0 }, // margin-bottom for mobile/tablet, none for desktop
             }}
           >
-            <Table
-              size="small"
-              sx={{ border: "1px solid black", borderCollapse: "collapse" }}
-            >
+            <Table size="small" sx={{ border: '1px solid black', borderCollapse: 'collapse' }}>
               <TableBody>
-                <TableRow sx={{ bgcolor: colors["blue.4"] }}>
+                <TableRow sx={{ bgcolor: colors['blue.4'] }}>
                   <TableCell
                     sx={{
-                      color: "black",
+                      color: 'black',
                       fontWeight: 600,
-                      borderRight: "1px solid black",
+                      borderRight: '1px solid black',
                     }}
                   >
                     ACCOUNT NUMBER
                   </TableCell>
                   <TableCell
                     sx={{
-                      color: "black",
+                      color: 'black',
                       fontWeight: 600,
-                      borderRight: "1px solid black",
+                      borderRight: '1px solid black',
                     }}
                   >
                     DUE DATE
                   </TableCell>
-                  <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                    AMOUNT DUE
-                  </TableCell>
+                  <TableCell sx={{ color: 'black', fontWeight: 600 }}>AMOUNT DUE</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
-                    {customer?.acctnum}
-                  </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
-                    {formatToMMDDYYYY(
-                      last_bill?.[0]?.due_date,
-                      false,
-                      false,
-                      true
-                    )}
+                  <TableCell sx={{ borderRight: '1px solid black' }}>{customer?.acctnum}</TableCell>
+                  <TableCell sx={{ borderRight: '1px solid black' }}>
+                    {formatToMMDDYYYY(last_bill?.[0]?.due_date, false, false, true)}
                   </TableCell>
                   <TableCell>${last_bill?.[0]?.amount}</TableCell>
                 </TableRow>
 
-                <TableRow sx={{ bgcolor: colors["blue.4"] }}>
+                <TableRow sx={{ bgcolor: colors['blue.4'] }}>
                   <TableCell
                     sx={{
-                      color: "black",
+                      color: 'black',
                       fontWeight: 600,
-                      borderRight: "1px solid black",
+                      borderRight: '1px solid black',
                     }}
                   >
                     BILL DATE
                   </TableCell>
                   <TableCell
                     sx={{
-                      color: "black",
+                      color: 'black',
                       fontWeight: 600,
-                      borderRight: "1px solid black",
+                      borderRight: '1px solid black',
                     }}
                   >
                     LATE DATE
                   </TableCell>
-                  <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                    LATE AMOUNT
-                  </TableCell>
+                  <TableCell sx={{ color: 'black', fontWeight: 600 }}>LATE AMOUNT</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
+                  <TableCell sx={{ borderRight: '1px solid black' }}>
                     {/* {last_bill?.[0]?.billing_date} */}
-                    {formatToMMDDYYYY(
-                      last_bill?.[0]?.billing_date,
-                      false,
-                      false,
-                      true
-                    )}
+                    {formatToMMDDYYYY(last_bill?.[0]?.billing_date, false, false, true)}
                   </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
+                  <TableCell sx={{ borderRight: '1px solid black' }}>
                     {/* {last_bill?.[0]?.late_date} */}
-                    {formatToMMDDYYYY(
-                      last_bill?.[0]?.late_date,
-                      false,
-                      false,
-                      true
-                    )}
+                    {formatToMMDDYYYY(last_bill?.[0]?.late_date, false, false, true)}
                   </TableCell>
-                  <TableCell>
-                    $
-                    {(
-                      last_bill?.[0]?.amount + last_bill?.[0]?.late_date_amount
-                    ).toFixed(2)}
-                  </TableCell>
+                  <TableCell>${(last_bill?.[0]?.amount + last_bill?.[0]?.late_date_amount).toFixed(2)}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -604,10 +488,7 @@ export const InvoiceMainDetails = () => {
       </Paper>
       {/* Footer */}
 
-      <CustomBackdrop
-        open={dashboardLoader}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
+      <CustomBackdrop open={dashboardLoader} style={{ zIndex: 1300, color: '#fff' }}>
         <Loader />
       </CustomBackdrop>
     </Box>
