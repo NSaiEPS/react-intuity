@@ -9,12 +9,13 @@ import { useDispatch, useSelector } from "react-redux";
 //import { companySlugs, config } from "@/config";
 import { AccountDetailsForm } from "@/components/dashboard/account/account-details-form";
 import { AccountInfo } from "@/components/dashboard/account/account-info";
+import { Card, CardHeader, Divider, Grid as MUIGrid } from "@mui/material";
 
 import { getLocalStorage } from "@/utils/auth";
 import { getAccountInfo } from "@/state/features/accountSlice";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
-import { Card } from "@mui/material";
+
 import { boarderRadius } from "@/utils";
 
 //export const metadata = {
@@ -53,6 +54,14 @@ export default function AccountPage(): React.JSX.Element {
   React.useEffect(() => {
     getUserDetails();
   }, [userInfo]);
+
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+
+  const CustomerInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
   return (
     <SkeletonWrapper>
       <Card
@@ -60,12 +69,37 @@ export default function AccountPage(): React.JSX.Element {
           borderRadius: boarderRadius.card,
         }}
       >
-        <div>
+        {/* <div>
           <Typography variant="h5" m={2}>
             Account
           </Typography>
-        </div>
-        <Grid container spacing={3}>
+        </div> */}
+        <MUIGrid container spacing={2} justifyContent="space-between">
+          <Typography variant="h5" m={4} mt={6} ml={5}>
+            Account
+          </Typography>
+
+          <CardHeader
+            subheader={
+              <Typography variant="h6">
+                Name :{CustomerInfo?.customer_name}
+              </Typography>
+            }
+            title={
+              <Typography variant="h6">
+                Account No :{CustomerInfo?.acctnum}
+              </Typography>
+            }
+          />
+        </MUIGrid>
+        <Divider
+          sx={{
+            borderColor: "rgba(0,0,0,0.08)", // very light gray
+            borderBottomWidth: 1, // ensure thin
+          }}
+        />
+
+        <Grid container spacing={3} mt={2}>
           <Grid lg={6} md={6} xs={12}>
             <AccountInfo />
           </Grid>

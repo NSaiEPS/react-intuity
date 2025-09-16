@@ -130,7 +130,7 @@ export function BillingHistory({
             </Typography>
           }
           title={
-            <Typography variant="h5">
+            <Typography variant="h6">
               Account No :{CustomerInfo?.acctnum}
             </Typography>
           }

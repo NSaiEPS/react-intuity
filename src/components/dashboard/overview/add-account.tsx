@@ -184,7 +184,7 @@ export default function AddAccountPage() {
         borderRadius: boarderRadius.card,
       }}
     >
-      <Grid container spacing={2} justifyContent="space-between">
+      {/* <Grid container spacing={2} justifyContent="space-between">
         <CardHeader
           title={
             <Typography ml={1} variant="h5">
@@ -200,7 +200,26 @@ export default function AddAccountPage() {
             </Typography>
           }
           title={
-            <Typography variant="h5">
+            <Typography variant="h6">
+              Account No :{CustomerInfo?.acctnum}
+            </Typography>
+          }
+        />
+      </Grid> */}
+
+      <Grid container spacing={2} justifyContent="space-between">
+        <Typography variant="h5" m={4} mt={6} ml={5}>
+          Link Accounts
+        </Typography>
+
+        <CardHeader
+          subheader={
+            <Typography variant="h6">
+              Name :{CustomerInfo?.customer_name}
+            </Typography>
+          }
+          title={
+            <Typography variant="h6">
               Account No :{CustomerInfo?.acctnum}
             </Typography>
           }
@@ -226,7 +245,7 @@ export default function AddAccountPage() {
       >
         {currentPage === 1 && (
           <>
-            <Typography variant="h5" fontWeight="bold" color="textSecondary">
+            <Typography variant="h6" fontWeight="bold" color="textSecondary">
               ADD ANOTHER ACCOUNT
             </Typography>
 

@@ -13,8 +13,9 @@ import { getLocalStorage } from "@/utils/auth";
 import { stopTransferService } from "@/state/features/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
-import { Card } from "@mui/material";
+
 import { boarderRadius } from "@/utils";
+import { Card, CardHeader, Grid as MUIGrid } from "@mui/material";
 
 //export const metadata = {
 //   title: `Stop | Transfer - ${config.site.name}`,
@@ -64,6 +65,14 @@ export default function StopTransferServicePage(): React.JSX.Element {
   React.useEffect(() => {
     getUserDetails();
   }, [userInfo]);
+
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
+
+  const CustomerInfo: any = dashBoardInfo?.customer
+    ? dashBoardInfo?.customer
+    : getLocalStorage("intuity-customerInfo");
   return (
     <SkeletonWrapper>
       <Card
@@ -71,12 +80,31 @@ export default function StopTransferServicePage(): React.JSX.Element {
           borderRadius: boarderRadius.card,
         }}
       >
-        <div>
+        {/* <div>
           <Typography variant="h5" m={2}>
             {" "}
             Stop/Transfer Service
           </Typography>
-        </div>
+        </div> */}
+
+        <MUIGrid container spacing={2} justifyContent="space-between">
+          <Typography variant="h5" m={4} mt={6} ml={5}>
+            Stop/Transfer Service
+          </Typography>
+
+          <CardHeader
+            subheader={
+              <Typography variant="h6">
+                Name :{CustomerInfo?.customer_name}
+              </Typography>
+            }
+            title={
+              <Typography variant="h6">
+                Account No :{CustomerInfo?.acctnum}
+              </Typography>
+            }
+          />
+        </MUIGrid>
         <Grid container spacing={3}>
           <Grid lg={12} md={12} xs={12}>
             <TransferDetailsForm />

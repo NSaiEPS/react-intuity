@@ -96,7 +96,7 @@ export default function AutoPayDetails(): React.JSX.Element {
             </Typography>
           }
           title={
-            <Typography variant="h5">
+            <Typography variant="h6">
               Account No :{CustomerInfo?.acctnum}
             </Typography>
           }
