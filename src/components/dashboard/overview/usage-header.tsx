@@ -77,7 +77,7 @@ function UsageHeader() {
           <Typography
             variant={isMobile ? "h6" : "h5"}
             m={2.5}
-            fontWeight={600}
+            // fontWeight={600}
             ml={2}
             mb={0}
           >

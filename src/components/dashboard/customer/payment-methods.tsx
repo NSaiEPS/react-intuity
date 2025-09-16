@@ -45,6 +45,7 @@ import AddBankAccountModal from "./add-bank-modal";
 import AddCardModal from "./add-card-modal";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
+import Header from "@/components/CommonComponents/Header";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 export interface CardDetails {
@@ -341,30 +342,7 @@ export const PaymentMethods = ({
           borderRadius: boarderRadius.card,
         }}
       >
-        {accountInfo && (
-          <Grid container spacing={2} justifyContent="space-between">
-            <CardHeader
-              title={
-                <Typography variant="h5" ml={1}>
-                  Payment Method
-                </Typography>
-              }
-            />
-
-            <CardHeader
-              subheader={
-                <Typography variant="h6">
-                  Name :{CustomerInfo?.customer_name}
-                </Typography>
-              }
-              title={
-                <Typography variant="h5">
-                  Account No :{CustomerInfo?.acctnum}
-                </Typography>
-              }
-            />
-          </Grid>
-        )}
+        {accountInfo && <Header title="Payment Method" />}
         <DialogActions
           sx={{
             px: isModal ? 3 : 0, // padding top and bottom (2 * 8 = 16px)

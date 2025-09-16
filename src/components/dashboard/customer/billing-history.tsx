@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PdfViewer from "../layout/invoice-pdf-view";
 import InvoiceTransactionTabs from "./billing-history-tabs";
 import { boarderRadius } from "@/utils";
+import Header from "@/components/CommonComponents/Header";
 
 function noop(): void {
   // do nothing
@@ -114,28 +115,7 @@ export function BillingHistory({
         borderRadius: boarderRadius.card,
       }}
     >
-      <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader
-          title={
-            <Typography variant="h5" ml={1}>
-              Payment & billing history
-            </Typography>
-          }
-        />
-
-        <CardHeader
-          subheader={
-            <Typography variant="h6">
-              Name :{CustomerInfo?.customer_name}
-            </Typography>
-          }
-          title={
-            <Typography variant="h6">
-              Account No :{CustomerInfo?.acctnum}
-            </Typography>
-          }
-        />
-      </Grid>
+      <Header title="Payment & billing history" />
       <Grid
         item
         sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}
