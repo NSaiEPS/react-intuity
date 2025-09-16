@@ -17,6 +17,7 @@ import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
 
 import { boarderRadius } from "@/utils";
+import Header from "@/components/CommonComponents/Header";
 
 //export const metadata = {
 //   title: `Account  - ${config.site.name}`,
@@ -69,33 +70,8 @@ export default function AccountPage(): React.JSX.Element {
           borderRadius: boarderRadius.card,
         }}
       >
-        {/* <div>
-          <Typography variant="h5" m={2}>
-            Account
-          </Typography>
-        </div> */}
-        <MUIGrid container spacing={2} justifyContent="space-between">
-          <CardHeader
-            title={
-              <Typography ml={1} variant="h5">
-                Account
-              </Typography>
-            }
-          />
+        <Header title="Account" />
 
-          <CardHeader
-            subheader={
-              <Typography variant="h6">
-                Name :{CustomerInfo?.customer_name}
-              </Typography>
-            }
-            title={
-              <Typography variant="h6">
-                Account No :{CustomerInfo?.acctnum}
-              </Typography>
-            }
-          />
-        </MUIGrid>
         <Divider
           sx={{
             borderColor: "rgba(0,0,0,0.08)", // very light gray

@@ -14,6 +14,7 @@ import { boarderRadius } from "@/utils";
 import { RootState } from "@/state/store";
 import { useSelector } from "react-redux";
 import { getLocalStorage } from "@/utils/auth";
+import Header from "@/components/CommonComponents/Header";
 
 // //export const metadata = {
 //   title: `Settings  - ${config.site.name}`,
@@ -41,28 +42,7 @@ export default function SettingsPage(): React.JSX.Element {
         </Typography>
       </div> */}
 
-      <MUIGrid container spacing={2} justifyContent="space-between">
-        <CardHeader
-          title={
-            <Typography ml={1} variant="h5">
-              Update Login and Password
-            </Typography>
-          }
-        />
-
-        <CardHeader
-          subheader={
-            <Typography variant="h6">
-              Name :{CustomerInfo?.customer_name}
-            </Typography>
-          }
-          title={
-            <Typography variant="h6">
-              Account No :{CustomerInfo?.acctnum}
-            </Typography>
-          }
-        />
-      </MUIGrid>
+      <Header title="Update Login and Password" />
       {/* no need as of now */}
       {/* <Notifications /> */}
       <AccountSettingsForm />

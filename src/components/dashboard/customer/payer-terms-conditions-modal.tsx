@@ -22,6 +22,7 @@ import {
 import { X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
+import Header from "@/components/CommonComponents/Header";
 
 const PayerTermsConditionsModal = () => {
   const [payerTermsModalOPen, setPayerTermsModalOPen] = useState(false);
@@ -89,28 +90,7 @@ const PayerTermsConditionsModal = () => {
 
   return (
     <Grid>
-      <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader
-          title={
-            <Typography variant="h5" ml={1}>
-              Paperless
-            </Typography>
-          }
-        />
-
-        <CardHeader
-          subheader={
-            <Typography variant="h6">
-              Name :{CustomerInfo?.customer_name}
-            </Typography>
-          }
-          title={
-            <Typography variant="h6">
-              Account No :{CustomerInfo?.acctnum}
-            </Typography>
-          }
-        />
-      </Grid>
+      <Header title="Paperless" />
       <Divider />
 
       <CardContent>

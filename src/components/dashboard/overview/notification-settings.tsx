@@ -23,6 +23,7 @@ import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import Header from "@/components/CommonComponents/Header";
 
 function NotificationsSettings() {
   const dashBoardInfo = useSelector(
@@ -281,28 +282,7 @@ function NotificationsSettings() {
   return (
     <SkeletonWrapper>
       <Box sx={{ pt: 0 }}>
-        <Grid container spacing={2} justifyContent="space-between">
-          <CardHeader
-            title={
-              <Typography ml={1} variant="h5">
-                Communication Settings
-              </Typography>
-            }
-          />
-
-          <CardHeader
-            subheader={
-              <Typography variant="h6">
-                Names :{CustomerInfo?.customer_name}
-              </Typography>
-            }
-            title={
-              <Typography variant="h6">
-                Account No :{CustomerInfo?.acctnum}
-              </Typography>
-            }
-          />
-        </Grid>
+        <Header title="Communication Settings" />
 
         <Divider />
 

@@ -16,6 +16,7 @@ import { RootState } from "@/state/store";
 
 import { boarderRadius } from "@/utils";
 import { Card, CardHeader, Grid as MUIGrid } from "@mui/material";
+import Header from "@/components/CommonComponents/Header";
 
 //export const metadata = {
 //   title: `Stop | Transfer - ${config.site.name}`,
@@ -87,28 +88,7 @@ export default function StopTransferServicePage(): React.JSX.Element {
           </Typography>
         </div> */}
 
-        <MUIGrid container spacing={2} justifyContent="space-between">
-          <CardHeader
-            title={
-              <Typography ml={1} variant="h5">
-                Stop/Transfer Service
-              </Typography>
-            }
-          />
-
-          <CardHeader
-            subheader={
-              <Typography variant="h6">
-                Name :{CustomerInfo?.customer_name}
-              </Typography>
-            }
-            title={
-              <Typography variant="h6">
-                Account No :{CustomerInfo?.acctnum}
-              </Typography>
-            }
-          />
-        </MUIGrid>
+        <Header title="Stop/Transfer Service" />
         <Grid container spacing={3}>
           <Grid lg={12} md={12} xs={12}>
             <TransferDetailsForm />

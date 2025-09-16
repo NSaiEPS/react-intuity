@@ -26,6 +26,7 @@ import { z } from "zod";
 
 import { paths } from "@/utils/paths";
 import Button from "@/components/CommonComponents/Button";
+import Header from "@/components/CommonComponents/Header";
 
 export default function AddAccountPage() {
   const navigate = useNavigate();
@@ -184,54 +185,7 @@ export default function AddAccountPage() {
         borderRadius: boarderRadius.card,
       }}
     >
-      {/* <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader
-          title={
-            <Typography ml={1} variant="h5">
-              Link Accounts
-            </Typography>
-          }
-        />
-
-        <CardHeader
-          subheader={
-            <Typography variant="h6">
-              Name :{CustomerInfo?.customer_name}
-            </Typography>
-          }
-          title={
-            <Typography variant="h6">
-              Account No :{CustomerInfo?.acctnum}
-            </Typography>
-          }
-        />
-      </Grid> */}
-
-      <Grid container spacing={2} justifyContent="space-between">
-        {/* <Typography variant="h5" m={4} mt={6} ml={5}>
-          Link Accounts
-        </Typography> */}
-        <CardHeader
-          title={
-            <Typography ml={1} variant="h5">
-              Link Accounts
-            </Typography>
-          }
-        />
-
-        <CardHeader
-          subheader={
-            <Typography variant="h6">
-              Name :{CustomerInfo?.customer_name}
-            </Typography>
-          }
-          title={
-            <Typography variant="h6">
-              Account No :{CustomerInfo?.acctnum}
-            </Typography>
-          }
-        />
-      </Grid>
+      <Header title="Link Accounts" />
 
       <Divider />
       <Box
