@@ -42,9 +42,13 @@ export default function SettingsPage(): React.JSX.Element {
       </div> */}
 
       <MUIGrid container spacing={2} justifyContent="space-between">
-        <Typography variant="h5" m={4} mt={6} ml={5}>
-          Update Login and Password
-        </Typography>
+        <CardHeader
+          title={
+            <Typography ml={1} variant="h5">
+              Update Login and Password
+            </Typography>
+          }
+        />
 
         <CardHeader
           subheader={

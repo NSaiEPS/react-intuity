@@ -33,9 +33,16 @@ export default function CustomerServicePage(): React.JSX.Element {
       }}
     >
       <MUIGrid container spacing={2} justifyContent="space-between">
-        <Typography variant="h5" m={4} mt={6} ml={5}>
+        {/* <Typography variant="h5" m={4} mt={6} ml={5}>
           Contact Customer Service
-        </Typography>
+        </Typography> */}
+        <CardHeader
+          title={
+            <Typography ml={1} variant="h5">
+              Contact Customer Service
+            </Typography>
+          }
+        />
 
         <CardHeader
           subheader={

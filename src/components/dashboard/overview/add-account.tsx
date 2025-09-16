@@ -208,9 +208,16 @@ export default function AddAccountPage() {
       </Grid> */}
 
       <Grid container spacing={2} justifyContent="space-between">
-        <Typography variant="h5" m={4} mt={6} ml={5}>
+        {/* <Typography variant="h5" m={4} mt={6} ml={5}>
           Link Accounts
-        </Typography>
+        </Typography> */}
+        <CardHeader
+          title={
+            <Typography ml={1} variant="h5">
+              Link Accounts
+            </Typography>
+          }
+        />
 
         <CardHeader
           subheader={

@@ -88,9 +88,13 @@ export default function StopTransferServicePage(): React.JSX.Element {
         </div> */}
 
         <MUIGrid container spacing={2} justifyContent="space-between">
-          <Typography variant="h5" m={4} mt={6} ml={5}>
-            Stop/Transfer Service
-          </Typography>
+          <CardHeader
+            title={
+              <Typography ml={1} variant="h5">
+                Stop/Transfer Service
+              </Typography>
+            }
+          />
 
           <CardHeader
             subheader={

@@ -75,9 +75,13 @@ export default function AccountPage(): React.JSX.Element {
           </Typography>
         </div> */}
         <MUIGrid container spacing={2} justifyContent="space-between">
-          <Typography variant="h5" m={4} mt={6} ml={5}>
-            Account
-          </Typography>
+          <CardHeader
+            title={
+              <Typography ml={1} variant="h5">
+                Account
+              </Typography>
+            }
+          />
 
           <CardHeader
             subheader={
