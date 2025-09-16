@@ -48,7 +48,7 @@ const LoaderFallback = React.lazy(() =>
 const withSuspense = (element: React.ReactNode) => {
   return <React.Suspense fallback={<LoaderFallback />}>{<>{element}</>}</React.Suspense>;
 };
-console.log('1.0.7', 'version');
+console.log('1.0.8', 'version');
 export const router = createBrowserRouter([
   {
     path: '/login',

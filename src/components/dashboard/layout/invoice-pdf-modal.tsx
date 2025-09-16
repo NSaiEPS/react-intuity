@@ -1,14 +1,16 @@
-import * as React from "react";
-import { colors } from "@/utils";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/state/store";
-import { getLocalStorage } from "@/utils/auth";
-import { useLoading } from "@/components/core/skeletion-context";
-import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import InvoicePdfDocument from "./invoice-pdf-view";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
-import { toast } from "react-toastify";
+import * as React from 'react';
+import { getInvoiceDetails } from '@/state/features/dashBoardSlice';
+import { RootState } from '@/state/store';
+import { colors } from '@/utils';
+import { getLocalStorage } from '@/utils/auth';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+
+import { useLoading } from '@/components/core/skeletion-context';
+import { SkeletonWrapper } from '@/components/core/withSkeleton';
+
+import InvoicePdfDocument from './invoice-pdf-view';
 
 type ModalProps = {
   open: boolean;
@@ -24,7 +26,7 @@ export default function CustomModal({
   onClose,
   title,
 
-  width = "800px",
+  width = '800px',
   id,
 }: ModalProps) {
   const dispatch = useDispatch();
@@ -37,18 +39,13 @@ export default function CustomModal({
     };
   };
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
-  const invoiceDetails = useSelector(
-    (state: RootState) => state.DashBoard.invoiceDetails
-  );
-  const dashboardLoader = useSelector(
-    (state: RootState) => state.DashBoard.dashboardLoader
-  );
+  const invoiceDetails = useSelector((state: RootState) => state.DashBoard.invoiceDetails);
+  const dashboardLoader = useSelector((state: RootState) => state.DashBoard.dashboardLoader);
 
   // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
@@ -61,13 +58,13 @@ export default function CustomModal({
   React.useEffect(() => {
     //TODO: change here
     if (!id) {
-      toast.error("Invalid ID");
+      toast.error('Invalid ID');
     } else {
       const formData = new FormData();
 
-      formData.append("acl_role_id", roleId);
-      formData.append("customer_id", userId);
-      formData.append("id", id ?? "");
+      formData.append('acl_role_id', roleId);
+      formData.append('customer_id', userId);
+      formData.append('id', id ?? '');
 
       dispatch(getInvoiceDetails(formData, token, setContextLoading));
     }
@@ -76,26 +73,23 @@ export default function CustomModal({
   return (
     <div
       style={{
-        position: "fixed",
+        position: 'fixed',
         inset: 0,
-        background: "rgba(0,0,0,0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: 1300,
       }}
       onClick={onClose}
     >
       <SkeletonWrapper customLoader={dashboardLoader}>
         <>
-          <PDFDownloadLink
-            document={<InvoicePdfDocument invoiceDetails={invoiceDetails} />}
-            fileName={`invoice.pdf`}
-          >
-            {({ loading }) => (loading ? "Preparing PDF..." : "")}
+          <PDFDownloadLink document={<InvoicePdfDocument invoiceDetails={invoiceDetails} />} fileName={`invoice.pdf`}>
+            {({ loading }) => (loading ? 'Preparing PDF...' : '')}
           </PDFDownloadLink>
 
-          <div style={{ height: "600px", marginTop: "20px" }}>
+          <div style={{ height: '600px', marginTop: '20px' }}>
             <PDFViewer width="1000px" height="600">
               <InvoicePdfDocument invoiceDetails={invoiceDetails} />
             </PDFViewer>
