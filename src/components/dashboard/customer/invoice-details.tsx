@@ -5,21 +5,19 @@ import {
   setDashboardLoader,
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { colors, formatToMMDDYYYY } from "@/utils";
+import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 
 import Button from "@/components/CommonComponents/Button";
 import { useSearchParams } from "react-router";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { InvoiceMainDetails } from "./Invoice-main-details";
-import PdfViewer from "../layout/invoice-pdf-view";
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();
@@ -34,12 +32,6 @@ export default function InvoiceDetails() {
     };
   };
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
-  const invoiceDetails = useSelector(
-    (state: RootState) => state.DashBoard.invoiceDetails
-  );
-  const dashboardLoader = useSelector(
-    (state: RootState) => state.DashBoard.dashboardLoader
-  );
 
   // const raw = getLocalStorage('intuity-user');
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
@@ -57,58 +49,17 @@ export default function InvoiceDetails() {
   }, []);
   React.useEffect(() => {
     //TODO: change here
-    if (false) {
-      toast.error("Invalid ID");
-    } else {
-      const formData = new FormData();
 
-      formData.append("acl_role_id", roleId);
-      formData.append("customer_id", userId);
-      formData.append("id", id ?? "");
+    const formData = new FormData();
 
-      dispatch(getInvoiceDetails(formData, token, setContextLoading));
-    }
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", id ?? "");
+
+    dispatch(getInvoiceDetails(formData, token, setContextLoading));
   }, [id]);
 
-  const {
-    company,
-    company_settings,
-    customer,
-    unique_by_utility = {},
-
-    last_bill = [],
-    extra_params = [],
-    //   } = InvoiceDetails?.body ?? {};
-  } = invoiceDetails ?? {};
-
   const pdfRef = React.useRef<HTMLDivElement>(null);
-
-  // const handleDownloadPDF = async () => {
-  //   dispatch(setDashboardLoader(true));
-
-  //   // window.print();
-  //   // return;
-
-  //   const input = pdfRef.current;
-  //   if (!input) {
-  //     dispatch(setDashboardLoader(false));
-
-  //     return;
-  //   }
-
-  //   const canvas = await html2canvas(input, { scale: 2 });
-  //   const imgData = canvas.toDataURL('image/png');
-
-  //   const pdf = new jsPDF('p', 'mm', 'a4');
-
-  //   const imgProps = pdf.getImageProperties(imgData);
-  //   const pdfWidth = pdf.internal.pageSize.getWidth();
-  //   const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-  //   dispatch(setDashboardLoader(false));
-
-  //   pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-  //   pdf.save(`invoice_${customer?.customer_name || 'customer'}.pdf`);
-  // };
 
   const handleDownloadPDF = async () => {
     dispatch(setDashboardLoader(true));
@@ -155,36 +106,8 @@ export default function InvoiceDetails() {
     dispatch(setDashboardLoader(false));
   };
 
-  const [open, setOpen] = React.useState(false);
-
-  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
-
-  const handlePreview = async () => {
-    if (!pdfRef.current) return;
-
-    const element = pdfRef.current;
-    const canvas = await html2canvas(element, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
-    const blob = pdf.output("blob");
-    const url = URL.createObjectURL(blob);
-    setPdfUrl(url);
-    setOpen(true);
-  };
-
-  // React.useEffect(() => {
-  //   handlePreview();
-  // }, []);
   return (
     <SkeletonWrapper>
-      {/* <Button variant="contained" onClick={handleDownloadPDF} sx={{ mb: 2 }}>
-        Download Invoice PDF
-      </Button> */}
       <div
         style={{
           marginLeft: "auto",
@@ -212,9 +135,6 @@ export default function InvoiceDetails() {
       <div ref={pdfRef} id="print-section">
         <InvoiceMainDetails />
       </div>
-      {/* <button onClick={handlePreview}>Preview Invoice PDF</button> */}
-
-      {/* <PdfViewer open={open} onClose={() => setOpen(false)} fileUrl={pdfUrl} /> */}
     </SkeletonWrapper>
   );
 }

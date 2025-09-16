@@ -293,7 +293,7 @@ export default function AlertsScreen() {
               },
             }}
           >
-            <Typography variant="h6">ALERTS</Typography>
+            <Typography variant="h5">ALERTS</Typography>
 
             <TextField
               placeholder="Search alert"

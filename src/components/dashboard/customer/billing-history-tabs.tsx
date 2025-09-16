@@ -67,7 +67,7 @@ export default function InvoiceTransactionTabs({
     <Box
       sx={{
         backgroundColor: "white",
-        boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
+        boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
       }}
     >
       {/* Tabs Top Bar */}
@@ -88,7 +88,7 @@ export default function InvoiceTransactionTabs({
             borderRadius: "10px 10px 0 0",
             position: "relative",
             backgroundColor: "white", // inactive tab background
-            boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
+            boxShadow: "2px 2px 8px 2px rgba(0,0,0,0.06)", // soft floating effect
 
             "&:hover": {
               color: colors.white,

@@ -87,7 +87,7 @@ function UsageHeader() {
           <Box
             display="flex"
             alignItems="center"
-            mt={!isMobile ? 2 : 0}
+            mt={!isMobile ? 3 : 0}
             mr={"auto"}
             ml={2}
             sx={{
