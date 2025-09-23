@@ -172,6 +172,12 @@ export default function AlertsScreen() {
     if (SearchedValue) {
       formData.append("search", SearchedValue);
     }
+    if (startDate) {
+      formData.append("start_date", dayjs(startDate).format("MM/DD/YYYY"));
+    }
+    if (endDate) {
+      formData.append("end_date", dayjs(endDate).format("MM/DD/YYYY"));
+    }
     if (timeRef.current) {
       clearTimeout(timeRef.current);
     }
@@ -180,7 +186,7 @@ export default function AlertsScreen() {
     }, 300);
   }, [SearchedValue, stored]);
 
-  const usageApiCall = (perpageNum = page) => {
+  const usageApiCall = (perpageNum = page, isReset = false) => {
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -189,11 +195,12 @@ export default function AlertsScreen() {
     if (SearchedValue) {
       formData.append("search", SearchedValue);
     }
-    if (startDate) {
-      formData.append("start_date", dayjs(startDate).format("DD/MM/YYYY"));
+
+    if (startDate && !isReset) {
+      formData.append("start_date", dayjs(startDate).format("MM/DD/YYYY"));
     }
-    if (endDate) {
-      formData.append("end_date", dayjs(endDate).format("DD/MM/YYYY"));
+    if (endDate && !isReset) {
+      formData.append("end_date", dayjs(endDate).format("MM/DD/YYYY"));
     }
     if (perpageNum) {
       formData.append("perpage", perpageNum.toString());
@@ -259,6 +266,7 @@ export default function AlertsScreen() {
             onClick={() => {
               setStartDate(null);
               setEndDate(null);
+              usageApiCall(page, true);
             }}
           >
             RESET ALL FILTERS
@@ -269,7 +277,7 @@ export default function AlertsScreen() {
             bgColor={colors.blue}
             hoverBackgroundColor={colors["blue.3"]}
             disabled={!(startDate || endDate)}
-            onClick={usageApiCall}
+            onClick={() => usageApiCall()}
           >
             SUBMIT
           </Button>
