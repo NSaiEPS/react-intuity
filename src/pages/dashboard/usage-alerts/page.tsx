@@ -442,10 +442,12 @@ export default function AlertsScreen() {
                   fontWeight: "bold",
                 }}
                 onClick={() => {
-                  localDispatch({
-                    type: "OPEN_DIALOG",
-                    payload: { ids: selected },
-                  });
+                  if (selected.length) {
+                    localDispatch({
+                      type: "OPEN_DIALOG",
+                      payload: { ids: selected },
+                    });
+                  }
                 }}
               >
                 Delete
