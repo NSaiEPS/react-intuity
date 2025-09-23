@@ -276,7 +276,7 @@ export default function AlertsScreen() {
             variant="contained"
             bgColor={colors.blue}
             hoverBackgroundColor={colors["blue.3"]}
-            disabled={!(startDate || endDate)}
+            disabled={!(startDate && endDate)}
             onClick={() => usageApiCall()}
           >
             SUBMIT
