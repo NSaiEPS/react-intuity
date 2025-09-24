@@ -1,22 +1,25 @@
 import { FC, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { RootState } from "@/state/store";
-import { useSelector } from "react-redux";
-import { getLocalStorage } from "@/utils/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import crypto from "crypto";
 import NachaIframe from "./NachaIframe";
+import { getWorldPlayPaymentDetails } from "@/state/features/accountSlice";
 
 interface PaymentIframeProps {
   type: "card" | "account";
   onSuccess: (data: any) => void; // handleSaveDetails
   oneTimePayment?: any;
+  invoiceId?: string;
 }
 
 const PaymentIframe: FC<PaymentIframeProps> = ({
   type = "card",
   onSuccess,
   oneTimePayment = null,
+  invoiceId,
 }) => {
   const [iframeLoading, setIframeLoading] = useState(true);
   const { accountLoading, paymentProcessorDetails } = useSelector(
@@ -26,7 +29,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   const { paymentRequiredKeyDetails } = useSelector(
     (state: RootState) => state?.Account
   );
-
+  const dispatch = useDispatch();
   const [processorDetails, setProcessorDetails] = useState<any>({});
   const [decryptedDetails, setDecryptedDetails] = useState<any>({});
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
@@ -216,6 +219,26 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
       })();
     }
   }, [processorDetails]);
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const [worldpayDetails, setWorldpayDetails] = useState<any>({});
+  useEffect(() => {
+    if (curentProcessor?.includes("worldpay")) {
+      const formdata = new FormData();
+      formdata.append("acl_role_id", stored?.body?.acl_role_id);
+      formdata.append("customer_id", stored?.body?.customer_id);
+      formdata.append("card_pay", "worldpay");
+      formdata.append("invoice_id", invoiceId || "");
+      dispatch(
+        getWorldPlayPaymentDetails(stored?.body?.token, formdata, (res) => {
+          setWorldpayDetails(res);
+        })
+      );
+    }
+  }, [curentProcessor]);
 
   if (
     curentProcessor?.includes("nacha") ||
@@ -223,6 +246,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   ) {
     return <NachaIframe onSuccess={onSuccess} />;
   }
+
   return (
     <Box>
       {iframeLoading && (

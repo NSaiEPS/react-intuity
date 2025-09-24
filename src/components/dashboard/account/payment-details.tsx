@@ -930,6 +930,7 @@ const PaymentForm = () => {
               type={debitType == "card" ? "card" : "account"}
               // onSuccess={(data: any) => handleSaveDetails(data, debitType)}
               onSuccess={(data: any) => setCardBankDetails(data)}
+              invoiceId={id}
             />
           ))}
 
