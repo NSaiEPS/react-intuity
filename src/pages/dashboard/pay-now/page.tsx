@@ -10,6 +10,7 @@ import { RootState } from "@/state/store";
 import { getLocalStorage } from "@/utils/auth";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { useLoading } from "@/components/core/skeletion-context";
+import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
 
 //export const metadata = {
 //   title: `Billing - ${config.site.name}`,
@@ -33,6 +34,9 @@ export default function PayNowPage(): React.JSX.Element {
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
+  const lastBillInfo = useSelector(
+    (state: RootState) => state?.Payment?.lastBillInfo
+  );
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
@@ -49,6 +53,18 @@ export default function PayNowPage(): React.JSX.Element {
 
     dispatch(getLastBillInfo(formData, token, setContextLoading));
   }, [userInfo]);
+
+  React.useEffect(() => {
+    if (lastBillInfo?.last_bill?.id) {
+      const formData = new FormData();
+
+      formData.append("acl_role_id", roleId);
+      formData.append("customer_id", userId);
+      formData.append("id", lastBillInfo?.last_bill?.id ?? "");
+
+      dispatch(getInvoiceDetails(formData, token));
+    }
+  }, [lastBillInfo?.last_bill?.id]);
 
   return (
     <SkeletonWrapper>

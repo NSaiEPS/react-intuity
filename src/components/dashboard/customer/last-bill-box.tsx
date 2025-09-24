@@ -38,7 +38,9 @@ export function LastBill(): React.JSX.Element {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-
+  const invoiceDetails = useSelector(
+    (state: RootState) => state?.DashBoard?.invoiceDetails
+  );
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
@@ -71,8 +73,9 @@ export function LastBill(): React.JSX.Element {
   //   }
   // }, [lastBillInfo]);
   const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+
   const handlePreviewInvoice = () => {
-    if (true) {
+    if (invoiceDetails?.send_pdf == 1) {
       setPdfPreviewInvocie(true);
     } else {
       navigate(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));

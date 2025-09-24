@@ -384,6 +384,19 @@ export function SignUpForm() {
     // API call here
   };
 
+  React.useEffect(() => {
+    const handleMessage = (event) => {
+      // Only accept messages from Worldpay’s domain
+      if (event.origin.includes("hostedpayments.com")) {
+        console.log("Payment Result:", event.data);
+        // parse event.data here
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
   return (
     // <Paper
     //   // elevation={3}
@@ -638,6 +651,17 @@ export function SignUpForm() {
           </Stack>
         </Stack>
       </form>
+      {/* <iframe
+        id="worldpayIframe"
+        name="worldpayIframe"
+        src={`https://certtransaction.hostedpayments.com?TransactionSetupID=83F2CF81-35E5-449F-8528-F432E3196341`}
+        // frameborder="0"
+        scrolling="yes"
+        // style="width: 100% !important; height: 250px;"
+        frameBorder="0"
+        title="ICG Payment"
+        // onLoad={() => setIframeLoading(false)}
+      ></iframe> */}
       {/* </Paper> */}
     </Box>
   );

@@ -115,6 +115,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   // Listen for iframe postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      console.log("Received message from iframe:", event.data);
       if (event?.data?.custId || event?.data?.token) {
         onSuccess(event.data); // parent callback
       }
@@ -225,6 +226,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const [worldpayDetails, setWorldpayDetails] = useState<any>({});
+  console.log(worldpayDetails, "worldpayDetails");
   useEffect(() => {
     if (curentProcessor?.includes("worldpay")) {
       const formdata = new FormData();
@@ -271,18 +273,32 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
           ⚠️ WARNING! Only click this button ONCE!
         </Typography>
       )}
-
-      <iframe
-        id={type === "account" ? "iFrameBA" : "iFrameCC"}
-        name={type === "account" ? "iFrameBA" : "iFrameCC"}
-        src={iframeUrl}
-        scrolling="no"
-        width="500"
-        height="500"
-        frameBorder="0"
-        title="ICG Payment"
-        onLoad={() => setIframeLoading(false)}
-      />
+      {curentProcessor?.includes("worldpay") &&
+      worldpayDetails?.TransactionSetupID ? (
+        <iframe
+          id="worldpayIframe"
+          name="worldpayIframe"
+          src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.TransactionSetupID}`}
+          frameborder="0"
+          scrolling="yes"
+          // style="width: 100% !important; height: 250px;"
+          frameBorder="0"
+          title="ICG Payment"
+          onLoad={() => setIframeLoading(false)}
+        ></iframe>
+      ) : (
+        <iframe
+          id={type === "account" ? "iFrameBA" : "iFrameCC"}
+          name={type === "account" ? "iFrameBA" : "iFrameCC"}
+          src={iframeUrl}
+          scrolling="no"
+          width="500"
+          height="500"
+          frameBorder="0"
+          title="ICG Payment"
+          onLoad={() => setIframeLoading(false)}
+        />
+      )}
 
       <CustomBackdrop
         open={accountLoading}
