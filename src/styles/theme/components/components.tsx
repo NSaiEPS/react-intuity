@@ -15,6 +15,7 @@ import { MuiTableHead } from "./table-head";
 import { MuiRadio } from "./muiRadio";
 
 import { MuiCheckbox } from "./muiCheckBox";
+import { MuiPickersDay } from "./muiDayPicker";
 import { MuiSelect } from "./muiSelect";
 import { MuiOutlinedInput, MuiInputBase } from "./muiInput";
 

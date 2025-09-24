@@ -778,3 +778,26 @@ export async function oneTimePaymentApi({ formData }) {
 
   return data;
 }
+
+export async function getWorldPlayPaymentDetailsAPI({
+  token,
+  formData,
+}: AccountUpdateForm) {
+  const res = await fetch(`${BASE_URL}get-worldpay-iframe-mobile`, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}

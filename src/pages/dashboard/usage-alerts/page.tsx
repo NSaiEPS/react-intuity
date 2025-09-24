@@ -105,7 +105,8 @@ export default function AlertsScreen() {
 
     dispatch(
       deleteUsageAlerts(token, formData, () => {
-        setSelected((prev) => prev.filter((i) => i !== id));
+        // setSelected((prev) => prev.filter((i) => i !== id));
+        usageApiCall();
       })
     );
 
@@ -125,6 +126,7 @@ export default function AlertsScreen() {
     dispatch(
       deleteUsageAlerts(token, formData, () => {
         setSelected([]);
+        usageApiCall();
       })
     );
     // setSelected([]);
@@ -238,6 +240,17 @@ export default function AlertsScreen() {
             onChange={setStartDate}
             maxDate={endDate || dayjs()}
             slotProps={{
+              // day: {
+              //   sx: {
+              //     "&.Mui-selected": {
+              //       backgroundColor: colors.blue,
+              //       color: "white", // optional
+              //       "&:hover": {
+              //         backgroundColor: colors.blue,
+              //       },
+              //     },
+              //   },
+              // },
               textField: {
                 fullWidth: true,
                 sx: { mb: 2, bgcolor: "white", borderRadius: 1 },

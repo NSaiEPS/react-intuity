@@ -36,12 +36,26 @@ export const neonBlue = {
   300: "#9ca7ff",
   400: colors.blue,
   500: colors.blue,
-  600: "#4e36f5",
-  700: "#432ad8",
-  800: "#3725ae",
-  900: "#302689",
+  600: colors.blue,
+  700: colors.blue,
+  800: colors.blue,
+  900: colors.blue,
   950: "#1e1650",
 } satisfies PaletteRange;
+
+export const customColors = {
+  50: "#ecf0ff",
+  100: "#dde3ff",
+  200: "#c2cbff",
+  300: "#9ca7ff",
+  400: colors.blue,
+  500: colors.blue,
+  600: "#2A72B9",
+  700: "#B3D9F5",
+  800: "#85B7E1",
+  900: "#5894CD",
+  950: "#172D56",
+};
 
 export const nevada = {
   50: "#fbfcfe",

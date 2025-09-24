@@ -9,6 +9,7 @@ import {
   getConvenienceFeeAPI,
   getPaymentDetailsApi,
   getPaymentProcessorDetailsAPI,
+  getWorldPlayPaymentDetailsAPI,
   guestPaymentRequestApi,
   listAnotherAccountAPI,
   oneTimePaymentApi,
@@ -875,6 +876,31 @@ export const deleteUsageAlerts: any =
       if (res?.status) {
         if (successCallback) {
           successCallback();
+        }
+      } else {
+        navigateTo("/login", { replace: true }, res?.message);
+
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Something went wrong!");
+    } finally {
+      dispatch(setAccountLoading(false));
+    }
+  };
+
+export const getWorldPlayPaymentDetails: any =
+  (token, formData, successCallback) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+
+    try {
+      const res = await getWorldPlayPaymentDetailsAPI({ token, formData });
+
+      if (res?.status) {
+        if (successCallback) {
+          successCallback(res?.body);
         }
       } else {
         navigateTo("/login", { replace: true }, res?.message);
