@@ -72,6 +72,7 @@ interface CustomersTableProps {
   accountInfo?: boolean;
   onSaveCardDetails?: (e: string) => void;
   paymentDetailsPage?: boolean;
+  autoPayDetails?: (e: string, ey: string) => void;
 }
 
 const CardRow = React.memo(function CardRow({
@@ -153,6 +154,7 @@ export const PaymentMethods = ({
   onClose,
   accountInfo = false,
   onSaveCardDetails,
+  autoPayDetails,
   paymentDetailsPage = false,
 }: CustomersTableProps): React.JSX.Element => {
   const { setContextLoading } = useLoading();
@@ -211,18 +213,26 @@ export const PaymentMethods = ({
     }
   }, [dispatch]);
   const handleSaveDetails = () => {
+    const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(
+      (key) => paymentMethodInfoCards[key].card_token === selectedId
+    )[0];
     if (onSaveCardDetails) {
       // const selectedCardDetails = paymentMethodInfoCards.filter(
       //   (item) => item.card_token === selectedId
       // )[0];
-      const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(
-        (key) => paymentMethodInfoCards[key].card_token === selectedId
-      )[0];
+
       // console.log(
       //   "Selected Card Details:",
       //   paymentMethodInfoCards[selectedCardDetails]
       // );
       onSaveCardDetails(paymentMethodInfoCards[selectedCardDetails]);
+      return;
+    }
+    if (autoPayDetails) {
+      autoPayDetails(
+        paymentMethodInfoCards[selectedCardDetails],
+        String(selectedId)
+      );
       return;
     }
     const formdata = new FormData();

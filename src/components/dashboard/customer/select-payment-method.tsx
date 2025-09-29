@@ -36,7 +36,9 @@ export interface CardDetails {
   id: number;
 }
 
-export function SelectPaymentMethod(): React.JSX.Element {
+export function SelectPaymentMethod({
+  setSelectedCardDetails,
+}): React.JSX.Element {
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
   const page = 0;
   const rowsPerPage = 10;
@@ -74,6 +76,12 @@ export function SelectPaymentMethod(): React.JSX.Element {
           page={page}
           rows={[]}
           rowsPerPage={rowsPerPage}
+          autoPayDetails={(details, token) => {
+            if (setSelectedCardDetails) {
+              setSelectedCardDetails(details, token);
+              setOpenPaymentModal(false);
+            }
+          }}
         />
       </Dialog>
     </Grid>

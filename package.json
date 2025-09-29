@@ -31,6 +31,7 @@
     "@phosphor-icons/react": "2.1.6",
     "@react-pdf/renderer": "^4.3.0",
     "@reduxjs/toolkit": "^2.8.2",
+    "ajv": "^8.17.1",
     "apexcharts": "3.49.2",
     "axios": "^1.11.0",
     "dayjs": "^1.11.13",

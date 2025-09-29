@@ -30,6 +30,8 @@ export default function AutoPayDetails(): React.JSX.Element {
   const [isAutoPay, setisAutoPay] = React.useState(false);
   const dispatch = useDispatch();
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  const [selectedCardDetails, setSelectedCardDetails] =
+    React.useState<any>(null);
 
   React.useEffect(() => {
     setisAutoPay(CustomerInfo?.autopay === 1 ? true : false);
@@ -59,13 +61,31 @@ export default function AutoPayDetails(): React.JSX.Element {
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
+
+    if (selectedCardDetails) {
+      // "id_select_card:143
+      // auto_pay_model_save_card:0
+      // payment_method_id_model:0bd1349b300245c988edae9bdf131644
+      // acl_role_id:4
+      // customer_id:810
+      // is_form:1"
+
+      formData.append("payment_method_id_model", selectedCardDetails?.token);
+
+      formData.append("is_form", "1");
+
+      formData.append("id_select_card", "635");
+      formData.append("auto_pay_model_save_card", "0");
+      dispatch(
+        updatePaperLessInfo(token, formData, "autopay", successCallBack)
+      );
+      return;
+    }
     formData.append("auto_pay", isAutoPay ? "1" : "0");
     // formData.append('id', dashBoardInfo?.body?.autopay_setting_id);
-    formData.append("id", userInfo?.autopay_setting_id);
+    // formData.append("id", userInfo?.autopay_setting_id);
     // formData.append('payment_method_id', dashBoardInfo?.body?.payment_method_id);
     formData.append("payment_method_id", userInfo?.payment_method_id);
-    formData.append("is_form", "1");
-
     dispatch(updatePaperLessInfo(token, formData, "autopay", successCallBack));
   };
   const successCallBack = () => {
@@ -75,6 +95,7 @@ export default function AutoPayDetails(): React.JSX.Element {
       isAutoPay ? 1 : 0
     );
   };
+  console.log(selectedCardDetails, "selectedCardDetails");
   return (
     <Card
       sx={{
@@ -156,7 +177,14 @@ export default function AutoPayDetails(): React.JSX.Element {
           sm={6}
           xs={12}
         >
-          <SelectPaymentMethod />
+          <SelectPaymentMethod
+            setSelectedCardDetails={(details, token) => {
+              setSelectedCardDetails({
+                card: details,
+                token: token,
+              });
+            }}
+          />
         </Grid>
       </Grid>
 
@@ -183,9 +211,11 @@ export default function AutoPayDetails(): React.JSX.Element {
           //   }}
 
           disabled={
-            accountLoading ||
-            (CustomerInfo?.autopay === 1 && isAutoPay) ||
-            (CustomerInfo?.autopay !== 1 && !isAutoPay)
+            selectedCardDetails
+              ? false
+              : accountLoading ||
+                (CustomerInfo?.autopay === 1 && isAutoPay) ||
+                (CustomerInfo?.autopay !== 1 && !isAutoPay)
           }
           loading={accountLoading}
           onClick={handleSaveChanges}
