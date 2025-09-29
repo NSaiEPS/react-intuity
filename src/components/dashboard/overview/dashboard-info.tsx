@@ -202,7 +202,7 @@ export function DashboardInfo({
         "payment_method_id",
         dashBoardInfo?.body?.customer?.payment_method_id
       );
-      formData.append("is_form", "1");
+      // formData.append("is_form", "1");
 
       dispatch(
         updatePaperLessInfo(token, formData, "autopay", () =>

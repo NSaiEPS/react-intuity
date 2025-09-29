@@ -38,6 +38,7 @@ export interface CardDetails {
 
 export function SelectPaymentMethod({
   setSelectedCardDetails,
+  text,
 }): React.JSX.Element {
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
   const page = 0;
@@ -62,7 +63,7 @@ export function SelectPaymentMethod({
         }}
         onClick={() => setOpenPaymentModal(true)}
       >
-        Select Payment Method
+        {text ?? "Select Payment Method"}
       </Typography>
 
       {/* <AddCardModal open={cardModalOpen} onClose={() => setCardModalOpen(false)} /> */}

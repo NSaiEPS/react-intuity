@@ -294,22 +294,28 @@ export const updateAccountInfo: any =
   };
 
 export const updatePaperLessInfo: any =
-  (token, formData, type, successCallBack) => async (dispatch) => {
+  (token, formData, type, successCallBack, saveResponse = false) =>
+  async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
       const res = await paperLessUpdate({ token, formData, type });
 
       if (res.status) {
-        toast.success(
-          res?.message
-            ? res?.message
-            : type === "autopay"
-            ? "Updated Auto Pay!"
-            : "Updated Paperless!"
-        );
-
+        if (!saveResponse) {
+          toast.success(
+            res?.message
+              ? res?.message
+              : type === "autopay"
+              ? "Updated Auto Pay!"
+              : "Updated Paperless!"
+          );
+        }
         if (successCallBack) {
-          successCallBack();
+          if (saveResponse) {
+            successCallBack(res?.body?.autopay_card);
+          } else {
+            successCallBack();
+          }
         }
       } else {
         navigateTo("/login", { replace: true }, res?.message);

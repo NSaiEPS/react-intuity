@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+import { boarderRadius, colors, decryptFunction } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -16,47 +16,60 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
-
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { SelectPaymentMethod } from "@/components/dashboard/customer/select-payment-method";
+import { Radio, Stack } from "@mui/material";
 
 export default function AutoPayDetails(): React.JSX.Element {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
+  type IntuityUser = {
+    body?: {
+      acl_role_id?: string;
+      customer_id?: string;
+      token?: string;
+    };
+  };
+  const raw = getLocalStorage("intuity-user");
 
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const userInfo: any = getLocalStorage("intuity-customerInfo");
+
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   const [isAutoPay, setisAutoPay] = React.useState(false);
   const dispatch = useDispatch();
+  const [autoPayDetails, setAutoPayDetails] = React.useState(null);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [selectedCardDetails, setSelectedCardDetails] =
     React.useState<any>(null);
 
+  console.log(autoPayDetails, selectedCardDetails, "autoPayDetails");
+
   React.useEffect(() => {
     setisAutoPay(CustomerInfo?.autopay === 1 ? true : false);
+
+    const formData = new FormData();
+
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+
+    dispatch(
+      updatePaperLessInfo(token, formData, "autopay", setAutoPayDetails, true)
+    );
   }, [CustomerInfo?.autopay]);
   const handleChange = () => {
     setisAutoPay((prev) => !prev);
   };
   const handleSaveChanges = () => {
-    type IntuityUser = {
-      body?: {
-        acl_role_id?: string;
-        customer_id?: string;
-        token?: string;
-      };
-    };
-    const raw = getLocalStorage("intuity-user");
-
-    const stored: IntuityUser | null =
-      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-    const userInfo: any = getLocalStorage("intuity-customerInfo");
-
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -72,7 +85,8 @@ export default function AutoPayDetails(): React.JSX.Element {
 
       formData.append("payment_method_id_model", selectedCardDetails?.token);
 
-      formData.append("is_form", "1");
+      // formData.append("is_form", "1");
+      formData.append("auto_pay", isAutoPay ? "1" : "0");
 
       formData.append("id_select_card", "635");
       formData.append("auto_pay_model_save_card", "0");
@@ -167,6 +181,67 @@ export default function AutoPayDetails(): React.JSX.Element {
               label="Auto Pay ON"
             />
           </FormGroup>
+          {autoPayDetails?.length ||
+          autoPayDetails?.id ||
+          selectedCardDetails?.token ? (
+            <Grid container alignItems="center">
+              {/* Radio + Name */}
+              <Grid xs={3}>
+                <Stack direction="row" alignItems="center">
+                  <Radio
+                    checked={true}
+                    // onChange={handleRadioChange}
+                    value={"1"}
+                    disabled
+                  />
+                  <Typography variant="subtitle2">
+                    {selectedCardDetails?.card?.card_type ??
+                      selectedCardDetails?.card?.account_type ??
+                      autoPayDetails.card_type ??
+                      autoPayDetails.account_type}
+                  </Typography>
+                </Stack>
+              </Grid>
+
+              {/* Card Number */}
+              <Grid xs={3} ml={2}>
+                <Typography sx={{ fontFamily: "monospace" }}>
+                  {selectedCardDetails?.card?.card_number ??
+                    selectedCardDetails?.card?.bank_account_number ??
+                    decryptFunction(
+                      autoPayDetails.card_number ??
+                        autoPayDetails.bank_account_number
+                    )}
+                </Typography>
+              </Grid>
+
+              {/* Card Type */}
+              <Grid xs={3} ml={2}>
+                <Typography>
+                  {selectedCardDetails?.card?.card_type ||
+                  autoPayDetails?.card_type
+                    ? "Card"
+                    : "Bank Account"}
+                </Typography>
+              </Grid>
+
+              {/* Date */}
+              <Grid xs={3} ml={2}>
+                <Typography>
+                  {dayjs
+                    .tz(
+                      selectedCardDetails?.card?.date_used ??
+                        autoPayDetails.createdAt,
+                      "America/Chicago"
+                    )
+                    .tz(dayjs.tz.guess())
+                    .format("YYYY-MM-DD hh:mm A z")}
+                </Typography>
+              </Grid>
+            </Grid>
+          ) : (
+            ""
+          )}
         </Grid>
 
         <Grid
@@ -184,6 +259,7 @@ export default function AutoPayDetails(): React.JSX.Element {
                 token: token,
               });
             }}
+            text={"Change Payment Method"}
           />
         </Grid>
       </Grid>
