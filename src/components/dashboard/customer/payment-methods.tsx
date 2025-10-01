@@ -87,7 +87,11 @@ const CardRow = React.memo(function CardRow({
   onDelete: (row: CardDetails) => void;
 }) {
   const handleRadioChange = React.useCallback(() => {
-    onSelect(row.card_token);
+    let data: any = {
+      card_token: row.card_token,
+      id: row.id,
+    };
+    onSelect(data);
   }, [onSelect, row.card_token]);
 
   const handleDeleteClick = React.useCallback(
@@ -214,7 +218,7 @@ export const PaymentMethods = ({
   }, [dispatch]);
   const handleSaveDetails = () => {
     const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(
-      (key) => paymentMethodInfoCards[key].card_token === selectedId
+      (key) => paymentMethodInfoCards[key].card_token === selectedId?.card_token
     )[0];
     if (onSaveCardDetails) {
       // const selectedCardDetails = paymentMethodInfoCards.filter(
@@ -231,7 +235,7 @@ export const PaymentMethods = ({
     if (autoPayDetails) {
       autoPayDetails(
         paymentMethodInfoCards[selectedCardDetails],
-        String(selectedId)
+        String(selectedId?.card_token)
       );
       return;
     }
@@ -239,7 +243,7 @@ export const PaymentMethods = ({
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
     formdata.append("model_open", "2");
-    formdata.append("payment_method", String(selectedId));
+    formdata.append("payment_method", String(selectedId?.card_token));
 
     dispatch(
       getPaymentDetails(stored?.body?.token, formdata, true, () => {
@@ -270,8 +274,8 @@ export const PaymentMethods = ({
   // 🧠 3. Stable row IDs for selection hook
   const rowIds = React.useMemo(() => myCards.map((r) => r.id), [myCards]);
   // const { selectOne, deselectOne, selected } = useSelection(rowIds);
-  const selectOne = React.useCallback((id: number) => {
-    setSelectedId(id);
+  const selectOne = React.useCallback((data: any) => {
+    setSelectedId(data);
   }, []);
   const handleDelete = React.useCallback((row: CardDetails) => {
     setOpenConfirm(true);
@@ -338,7 +342,7 @@ export const PaymentMethods = ({
         <CardRow
           key={row.id}
           row={row}
-          isSelected={selectedId === row.card_token}
+          isSelected={selectedId?.id === row.id}
           onSelect={selectOne}
           onDelete={handleDelete}
         />
