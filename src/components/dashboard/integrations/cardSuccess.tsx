@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import { getLocalStorage } from "@/utils/auth";
 
 const CardSuccess = () => {
   //   useEffect(() => {
@@ -26,7 +28,7 @@ const CardSuccess = () => {
     return cleaned;
   };
   const convenienceFee = sanitize(searchParams.get("convenience_fee"));
-
+  let stored: any = getLocalStorage("intuity-user");
   useEffect(() => {
     const timer = setTimeout(() => {
       const id = sanitize(searchParams.get("id"));
@@ -45,9 +47,13 @@ const CardSuccess = () => {
           ...(convenienceFee ? { convenience_fee: convenienceFee } : {}),
           ...(transId ? { transId } : {}),
         });
-
-        const target = `/${company}/dashboard/payment-details?${query.toString()}`;
-        navigate(target, { replace: true });
+        const token = stored?.body?.token;
+        if (token) {
+          const target = `/${company}/dashboard/payment-details?${query.toString()}`;
+          navigate(target);
+        } else {
+          navigate(-1); // fallback
+        }
       } else {
         navigate(-1); // fallback
       }
@@ -66,6 +72,9 @@ const CardSuccess = () => {
       textAlign="center"
       gap={2}
     >
+      <Helmet key={"Card Redirect"}>
+        <title>Card Redirect</title>
+      </Helmet>
       <CheckCircle size={80} weight="fill" color="#2e7d32" />
       {/* Phosphor success icon (filled green) */}
 

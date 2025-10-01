@@ -42,6 +42,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const [activeStep, setActiveStep] = useState(0);
   const dispatch = useDispatch();
   const [iframeLoading, setIframeLoading] = useState(true);
+  const [hovered, setHovered] = useState(false);
 
   const companyInfo = useSelector(
     (state: RootState) => state.Account.companyInfo
@@ -498,7 +499,48 @@ export default function OneTimePaymentModal({ open, onClose }) {
               <FormControlLabel
                 value="bank_account"
                 control={<Radio />}
-                label="Bank Account"
+                label={
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    position="relative"
+                  >
+                    Bank Account
+                    <Box
+                      onMouseEnter={() => setHovered(true)}
+                      onMouseLeave={() => setHovered(false)}
+                      sx={{
+                        position: "relative",
+                        display: "inline-block",
+                        top: 2,
+                      }}
+                    >
+                      {/* Question Icon */}
+                      <Question size={20} color="#5dade2" weight="fill" />
+
+                      {/* Image popup */}
+                      {hovered && (
+                        <Box
+                          component="img"
+                          src="/public/assets/bankaccount-help.png"
+                          alt="Help"
+                          sx={{
+                            position: "absolute",
+                            top: "30px", // below icon
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            width: 350,
+                            height: 350,
+                            borderRadius: 2,
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                            zIndex: 999,
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                }
               />
             </RadioGroup>
             {errors.paymentType && (
@@ -551,6 +593,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 handleSaveDetails(res, companyInfo, formData, customerDetails)
               }
               oneTimePayment={formData}
+              convenience_fee={String(formData.amountToPay || 0)}
+              amount={(Number(formData.convenienceFee) || 0).toFixed(2)}
+              amountRequired={true}
             />
 
             <Box display="flex" justifyContent="space-between" mt={2}>

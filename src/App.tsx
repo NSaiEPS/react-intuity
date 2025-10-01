@@ -133,6 +133,10 @@ export const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: "card-redirect",
+    element: withSuspense(<CardSuccess />),
+  },
+  {
     path: "/:company",
     element: LoginSuspense(<CompanyRouteGuard />),
     errorElement: <RouteErrorBoundary />,

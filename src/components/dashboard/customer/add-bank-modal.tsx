@@ -3,6 +3,7 @@ import { getPaymentDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
+
 import {
   Box,
   Button,
@@ -74,6 +75,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   };
 
   const openPaper = Boolean(anchorEl);
+  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     // Dynamically load the external iCG script
@@ -153,6 +155,39 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ m: 0, p: 2, pl: 3 }}>
         Add Bank Account
+        <Box
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          sx={{
+            position: "relative",
+            display: "inline-block",
+            top: 2,
+            left: 2,
+          }}
+        >
+          {/* Question Icon */}
+          <Question size={20} color="#5dade2" weight="fill" />
+
+          {/* Image popup on hover */}
+          {hovered && (
+            <Box
+              component="img"
+              src="/public/assets/bankaccount-help.png"
+              alt="Help"
+              sx={{
+                position: "absolute",
+                top: "40px", // below icon; use negative for above
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 250,
+                height: 250,
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                zIndex: 999,
+              }}
+            />
+          )}
+        </Box>
         <IconButton
           aria-label="close"
           onClick={onClose}
