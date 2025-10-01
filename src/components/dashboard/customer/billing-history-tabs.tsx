@@ -68,16 +68,16 @@ export default function InvoiceTransactionTabs({
       sx={{
         backgroundColor: "white",
         boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
+        // paddingTop: 5,
       }}
     >
       {/* Tabs Top Bar */}
       <Tabs
         value={currentTab}
         onChange={(_, tab) => setCurrentTab(tab)}
-        // indicatorColor="primary"
-        // textColor="primary"
         sx={{
           borderBottom: "1px solid #e5e7eb",
+
           "& .MuiTab-root": {
             color: colors.blue,
             fontWeight: 500,
@@ -87,25 +87,29 @@ export default function InvoiceTransactionTabs({
             transition: "all 0.3s ease",
             borderRadius: "10px 10px 0 0",
             position: "relative",
-            backgroundColor: "white", // inactive tab background
-            boxShadow: "2px 2px 8px 2px rgba(0,0,0,0.06)", // soft floating effect
+            backgroundColor: "white",
+            boxShadow:
+              "0px -2px 8px rgba(0,0,0,0.08), 0px 2px 8px rgba(0,0,0,0.06)", // 👈 shadow both top & bottom
 
             "&:hover": {
               color: colors.white,
               backgroundColor: colors["blue.3"],
-              transform: "translateY(-2px)", // subtle lift on hover
+              transform: "translateY(-2px)",
+              boxShadow:
+                "0px -4px 10px rgba(0,0,0,0.12), 0px 4px 10px rgba(0,0,0,0.10)", // stronger on hover
             },
           },
           "& .MuiTab-root.Mui-selected": {
             color: "white",
             fontWeight: 600,
             backgroundColor: colors.blue,
-            boxShadow: "0 -2px 8px rgba(0,0,0,0.06)", // soft floating effect
+            boxShadow:
+              "0px -3px 10px rgba(0,0,0,0.12), 0px 3px 10px rgba(0,0,0,0.08)", // top + bottom for selected
           },
           "& .MuiTabs-indicator": {
             height: "4px",
             borderRadius: "4px 4px 0 0",
-            background: "transparent", // hide indicator since we style tab bg
+            background: "transparent",
           },
         }}
       >

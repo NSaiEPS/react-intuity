@@ -7,6 +7,8 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 import crypto from "crypto";
 import NachaIframe from "./NachaIframe";
 import { getWorldPlayPaymentDetails } from "@/state/features/accountSlice";
+import { renderIframeRoot, unmountIframeRoot } from "@/utils/rootIframe";
+import { useSearchParams } from "react-router";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -19,8 +21,12 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   type = "card",
   onSuccess,
   oneTimePayment = null,
-  invoiceId,
+  // invoiceId,
 }) => {
+  const [searchParams] = useSearchParams();
+
+  const invoiceId = searchParams.get("id");
+
   const [iframeLoading, setIframeLoading] = useState(true);
   const { accountLoading, paymentProcessorDetails } = useSelector(
     (state: RootState) => state?.Account
@@ -233,7 +239,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
       formdata.append("acl_role_id", stored?.body?.acl_role_id);
       formdata.append("customer_id", stored?.body?.customer_id);
       formdata.append("card_pay", "worldpay");
-      formdata.append("invoice_id", invoiceId || "");
+      formdata.append("invoice_id", invoiceId || "0");
       dispatch(
         getWorldPlayPaymentDetails(stored?.body?.token, formdata, (res) => {
           setWorldpayDetails(res);
@@ -241,6 +247,39 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
       );
     }
   }, [curentProcessor]);
+
+  useEffect(() => {
+    if (
+      curentProcessor?.includes("worldpay") &&
+      worldpayDetails?.transaction_setup_id
+    ) {
+      console.log("rendered", "renderIframeRoot");
+
+      // Render iframe in its own root
+      renderIframeRoot(
+        <iframe
+          id="worldpayIframe"
+          name="worldpayIframe"
+          src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`}
+          frameBorder="0"
+          scrolling="yes"
+          title="ICG Payment"
+          style={{
+            width: "600px", // or "100%"
+            height: "500px", // or "100%"
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+          }}
+          onLoad={() => setIframeLoading(false)}
+        />
+      );
+    }
+
+    return () => {
+      // cleanup
+      unmountIframeRoot();
+    };
+  }, [curentProcessor, worldpayDetails]);
 
   if (
     curentProcessor?.includes("nacha") ||
@@ -274,12 +313,12 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
         </Typography>
       )}
       {curentProcessor?.includes("worldpay") &&
-      worldpayDetails?.TransactionSetupID ? (
+      worldpayDetails?.transaction_setup_id ? (
         <iframe
           id="worldpayIframe"
           name="worldpayIframe"
-          src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.TransactionSetupID}`}
-          frameborder="0"
+          src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`}
+          // frameborder="0"
           scrolling="yes"
           // style="width: 100% !important; height: 250px;"
           frameBorder="0"

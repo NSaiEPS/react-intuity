@@ -198,6 +198,8 @@ const PaymentForm = () => {
   const [searchParams] = useSearchParams();
 
   const id = searchParams.get("id");
+  const transId = searchParams.get("transId");
+  console.log(transId, id, "transId");
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
 
@@ -468,6 +470,11 @@ const PaymentForm = () => {
       toast.warn("Please don't pay more than you owe!");
     }
   }, [amount, myCustomerDetails, setValue]);
+  useEffect(() => {
+    if (transId && transId !== "0") {
+      toast.success("Card Added Successfully");
+    }
+  }, [transId]);
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>

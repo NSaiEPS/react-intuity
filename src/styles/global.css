@@ -106,3 +106,16 @@ body.pdf-mode .pdf-text {
   max-width: 1024px !important;
   transform: scale(1) !important;
 }
+
+#iframe-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* full screen */
+  height: 100vh; /* full screen */
+  background: #fff; /* optional backdrop */
+  z-index: 2000; /* above your app */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
