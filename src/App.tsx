@@ -9,6 +9,7 @@ import ProtectedRoute, {
   LoginSuspense,
 } from "./components/core/protectedRoute";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
+import CardSuccess from "./components/dashboard/integrations/cardSuccess";
 
 // Lazy imports for all pages
 const SignInPage = React.lazy(() =>
@@ -266,6 +267,14 @@ export const router = createBrowserRouter([
             element: withSuspense(
               <ProtectedRoute title="Payment Details">
                 <PaymentDetailsPage />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "card-redirect",
+            element: withSuspense(
+              <ProtectedRoute title="Card Redirect">
+                <CardSuccess />
               </ProtectedRoute>
             ),
           },

@@ -233,13 +233,25 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const [worldpayDetails, setWorldpayDetails] = useState<any>({});
   console.log(worldpayDetails, "worldpayDetails");
+  const companyInfo = useSelector(
+    (state: RootState) => state.Account.companyInfo
+  );
   useEffect(() => {
     if (curentProcessor?.includes("worldpay")) {
       const formdata = new FormData();
-      formdata.append("acl_role_id", stored?.body?.acl_role_id);
-      formdata.append("customer_id", stored?.body?.customer_id);
+
+      formdata.append("acl_role_id", stored?.body?.acl_role_id ?? "4");
+      formdata.append(
+        "customer_id",
+        stored?.body?.customer_id ?? companyInfo?.company?.id
+      );
+
       formdata.append("card_pay", "worldpay");
       formdata.append("invoice_id", invoiceId || "0");
+      if (companyInfo?.company?.id) {
+        formdata.append("is_one_time_pay", "1");
+      }
+
       dispatch(
         getWorldPlayPaymentDetails(stored?.body?.token, formdata, (res) => {
           setWorldpayDetails(res);
@@ -309,22 +321,23 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
           align="center"
           sx={{ color: "red", fontWeight: "bold", mb: 1 }}
         >
-          ⚠️ WARNING! Only click this button ONCE!
+          ⚠️ WARNING! Only click Continue ONCE!
         </Typography>
       )}
-      {curentProcessor?.includes("worldpay") &&
-      worldpayDetails?.transaction_setup_id ? (
-        <iframe
-          id="worldpayIframe"
-          name="worldpayIframe"
-          src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`}
-          // frameborder="0"
-          scrolling="yes"
-          // style="width: 100% !important; height: 250px;"
-          frameBorder="0"
-          title="ICG Payment"
-          onLoad={() => setIframeLoading(false)}
-        ></iframe>
+      {curentProcessor?.includes("worldpay") ? (
+        worldpayDetails?.transaction_setup_id ? (
+          <iframe
+            id="worldpayIframe"
+            name="worldpayIframe"
+            src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`}
+            // frameborder="0"
+            scrolling="yes"
+            // style="width: 100% !important; height: 250px;"
+            frameBorder="0"
+            title="ICG Payment"
+            onLoad={() => setIframeLoading(false)}
+          ></iframe>
+        ) : null
       ) : (
         <iframe
           id={type === "account" ? "iFrameBA" : "iFrameCC"}

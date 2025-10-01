@@ -277,6 +277,13 @@ export const updateAccountInfo: any =
         //toast(res?.data?.message);
         // message.success(res?.data?.message);
       } else {
+        if (
+          res?.message ==
+          "We apologize but we are currently not able to verify your 2FA phone number. Please try again later."
+        ) {
+          toast.error(res?.message);
+          return;
+        }
         navigateTo("/login", { replace: true }, res?.message);
 
         toast.error(res?.message ?? "Something went wrong!!!!!");
