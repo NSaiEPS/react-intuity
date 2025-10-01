@@ -346,6 +346,16 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
             frameBorder="0"
             title="ICG Payment"
             onLoad={() => setIframeLoading(false)}
+            width="500"
+            height="500"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              border: "0",
+            }}
           ></iframe>
         ) : null
       ) : (
@@ -359,6 +369,14 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
           frameBorder="0"
           title="ICG Payment"
           onLoad={() => setIframeLoading(false)}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            border: "0",
+          }}
         />
       )}
 
