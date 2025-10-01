@@ -311,15 +311,18 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   }
 
   return (
-    <Box>
+    <Box sx={{ width: "100%", maxWidth: 600, mx: "auto" }}>
       {iframeLoading && (
         <Box
           display="flex"
           justifyContent="center"
           alignItems="center"
-          height={500}
-          width={500}
-          sx={{ border: "1px solid #ccc", mb: 2 }}
+          sx={{
+            width: "100%",
+            height: 450, // reasonable height
+            border: "1px solid #ccc",
+            mb: 2,
+          }}
         >
           Loading...
         </Box>
@@ -334,51 +337,39 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
           ⚠️ WARNING! Only click Continue ONCE!
         </Typography>
       )}
-      {curentProcessor?.includes("worldpay") ? (
-        worldpayDetails?.transaction_setup_id ? (
-          <iframe
-            id="worldpayIframe"
-            name="worldpayIframe"
-            src={`https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`}
-            // frameborder="0"
-            scrolling="yes"
-            // style="width: 100% !important; height: 250px;"
-            frameBorder="0"
-            title="ICG Payment"
-            onLoad={() => setIframeLoading(false)}
-            width="500"
-            height="500"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              border: "0",
-            }}
-          ></iframe>
-        ) : null
-      ) : (
-        <iframe
-          id={type === "account" ? "iFrameBA" : "iFrameCC"}
-          name={type === "account" ? "iFrameBA" : "iFrameCC"}
-          src={iframeUrl}
-          scrolling="no"
-          width="500"
-          height="500"
-          frameBorder="0"
-          title="ICG Payment"
-          onLoad={() => setIframeLoading(false)}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            border: "0",
-          }}
-        />
-      )}
+
+      <iframe
+        id={
+          curentProcessor?.includes("worldpay")
+            ? "worldpayIframe"
+            : type === "account"
+            ? "iFrameBA"
+            : "iFrameCC"
+        }
+        name={
+          curentProcessor?.includes("worldpay")
+            ? "worldpayIframe"
+            : type === "account"
+            ? "iFrameBA"
+            : "iFrameCC"
+        }
+        src={
+          curentProcessor?.includes("worldpay")
+            ? `https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`
+            : iframeUrl
+        }
+        scrolling={curentProcessor?.includes("worldpay") ? "yes" : "no"}
+        frameBorder="0"
+        title="ICG Payment"
+        onLoad={() => setIframeLoading(false)}
+        style={{
+          width: "100%",
+          minHeight: 450, // match the loading box
+          border: "0",
+          display: iframeLoading ? "none" : "block",
+          overflowY: "scroll",
+        }}
+      />
 
       <CustomBackdrop
         open={accountLoading}

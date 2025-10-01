@@ -1,18 +1,42 @@
 import { useEffect } from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const CardSuccess = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // https://intuity-test-fe.pay.waterbill.com/cape-royale1/dashboard/card-redirect?transId=559622916&id=54305&amount=%27.1.25.%27&convenience_fee=%27.0.25.%27
+  //   useEffect(() => {
+  //     const timer = setTimeout(() => {
 
+  //       navigate(-1); // navigate back
+  //     }, 2000);
+
+  //     return () => clearTimeout(timer);
+  //   }, [navigate,searchParams]);
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate(-1); // navigate back
+      const amount = searchParams.get("amount");
+      const convenienceFee = searchParams.get("convenience_fee");
+      const id = searchParams.get("id");
+
+      if (amount || convenienceFee) {
+        // Extract company slug from pathname => /cape-royale1/dashboard/...
+        const segments = location.pathname.split("/");
+        const company = segments[1]; // cape-royale1
+
+        // Build target URL
+        const target = `/${company}/dashboard/payment-details?id=${id}&amount=${amount}&convenience_fee=${convenienceFee}`;
+        navigate(target, { replace: true });
+      } else {
+        // Fallback to previous page
+        navigate(-1);
+      }
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, location, searchParams]);
 
   return (
     <Box
