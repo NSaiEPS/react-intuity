@@ -938,6 +938,11 @@ const PaymentForm = () => {
               // onSuccess={(data: any) => handleSaveDetails(data, debitType)}
               onSuccess={(data: any) => setCardBankDetails(data)}
               invoiceId={id}
+              convenience_fee={String(watch("convenienceFee") || 0)}
+              amount={(
+                (Number(watch("amount")) || 0) + (watch("convenienceFee") || 0)
+              ).toFixed(2)}
+              amountRequired={true}
             />
           ))}
 

@@ -15,12 +15,18 @@ interface PaymentIframeProps {
   onSuccess: (data: any) => void; // handleSaveDetails
   oneTimePayment?: any;
   invoiceId?: string;
+  convenience_fee?: string;
+  amount?: string;
+  amountRequired?: boolean;
 }
 
 const PaymentIframe: FC<PaymentIframeProps> = ({
   type = "card",
   onSuccess,
   oneTimePayment = null,
+  convenience_fee = 0,
+  amount = 0,
+  amountRequired = false,
   // invoiceId,
 }) => {
   const [searchParams] = useSearchParams();
@@ -251,6 +257,10 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
       if (companyInfo?.company?.id) {
         formdata.append("is_one_time_pay", "1");
       }
+      if (amountRequired) {
+        formdata.append("convenience_fee", convenience_fee);
+        formdata.append("amount", amount);
+      }
 
       dispatch(
         getWorldPlayPaymentDetails(stored?.body?.token, formdata, (res) => {
@@ -258,7 +268,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
         })
       );
     }
-  }, [curentProcessor]);
+  }, [curentProcessor, amountRequired]);
 
   useEffect(() => {
     if (

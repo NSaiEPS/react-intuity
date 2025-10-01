@@ -73,6 +73,9 @@ interface CustomersTableProps {
   onSaveCardDetails?: (e: string) => void;
   paymentDetailsPage?: boolean;
   autoPayDetails?: (e: string, ey: string) => void;
+  convenience_fee?: number;
+  amount?: number;
+  amountRequired?: boolean;
 }
 
 const CardRow = React.memo(function CardRow({
@@ -160,6 +163,9 @@ export const PaymentMethods = ({
   onSaveCardDetails,
   autoPayDetails,
   paymentDetailsPage = false,
+  convenience_fee = 0,
+  amount = 0,
+  amountRequired = false,
 }: CustomersTableProps): React.JSX.Element => {
   const { setContextLoading } = useLoading();
 
