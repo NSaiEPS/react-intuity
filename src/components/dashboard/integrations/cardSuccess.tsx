@@ -1,12 +1,9 @@
 import { useEffect } from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 const CardSuccess = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  // https://intuity-test-fe.pay.waterbill.com/cape-royale1/dashboard/card-redirect?transId=559622916&id=54305&amount=%27.1.25.%27&convenience_fee=%27.0.25.%27
   //   useEffect(() => {
   //     const timer = setTimeout(() => {
 
@@ -15,23 +12,44 @@ const CardSuccess = () => {
 
   //     return () => clearTimeout(timer);
   //   }, [navigate,searchParams]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // helper to clean params
+  const sanitize = (val: string | null) => {
+    if (!val) return null;
+    // decode URI, remove quotes and trim extra dots
+    const cleaned = decodeURIComponent(val)
+      .replace(/['"]/g, "") // remove quotes
+      .replace(/^\.|\.$/g, ""); // remove leading/trailing dots
+    return cleaned;
+  };
+  const convenienceFee = sanitize(searchParams.get("convenience_fee"));
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      const amount = searchParams.get("amount");
-      const convenienceFee = searchParams.get("convenience_fee");
-      const id = searchParams.get("id");
+      const id = sanitize(searchParams.get("id"));
+      const amount = sanitize(searchParams.get("amount"));
+      const transId = sanitize(searchParams.get("transId"));
 
-      if (amount || convenienceFee) {
-        // Extract company slug from pathname => /cape-royale1/dashboard/...
+      if (amount || convenienceFee || transId) {
+        // extract company slug => /cape-royale1/dashboard/card-redirect
         const segments = location.pathname.split("/");
         const company = segments[1]; // cape-royale1
 
-        // Build target URL
-        const target = `/${company}/dashboard/payment-details?id=${id}&amount=${amount}&convenience_fee=${convenienceFee}`;
+        // build new search params
+        const query = new URLSearchParams({
+          ...(id ? { id } : {}),
+          ...(amount ? { amount } : {}),
+          ...(convenienceFee ? { convenience_fee: convenienceFee } : {}),
+          ...(transId ? { transId } : {}),
+        });
+
+        const target = `/${company}/dashboard/payment-details?${query.toString()}`;
         navigate(target, { replace: true });
       } else {
-        // Fallback to previous page
-        navigate(-1);
+        navigate(-1); // fallback
       }
     }, 2000);
 
@@ -52,7 +70,9 @@ const CardSuccess = () => {
       {/* Phosphor success icon (filled green) */}
 
       <Typography variant="h5" fontWeight={600}>
-        Card added successfully
+        {convenienceFee
+          ? "Transaction Initiated..."
+          : "Card added successfully"}
       </Typography>
 
       <Box display="flex" alignItems="center" gap={1} mt={2}>

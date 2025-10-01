@@ -344,6 +344,55 @@ const PaymentForm = () => {
     setSelectedCardDetails(paymentMethodInfoCards);
   }, [paymentMethodInfoCards]);
 
+  const amount = watch("amount");
+
+  useEffect(() => {
+    const fee = calculatePaymentAmount({
+      amount: watch("amount") || "0",
+      paymentType:
+        paymentType === "saved"
+          ? selectedCardDetails?.card_type
+            ? "card"
+            : "bank_account"
+          : debitType,
+      cardType: selectedCardDetails?.card_type || "visa",
+      config: convenienceFee,
+    }).convenienceFee.toFixed(2);
+    setValue("convenienceFee", Number(fee));
+  }, [
+    amount,
+    convenienceFee,
+    debitType,
+    selectedCardDetails?.card_type,
+    paymentType,
+    setValue,
+    watch,
+  ]);
+  useEffect(() => {
+    if (
+      myCustomerDetails?.allow_overpayments == 0 &&
+      Number(amount) > Number(myCustomerDetails?.balance || 0) &&
+      myCustomerDetails?.id
+    ) {
+      setValue("amount", myCustomerDetails?.balance || "0");
+      toast.warn("Please don't pay more than you owe!");
+    }
+  }, [amount, myCustomerDetails, setValue]);
+  // useEffect(() => {
+  //   if (transId && transId !== "0") {
+  //     toast.success("Card Added Successfully");
+  //   }
+  // }, [transId]);
+  const cardConvenienceFee = searchParams.get("convenience_fee");
+  const cardAmount = searchParams.get("amount");
+  const cardTransId = searchParams.get("transId");
+  console.log(cardAmount, "cardAmount");
+  useEffect(() => {
+    if (cardAmount && cardConvenienceFee && cardTransId) {
+      setShowPaymentSummary(true);
+    }
+  }, [searchParams]);
+
   const handlePay = () => {
     setShowPaymentSummary(false);
     const formdata = new FormData();
@@ -428,6 +477,35 @@ const PaymentForm = () => {
       formdata.append("payment_method", "0");
       formdata.append("price", String(watch("amount") || 0));
 
+      if (cardConvenienceFee) {
+        const formdata = new FormData();
+
+        formdata.append("acl_role_id", stored?.body?.acl_role_id);
+        formdata.append("customer_id", stored?.body?.customer_id);
+        formdata.append("is_one_time", "0");
+        formdata.append("id", id);
+        formdata.append("pay_payment_method", "pay_save_method");
+        formdata.append("payment_method_id_radio", "card");
+        formdata.append("is_card", "0");
+        formdata.append("is_card_one_time", "0");
+        formdata.append("payment_method_id_form", cardTransId);
+
+        formdata.append("convenienceFee", cardConvenienceFee);
+        formdata.append("payment_method", "0");
+        formdata.append("price", String(cardAmount || 0));
+        dispatch(
+          paymentWithoutSavingDetails(
+            stored?.body?.token,
+            formdata,
+            true,
+            () => {
+              navigate(paths.dashboard.payNow());
+            }
+          )
+        );
+        return;
+      }
+
       dispatch(
         paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
           navigate(paths.dashboard.payNow());
@@ -436,45 +514,6 @@ const PaymentForm = () => {
     }
   };
 
-  const amount = watch("amount");
-
-  useEffect(() => {
-    const fee = calculatePaymentAmount({
-      amount: watch("amount") || "0",
-      paymentType:
-        paymentType === "saved"
-          ? selectedCardDetails?.card_type
-            ? "card"
-            : "bank_account"
-          : debitType,
-      cardType: selectedCardDetails?.card_type || "visa",
-      config: convenienceFee,
-    }).convenienceFee.toFixed(2);
-    setValue("convenienceFee", Number(fee));
-  }, [
-    amount,
-    convenienceFee,
-    debitType,
-    selectedCardDetails?.card_type,
-    paymentType,
-    setValue,
-    watch,
-  ]);
-  useEffect(() => {
-    if (
-      myCustomerDetails?.allow_overpayments == 0 &&
-      Number(amount) > Number(myCustomerDetails?.balance || 0) &&
-      myCustomerDetails?.id
-    ) {
-      setValue("amount", myCustomerDetails?.balance || "0");
-      toast.warn("Please don't pay more than you owe!");
-    }
-  }, [amount, myCustomerDetails, setValue]);
-  useEffect(() => {
-    if (transId && transId !== "0") {
-      toast.success("Card Added Successfully");
-    }
-  }, [transId]);
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
@@ -939,9 +978,7 @@ const PaymentForm = () => {
               onSuccess={(data: any) => setCardBankDetails(data)}
               invoiceId={id}
               convenience_fee={String(watch("convenienceFee") || 0)}
-              amount={(
-                (Number(watch("amount")) || 0) + (watch("convenienceFee") || 0)
-              ).toFixed(2)}
+              amount={(Number(watch("amount")) || 0).toFixed(2)}
               amountRequired={true}
             />
           ))}
@@ -982,8 +1019,12 @@ const PaymentForm = () => {
                 handlePay();
               }
             }}
-            amount={Number(amount || 0)}
-            fee={Number(watch("convenienceFee") || 0)}
+            amount={
+              cardAmount
+                ? Number(cardAmount)
+                : Number(amount || cardAmount || 0)
+            }
+            fee={Number(watch("convenienceFee") || cardConvenienceFee || 0)}
             cardType={
               cardBankDetails
                 ? cardBankDetails?.cardType ?? "Bank Account"
