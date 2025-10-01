@@ -178,9 +178,7 @@ export const PaymentMethods = ({
   const { accountLoading, paymentMethodInfoCards } = useSelector(
     (state: RootState) => state?.Account
   );
-  const [selectedId, setSelectedId] = React.useState<number | string | null>(
-    null
-  );
+  const [selectedId, setSelectedId] = React.useState<any>(null);
 
   const [cardModalOpen, setCardModalOpen] = React.useState(false);
   const [bankModalOpen, setBankModalOpen] = React.useState(false);

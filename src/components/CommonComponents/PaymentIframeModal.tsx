@@ -258,8 +258,8 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
         formdata.append("is_one_time_pay", "1");
       }
       if (amountRequired) {
-        formdata.append("convenience_fee", convenience_fee);
-        formdata.append("amount", amount);
+        formdata.append("convenience_fee", String(convenience_fee));
+        formdata.append("amount", String(amount));
       }
 
       dispatch(
@@ -364,7 +364,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
         onLoad={() => setIframeLoading(false)}
         style={{
           width: "100%",
-          minHeight: 450, // match the loading box
+          minHeight: 600, // match the loading box
           border: "0",
           display: iframeLoading ? "none" : "block",
           overflowY: "scroll",
