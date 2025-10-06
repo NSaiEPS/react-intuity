@@ -9,6 +9,7 @@ import NachaIframe from "./NachaIframe";
 import { getWorldPlayPaymentDetails } from "@/state/features/accountSlice";
 import { renderIframeRoot, unmountIframeRoot } from "@/utils/rootIframe";
 import { useSearchParams } from "react-router";
+import ElavonAddCard from "./ElavonPaymentModal";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -308,6 +309,9 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     curentProcessor?.includes("achworks")
   ) {
     return <NachaIframe onSuccess={onSuccess} />;
+  }
+  if (curentProcessor?.includes("elavon")) {
+    return <ElavonAddCard />;
   }
 
   return (
