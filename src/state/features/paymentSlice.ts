@@ -1,9 +1,7 @@
-import { getLastBillInfoAPI } from "@/api/dashboard";
-
-import { navigateTo } from "@/utils/navigation";
-import { createSlice } from "@reduxjs/toolkit";
-
-import { toast } from "react-toastify";
+import { getLastBillInfoAPI } from '@/api/dashboard';
+import { navigateTo } from '@/utils/navigation';
+import { createSlice } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
 
 interface DahBoardState {
   lastBillInfo: any;
@@ -16,7 +14,7 @@ const initialState = {
 } as DahBoardState;
 
 const paymentSlice = createSlice({
-  name: "paymentSlice",
+  name: 'paymentSlice',
   initialState,
   reducers: {
     setLastBillInfo(state, action) {
@@ -42,23 +40,23 @@ export const getLastBillInfo: any =
 
       if (res?.status) {
         if (successCallBack) {
-          successCallBack();
+          successCallBack(res?.body);
         }
         if (!isPost) {
           dispatch(setLastBillInfo(res?.body));
         } else {
-          toast.success(res?.message ?? "Successful!!");
+          toast.success(res?.message ?? 'Successful!!');
         }
       } else {
         dispatch(setLastBillInfo({}));
 
-        navigateTo("/login", { replace: true }, res?.message);
-        if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
+        navigateTo('/login', { replace: true }, res?.message);
+        if (res?.message !== 'You are not authorised to use this api') {
+          toast.error(res?.message ?? 'Something went wrong!');
         }
       }
     } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
+      toast.error(e?.response?.data?.message ?? 'Error Try again!!');
 
       // toast(e?.response?.data?.message);
       // message.error(e?.response?.data?.message);

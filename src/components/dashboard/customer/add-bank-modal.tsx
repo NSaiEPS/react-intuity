@@ -1,9 +1,8 @@
-import { FC, useEffect, useState } from "react";
-import { getPaymentDetails } from "@/state/features/accountSlice";
-import { RootState } from "@/state/store";
-import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
-
+import { FC, useEffect, useState } from 'react';
+import { getPaymentDetails } from '@/state/features/accountSlice';
+import { RootState } from '@/state/store';
+import { colors } from '@/utils';
+import { getLocalStorage } from '@/utils/auth';
 import {
   Box,
   Button,
@@ -22,26 +21,24 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@mui/material";
-import { Question, X } from "@phosphor-icons/react";
-import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";
-import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
+} from '@mui/material';
+import { Question, X } from '@phosphor-icons/react';
+import { CustomBackdrop, Loader } from 'nsaicomponents';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+
+import PaymentIframeModal from '@/components/CommonComponents/PaymentIframeModal';
+import PaymentIframe from '@/components/CommonComponents/PaymentIframeModal';
 
 interface AddBankAccountModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
-  open,
-  onClose,
-}) => {
-  const [routingNumber, setRoutingNumber] = useState<string>("");
-  const [accountNumber, setAccountNumber] = useState<string>("");
-  const [accountType, setAccountType] = useState<string>("");
+const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) => {
+  const [routingNumber, setRoutingNumber] = useState<string>('');
+  const [accountNumber, setAccountNumber] = useState<string>('');
+  const [accountType, setAccountType] = useState<string>('');
   const [agreed, setAgreed] = useState<boolean>(false);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -60,7 +57,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
 
   const handleContinue = () => {
     if (!agreed) {
-      alert("Please agree to the terms.");
+      alert('Please agree to the terms.');
       return;
     }
 
@@ -68,9 +65,9 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   };
 
   const handleReset = () => {
-    setRoutingNumber("");
-    setAccountNumber("");
-    setAccountType("");
+    setRoutingNumber('');
+    setAccountNumber('');
+    setAccountType('');
     setAgreed(false);
   };
 
@@ -79,8 +76,8 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
 
   useEffect(() => {
     // Dynamically load the external iCG script
-    const script = document.createElement("script");
-    script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
+    const script = document.createElement('script');
+    script.src = 'https://cdn.icheckgateway.com/Scripts/iefixes.min.js';
     script.async = true;
     document.body.appendChild(script);
 
@@ -98,52 +95,47 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     };
   };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
   const dispatch = useDispatch();
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
 
   const handleSaveDetails = (data) => {
     if (data?.error) {
-      toast.error(
-        data?.error ? data?.error : "Try again something went wrong!"
-      );
+      toast.error(data?.error ? data?.error : 'Try again something went wrong!');
 
       return;
     }
     const formdata = new FormData();
-    formdata.append("acl_role_id", stored?.body?.acl_role_id);
-    formdata.append("customer_id", stored?.body?.customer_id);
-    formdata.append("model_open", "1");
-    formdata.append("token", data?.token);
-    formdata.append("bank_account_number", data?.accountNumber);
-    formdata.append("routing_number", data?.routingNumber);
+    formdata.append('acl_role_id', stored?.body?.acl_role_id);
+    formdata.append('customer_id', stored?.body?.customer_id);
+    formdata.append('model_open', '1');
+    formdata.append('token', data?.token);
+    formdata.append('bank_account_number', data?.accountNumber);
+    formdata.append('routing_number', data?.routingNumber);
 
     formdata.append(
-      "account_type",
-      data?.accountType === "PC"
-        ? "Personal Checking"
-        : data?.accountType === "PS"
-        ? "Personal Savings"
-        : data?.accountType === "BC"
-        ? "Business Checking"
-        : data?.accountType === "BS"
-        ? "Business Savings"
-        : data?.accountType === "GL"
-        ? "General Ledger"
-        : " Other"
+      'account_type',
+      data?.accountType === 'PC'
+        ? 'Personal Checking'
+        : data?.accountType === 'PS'
+          ? 'Personal Savings'
+          : data?.accountType === 'BC'
+            ? 'Business Checking'
+            : data?.accountType === 'BS'
+              ? 'Business Savings'
+              : data?.accountType === 'GL'
+                ? 'General Ledger'
+                : ' Other'
     );
 
     dispatch(
       getPaymentDetails(stored?.body?.token, formdata, true, () => {
         const formdata = new FormData();
-        formdata.append("acl_role_id", stored?.body?.acl_role_id);
-        formdata.append("customer_id", stored?.body?.customer_id);
+        formdata.append('acl_role_id', stored?.body?.acl_role_id);
+        formdata.append('customer_id', stored?.body?.customer_id);
 
-        dispatch(
-          getPaymentDetails(stored?.body?.token, formdata, false, onClose)
-        );
+        dispatch(getPaymentDetails(stored?.body?.token, formdata, false, onClose));
       })
     );
 
@@ -159,9 +151,9 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           sx={{
-            position: "relative",
-            display: "inline-block",
-            top: 2,
+            position: 'relative',
+            display: 'inline-block',
+            top: 4,
             left: 2,
           }}
         >
@@ -176,14 +168,14 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
               src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
               alt="Help"
               sx={{
-                position: "absolute",
-                top: "40px", // below icon; use negative for above
-                left: "50%",
-                transform: "translateX(-50%)",
+                position: 'absolute',
+                top: '40px', // below icon; use negative for above
+                left: '50%',
+                transform: 'translateX(-50%)',
                 width: 250,
                 height: 250,
                 borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                 zIndex: 999,
               }}
             />
@@ -193,7 +185,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
           aria-label="close"
           onClick={onClose}
           sx={{
-            position: "absolute",
+            position: 'absolute',
             right: 10,
             top: 8,
             pr: 1.5,
@@ -242,19 +234,16 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
       </DialogContent> */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
 
-          width: "100%", // full width
+          width: '100%', // full width
         }}
       >
         <PaymentIframe type="account" onSuccess={handleSaveDetails} />
       </Box>
-      <CustomBackdrop
-        open={accountLoading}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
+      <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
         <Loader />
       </CustomBackdrop>
     </Dialog>

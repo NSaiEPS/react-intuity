@@ -1,42 +1,42 @@
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Stepper,
-  Step,
-  StepLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  stepConnectorClasses,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  IconButton,
-  InputAdornment,
-  Tooltip,
-  Backdrop,
-  CircularProgress,
-} from "@mui/material";
-import { CustomConnector, CustomStepIcon } from "./sign-up-form";
-import { Button } from "nsaicomponents";
-import { calculatePaymentAmount, colors } from "@/utils";
-import { X } from "@phosphor-icons/react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import React, { useEffect, useState } from 'react';
 import {
   getConvenienceFee,
   getPaymentProcessorDetails,
   guestPaymentRequest,
   oneTimePayment,
-} from "@/state/features/accountSlice";
-import { Question } from "@phosphor-icons/react";
-import { toast } from "react-toastify";
-import PaymentIframe from "../CommonComponents/PaymentIframeModal";
+} from '@/state/features/accountSlice';
+import { RootState } from '@/state/store';
+import { calculatePaymentAmount, colors } from '@/utils';
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  IconButton,
+  InputAdornment,
+  Radio,
+  RadioGroup,
+  Stack,
+  Step,
+  stepConnectorClasses,
+  StepLabel,
+  Stepper,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { Question, X } from '@phosphor-icons/react';
+import { Button } from 'nsaicomponents';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
-const steps = ["Retrieve Bill", "Confirm Payment", "Select Payment Method"];
+import PaymentIframe from '../CommonComponents/PaymentIframeModal';
+import { CustomConnector, CustomStepIcon } from './sign-up-form';
+
+const steps = ['Retrieve Bill', 'Confirm Payment', 'Select Payment Method'];
 
 export default function OneTimePaymentModal({ open, onClose }) {
   const [activeStep, setActiveStep] = useState(0);
@@ -44,23 +44,19 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const [iframeLoading, setIframeLoading] = useState(true);
   const [hovered, setHovered] = useState(false);
 
-  const companyInfo = useSelector(
-    (state: RootState) => state.Account.companyInfo
-  );
-  const accountLoading = useSelector(
-    (state: RootState) => state.Account.accountLoading
-  );
+  const companyInfo = useSelector((state: RootState) => state.Account.companyInfo);
+  const accountLoading = useSelector((state: RootState) => state.Account.accountLoading);
 
   const [formData, setFormData] = useState({
-    accountNo: "",
-    invoiceAmount: "",
-    name: "",
-    email: "",
-    amountToPay: "",
-    convenienceFee: "",
-    totalPayment: "",
-    paymentType: "card",
-    street: "",
+    accountNo: '',
+    invoiceAmount: '',
+    name: '',
+    email: '',
+    amountToPay: '',
+    convenienceFee: '',
+    totalPayment: '',
+    paymentType: 'card',
+    street: '',
   });
   const [customerDetails, setCustomerDetails] = useState<any>({});
   type FormErrors = {
@@ -75,17 +71,15 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   const handleChange = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
-    setErrors({ ...errors, [field]: "" }); // clear error once user types
+    setErrors({ ...errors, [field]: '' }); // clear error once user types
   };
 
-  const convenienceFee = useSelector(
-    (state: RootState) => state?.Account.convenienceFee
-  );
+  const convenienceFee = useSelector((state: RootState) => state?.Account.convenienceFee);
   useEffect(() => {
     const fee = calculatePaymentAmount({
-      amount: formData.amountToPay || "0",
+      amount: formData.amountToPay || '0',
       paymentType: formData.paymentType,
-      cardType: "visa",
+      cardType: 'visa',
       config: convenienceFee,
     }).convenienceFee.toFixed(2);
 
@@ -102,29 +96,28 @@ export default function OneTimePaymentModal({ open, onClose }) {
     let newErrors: any = {};
     if (activeStep === 0) {
       if (!formData.accountNo) {
-        newErrors.accountNo = "Account No. is required";
+        newErrors.accountNo = 'Account No. is required';
       } else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
-        newErrors.accountNo = "Only numbers allowed";
+        newErrors.accountNo = 'Only numbers allowed';
       }
 
       // Invoice Amount
       if (!formData.invoiceAmount) {
-        newErrors.invoiceAmount = "Invoice Amount is required";
+        newErrors.invoiceAmount = 'Invoice Amount is required';
       } else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
-        newErrors.invoiceAmount = "Only numbers or decimals allowed";
+        newErrors.invoiceAmount = 'Only numbers or decimals allowed';
       }
     }
     if (activeStep === 1) {
       if (Number(formData.amountToPay) === 0 || !formData.amountToPay)
-        newErrors.amountToPay = "Amount to Pay is required";
-      if (!formData.name) newErrors.name = "Name  is required";
-      if (!formData.email) newErrors.email = "Email  is required";
+        newErrors.amountToPay = 'Amount to Pay is required';
+      if (!formData.name) newErrors.name = 'Name  is required';
+      if (!formData.email) newErrors.email = 'Email  is required';
       if (Number(formData.amountToPay) > customerDetails.balance)
         newErrors.amountToPay = `Amount can't be greater than the  Due Amount: $${customerDetails.balance}`;
     }
     if (activeStep === 2) {
-      if (!formData.paymentType)
-        newErrors.paymentType = "Please select a payment method";
+      if (!formData.paymentType) newErrors.paymentType = 'Please select a payment method';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -140,25 +133,25 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   const handleRetrieveBill = () => {
     if (!formData.accountNo) {
-      setErrors({ accountNo: "Account No. is required" });
+      setErrors({ accountNo: 'Account No. is required' });
       return;
     } else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
-      setErrors({ accountNo: "Only numbers allowed" });
+      setErrors({ accountNo: 'Only numbers allowed' });
       return;
     }
     if (!formData.invoiceAmount) {
-      setErrors({ invoiceAmount: "Invoice Amount is required" });
+      setErrors({ invoiceAmount: 'Invoice Amount is required' });
       return;
     } else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
-      setErrors({ invoiceAmount: "Only numbers allowed" });
+      setErrors({ invoiceAmount: 'Only numbers allowed' });
       return;
     }
     const paymentData = new FormData();
-    paymentData.append("account_number", formData.accountNo);
-    paymentData.append("invoice_amount", formData.invoiceAmount);
-    paymentData.append("success_authenticate", "0");
-    paymentData.append("company_id", companyInfo?.company?.id);
-    paymentData.append("company_alias", companyInfo?.company?.alias);
+    paymentData.append('account_number', formData.accountNo);
+    paymentData.append('invoice_amount', formData.invoiceAmount);
+    paymentData.append('success_authenticate', '0');
+    paymentData.append('company_id', companyInfo?.company?.id);
+    paymentData.append('company_alias', companyInfo?.company?.alias);
     // invoice_amount:2032.85
     // success_authenticate:0
     // company_id:4
@@ -172,9 +165,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
           name: res?.customer_name,
           email: res?.email,
-          amountToPay: "0",
-          convenienceFee: "0",
-          totalPayment: "0",
+          amountToPay: '0',
+          convenienceFee: '0',
+          totalPayment: '0',
           street: res?.service_address,
         }));
         handleNext();
@@ -198,51 +191,43 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
     if (data?.error) {
-      toast.error(
-        data?.error ? data?.error : "Try again something went wrong!"
-      );
+      toast.error(data?.error ? data?.error : 'Try again something went wrong!');
 
       return;
     }
     // console.log(companyInfo, "companyInfo");
-    const debitType = data?.cardNumber ? "card" : "bank_account";
+    const debitType = data?.cardNumber ? 'card' : 'bank_account';
     const paymentData = new FormData();
-    paymentData.append("account_number", formData.accountNo);
-    paymentData.append("invoice_amount", formData.invoiceAmount);
+    paymentData.append('account_number', formData.accountNo);
+    paymentData.append('invoice_amount', formData.invoiceAmount);
 
-    paymentData.append("company_id", companyInfo?.company?.id);
-    paymentData.append("company_alias", companyInfo?.company?.alias);
-    paymentData.append("customer_id", customerDetails?.id);
-    paymentData.append("success_authenticate", "1");
-    paymentData.append("name", formData.name);
-    paymentData.append("email", formData.email);
-    paymentData.append("billing_id", customerDetails?.billing_id);
+    paymentData.append('company_id', companyInfo?.company?.id);
+    paymentData.append('company_alias', companyInfo?.company?.alias);
+    paymentData.append('customer_id', customerDetails?.id);
+    paymentData.append('success_authenticate', '1');
+    paymentData.append('name', formData.name);
+    paymentData.append('email', formData.email);
+    paymentData.append('billing_id', customerDetails?.billing_id);
 
-    paymentData.append("token", data?.token);
-    paymentData.append("is_one_time", "1");
+    paymentData.append('token', data?.token);
+    paymentData.append('is_one_time', '1');
     // paymentData.append("amount", formData.amountToPay);
     // paymentData.append("convenienceFee", formData.convenienceFee);
 
-    paymentData.append("amount", Number(formData.amountToPay).toFixed(2));
-    paymentData.append(
-      "convenienceFee",
-      Number(formData.convenienceFee).toFixed(2)
-    );
+    paymentData.append('amount', Number(formData.amountToPay).toFixed(2));
+    paymentData.append('convenienceFee', Number(formData.convenienceFee).toFixed(2));
 
-    if (debitType === "card") {
-      paymentData.append("credit_card_number", data?.cardNumber);
-      paymentData.append("card_type", data?.cardType);
-      paymentData.append("expiration", data?.cardExpDate);
-      paymentData.append("is_card_one_time", "1");
+    if (debitType === 'card') {
+      paymentData.append('credit_card_number', data?.cardNumber);
+      paymentData.append('card_type', data?.cardType);
+      paymentData.append('expiration', data?.cardExpDate);
+      paymentData.append('is_card_one_time', '1');
     }
-    if (debitType == "bank_account") {
+    if (debitType == 'bank_account') {
       // paymentData.append("bank_account_number", data?.accountNumber);
-      paymentData.append(
-        "bank_account_number",
-        data?.accountNumber?.slice(-4) || ""
-      );
-      paymentData.append("is_card", "0");
-      paymentData.append("routing_number", data?.routingNumber);
+      paymentData.append('bank_account_number', data?.accountNumber?.slice(-4) || '');
+      paymentData.append('is_card', '0');
+      paymentData.append('routing_number', data?.routingNumber);
       // paymentData.append(
       //   "account_type",
       //   data?.accountType === "PC"
@@ -284,15 +269,15 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const onModalClose = () => {
     setActiveStep(0);
     setFormData({
-      accountNo: "",
-      invoiceAmount: "",
-      name: "",
-      email: "",
-      amountToPay: "",
-      convenienceFee: "",
-      totalPayment: "",
-      paymentType: "card",
-      street: "",
+      accountNo: '',
+      invoiceAmount: '',
+      name: '',
+      email: '',
+      amountToPay: '',
+      convenienceFee: '',
+      totalPayment: '',
+      paymentType: 'card',
+      street: '',
     });
     onClose();
   };
@@ -301,20 +286,12 @@ export default function OneTimePaymentModal({ open, onClose }) {
     // company_id:2
     // alias:cape-royale1"
     const formdata = new FormData();
-    formdata.append("acl_role_id", "4");
-    formdata.append("company_id", companyInfo?.company?.id);
-    formdata.append("alias", companyInfo?.company?.alias);
+    formdata.append('acl_role_id', '4');
+    formdata.append('company_id', companyInfo?.company?.id);
+    formdata.append('alias', companyInfo?.company?.alias);
     if (activeStep == 2) {
-      dispatch(
-        getPaymentProcessorDetails(
-          undefined,
-          formdata,
-          false,
-          undefined,
-          () => {}
-        )
-      );
-      formdata.append("customer_id", customerDetails?.id);
+      dispatch(getPaymentProcessorDetails(undefined, formdata, false, undefined, () => {}));
+      formdata.append('customer_id', customerDetails?.id);
 
       // const convenienceFeeFormdata = new FormData();
       // convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
@@ -332,7 +309,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               fullWidth
               label="Account No."
               value={formData.accountNo}
-              onChange={handleChange("accountNo")}
+              onChange={handleChange('accountNo')}
               error={!!errors.accountNo}
               helperText={errors.accountNo}
               sx={{ mb: 2 }}
@@ -351,7 +328,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               fullWidth
               label="Original Invoice Amount"
               value={formData.invoiceAmount}
-              onChange={handleChange("invoiceAmount")}
+              onChange={handleChange('invoiceAmount')}
               error={!!errors.invoiceAmount}
               helperText={errors.invoiceAmount}
               sx={{ mb: 2 }}
@@ -360,11 +337,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
                   <InputAdornment position="end">
                     <Tooltip
                       title={
-                        <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
-                          Enter the amount from your original invoice for this
-                          billing period. Do not include any recently added late
-                          fees. Do not reduce the invoice amount due to any
-                          payments made since you received the initial bill.
+                        <span style={{ fontSize: '14px', lineHeight: 1.4 }}>
+                          Enter the amount from your original invoice for this billing period. Do not include any
+                          recently added late fees. Do not reduce the invoice amount due to any payments made since you
+                          received the initial bill.
                         </span>
                       }
                       placement="top"
@@ -384,17 +360,13 @@ export default function OneTimePaymentModal({ open, onClose }) {
               onClick={handleRetrieveBill}
               loading={accountLoading}
               style={{
-                borderRadius: "12px",
-                height: "41px",
-                width: "100%",
+                borderRadius: '12px',
+                height: '41px',
+                width: '100%',
                 backgroundColor: colors.blue,
               }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = colors["blue.3"])
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = colors.blue)
-              }
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors['blue.3'])}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
             >
               Retrieve Bill
             </Button>
@@ -407,7 +379,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               fullWidth
               label="Name: "
               value={formData.name}
-              onChange={handleChange("name")}
+              onChange={handleChange('name')}
               error={!!errors.name}
               helperText={errors.name}
               sx={{ mb: 2 }}
@@ -416,21 +388,19 @@ export default function OneTimePaymentModal({ open, onClose }) {
               fullWidth
               label="Email: "
               value={formData.email}
-              onChange={handleChange("email")}
+              onChange={handleChange('email')}
               error={!!errors.email}
               helperText={errors.email}
               sx={{ mb: 2 }}
             />
             {/* <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography> */}
-            <Typography mb={2}>
-              Due Amount: ${customerDetails.balance}
-            </Typography>
+            <Typography mb={2}>Due Amount: ${customerDetails.balance}</Typography>
             <TextField
               fullWidth
               label="Amount To Pay"
               value={formData.amountToPay}
-              onChange={handleChange("amountToPay")}
+              onChange={handleChange('amountToPay')}
               error={!!errors.amountToPay}
               helperText={errors.amountToPay}
               sx={{ mb: 2 }}
@@ -443,8 +413,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 style={{
                   color: colors.blue,
                   borderColor: colors.blue,
-                  borderRadius: "12px",
-                  height: "41px",
+                  borderRadius: '12px',
+                  height: '41px',
                 }}
               >
                 Back
@@ -455,17 +425,13 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 variant="contained"
                 onClick={handleNext}
                 style={{
-                  borderRadius: "12px",
-                  height: "41px",
-                  width: "115",
+                  borderRadius: '12px',
+                  height: '41px',
+                  width: '115',
                   backgroundColor: colors.blue,
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = colors["blue.3"])
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = colors.blue)
-                }
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors['blue.3'])}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
               >
                 Enter Payment Method
               </Button>
@@ -478,42 +444,25 @@ export default function OneTimePaymentModal({ open, onClose }) {
             <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography>
             <Typography mt={2}>Amount: ${formData.amountToPay}</Typography>
-            <Typography>
-              Additional Convenience Fee: ${formData.convenienceFee}
-            </Typography>
-            <Typography>
-              Total Payment: $
-              {parseFloat(Number(formData.totalPayment).toFixed(2))}
-            </Typography>
+            <Typography>Additional Convenience Fee: ${formData.convenienceFee}</Typography>
+            <Typography>Total Payment: ${parseFloat(Number(formData.totalPayment).toFixed(2))}</Typography>
 
             <Typography sx={{ mt: 2 }}>Select Payment Type</Typography>
-            <RadioGroup
-              value={formData.paymentType}
-              onChange={handleChange("paymentType")}
-            >
-              <FormControlLabel
-                value="card"
-                control={<Radio />}
-                label="Credit Card"
-              />
+            <RadioGroup value={formData.paymentType} onChange={handleChange('paymentType')}>
+              <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
               <FormControlLabel
                 value="bank_account"
                 control={<Radio />}
                 label={
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    gap={1}
-                    position="relative"
-                  >
+                  <Box display="flex" alignItems="center" gap={1} position="relative">
                     Bank Account
                     <Box
                       onMouseEnter={() => setHovered(true)}
                       onMouseLeave={() => setHovered(false)}
                       sx={{
-                        position: "relative",
-                        display: "inline-block",
-                        top: 2,
+                        position: 'relative',
+                        display: 'inline-block',
+                        top: 3,
                       }}
                     >
                       {/* Question Icon */}
@@ -527,14 +476,14 @@ export default function OneTimePaymentModal({ open, onClose }) {
                           src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
                           alt="Help"
                           sx={{
-                            position: "absolute",
-                            top: "30px", // below icon
-                            left: "50%",
-                            transform: "translateX(-50%)",
+                            position: 'absolute',
+                            top: '30px', // below icon
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                             width: 350,
                             height: 350,
                             borderRadius: 2,
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                             zIndex: 999,
                           }}
                         />
@@ -589,13 +538,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
             </div> */}
 
             <PaymentIframe
-              type={formData.paymentType == "card" ? "card" : "account"}
-              onSuccess={(res) =>
-                handleSaveDetails(res, companyInfo, formData, customerDetails)
-              }
+              type={formData.paymentType == 'card' ? 'card' : 'account'}
+              onSuccess={(res) => handleSaveDetails(res, companyInfo, formData, customerDetails)}
               oneTimePayment={formData}
-              convenience_fee={String(formData.amountToPay || 0)}
-              amount={(Number(formData.convenienceFee) || 0).toFixed(2)}
+              convenience_fee={String(formData.convenienceFee || 0)}
+              amount={(Number(formData.amountToPay) || 0).toFixed(2)}
               amountRequired={true}
             />
 
@@ -607,8 +554,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 style={{
                   color: colors.blue,
                   borderColor: colors.blue,
-                  borderRadius: "12px",
-                  height: "41px",
+                  borderRadius: '12px',
+                  height: '41px',
                 }}
               >
                 Back
@@ -644,11 +591,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
   return (
     <Dialog open={open} onClose={onModalClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="h5" sx={{ fontWeight: 500 }}>
             One Time Payment
           </Typography>
@@ -657,7 +600,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             aria-label="close"
             onClick={onModalClose}
             sx={{
-              position: "absolute",
+              position: 'absolute',
               right: 13,
               top: 8,
               color: (theme) => theme.palette.grey[500],
@@ -672,10 +615,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
         <Box
           sx={{
             p: 4,
-            bgcolor: "background.paper",
+            bgcolor: 'background.paper',
             maxWidth: 600,
-            mx: "auto",
-            my: "7%",
+            mx: 'auto',
+            my: '7%',
             borderRadius: 2,
             boxShadow: 24,
           }}
@@ -686,9 +629,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
             connector={<CustomConnector topOffset={15} />}
             sx={{
               mb: 4,
-              width: "100%",
+              width: '100%',
               [`& .${stepConnectorClasses.line}`]: {
-                borderColor: "#ccc",
+                borderColor: '#ccc',
                 borderTopWidth: 2,
                 borderRadius: 1,
               },
@@ -696,9 +639,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
           >
             {steps.map((label) => (
               <Step key={label}>
-                <StepLabel StepIconComponent={CustomStepIcon}>
-                  {label}
-                </StepLabel>
+                <StepLabel StepIconComponent={CustomStepIcon}>{label}</StepLabel>
               </Step>
             ))}
           </Stepper>
@@ -706,10 +647,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
           {renderStepContent(activeStep)}
         </Box>
 
-        <Backdrop
-          open={accountLoading && activeStep === 2}
-          style={{ zIndex: 1300, color: "#fff" }}
-        >
+        <Backdrop open={accountLoading && activeStep === 2} style={{ zIndex: 1300, color: '#fff' }}>
           <CircularProgress color="success" />
         </Backdrop>
       </DialogContent>
