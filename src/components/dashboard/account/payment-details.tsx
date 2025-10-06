@@ -985,7 +985,8 @@ const PaymentForm = () => {
                         {hovered && (
                           <Box
                             component="img"
-                            src="/public/assets/bankaccount-help.png"
+                            // src="/public/assets/bankaccount-help.png"
+                            src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
                             alt="Help"
                             sx={{
                               position: "absolute",
