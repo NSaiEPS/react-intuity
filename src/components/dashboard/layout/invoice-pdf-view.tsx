@@ -676,6 +676,10 @@ export default function InvoicePdfDocument({
               String(key).split(";");
             const serviceAddress = addressParts.join(";");
             const utilityDetails = items?.[0] ?? {};
+            const subtotal = items.reduce(
+              (acc, item) => acc + (item?.amount || 0),
+              0
+            );
 
             return (
               <View
@@ -683,7 +687,7 @@ export default function InvoicePdfDocument({
                 wrap={false}
                 style={{ marginTop: 8 }}
               >
-                <Text style={styles.sectionTitle}>Item Description</Text>
+                <Text style={styles.sectionTitle}>Item Descriptionfffff</Text>
                 <Text style={styles.utilityTitle}>
                   <Text style={{ fontWeight: "700" }}>{utilityName}</Text>
                   {meterNumber ? ` - ${meterNumber}` : ""}{" "}
@@ -708,6 +712,18 @@ export default function InvoicePdfDocument({
                       </Text>
                     </View>
                   ))}
+                  <View
+                    style={[
+                      styles.tableRow,
+                      styles.rowStrip,
+                      {
+                        marginTop: 6,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.tableCellLeft}>Subtotal</Text>
+                    <Text style={styles.tableCellRight}>{money(subtotal)}</Text>
+                  </View>
 
                   {/* The special boxed detail (the MUI TableRow -> Box you pointed out) */}
                   <View style={{ marginTop: 6 }}>
