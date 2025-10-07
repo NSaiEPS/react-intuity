@@ -35,6 +35,7 @@ import { toast } from "react-toastify";
 
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";
+import secureLocalStorage from "react-secure-storage";
 
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
@@ -311,6 +312,26 @@ export default function OneTimePaymentModal({ open, onClose }) {
     formdata.append("company_id", companyInfo?.company?.id);
     formdata.append("alias", companyInfo?.company?.alias);
     if (activeStep == 2) {
+      const worldPlayDetails = {
+        account_number: formData.accountNo,
+        invoice_amount: formData.invoiceAmount,
+        name: formData.name,
+        email: formData.email,
+        amount: Number(formData.amountToPay).toFixed(2),
+        convenienceFee: Number(formData.convenienceFee).toFixed(2),
+        totalPayment: Number(formData.totalPayment).toFixed(2),
+        paymentType: formData.paymentType,
+        street: formData.street,
+        company_id: companyInfo?.company?.id,
+        company_alias: companyInfo?.company?.alias,
+        customer_id: customerDetails?.id,
+        success_authenticate: "1",
+        billing_id: customerDetails?.billing_id,
+        is_one_time: "1",
+        is_card: "1",
+      };
+      secureLocalStorage.setItem("worldplay-details", worldPlayDetails);
+
       dispatch(
         getPaymentProcessorDetails(
           undefined,

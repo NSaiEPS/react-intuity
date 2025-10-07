@@ -341,39 +341,75 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
           ⚠️ WARNING! Only click Continue ONCE!
         </Typography>
       )}
-
-      <iframe
-        id={
-          curentProcessor?.includes("worldpay")
-            ? "worldpayIframe"
-            : type === "account"
-            ? "iFrameBA"
-            : "iFrameCC"
-        }
-        name={
-          curentProcessor?.includes("worldpay")
-            ? "worldpayIframe"
-            : type === "account"
-            ? "iFrameBA"
-            : "iFrameCC"
-        }
-        src={
-          curentProcessor?.includes("worldpay")
-            ? `https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`
-            : iframeUrl
-        }
-        scrolling={curentProcessor?.includes("worldpay") ? "yes" : "no"}
-        frameBorder="0"
-        title="ICG Payment"
-        onLoad={() => setIframeLoading(false)}
-        style={{
-          width: "100%",
-          minHeight: 600, // match the loading box
-          border: "0",
-          display: iframeLoading ? "none" : "block",
-          overflowY: "scroll",
-        }}
-      />
+      {curentProcessor?.includes("worldpay") ? (
+        worldpayDetails?.transaction_setup_id ? (
+          <iframe
+            id={
+              curentProcessor?.includes("worldpay")
+                ? "worldpayIframe"
+                : type === "account"
+                ? "iFrameBA"
+                : "iFrameCC"
+            }
+            name={
+              curentProcessor?.includes("worldpay")
+                ? "worldpayIframe"
+                : type === "account"
+                ? "iFrameBA"
+                : "iFrameCC"
+            }
+            src={
+              curentProcessor?.includes("worldpay")
+                ? `https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`
+                : iframeUrl
+            }
+            scrolling={curentProcessor?.includes("worldpay") ? "yes" : "no"}
+            frameBorder="0"
+            title="ICG Payment"
+            onLoad={() => setIframeLoading(false)}
+            style={{
+              width: "100%",
+              minHeight: 600, // match the loading box
+              border: "0",
+              display: iframeLoading ? "none" : "block",
+              overflowY: "scroll",
+            }}
+          />
+        ) : null
+      ) : (
+        <iframe
+          id={
+            curentProcessor?.includes("worldpay")
+              ? "worldpayIframe"
+              : type === "account"
+              ? "iFrameBA"
+              : "iFrameCC"
+          }
+          name={
+            curentProcessor?.includes("worldpay")
+              ? "worldpayIframe"
+              : type === "account"
+              ? "iFrameBA"
+              : "iFrameCC"
+          }
+          src={
+            curentProcessor?.includes("worldpay")
+              ? `https://certtransaction.hostedpayments.com?TransactionSetupID=${worldpayDetails?.transaction_setup_id}`
+              : iframeUrl
+          }
+          scrolling={curentProcessor?.includes("worldpay") ? "yes" : "no"}
+          frameBorder="0"
+          title="ICG Payment"
+          onLoad={() => setIframeLoading(false)}
+          style={{
+            width: "100%",
+            minHeight: 600, // match the loading box
+            border: "0",
+            display: iframeLoading ? "none" : "block",
+            overflowY: "scroll",
+          }}
+        />
+      )}
 
       <CustomBackdrop
         open={accountLoading}
