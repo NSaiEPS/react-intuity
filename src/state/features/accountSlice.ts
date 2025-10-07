@@ -48,6 +48,7 @@ interface DahBoardState {
   oneTimePaymentInfo: any;
   paymentRequiredKeyDetails: any;
   notificationPreferenceDetails: any;
+  paymentDetailsInfo: any;
 }
 
 const initialState = {
@@ -66,6 +67,7 @@ const initialState = {
   oneTimePaymentInfo: {},
   paymentRequiredKeyDetails: {},
   notificationPreferenceDetails: {},
+  paymentDetailsInfo: {},
 } as DahBoardState;
 
 const AccountSlice = createSlice({
@@ -117,6 +119,9 @@ const AccountSlice = createSlice({
     setNotificationPreferenceDetails(state, action) {
       state.notificationPreferenceDetails = action.payload;
     },
+    setPaymentDetailsInfo(state, action) {
+      state.paymentDetailsInfo = action.payload;
+    },
   },
 });
 
@@ -135,6 +140,7 @@ export const {
   setOneTimePaymentInfo,
   setPaymentRequiredKeyDetails,
   setNotificationPreferenceDetails,
+  setPaymentDetailsInfo,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;
@@ -353,6 +359,7 @@ export const getPaymentDetails: any =
         if (!isPost) {
           dispatch(setPaymentMethodInfo(res?.body?.mycards));
           dispatch(setSelectedCardInfo(res?.body?.selected_card));
+          dispatch(setPaymentDetailsInfo(res?.body));
           dispatch(
             setPaymentRequiredKeyDetails(
               res?.body?.worldpay_transaction_set_up_id
