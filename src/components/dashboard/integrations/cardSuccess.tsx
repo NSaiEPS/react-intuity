@@ -107,12 +107,20 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
       dispatch(
         oneTimePayment(paymentData, () => {
           console.log("One time payment success callback");
-          // removeLocalStorage("worldplay-details");
-          // navigate(-1); // fallback
-        })
+          removeLocalStorage("worldplay-details");
+          handleCallBack();
+        }),
+        () => {
+          handleCallBack();
+        }
       );
     }
   }, [navigate, location, searchParams]);
+  const handleCallBack = () => {
+    setTimeout(() => {
+      navigate(-1); // navigate back
+    }, 1000);
+  };
 
   return (
     <Box
