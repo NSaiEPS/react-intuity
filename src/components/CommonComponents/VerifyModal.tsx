@@ -107,7 +107,18 @@ export default function AuthCodeModal({
     // country_code:1
     // otp:553871"
 
-    dispatch(updateAccountInfo(token, formData, true, onSubmit));
+    dispatch(
+      updateAccountInfo(
+        token,
+        formData,
+        true,
+        onSubmit,
+        false,
+        undefined,
+        false,
+        true
+      )
+    );
   };
 
   const onSubmit = async (data: FormValues) => {

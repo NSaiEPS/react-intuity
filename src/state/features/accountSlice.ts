@@ -241,7 +241,8 @@ export const updateAccountInfo: any =
     successCallBack,
     dataRequired = false,
     setContextLoading,
-    reduxNeeded = false
+    reduxNeeded = false,
+    noRedirect = false
   ) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
@@ -290,7 +291,9 @@ export const updateAccountInfo: any =
           toast.error(res?.message);
           return;
         }
-        navigateTo("/login", { replace: true }, res?.message);
+        if (!noRedirect) {
+          navigateTo("/login", { replace: true }, res?.message);
+        }
 
         toast.error(res?.message ?? "Something went wrong!!!!!");
       }
