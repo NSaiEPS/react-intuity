@@ -409,6 +409,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginTop: 8,
   },
+  subTotalBox: {
+    alignSelf: "flex-end",
+    width: 150,
+    backgroundColor: "#3377c0ff",
+    padding: 8,
+    borderRadius: 6,
+    marginTop: 8,
+  },
   totalText: {
     color: "#fff",
     fontWeight: "700",
@@ -712,7 +720,7 @@ export default function InvoicePdfDocument({
                       </Text>
                     </View>
                   ))}
-                  <View
+                  {/* <View
                     style={[
                       styles.tableRow,
                       styles.rowStrip,
@@ -723,6 +731,11 @@ export default function InvoicePdfDocument({
                   >
                     <Text style={styles.tableCellLeft}>Subtotal</Text>
                     <Text style={styles.tableCellRight}>{money(subtotal)}</Text>
+                  </View> */}
+                  <View style={styles.subTotalBox}>
+                    <Text style={styles.totalText}>
+                      Subtotal: {money(subtotal)}
+                    </Text>
                   </View>
 
                   {/* The special boxed detail (the MUI TableRow -> Box you pointed out) */}

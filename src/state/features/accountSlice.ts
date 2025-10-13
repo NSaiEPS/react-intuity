@@ -310,7 +310,14 @@ export const updateAccountInfo: any =
   };
 
 export const updatePaperLessInfo: any =
-  (token, formData, type, successCallBack, saveResponse = false) =>
+  (
+    token,
+    formData,
+    type,
+    successCallBack,
+    saveResponse = false,
+    setAutoPaySettings
+  ) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
@@ -329,6 +336,9 @@ export const updatePaperLessInfo: any =
         if (successCallBack) {
           if (saveResponse) {
             successCallBack(res?.body?.autopay_card);
+            if (setAutoPaySettings) {
+              setAutoPaySettings(res?.body?.autopay_setting);
+            }
           } else {
             successCallBack();
           }

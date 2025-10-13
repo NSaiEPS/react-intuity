@@ -48,6 +48,7 @@ export default function AutoPayDetails(): React.JSX.Element {
   const [isAutoPay, setisAutoPay] = React.useState(false);
   const dispatch = useDispatch();
   const [autoPayDetails, setAutoPayDetails] = React.useState(null);
+  const [autoPaySettings, setAutoPaySettings] = React.useState(null);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [selectedCardDetails, setSelectedCardDetails] =
     React.useState<any>(null);
@@ -63,7 +64,14 @@ export default function AutoPayDetails(): React.JSX.Element {
     formData.append("customer_id", userId);
 
     dispatch(
-      updatePaperLessInfo(token, formData, "autopay", setAutoPayDetails, true)
+      updatePaperLessInfo(
+        token,
+        formData,
+        "autopay",
+        setAutoPayDetails,
+        true,
+        setAutoPaySettings
+      )
     );
   }, [CustomerInfo?.autopay]);
   const handleChange = () => {
@@ -85,10 +93,10 @@ export default function AutoPayDetails(): React.JSX.Element {
 
       formData.append("payment_method_id_model", selectedCardDetails?.token);
 
-      // formData.append("is_form", "1");
+      formData.append("is_form", "1");
       formData.append("auto_pay", isAutoPay ? "1" : "0");
 
-      formData.append("id_select_card", "635");
+      formData.append("id_select_card", autoPaySettings?.id ?? "");
       formData.append("auto_pay_model_save_card", "0");
       dispatch(
         updatePaperLessInfo(token, formData, "autopay", successCallBack)
@@ -184,16 +192,27 @@ export default function AutoPayDetails(): React.JSX.Element {
           {autoPayDetails?.length ||
           autoPayDetails?.id ||
           selectedCardDetails?.token ? (
-            <Grid container alignItems="center">
-              {/* Radio + Name */}
-              <Grid xs={3}>
-                <Stack direction="row" alignItems="center">
-                  <Radio
-                    checked={true}
-                    // onChange={handleRadioChange}
-                    value={"1"}
-                    disabled
-                  />
+            <Grid
+              container
+              alignItems="center"
+              spacing={2}
+              sx={{
+                flexWrap: "wrap",
+              }}
+            >
+              {/* Saved Details */}
+              <Grid xs={12} sm={6} md={3}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  flexWrap="wrap"
+                  spacing={1}
+                  sx={{ wordBreak: "break-word" }}
+                >
+                  <Typography variant="h6" mr={1}>
+                    Saved Details:
+                  </Typography>
+
                   <Typography variant="subtitle2">
                     {selectedCardDetails?.card?.card_type ??
                       selectedCardDetails?.card?.account_type ??
@@ -204,19 +223,24 @@ export default function AutoPayDetails(): React.JSX.Element {
               </Grid>
 
               {/* Card Number */}
-              <Grid xs={3} ml={2}>
-                <Typography sx={{ fontFamily: "monospace" }}>
+              <Grid xs={12} sm={6} md={3}>
+                <Typography
+                  sx={{
+                    fontFamily: "monospace",
+                    wordBreak: "break-all",
+                  }}
+                >
                   {selectedCardDetails?.card?.card_number ??
-                    selectedCardDetails?.card?.bank_account_number ??
                     decryptFunction(
-                      autoPayDetails.card_number ??
+                      selectedCardDetails?.card?.bank_account_number ??
+                        autoPayDetails.card_number ??
                         autoPayDetails.bank_account_number
                     )}
                 </Typography>
               </Grid>
 
               {/* Card Type */}
-              <Grid xs={3} ml={2}>
+              <Grid xs={12} sm={6} md={3}>
                 <Typography>
                   {selectedCardDetails?.card?.card_type ||
                   autoPayDetails?.card_type
@@ -226,7 +250,7 @@ export default function AutoPayDetails(): React.JSX.Element {
               </Grid>
 
               {/* Date */}
-              <Grid xs={3} ml={2}>
+              <Grid xs={12} sm={6} md={3}>
                 <Typography>
                   {dayjs
                     .tz(

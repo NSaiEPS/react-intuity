@@ -1,37 +1,35 @@
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { BASE_URL } from "@/api/axios";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
 
 const ElavonAddCard = () => {
   const [loading, setLoading] = useState(false);
   const [iframeVisible, setIframeVisible] = useState(false);
   const [sdkLoaded, setSdkLoaded] = useState(false);
 
+  // 🔹 Redux + Local Storage user info
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
-  const lastBillInfo = useSelector(
-    (state: RootState) => state?.Payment?.lastBillInfo
-  );
-
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
 
+  // 🔹 API endpoints
   const generateTokenUrl = `${BASE_URL}settings/front/elavon-generate-token`;
   const addCardUrl = `${BASE_URL}/api/add-card`;
+  const invoiceId = 54305; // dummy invoice
 
-  const invoiceId = 54305;
-
-  // 🧩 STEP 0: Load the Elavon script conditionally
-  const loadElavonSDK = async () => {
+  // 🧩 STEP 0: Load Elavon SDK only when needed
+  const loadElavonSDK = async (): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       if (window.PayWithConverge) {
+        console.log("✅ Elavon SDK already loaded");
         setSdkLoaded(true);
         resolve();
         return;
@@ -44,6 +42,7 @@ const ElavonAddCard = () => {
         `script[src="${scriptUrl}"]`
       );
       if (existingScript) {
+        console.log("⚠️ Script already in DOM");
         setSdkLoaded(true);
         resolve();
         return;
@@ -61,13 +60,12 @@ const ElavonAddCard = () => {
         console.error("❌ Failed to load Elavon SDK");
         reject(new Error("Elavon SDK failed to load"));
       };
-
       document.body.appendChild(script);
     });
   };
 
   // 🧩 STEP 1: Get session token from backend
-  const getSessionTokenAddCard = async () => {
+  const getSessionTokenAddCard = async (): Promise<string> => {
     setLoading(true);
     try {
       const formData = new FormData();
@@ -86,11 +84,10 @@ const ElavonAddCard = () => {
       const data = await response.json();
       console.log("🔑 Token response data:", data);
 
-      if (!data?.token && !data?.ssl_txn_auth_token)
-        throw new Error("Token not found in response");
+      if (!data?.body?.elavon_token)
+        throw new Error("Elavon token not found in response");
 
-      const sessionToken = data?.token || data?.ssl_txn_auth_token;
-      return sessionToken;
+      return data.body.elavon_token;
     } catch (error) {
       console.error("❌ Failed to generate token:", error);
       throw error;
@@ -98,11 +95,18 @@ const ElavonAddCard = () => {
       setLoading(false);
     }
   };
+  console.log("Elavon SDK:", window.PayWithConverge);
 
-  // 🧩 STEP 2: Open Elavon Lightbox with token
+  // 🧩 STEP 2: Open Elavon Lightbox
   const openLightboxAddCard = async (sessionToken: string) => {
     if (!window.PayWithConverge) {
       alert("Elavon SDK not loaded yet");
+      return;
+    }
+    console.log("🚀 Opening Elavon Lightbox with token:", sessionToken);
+    const frameEl = document.getElementById("id_payment_add_card");
+    if (!frameEl) {
+      console.error("❌ Frame element not found in DOM!");
       return;
     }
 
@@ -123,7 +127,7 @@ const ElavonAddCard = () => {
         console.log("✅ Lightbox ready");
         setIframeVisible(true);
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error("❌ Elavon error:", error);
         showResultAddCard("error", error);
       },
@@ -131,18 +135,18 @@ const ElavonAddCard = () => {
         console.warn("⚠️ User cancelled payment");
         showResultAddCard("cancelled", "");
       },
-      onDeclined: (response) => {
+      onDeclined: (response: any) => {
         console.warn("❌ Payment declined:", response);
         showResultAddCard("declined", JSON.stringify(response, null, 2));
       },
-      onApproval: (response) => {
+      onApproval: (response: any) => {
         console.log("✅ Payment approved:", response);
         showResultAddCard("approval", response);
       },
     };
 
     const options = {
-      frame: document.getElementById("id_payment_add_card"),
+      frame: frameEl,
       cssOverride:
         "html, body { background-color: rgba(244,246,246,1.0) } " +
         ".hpm-content { box-shadow:unset; margin-top:unset; } " +
@@ -150,7 +154,18 @@ const ElavonAddCard = () => {
         "md-card { box-shadow:unset; background-color:#f4f6f6; }",
     };
 
-    window.PayWithConverge.open(paymentData, callbacks, options);
+    try {
+      console.error(
+        "Trying to open Elavon Lightbox...",
+        paymentData,
+        callbacks,
+        options
+      );
+
+      window.PayWithConverge.open(paymentData, callbacks, options);
+    } catch (err) {
+      console.error("❌ Elavon open() failed:", err);
+    }
   };
 
   // 🧩 STEP 3: Handle Elavon callback results
@@ -192,13 +207,13 @@ const ElavonAddCard = () => {
     }
   };
 
-  // 🧩 STEP 4: Combined flow
+  // 🧩 STEP 4: Full flow trigger
   const handleAddCard = async () => {
     try {
       setLoading(true);
-      await loadElavonSDK(); // ✅ load SDK first
-      const token = await getSessionTokenAddCard(); // ✅ get token from backend
-      await openLightboxAddCard(token); // ✅ open Elavon lightbox
+      await loadElavonSDK(); // load SDK
+      const token = await getSessionTokenAddCard(); // fetch token
+      await openLightboxAddCard(token); // open lightbox
     } catch (error) {
       console.error("Error in add-card flow:", error);
     } finally {
@@ -215,17 +230,18 @@ const ElavonAddCard = () => {
         disabled={loading}
         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
       >
-        {loading ? "Processing..." : "Add Card"}
+        {loading ? "Processing..." : sdkLoaded ? "Add Card" : "Load & Add Card"}
       </button>
 
-      {/* Lightbox Container */}
+      {/* Lightbox Frame */}
       <div
         id="id_payment_add_card"
         style={{
-          display: iframeVisible ? "block" : "none",
+          // display: iframeVisible ? "block" : "none",
           width: "100%",
-          height: "500px",
+          height: "600px",
           marginTop: "1rem",
+          backgroundColor: "#f4f6f6",
         }}
       />
 
