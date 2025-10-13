@@ -96,6 +96,7 @@ const ElavonAddCard = () => {
     }
   };
   console.log("Elavon SDK:", window.PayWithConverge);
+  console.log("window.PayWithConverge:", window.PayWithConverge);
 
   // 🧩 STEP 2: Open Elavon Lightbox
   const openLightboxAddCard = async (sessionToken: string) => {
@@ -155,6 +156,19 @@ const ElavonAddCard = () => {
     };
 
     try {
+      console.log("Opening Elavon Lightbox...", sessionToken);
+      // (window as any).PayWithConverge?.open(paymentData, callbacks, options);
+      (window as any).PayWithConverge?.open({
+        ssl_txn_auth_token: sessionToken,
+        ssl_transaction_type: "ccaddtoken",
+        ssl_invoice_number: invoiceId,
+        ssl_first_name: "Test",
+        ssl_last_name: "User",
+        ssl_add_token: "Y",
+        ssl_verify: "Y",
+        ssl_amount: "1.00",
+      });
+
       console.error(
         "Trying to open Elavon Lightbox...",
         paymentData,
