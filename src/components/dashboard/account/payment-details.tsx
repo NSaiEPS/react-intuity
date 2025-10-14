@@ -249,10 +249,19 @@ const PaymentForm = () => {
 
     //for card
     if (debitType === "card") {
-      formdata.append("credit_card_number", data?.cardNumber);
-      formdata.append("card_type", data?.cardType);
-      formdata.append("expiration", data?.cardExpDate);
-      formdata.append("is_card_one_time", "1");
+      if (data?.ssl_token) {
+        formdata.append("token", data?.ssl_token);
+        formdata.append("credit_card_number", data?.ssl_card_number);
+        formdata.append("card_type", data?.ssl_card_short_description);
+        formdata.append("expiration", data?.ssl_exp_date);
+        formdata.append("approval_code", data?.ssl_approval_code);
+        formdata.append("is_card_one_time", "1");
+      } else {
+        formdata.append("credit_card_number", data?.cardNumber);
+        formdata.append("card_type", data?.cardType);
+        formdata.append("expiration", data?.cardExpDate);
+        formdata.append("is_card_one_time", "1");
+      }
     }
     if (debitType == "bank_account") {
       formdata.append("bank_account_number", data?.accountNumber);
@@ -273,7 +282,7 @@ const PaymentForm = () => {
           : " Other"
       );
     }
-    formdata.append("token", data?.token);
+    formdata.append("token", data?.ssl_token ?? data?.token);
 
     // formdata.append(
     //   "convenienceFee",
@@ -1078,12 +1087,16 @@ const PaymentForm = () => {
             fee={Number(watch("convenienceFee") || cardConvenienceFee || 0)}
             cardType={
               cardBankDetails
-                ? cardBankDetails?.cardType ?? "Bank Account"
+                ? cardBankDetails?.cardType ??
+                  cardBankDetails?.ssl_card_short_description ??
+                  "Bank Account"
                 : selectedCardDetails?.card_type || "Bank Account"
             }
             cardLast4={
               cardBankDetails
-                ? cardBankDetails?.cardNumber ?? cardBankDetails?.accountNumber
+                ? cardBankDetails?.cardNumber ??
+                  cardBankDetails?.ssl_card_number ??
+                  cardBankDetails?.accountNumber
                 : selectedCardDetails?.card_number ??
                   selectedCardDetails?.bank_account_number
             }

@@ -7,7 +7,9 @@ import { useSearchParams } from "react-router";
 
 const ElavonAddCard = ({ type = "card", onSuccess }) => {
   const [searchParams] = useSearchParams();
-
+  const companyInfo = useSelector(
+    (state: RootState) => state.Account.companyInfo
+  );
   const id = searchParams.get("id");
   const [loading, setLoading] = useState(false);
   const [iframeVisible, setIframeVisible] = useState(false);
@@ -73,9 +75,15 @@ const ElavonAddCard = ({ type = "card", onSuccess }) => {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("acl_role_id", roleId);
-      formData.append("customer_id", userId);
-
+      if (token) {
+        formData.append("acl_role_id", roleId);
+        formData.append("customer_id", userId);
+      } else {
+        formData.append("acl_role_id", roleId);
+        formData.append("company_id", companyInfo?.company?.id);
+        formData.append("company_alias", companyInfo?.company?.alias);
+        formData.append("acl_role_id", "4");
+      }
       const response = await fetch(generateTokenUrl, {
         method: "POST",
         headers: {
