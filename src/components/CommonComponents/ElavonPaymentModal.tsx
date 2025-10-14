@@ -3,8 +3,12 @@ import { useSelector } from "react-redux";
 import { BASE_URL } from "@/api/axios";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { useSearchParams } from "react-router";
 
-const ElavonAddCard = ({ type = "card" }) => {
+const ElavonAddCard = ({ type = "card", onSuccess }) => {
+  const [searchParams] = useSearchParams();
+
+  const id = searchParams.get("id");
   const [loading, setLoading] = useState(false);
   const [iframeVisible, setIframeVisible] = useState(false);
   const [sdkLoaded, setSdkLoaded] = useState(false);
@@ -23,7 +27,7 @@ const ElavonAddCard = ({ type = "card" }) => {
   // 🔹 API endpoints
   const generateTokenUrl = `${BASE_URL}settings/front/elavon-generate-token`;
   const addCardUrl = `${BASE_URL}/api/add-card`;
-  const invoiceId = 54305; // dummy invoice
+  const invoiceId = id; // dummy invoice
 
   // 🧩 STEP 0: Load Elavon SDK only when needed
   const loadElavonSDK = async (): Promise<void> => {
@@ -160,20 +164,16 @@ const ElavonAddCard = ({ type = "card" }) => {
     try {
       console.log("Opening Elavon Lightbox...", sessionToken);
       // (window as any).PayWithConverge?.open(paymentData, callbacks, options);
-      (window as any).PayWithConverge?.open(
-        {
-          ssl_txn_auth_token: sessionToken,
-          ssl_transaction_type: "ccaddtoken",
-          ssl_invoice_number: invoiceId,
-          ssl_first_name: "Test",
-          ssl_last_name: "User",
-          ssl_add_token: "Y",
-          ssl_verify: "Y",
-          ssl_amount: "1.00",
-        },
-        callbacks,
-        options
-      );
+      (window as any).PayWithConverge?.open({
+        ssl_txn_auth_token: sessionToken,
+        ssl_transaction_type: "ccaddtoken",
+        ssl_invoice_number: invoiceId,
+        ssl_first_name: "Test",
+        ssl_last_name: "User",
+        ssl_add_token: "Y",
+        ssl_verify: "Y",
+        ssl_amount: "1.00",
+      });
 
       console.error(
         "Trying to open Elavon Lightbox...",
@@ -209,46 +209,46 @@ const ElavonAddCard = ({ type = "card" }) => {
     console.log("txn_response_add_card:", msg);
 
     if (status === "approval") {
-      const elavonResData = JSON.parse(msg);
+      const elavonResData = msg;
       setLoading(true);
+      onSuccess(elavonResData);
+      // try {
+      //   const response = await fetch(addCardUrl, {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({
+      //       user_id: userId,
+      //       customer_id: stored?.body?.customer_id,
+      //       pay_now_hidden: 0,
+      //       is_one_time: 0,
+      //       is_card: 1,
+      //       credit_card_number: elavonResData.ssl_card_number,
+      //       card_type: elavonResData.ssl_card_short_description,
+      //       expiration: elavonResData.ssl_exp_date,
+      //       token: elavonResData.ssl_token,
+      //     }),
+      //   });
 
-      try {
-        const response = await fetch(addCardUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: userId,
-            customer_id: stored?.body?.customer_id,
-            pay_now_hidden: 0,
-            is_one_time: 0,
-            is_card: 1,
-            credit_card_number: elavonResData.ssl_card_number,
-            card_type: elavonResData.ssl_card_short_description,
-            expiration: elavonResData.ssl_exp_date,
-            token: elavonResData.ssl_token,
-          }),
-        });
+      //   const result = await response.json();
+      //   console.log("✅ Card saved:", result);
+      //   alert("Card successfully added!");
+      // } catch (error) {
+      //   console.error("❌ Failed to save card:", error);
+      // } finally {
+      //   setLoading(false);
+      //   const frameEl = document.getElementById("id_payment_add_card");
+      //   if (frameEl) {
+      //     frameEl.innerHTML = "";
+      //   }
+      //   setIframeVisible(false);
 
-        const result = await response.json();
-        console.log("✅ Card saved:", result);
-        alert("Card successfully added!");
-      } catch (error) {
-        console.error("❌ Failed to save card:", error);
-      } finally {
-        setLoading(false);
-        const frameEl = document.getElementById("id_payment_add_card");
-        if (frameEl) {
-          frameEl.innerHTML = "";
-        }
-        setIframeVisible(false);
+      //   // 🔹 Close SDK session if still open
+      //   if ((window as any).PayWithConverge?.close) {
+      //     (window as any).PayWithConverge.close();
+      //   }
 
-        // 🔹 Close SDK session if still open
-        if ((window as any).PayWithConverge?.close) {
-          (window as any).PayWithConverge.close();
-        }
-
-        console.log("🔁 Elavon SDK reset — ready for next open()");
-      }
+      //   console.log("🔁 Elavon SDK reset — ready for next open()");
+      // }
     } else {
       alert("This payment was not approved or cancelled.");
       const frameEl = document.getElementById("id_payment_add_card");

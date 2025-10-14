@@ -89,11 +89,18 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose }) => {
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
     formdata.append("model_open", "1");
-    formdata.append("token", data?.token);
-    formdata.append("credit_card_number", data?.cardNumber);
-    formdata.append("card_type", data?.cardType);
-    formdata.append("expiration", data?.cardExpDate);
-
+    if (data?.ssl_token) {
+      formdata.append("token", data?.ssl_token);
+      formdata.append("credit_card_number", data?.ssl_card_number);
+      formdata.append("card_type", data?.ssl_card_short_description);
+      formdata.append("expiration", data?.ssl_exp_date);
+      formdata.append("approval_code", data?.ssl_approval_code);
+    } else {
+      formdata.append("token", data?.token);
+      formdata.append("credit_card_number", data?.cardNumber);
+      formdata.append("card_type", data?.cardType);
+      formdata.append("expiration", data?.cardExpDate);
+    }
     dispatch(
       getPaymentDetails(stored?.body?.token, formdata, true, () => {
         const formdata = new FormData();

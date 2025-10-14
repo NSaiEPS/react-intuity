@@ -311,7 +311,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     return <NachaIframe onSuccess={onSuccess} />;
   }
   if (curentProcessor?.includes("elavon")) {
-    return <ElavonAddCard type={type} />;
+    return <ElavonAddCard type={type} onSuccess={onSuccess} />;
   }
 
   return (

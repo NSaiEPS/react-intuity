@@ -212,7 +212,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
       return;
     }
     // console.log(companyInfo, "companyInfo");
-    const debitType = data?.cardNumber ? "card" : "bank_account";
+    const debitType = data?.cardNumber
+      ? "card"
+      : data?.ssl_card_number
+      ? "card"
+      : "bank_account";
     const paymentData = new FormData();
     paymentData.append("account_number", formData.accountNo);
     paymentData.append("invoice_amount", formData.invoiceAmount);
@@ -237,10 +241,18 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
 
     if (debitType === "card") {
-      paymentData.append("credit_card_number", data?.cardNumber);
-      paymentData.append("card_type", data?.cardType);
-      paymentData.append("expiration", data?.cardExpDate);
-      paymentData.append("is_card_one_time", "1");
+      if (data?.ssl_card_number) {
+        paymentData.append("credit_card_number", data?.ssl_card_number);
+        paymentData.append("expiration", data?.ssl_exp_date);
+        paymentData.append("is_card", "1");
+        paymentData.append("is_card_one_time", "1");
+        paymentData.append("card_type", data?.ssl_card_short_description);
+      } else {
+        paymentData.append("credit_card_number", data?.cardNumber);
+        paymentData.append("card_type", data?.cardType);
+        paymentData.append("expiration", data?.cardExpDate);
+        paymentData.append("is_card_one_time", "1");
+      }
     }
     if (debitType == "bank_account") {
       // paymentData.append("bank_account_number", data?.accountNumber);
