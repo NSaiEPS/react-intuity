@@ -177,7 +177,8 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       // (window as any).PayWithConverge?.open(paymentData, callbacks, options);
       (window as any).PayWithConverge?.open({
         ssl_txn_auth_token: sessionToken,
-        ssl_transaction_type: "ccaddtoken",
+        ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecsale",
+
         ssl_invoice_number: invoiceId,
         ssl_first_name: "Test",
         ssl_last_name: "User",
