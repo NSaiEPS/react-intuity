@@ -19,6 +19,7 @@ interface PaymentIframeProps {
   convenience_fee?: string;
   amount?: string;
   amountRequired?: boolean;
+  customerDetails?: any;
 }
 
 const PaymentIframe: FC<PaymentIframeProps> = ({
@@ -28,6 +29,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   convenience_fee = 0,
   amount = 0,
   amountRequired = false,
+  customerDetails,
   // invoiceId,
 }) => {
   const [searchParams] = useSearchParams();
@@ -311,7 +313,13 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     return <NachaIframe onSuccess={onSuccess} />;
   }
   if (curentProcessor?.includes("elavon")) {
-    return <ElavonAddCard type={type} onSuccess={onSuccess} />;
+    return (
+      <ElavonAddCard
+        type={type}
+        onSuccess={onSuccess}
+        customerDetails={customerDetails}
+      />
+    );
   }
 
   return (

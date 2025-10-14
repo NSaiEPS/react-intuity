@@ -636,6 +636,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               convenience_fee={String(formData.convenienceFee || 0)}
               amount={(Number(formData.amountToPay) || 0).toFixed(2)}
               amountRequired={true}
+              customerDetails={customerDetails}
             />
 
             <Box display="flex" justifyContent="space-between" mt={2}>

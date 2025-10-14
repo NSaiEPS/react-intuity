@@ -5,7 +5,7 @@ import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { useSearchParams } from "react-router";
 
-const ElavonAddCard = ({ type = "card", onSuccess }) => {
+const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
   const [searchParams] = useSearchParams();
   const companyInfo = useSelector(
     (state: RootState) => state.Account.companyInfo
@@ -27,7 +27,11 @@ const ElavonAddCard = ({ type = "card", onSuccess }) => {
   const token = stored?.body?.token;
 
   // 🔹 API endpoints
-  const generateTokenUrl = `${BASE_URL}settings/front/elavon-generate-token`;
+  const generateTokenUrl = `${BASE_URL}${
+    !token
+      ? "/default/index/elavon-generate-token-one-time-pay"
+      : "settings/front/elavon-generate-token"
+  }`;
   const addCardUrl = `${BASE_URL}/api/add-card`;
   const invoiceId = id; // dummy invoice
 
@@ -79,9 +83,8 @@ const ElavonAddCard = ({ type = "card", onSuccess }) => {
         formData.append("acl_role_id", roleId);
         formData.append("customer_id", userId);
       } else {
-        formData.append("acl_role_id", roleId);
-        formData.append("company_id", companyInfo?.company?.id);
-        formData.append("company_alias", companyInfo?.company?.alias);
+        formData.append("customer_id", customerDetails?.id);
+        // formData.append("company_alias", companyInfo?.company?.alias);
         formData.append("acl_role_id", "4");
       }
       const response = await fetch(generateTokenUrl, {
