@@ -228,8 +228,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
     paymentData.append("name", formData.name);
     paymentData.append("email", formData.email);
     paymentData.append("billing_id", customerDetails?.billing_id);
+    if (!data?.ssl_card_number) {
+      paymentData.append("token", data?.token);
+    }
 
-    paymentData.append("token", data?.token);
     paymentData.append("is_one_time", "1");
     // paymentData.append("amount", formData.amountToPay);
     // paymentData.append("convenienceFee", formData.convenienceFee);
@@ -247,6 +249,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
         paymentData.append("is_card", "1");
         paymentData.append("is_card_one_time", "1");
         paymentData.append("card_type", data?.ssl_card_short_description);
+        paymentData.append("token", data?.ssl_token);
       } else {
         paymentData.append("credit_card_number", data?.cardNumber);
         paymentData.append("card_type", data?.cardType);
