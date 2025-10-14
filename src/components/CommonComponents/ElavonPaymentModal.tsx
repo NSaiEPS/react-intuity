@@ -4,7 +4,7 @@ import { BASE_URL } from "@/api/axios";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 
-const ElavonAddCard = () => {
+const ElavonAddCard = ({ type = "card" }) => {
   const [loading, setLoading] = useState(false);
   const [iframeVisible, setIframeVisible] = useState(false);
   const [sdkLoaded, setSdkLoaded] = useState(false);
@@ -119,6 +119,8 @@ const ElavonAddCard = () => {
       ssl_txn_auth_token: sessionToken,
       ssl_verify: "Y",
       ssl_add_token: "Y",
+      ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecsale",
+      ssl_amount: "1.00",
     };
 
     console.log("📤 Opening Elavon Lightbox with data:", paymentData);
@@ -158,16 +160,20 @@ const ElavonAddCard = () => {
     try {
       console.log("Opening Elavon Lightbox...", sessionToken);
       // (window as any).PayWithConverge?.open(paymentData, callbacks, options);
-      (window as any).PayWithConverge?.open({
-        ssl_txn_auth_token: sessionToken,
-        ssl_transaction_type: "ccaddtoken",
-        ssl_invoice_number: invoiceId,
-        ssl_first_name: "Test",
-        ssl_last_name: "User",
-        ssl_add_token: "Y",
-        ssl_verify: "Y",
-        ssl_amount: "1.00",
-      });
+      (window as any).PayWithConverge?.open(
+        {
+          ssl_txn_auth_token: sessionToken,
+          ssl_transaction_type: "ccaddtoken",
+          ssl_invoice_number: invoiceId,
+          ssl_first_name: "Test",
+          ssl_last_name: "User",
+          ssl_add_token: "Y",
+          ssl_verify: "Y",
+          ssl_amount: "1.00",
+        },
+        callbacks,
+        options
+      );
 
       console.error(
         "Trying to open Elavon Lightbox...",
@@ -176,7 +182,22 @@ const ElavonAddCard = () => {
         options
       );
 
-      window.PayWithConverge.open(paymentData, callbacks, options);
+      // (window as any).PayWithConverge.open(paymentData, callbacks, options);
+      (window as any).PayWithConverge?.open(
+        {
+          ssl_txn_auth_token: sessionToken,
+          ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecsale",
+
+          ssl_invoice_number: invoiceId,
+          ssl_first_name: "Test",
+          ssl_last_name: "User",
+          ssl_add_token: "Y",
+          ssl_verify: "Y",
+          ssl_amount: "1.00",
+        },
+        callbacks,
+        options
+      );
     } catch (err) {
       console.error("❌ Elavon open() failed:", err);
     }
@@ -215,9 +236,33 @@ const ElavonAddCard = () => {
         console.error("❌ Failed to save card:", error);
       } finally {
         setLoading(false);
+        const frameEl = document.getElementById("id_payment_add_card");
+        if (frameEl) {
+          frameEl.innerHTML = "";
+        }
+        setIframeVisible(false);
+
+        // 🔹 Close SDK session if still open
+        if ((window as any).PayWithConverge?.close) {
+          (window as any).PayWithConverge.close();
+        }
+
+        console.log("🔁 Elavon SDK reset — ready for next open()");
       }
     } else {
       alert("This payment was not approved or cancelled.");
+      const frameEl = document.getElementById("id_payment_add_card");
+      if (frameEl) {
+        frameEl.innerHTML = "";
+      }
+      setIframeVisible(false);
+
+      // 🔹 Close SDK session if still open
+      if ((window as any).PayWithConverge?.close) {
+        (window as any).PayWithConverge.close();
+      }
+
+      console.log("🔁 Elavon SDK reset — ready for next open()");
     }
   };
 
