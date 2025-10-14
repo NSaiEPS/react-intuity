@@ -100,7 +100,7 @@ const PaymentForm = () => {
     dueDate,
     customer_acknowledgement_text = "",
   } = location.state || {};
-  console.log(isSchedule, dueDate, customer_acknowledgement_text);
+  // console.log(isSchedule, dueDate, customer_acknowledgement_text);
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState("1");
   const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
@@ -208,7 +208,7 @@ const PaymentForm = () => {
 
   const id = searchParams.get("id");
   const transId = searchParams.get("transId");
-  console.log(transId, id, "transId");
+  // console.log(transId, id, "transId");
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
 
@@ -404,7 +404,7 @@ const PaymentForm = () => {
   const cardConvenienceFee = searchParams.get("convenience_fee");
   const cardAmount = searchParams.get("amount");
   const cardTransId = searchParams.get("transId");
-  console.log(cardAmount, "cardAmount");
+  // console.log(cardAmount, "cardAmount");
   useEffect(() => {
     if (cardAmount && cardConvenienceFee && cardTransId) {
       setShowPaymentSummary(true);

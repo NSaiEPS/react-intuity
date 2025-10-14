@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "@/api/axios";
 import { RootState } from "@/state/store";
@@ -7,9 +7,7 @@ import { useSearchParams } from "react-router";
 
 const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
   const [searchParams] = useSearchParams();
-  const companyInfo = useSelector(
-    (state: RootState) => state.Account.companyInfo
-  );
+
   const id = searchParams.get("id");
   const [loading, setLoading] = useState(false);
   const [iframeVisible, setIframeVisible] = useState(false);
@@ -32,8 +30,8 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       ? "/default/index/elavon-generate-token-one-time-pay"
       : "settings/front/elavon-generate-token"
   }`;
-  const addCardUrl = `${BASE_URL}/api/add-card`;
-  const invoiceId = id; // dummy invoice
+
+  const invoiceId = id;
 
   // 🧩 STEP 0: Load Elavon SDK only when needed
   const loadElavonSDK = async (): Promise<void> => {
@@ -134,7 +132,7 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       ssl_txn_auth_token: sessionToken,
       ssl_verify: "Y",
       ssl_add_token: "Y",
-      ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecsale",
+      ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecaddtoken",
       ssl_amount: "1.00",
     };
 
@@ -163,55 +161,53 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       },
     };
 
-    const options = {
-      frame: frameEl,
-      cssOverride:
-        "html, body { background-color: rgba(244,246,246,1.0) } " +
-        ".hpm-content { box-shadow:unset; margin-top:unset; } " +
-        ".hpm-input-short { margin-bottom:0px; } " +
-        "md-card { box-shadow:unset; background-color:#f4f6f6; }",
-    };
+    // const options = {
+    //   frame: frameEl,
+    //   cssOverride:
+    //     "html, body { background-color: rgba(244,246,246,1.0) } " +
+    //     ".hpm-content { box-shadow:unset; margin-top:unset; } " +
+    //     ".hpm-input-short { margin-bottom:0px; } " +
+    //     "md-card { box-shadow:unset; background-color:#f4f6f6; }",
+    // };
 
     try {
       console.log("Opening Elavon Lightbox...", sessionToken);
-      // (window as any).PayWithConverge?.open(paymentData, callbacks, options);
-      (window as any).PayWithConverge?.open({
-        ssl_txn_auth_token: sessionToken,
-        ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecsale",
 
-        ssl_invoice_number: invoiceId,
-        ssl_first_name: "Test",
-        ssl_last_name: "User",
-        ssl_add_token: "Y",
-        ssl_verify: "Y",
-        ssl_amount: "1.00",
-      });
-
-      console.error(
-        "Trying to open Elavon Lightbox...",
-        paymentData,
-        callbacks,
-        options
-      );
-
-      // (window as any).PayWithConverge.open(paymentData, callbacks, options);
       (window as any).PayWithConverge?.open(
         {
           ssl_txn_auth_token: sessionToken,
-          ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecsale",
+          ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecaddtoken",
 
           ssl_invoice_number: invoiceId,
           ssl_first_name: "Test",
           ssl_last_name: "User",
           ssl_add_token: "Y",
           ssl_verify: "Y",
-          ssl_amount: "1.00",
+          // ssl_amount: "1.00",
+          ssl_show_form: true,
+          ssl_payment_form: type === "card" ? "creditcard" : "check",
         },
-        callbacks,
-        options
+        callbacks
       );
+
+      // (window as any).PayWithConverge?.open(
+      //   {
+      //     ssl_txn_auth_token: sessionToken,
+      //     ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecaddtoken",
+
+      //     ssl_invoice_number: invoiceId,
+      //     ssl_first_name: "Test",
+      //     ssl_last_name: "User",
+      //     ssl_add_token: "Y",
+      //     ssl_verify: "Y",
+      //     ssl_amount: "1.00",
+      //   },
+      //   callbacks,
+      //   options
+      // );
     } catch (err) {
       console.error("❌ Elavon open() failed:", err);
+      clearElavonFrame();
     }
   };
 
@@ -224,55 +220,9 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       const elavonResData = msg;
       setLoading(true);
       onSuccess(elavonResData);
-      // try {
-      //   const response = await fetch(addCardUrl, {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({
-      //       user_id: userId,
-      //       customer_id: stored?.body?.customer_id,
-      //       pay_now_hidden: 0,
-      //       is_one_time: 0,
-      //       is_card: 1,
-      //       credit_card_number: elavonResData.ssl_card_number,
-      //       card_type: elavonResData.ssl_card_short_description,
-      //       expiration: elavonResData.ssl_exp_date,
-      //       token: elavonResData.ssl_token,
-      //     }),
-      //   });
-
-      //   const result = await response.json();
-      //   console.log("✅ Card saved:", result);
-      //   alert("Card successfully added!");
-      // } catch (error) {
-      //   console.error("❌ Failed to save card:", error);
-      // } finally {
-      //   setLoading(false);
-      //   const frameEl = document.getElementById("id_payment_add_card");
-      //   if (frameEl) {
-      //     frameEl.innerHTML = "";
-      //   }
-      //   setIframeVisible(false);
-
-      //   // 🔹 Close SDK session if still open
-      //   if ((window as any).PayWithConverge?.close) {
-      //     (window as any).PayWithConverge.close();
-      //   }
-
-      //   console.log("🔁 Elavon SDK reset — ready for next open()");
-      // }
     } else {
       alert("This payment was not approved or cancelled.");
-      const frameEl = document.getElementById("id_payment_add_card");
-      if (frameEl) {
-        frameEl.innerHTML = "";
-      }
-      setIframeVisible(false);
-
-      // 🔹 Close SDK session if still open
-      if ((window as any).PayWithConverge?.close) {
-        (window as any).PayWithConverge.close();
-      }
+      clearElavonFrame();
 
       console.log("🔁 Elavon SDK reset — ready for next open()");
     }
@@ -291,28 +241,42 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       setLoading(false);
     }
   };
+  const clearElavonFrame = () => {
+    const frameEl = document.getElementById("id_payment_add_card");
+    if (frameEl) {
+      frameEl.innerHTML = "";
+    }
+    setIframeVisible(false);
 
+    // 🔹 Close SDK session if still open
+    if ((window as any).PayWithConverge?.close) {
+      (window as any).PayWithConverge.close();
+    }
+
+    console.log("🔁 Elavon SDK reset — ready for next open()");
+  };
+  useEffect(() => {
+    handleAddCard();
+    return () => clearElavonFrame();
+  }, []);
   return (
     <div className="p-4">
-      <h2 className="font-semibold text-lg mb-3">Add Card (Elavon)</h2>
+      <h2 className="font-semibold text-lg mb-3"> Elavon</h2>
 
-      <button
+      {/* <button
         onClick={handleAddCard}
         disabled={loading}
         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
       >
         {loading ? "Processing..." : sdkLoaded ? "Add Card" : "Load & Add Card"}
-      </button>
+      </button> */}
 
-      {/* Lightbox Frame */}
       <div
         id="id_payment_add_card"
         style={{
-          // display: iframeVisible ? "block" : "none",
           width: "100%",
-          height: "600px",
+          height: "100px",
           marginTop: "1rem",
-          backgroundColor: "#f4f6f6",
         }}
       />
 
