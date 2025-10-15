@@ -256,6 +256,7 @@ const PaymentForm = () => {
         formdata.append("expiration", data?.ssl_exp_date);
         formdata.append("approval_code", data?.ssl_approval_code);
         formdata.append("is_card_one_time", "1");
+        formdata.append("paytype_category", data?.ssl_card_short_description);
       } else {
         formdata.append("credit_card_number", data?.cardNumber);
         formdata.append("card_type", data?.cardType);

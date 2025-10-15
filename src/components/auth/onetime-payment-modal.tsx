@@ -299,9 +299,14 @@ export default function OneTimePaymentModal({ open, onClose }) {
     // convenienceFee:0.04"
 
     dispatch(
-      oneTimePayment(paymentData, () => {
-        onModalClose();
-      })
+      oneTimePayment(
+        paymentData,
+        () => {
+          onModalClose();
+        },
+        undefined,
+        companyInfo?.company?.alias
+      )
     );
   };
   const onModalClose = () => {

@@ -867,10 +867,11 @@ export const saveAcknowledgeForRecurringPayment: any =
   };
 
 export const oneTimePayment: any =
-  (formData, successCallBack, failureCallBack) => async (dispatch) => {
+  (formData, successCallBack, failureCallBack, companyAlias) =>
+  async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
-      const res = await oneTimePaymentApi({ formData });
+      const res = await oneTimePaymentApi({ formData, companyAlias });
 
       if (res.status) {
         // dispatch(setOneTimePaymentInfo(res?.body));

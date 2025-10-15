@@ -760,8 +760,11 @@ export async function saveAcknowledgeForRecurringPaymentApi({
 //   return data;
 // }
 
-export async function oneTimePaymentApi({ formData }) {
-  const res = await fetch(`${BASE_URL}pay-as-guest-cape-royale1`, {
+export async function oneTimePaymentApi({
+  formData,
+  companyAlias = "cape-royale1",
+}) {
+  const res = await fetch(`${BASE_URL}pay-as-guest-${companyAlias}`, {
     method: "POST",
 
     headers: {
