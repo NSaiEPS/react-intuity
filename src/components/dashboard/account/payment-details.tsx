@@ -250,7 +250,9 @@ const PaymentForm = () => {
     //for card
     if (debitType === "card") {
       if (data?.ssl_token) {
-        formdata.append("salestax", data?.ssl_token);
+        // formdata.append("salestax", data?.ssl_token);
+        formdata.append("salestax", "0");
+
         formdata.append("credit_card_number", data?.ssl_card_number);
         formdata.append("card_type", data?.ssl_card_short_description);
         formdata.append("expiration", data?.ssl_exp_date);
