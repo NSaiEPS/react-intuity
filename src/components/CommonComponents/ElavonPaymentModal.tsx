@@ -256,9 +256,11 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
     console.log("🔁 Elavon SDK reset — ready for next open()");
   };
   useEffect(() => {
-    handleAddCard();
+    if (type == "card") {
+      handleAddCard();
+    }
     return () => clearElavonFrame();
-  }, []);
+  }, [type]);
   return (
     <div className="p-4">
       <h2 className="font-semibold text-lg mb-3"> Elavon</h2>
@@ -270,15 +272,28 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       >
         {loading ? "Processing..." : sdkLoaded ? "Add Card" : "Load & Add Card"}
       </button> */}
-
-      <div
-        id="id_payment_add_card"
-        style={{
-          width: "100%",
-          height: "100px",
-          marginTop: "1rem",
-        }}
-      />
+      {type === "card" ? (
+        <div
+          id="id_payment_add_card"
+          style={{
+            width: "100%",
+            height: "100px",
+            marginTop: "1rem",
+          }}
+        />
+      ) : (
+        <iframe
+          id="iFrameBA"
+          class="responsive-iframe"
+          // style="margin-top:20px;"
+          name="iFrameBA"
+          src="https://test-intuity-backend.pay.waterbill.com/elavon_bank_frame.php?companyName=South &amp; Center Chautauqua Lake Sewer District"
+          frameborder="0"
+          scrolling="no"
+          width="500"
+          height="500"
+        ></iframe>
+      )}
 
       {loading && (
         <div className="mt-4 text-gray-600 text-sm">Please wait...</div>

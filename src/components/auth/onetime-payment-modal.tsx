@@ -250,7 +250,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
         paymentData.append("is_card_one_time", "1");
         paymentData.append("card_type", data?.ssl_card_short_description);
         paymentData.append("token", data?.ssl_token);
-        // paymentData.append("salestax", "0");
+        paymentData.append("salestax", "0");
         // paymentData.append("salestax", data?.ssl_token);
       } else {
         paymentData.append("credit_card_number", data?.cardNumber);
