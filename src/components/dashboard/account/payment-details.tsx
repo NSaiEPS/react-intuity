@@ -267,6 +267,10 @@ const PaymentForm = () => {
       }
     }
     if (debitType == "bank_account") {
+      if ("expiration" in data) {
+        formdata.append("expiration", "");
+      }
+
       formdata.append("bank_account_number", data?.accountNumber);
       formdata.append("routing_number", data?.routingNumber);
       // formdata.append('account_type', data?.accountType);
@@ -437,7 +441,9 @@ const PaymentForm = () => {
       formdata.append("is_card_one_time", "0");
       formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
       formdata.append("payment_method", "1");
-      formdata.append("price", String(watch("amount") || 0));
+
+      formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+
       formdata.append(
         "payment_method_id_form",
         selectedCardDetails?.card_token
@@ -496,7 +502,8 @@ const PaymentForm = () => {
 
       formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
       formdata.append("payment_method", "0");
-      formdata.append("price", String(watch("amount") || 0));
+      // formdata.append("price", String(watch("amount") || 0));
+      formdata.append("price", Number(watch("amount") || 0).toFixed(2));
 
       if (cardConvenienceFee) {
         const formdata = new FormData();
@@ -513,7 +520,9 @@ const PaymentForm = () => {
 
         formdata.append("convenienceFee", cardConvenienceFee);
         formdata.append("payment_method", "0");
-        formdata.append("price", String(cardAmount || 0));
+        formdata.append("price", Number(cardAmount || 0).toFixed(2));
+        // formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+
         dispatch(
           paymentWithoutSavingDetails(
             stored?.body?.token,

@@ -10,6 +10,7 @@ import { getWorldPlayPaymentDetails } from "@/state/features/accountSlice";
 import { renderIframeRoot, unmountIframeRoot } from "@/utils/rootIframe";
 import { useSearchParams } from "react-router";
 import ElavonAddCard from "./ElavonPaymentModal";
+import ElavonBankIframe from "./ElavonBankIframe";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -130,7 +131,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   // Listen for iframe postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      console.log("Received message from iframe:", event.data);
+      // console.log("Received message from iframe:", event.data);
       if (event?.data?.custId || event?.data?.token) {
         onSuccess(event.data); // parent callback
       }
@@ -308,10 +309,32 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
   if (
     curentProcessor?.includes("nacha") ||
-    curentProcessor?.includes("achworks")
+    curentProcessor?.includes("achworks") ||
+    curentProcessor?.includes("elavon_ach")
   ) {
-    return <NachaIframe onSuccess={onSuccess} />;
+    return (
+      <NachaIframe
+        onSuccess={(data) => {
+          const newData = {
+            ...data,
+          };
+          if (curentProcessor?.includes("elavon_ach")) {
+            newData.expiration = "";
+          }
+          onSuccess(newData);
+        }}
+      />
+    );
   }
+  // if (curentProcessor?.includes("elavon_ach")) {
+  //   return (
+  //     <ElavonBankIframe
+  //       type={type}
+  //       onSuccess={onSuccess}
+  //       customerDetails={customerDetails}
+  //     />
+  //   );
+  // }
   if (curentProcessor?.includes("elavon")) {
     return (
       <ElavonAddCard

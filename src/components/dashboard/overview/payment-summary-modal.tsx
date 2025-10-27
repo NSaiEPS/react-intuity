@@ -41,7 +41,7 @@ export default function PaymentSummaryModal({
   Recurring = null,
   Payment = null,
 }: PaymentSummaryModalProps) {
-  const total = amount + fee;
+  const total = Math.trunc((amount + fee) * 100) / 100;
   const recurrenceMap = {
     1: "and every month",
     2: "and every other month",

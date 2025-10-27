@@ -4,6 +4,8 @@ import { BASE_URL } from "@/api/axios";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { useSearchParams } from "react-router";
+import { Button, Stack } from "@mui/material";
+import { ArrowClockwise } from "@phosphor-icons/react/dist/ssr";
 
 const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
   const [searchParams] = useSearchParams();
@@ -263,7 +265,23 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
   }, [type]);
   return (
     <div className="p-4">
-      <h2 className="font-semibold text-lg mb-3"> Elavon</h2>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        mb={2}
+      >
+        <h2 className="font-semibold text-lg">Elavon</h2>
+
+        <Button
+          variant="outlined"
+          startIcon={<ArrowClockwise size={18} weight="bold" />}
+          onClick={handleAddCard}
+          size="small"
+        >
+          Reload
+        </Button>
+      </Stack>
 
       {/* <button
         onClick={handleAddCard}
@@ -284,11 +302,11 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
       ) : (
         <iframe
           id="iFrameBA"
-          class="responsive-iframe"
+          // class="responsive-iframe"
           // style="margin-top:20px;"
           name="iFrameBA"
           src="https://test-intuity-backend.pay.waterbill.com/elavon_bank_frame.php?companyName=South &amp; Center Chautauqua Lake Sewer District"
-          frameborder="0"
+          // frameborder="0"
           scrolling="no"
           width="500"
           height="500"
