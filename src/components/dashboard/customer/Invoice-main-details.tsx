@@ -408,227 +408,264 @@ export const InvoiceMainDetails = () => {
       {/* Bottom Details */}
 
       <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
-        <Box
-          sx={{
-            border: "1px solid black",
-            mb: 2,
-            display: "inline-block",
-            px: 2,
-            py: 0.5,
-          }}
-        >
-          <Typography variant="body2">
-            Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
-          </Typography>
-        </Box>
-        <Stack
-          direction="column"
-          sx={{
-            minWidth: "50%",
-            pb: 1,
-            alignItems: {
-              xs: "flex-start", // below 900px
-              md: "flex-end", // 900px and above
-            },
-            textAlign: {
-              xs: "left",
-              md: "right",
-            },
-            width: "100%",
-          }}
-        >
-          <Typography variant="body2" sx={{ fontSize: 13 }}>
-            Please detach and return with your payment. Make Checks Payable to:
-            <b> {company?.company_name} </b>
-          </Typography>
+    {/* Invoice Header */}
+    <Box
+      sx={{
+        border: "1px solid #000",
+        display: "inline-block",
+        px: 2,
+        py: 0.5,
+        mb: 2,
+      }}
+    >
+      <Typography variant="body2">
+        Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
+      </Typography>
+    </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              flexWrap: "wrap",
-              justifyContent: "flex-start",
-              pt: 1,
-              width: "100%",
-            }}
-          >
-            <Checkbox size="small" sx={{ p: 0, mr: 1 }} />
+    {/* Payment Instructions */}
+    <Stack
+      direction="column"
+      sx={{
+        width: "100%",
+        pb: 2,
+        // textAlign: { xs: "left", md: "right" },
+        // alignItems: { xs: "flex-start", md: "flex-end" },
+      }}
+    >
+      <Typography variant="body2" sx={{ fontSize: 13 }}>
+        Please detach and return with your payment. Make Checks Payable to:
+        <b> {company?.company_name}</b>
+      </Typography>
+
+      <Grid container spacing={2}>
+  {/* LEFT COLUMN - Update Info */}
+  <Grid item xs={12} md={6}>
+    <Box sx={{ width: "100%", pr: 2 }}>
+      <Typography
+        variant="body2"
+        sx={{ fontSize: 13, fontWeight: 600, mb: 1 }}
+      >
+        Update Account information:
+      </Typography>
+
+      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+        <Typography variant="body2" sx={{ fontSize: 13, mr: 1 }}>
+          I would like to go paperless (email to):
+        </Typography>
+        <Box sx={{ flex: 1, borderBottom: "1px solid #555", height: "14px" }} />
+      </Box>
+
+      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+        <Typography variant="body2" sx={{ fontSize: 13, mr: 1 }}>
+          Update My Address:
+        </Typography>
+        <Box sx={{ flex: 1, borderBottom: "1px solid #555", height: "14px" }} />
+      </Box>
+
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Typography variant="body2" sx={{ fontSize: 13, mr: 1 }}>
+          Update My Phone #:
+        </Typography>
+        <Box sx={{ flex: 1, borderBottom: "1px solid #555", height: "14px" }} />
+      </Box>
+    </Box>
+  </Grid>
+
+  {/* RIGHT COLUMN - Bill Table */}
+  <Grid item xs={12} md={6}>
+    <Table
+      size="small"
+      sx={{
+        border: "1px solid black",
+        borderCollapse: "collapse",
+        width: "100%",
+        mb: 1,
+      }}
+    >
+      <TableBody>
+        <TableRow sx={{ bgcolor: "#e0f0ff" }}>
+          <TableCell sx={{ fontWeight: 600, borderRight: "1px solid black" }}>
+            ACCOUNT NUMBER
+          </TableCell>
+          <TableCell sx={{ fontWeight: 600, borderRight: "1px solid black" }}>
+            DUE DATE
+          </TableCell>
+          <TableCell sx={{ fontWeight: 600 }}>AMOUNT DUE</TableCell>
+        </TableRow>
+
+        <TableRow>
+          <TableCell sx={{ borderRight: "1px solid black" }}>
+            {customer?.acctnum}
+          </TableCell>
+          <TableCell sx={{ borderRight: "1px solid black" }}>
+            {formatToMMDDYYYY(last_bill?.[0]?.due_date, false, false, true)}
+          </TableCell>
+          <TableCell>${last_bill?.[0]?.amount}</TableCell>
+        </TableRow>
+
+        <TableRow sx={{ bgcolor: "#e0f0ff" }}>
+          <TableCell sx={{ fontWeight: 600, borderRight: "1px solid black" }}>
+            BILL DATE
+          </TableCell>
+          <TableCell sx={{ fontWeight: 600, borderRight: "1px solid black" }}>
+            LATE DATE
+          </TableCell>
+          <TableCell sx={{ fontWeight: 600 }}>LATE AMOUNT</TableCell>
+        </TableRow>
+
+        <TableRow>
+          <TableCell sx={{ borderRight: "1px solid black" }}>
+            {formatToMMDDYYYY(last_bill?.[0]?.billing_date, false, false, true)}
+          </TableCell>
+          <TableCell sx={{ borderRight: "1px solid black" }}>
+            {formatToMMDDYYYY(last_bill?.[0]?.late_date, false, false, true)}
+          </TableCell>
+          <TableCell>
+            ${(
+              last_bill?.[0]?.amount + last_bill?.[0]?.late_date_amount
+            ).toFixed(2)}
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+
+    {/* Invoice + Check info */}
+    <Box
+      sx={{
+        border: "1px solid black",
+        px: 1,
+        py: 0.5,
+        display: "inline-block",
+        mb: 0.5,
+      }}
+    >
+      <Typography variant="body2" sx={{ fontSize: 13 }}>
+        Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
+      </Typography>
+    </Box>
+
+ <Box
+  sx={{
+    border: "1px solid black",
+    borderBottom: "none",   // ⬅️ removes bottom border
+    p: 1,
+    mt: 1,
+  }}
+>
+  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 13 }}>
+    Check Number:
+  </Typography>
+</Box>
+
+    <Box sx={{ border: "1px solid black", p: 1 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 13 }}>
+        Amount Paid:
+      </Typography>
+    </Box>
+  </Grid>
+</Grid>
+
+    </Stack>
+
+    <Grid container spacing={2} sx={{ mb: 2 }}>
+      {/* LEFT COLUMN - COMPANY INFO */}
+      <Grid item xs={12} md={6}>
+        <Box sx={{ lineHeight: 1.6 }}>
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            Company Name:
             <Typography
-              variant="body2"
-              sx={{ fontSize: 13, whiteSpace: "nowrap" }}
+              component="span"
+              sx={{ fontWeight: 600, fontStyle: "normal", ml: 0.5 }}
             >
-              I would like to go paperless. Here is my email address:
-            </Typography>
-            <TextField
-              variant="standard"
-              size="small"
-              sx={{ minWidth: "64%", ml: 1, mt: -1, maxWidth: "100%" }}
-              InputProps={{ disableUnderline: false }}
-            />
-          </Box>
-        </Stack>
-
-        <Grid
-          container
-          key={1}
-          spacing={2}
-          sx={{
-            mt: { xs: 2, md: 0 }, // margin-top for mobile/tablet, none for desktop
-            mb: { xs: 2, md: 0 }, // margin-bottom for mobile/tablet, none for desktop
-          }}
-        >
-          <Grid item xs={12} md={6} mt={"auto"}>
-            <Grid item xs={12} md={6}>
-              <Typography sx={{ fontWeight: 600 }}>
-                {customer?.customer_name}
-              </Typography>
-              <Typography>{customer?.address}</Typography>
-            </Grid>
-            <Box
-              sx={{
-                border: "1px solid black",
-                px: 1,
-                py: 1,
-                mb: 2,
-
-                width: { xs: "100%", md: "90%" },
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 900,
-                  bgcolor: colors["blue.4"],
-                  color: "black",
-                  px: 2,
-                  padding: 1,
-                  alignItems: "center",
-                  textAlign: "center",
-                }}
-              >
-                BILL PAYMENT
-              </Typography>
-            </Box>
-
-            <Typography sx={{ fontWeight: 600 }}>
               {company?.company_name}
             </Typography>
-            <Typography>
-              {[company?.city, company?.street, company?.zip].filter(Boolean)
+          </Typography>
+
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            Address 1:
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {company?.add}
+            </Typography>
+          </Typography>
+
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            Address 2:
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {company?.address2}
+            </Typography>
+          </Typography>
+
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            City, State, zip:
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+               {[company?.city, company?.street, company?.zip].filter(Boolean)
                 .length > 0 &&
                 [company?.city, company?.street, company?.zip]
                   .filter(Boolean)
                   .join(", ")}
             </Typography>
-          </Grid>
+          </Typography>
+        </Box>
+      </Grid>
 
-          {/* Right Section with vertical borders */}
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{
-              mt: { xs: 2, md: 0 }, // margin-top for mobile/tablet, none for desktop
-              mb: { xs: 2, md: 0 }, // margin-bottom for mobile/tablet, none for desktop
-            }}
-          >
-            <Table
-              size="small"
-              sx={{ border: "1px solid black", borderCollapse: "collapse" }}
+      {/* RIGHT COLUMN - CUSTOMER INFO */}
+      <Grid item xs={12} md={6}>
+        <Box sx={{ lineHeight: 1.6 }}>
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            Customer
+              Name:   <Typography
+              component="span"
+              sx={{ fontWeight: 600, fontStyle: "normal", ml: 0.5 }}
             >
-              <TableBody>
-                <TableRow sx={{ bgcolor: colors["blue.4"] }}>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      fontWeight: 600,
-                      borderRight: "1px solid black",
-                    }}
-                  >
-                    ACCOUNT NUMBER
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      fontWeight: 600,
-                      borderRight: "1px solid black",
-                    }}
-                  >
-                    DUE DATE
-                  </TableCell>
-                  <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                    AMOUNT DUE
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
-                    {customer?.acctnum}
-                  </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
-                    {formatToMMDDYYYY(
-                      last_bill?.[0]?.due_date,
-                      false,
-                      false,
-                      true
-                    )}
-                  </TableCell>
-                  <TableCell>${last_bill?.[0]?.amount}</TableCell>
-                </TableRow>
+              {customer?.customer_name}
+            </Typography>
+            
+          </Typography>
 
-                <TableRow sx={{ bgcolor: colors["blue.4"] }}>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      fontWeight: 600,
-                      borderRight: "1px solid black",
-                    }}
-                  >
-                    BILL DATE
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      fontWeight: 600,
-                      borderRight: "1px solid black",
-                    }}
-                  >
-                    LATE DATE
-                  </TableCell>
-                  <TableCell sx={{ color: "black", fontWeight: 600 }}>
-                    LATE AMOUNT
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
-                    {/* {last_bill?.[0]?.billing_date} */}
-                    {formatToMMDDYYYY(
-                      last_bill?.[0]?.billing_date,
-                      false,
-                      false,
-                      true
-                    )}
-                  </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid black" }}>
-                    {/* {last_bill?.[0]?.late_date} */}
-                    {formatToMMDDYYYY(
-                      last_bill?.[0]?.late_date,
-                      false,
-                      false,
-                      true
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    $
-                    {(
-                      last_bill?.[0]?.amount + last_bill?.[0]?.late_date_amount
-                    ).toFixed(2)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Grid>
-        </Grid>
-      </Paper>
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            Address 1:
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.address}
+            </Typography>
+          </Typography>
+
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            Address 2:
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.address2}
+            </Typography>
+          </Typography>
+
+          <Typography variant="body2" sx={{ fontSize: 13, fontStyle: "italic" }}>
+            City, State, zip:
+             <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.city }
+            </Typography>
+          </Typography>
+        </Box>
+      </Grid>
+    </Grid>
+
+  </Paper>
       {/* Footer */}
 
       <CustomBackdrop
