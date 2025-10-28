@@ -15,6 +15,7 @@ import {
   Avatar,
   Grid,
   IconButton,
+  Pagination,
   List,
   ListItem,
   ListItemText,
@@ -85,6 +86,8 @@ export function UserPopover({
   const linkedCustomerInfo = getLocalStorage("linked-customerInfo");
 
   const [onlyUnread, setOnlyUnread] = React.useState(true);
+    const [pageNo, setPageNo] = React.useState(1);
+  const [totalPages, setTotalPages] = React.useState(1);
 
   const linkedAccountsInfo =
     dashBoardInfo?.body?.linked_customers || linkedCustomerInfo || [];
@@ -125,40 +128,49 @@ export function UserPopover({
   }, [checkSession]);
 
   const successCallBack = (id?: string | number) => {
-    if (id) {
-      let newLinkedAccounts = [...linkedAccounts];
-      newLinkedAccounts = newLinkedAccounts.filter(
-        (account) => account.id !== id
-      );
+  if (id) {
+    // unlink account case
+    let newLinkedAccounts = [...linkedAccounts];
+    newLinkedAccounts = newLinkedAccounts.filter((account) => account.id !== id);
+    setLinkedAccounts(newLinkedAccounts);
 
-      setLinkedAccounts(newLinkedAccounts);
+    secureLocalStorage.setItem("linked-customerInfo", newLinkedAccounts);
+    setOpenConfirm(false);
+    return;
+  }
 
-      secureLocalStorage.setItem("linked-customerInfo", linkedAccounts);
+  // ✅ For fetching notifications (with pagination)
+  const formData = new FormData();
+  formData.append("acl_role_id", String(roleId || ""));
+  formData.append("customer_id", String(userId || ""));
+  formData.append("onlyread", onlyUnread ? "1" : "0");
+  formData.append("page_no", String(pageNo-1)); // <-- use current page number
+  formData.append("markRead", "0");
+  formData.append("model_open", "9");
 
-      setOpenConfirm(false);
-
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("onlyread", onlyUnread ? "1" : "0");
-    formData.append("page_no", "0");
-    formData.append("markRead", "0");
-    formData.append("model_open", "9");
-    // formData.append('is_form', '0');
-
+  // Dispatch and handle pagination from response if available
     dispatch(getNotificationList(token, formData));
-  };
+};
+
   // console.log(linkedAccounts, 'linkedAccounts');
 
   React.useEffect(() => {
     if (openType == "email") {
       successCallBack();
     }
-  }, [onlyUnread]);
+  }, [onlyUnread , pageNo]);
+
+
+  React.useEffect(() => {
+    console.log(notificationList)
+  if (notificationList?.count) {
+    const pages = Math.ceil(
+      notificationList.count / 10
+    );
+    setTotalPages(pages);
+  }
+}, [notificationList]);
+
   const navigate = useNavigate();
 
   const handleNotificationClick = (item) => {
@@ -596,6 +608,12 @@ export function UserPopover({
               </Box>
             ))}
           </List>
+
+           {Array.isArray(notificationList?.notifications) && notificationList.notifications.length > 0 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              <Pagination count={Math.max(1, totalPages)} page={pageNo} onChange={(_, value) => setPageNo(value)} color="primary" />
+            </Box>
+          )}
 
           <Box
             display="flex"
