@@ -409,19 +409,6 @@ export const InvoiceMainDetails = () => {
 
       <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
     {/* Invoice Header */}
-    <Box
-      sx={{
-        border: "1px solid #000",
-        display: "inline-block",
-        px: 2,
-        py: 0.5,
-        mb: 2,
-      }}
-    >
-      <Typography variant="body2">
-        Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
-      </Typography>
-    </Box>
 
     {/* Payment Instructions */}
     <Stack
@@ -481,7 +468,7 @@ export const InvoiceMainDetails = () => {
         borderCollapse: "collapse",
         width: "100%",
         mb: 1,
-        marginBottom:"50px"
+        
       }}
     >
       <TableBody>
@@ -550,9 +537,11 @@ export const InvoiceMainDetails = () => {
  <Box
   sx={{
     border: "1px solid black",
-    borderBottom: "none",   // ⬅️ removes bottom border
+    borderBottom: "none",  
+    
+     // ⬅️ removes bottom border
     p: 1,
-    mt: 1,
+    mt: "50px",
   }}
 >
   <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 13 }}>
@@ -560,7 +549,7 @@ export const InvoiceMainDetails = () => {
   </Typography>
 </Box>
 
-    <Box sx={{ border: "1px solid black", p: 1 }}>
+    <Box sx={{ border: "1px solid black", p: 1, }}>
       <Typography variant="body2" sx={{ fontWeight: 600, fontSize: 13 }}>
         Amount Paid:
       </Typography>
