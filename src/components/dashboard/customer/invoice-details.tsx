@@ -61,50 +61,95 @@ export default function InvoiceDetails() {
 
   const pdfRef = React.useRef<HTMLDivElement>(null);
 
-  const handleDownloadPDF = async () => {
-    dispatch(setDashboardLoader(true));
+  // make sure you have these imports at top of the file
+// import html2canvas from "html2canvas";
+// import jsPDF from "jspdf";
 
-    const original = pdfRef.current;
-    if (!original) {
-      dispatch(setDashboardLoader(false));
-      return;
-    }
+const handleDownloadPDF = async () => {
+  dispatch(setDashboardLoader(true));
 
-    // Clone content
-    const clone = original.cloneNode(true) as HTMLElement;
+  const original = pdfRef.current;
+  if (!original) {
+    dispatch(setDashboardLoader(false));
+    return;
+  }
 
-    // Force desktop look (disable breakpoints)
-    clone.style.width = "1024px";
-    clone.style.maxWidth = "1024px";
-    clone.style.padding = "24px";
-    clone.style.background = "#fff";
-    clone.style.position = "fixed";
-    clone.style.top = "-9999px"; // hide offscreen
-    clone.style.left = "0";
-    clone.style.zIndex = "-1";
+  // Create clone and style it for desktop capture
+  const clone = original.cloneNode(true) as HTMLElement;
+  clone.style.width = "1024px";
+  clone.style.maxWidth = "1024px";
+  clone.style.padding = "24px";
+  clone.style.background = "#fff";
+  clone.style.position = "fixed";
+  clone.style.top = "-9999px";
+  clone.style.left = "0";
+  clone.style.zIndex = "-1";
+  // ensure full height (important)
+  clone.style.height = `${(original as HTMLElement).scrollHeight}px`;
 
-    document.body.appendChild(clone);
+  document.body.appendChild(clone);
 
-    // Capture
+  try {
+    // Give browser a tick to render off-screen clone (helps html2canvas)
+    await new Promise((r) => setTimeout(r, 120));
+
+    // Capture the clone to a canvas
     const canvas = await html2canvas(clone, {
-      scale: 2,
+      scale: 2, // 2 gives good quality without exploding memory in most cases
       useCORS: true,
-      windowWidth: 1024, // simulate desktop viewport
+      windowWidth: 1024,
+      // scrollY: -window.scrollY, // optional
     });
 
-    // Remove clone
-    document.body.removeChild(clone);
+    // Small safety pause so canvas finishes encoding (helps avoid corrupt PNG)
+    await new Promise((r) => setTimeout(r, 200));
 
-    // Create PDF
+    // Convert to image data
     const imgData = canvas.toDataURL("image/png");
+
+    // Create PDF and compute sizes
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("invoice.pdf");
+    const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
+    // computed image height in pdf units (mm)
+    const imgProps = {
+      widthPx: canvas.width,
+      heightPx: canvas.height,
+    };
+    const imgHeightInPdfUnits = (imgProps.heightPx * pdfWidth) / imgProps.widthPx;
+
+    // Add image(s) to PDF handling multi-page by offsetting
+    let position = 0;
+    let heightLeft = imgHeightInPdfUnits;
+
+    // first page
+    pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightInPdfUnits);
+    heightLeft -= pdfPageHeight;
+
+    // additional pages
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeightInPdfUnits;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightInPdfUnits);
+      heightLeft -= pdfPageHeight;
+    }
+
+    // Save PDF (you can set filename dynamically)
+    pdf.save(`invoice.pdf`);
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    // Optional: show a user-friendly message
+    alert("Failed to generate PDF. Please try again.");
+  } finally {
+    // Remove clone (if still present) and stop loader
+    if (clone && clone.parentNode) {
+      document.body.removeChild(clone);
+    }
     dispatch(setDashboardLoader(false));
-  };
+  }
+};
+
 
   return (
     <SkeletonWrapper>

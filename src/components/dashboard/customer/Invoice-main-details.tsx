@@ -481,6 +481,7 @@ export const InvoiceMainDetails = () => {
         borderCollapse: "collapse",
         width: "100%",
         mb: 1,
+        marginBottom:"50px"
       }}
     >
       <TableBody>
@@ -538,6 +539,7 @@ export const InvoiceMainDetails = () => {
         py: 0.5,
         display: "inline-block",
         mb: 0.5,
+        
       }}
     >
       <Typography variant="body2" sx={{ fontSize: 13 }}>

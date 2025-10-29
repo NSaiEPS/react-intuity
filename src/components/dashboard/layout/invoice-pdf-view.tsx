@@ -209,6 +209,9 @@ const styles1 = StyleSheet.create({
   },
   smallText: {
     fontSize: 10,
+    paddingTop :"10px",
+    fontStyle: "normal",
+    fontWeight: "bold"
   },
   page: {
     padding: 24,
@@ -355,38 +358,44 @@ const styles1 = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#000",
   },
-  payCellHeader: {
-    flex: 1,
-    padding: 4,
-    fontSize: 10,
-    fontWeight: "bold",
-    borderRightWidth: 1,
-    borderColor: "#000",
-    textAlign: "center",
-  },
-  payCellHeaderRight: {
-    flex: 1,
-    padding: 4,
-    fontSize: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-  },
-  payCell: {
-    flex: 1,
-    padding: 4,
-    fontSize: 10,
-    borderRightWidth: 1,
-    borderColor: "#000",
-  },
-  payCellLast: {
-    flex: 1,
-    padding: 4,
-    fontSize: 10,
-    textAlign: "right",
-  },
+payCellHeader: {
+  flex: 1,
+  paddingVertical: 4,
+  paddingLeft: 10, // left spacing
+  fontSize: 10,
+  fontWeight: "bold",
+  borderRightWidth: 1,
+  borderColor: "#000",
+  textAlign: "left",
+  backgroundColor: "#dbeafe",
+  flexWrap: "nowrap", // ✅ prevents text wrapping
+  overflow: "hidden", // ✅ keeps layout clean
+},
+
+ payCell: {
+  flex: 1,
+  paddingVertical: 4,
+  paddingLeft: 10,
+  fontSize: 10,
+  borderRightWidth: 1,
+  borderColor: "#000",
+  textAlign: "left",
+  flexWrap: "nowrap", // ✅ keeps all words in a single line
+  overflow: "hidden",
+},
 
   /* ✅ Clean Check + Invoice Section */
   checkContainer: {
+    borderWidth: 1,
+    borderColor: "#000",
+    width: "50%",
+    alignSelf: "flex-end",
+    marginTop: 10,
+    backgroundColor: "#fff",
+    borderBottomColor :"#fff"
+  },
+
+   checkContainerInvoice: {
     borderWidth: 1,
     borderColor: "#000",
     width: "50%",
@@ -663,39 +672,7 @@ const styles = StyleSheet.create({
     borderColor: "#000",
   },
 
-  payCellHeader: {
-    flex: 1,
-    padding: 6,
-    fontSize: 10,
-    fontWeight: "700",
-    textAlign: "center",
-    borderRightWidth: 1,
-    borderColor: "#000",
-  },
-  payCellHeaderRight: {
-    flex: 1,
-    padding: 6,
-    fontSize: 10,
-    fontWeight: "700",
-    textAlign: "center",
-    // borderRightWidth: 1,
-    borderColor: "#000",
-  },
-  payCell: {
-    flex: 1,
-    padding: 6,
-    fontSize: 10,
-    textAlign: "center",
-    borderRightWidth: 1,
-    borderColor: "#000",
-  },
-
-  payCellLast: {
-    flex: 1,
-    padding: 6,
-    fontSize: 10,
-    textAlign: "center",
-  }, // no borderRight here
+ // no borderRight here
 });
 const formatDate = (val?: any) => {
   if (!val) return "";
@@ -982,8 +959,8 @@ export default function InvoicePdfDocument({
     {/* LEFT: Update Info */}
     <View style={{ width: "50%" }}>
       <View style={styles1.updateSection}>
-        <Text style={styles1.smallText}>Update Account information:</Text>
-        <Text style={styles1.smallText}>
+        <Text style={{fontSize:"10px"}}>Update Account information:</Text>
+        <Text style={{fontSize:"10px"}}>
           I would like to go paperless (email to): ___________________________
         </Text>
         <Text style={styles1.smallText}>
@@ -1002,28 +979,28 @@ export default function InvoicePdfDocument({
         <View style={styles1.payRowHeader}>
           <Text style={styles1.payCellHeader}>ACCOUNT NUMBER</Text>
           <Text style={styles1.payCellHeader}>DUE DATE</Text>
-          <Text style={styles1.payCellHeaderRight}>AMOUNT DUE</Text>
+          <Text style={styles1.payCellHeader}>AMOUNT DUE</Text>
         </View>
 
         {/* Data row 1 */}
         <View style={styles1.payRow}>
           <Text style={styles1.payCell}>{customer?.acctnum || ""}</Text>
           <Text style={styles1.payCell}>{formatDate(billing?.due_date)}</Text>
-          <Text style={styles1.payCellLast}>{money(billing?.amount)}</Text>
+          <Text style={styles1.payCell}>{money(billing?.amount)}</Text>
         </View>
 
         {/* Header row 2 */}
         <View style={styles1.payRowHeader}>
           <Text style={styles1.payCellHeader}>BILL DATE</Text>
           <Text style={styles1.payCellHeader}>LATE DATE</Text>
-          <Text style={styles1.payCellHeaderRight}>LATE AMOUNT</Text>
+          <Text style={styles1.payCellHeader}>LATE AMOUNT</Text>
         </View>
 
         {/* Data row 2 */}
         <View style={styles1.payRow}>
           <Text style={styles1.payCell}>{formatDate(billing?.billing_date)}</Text>
           <Text style={styles1.payCell}>{formatDate(billing?.late_date)}</Text>
-          <Text style={styles1.payCellLast}>
+          <Text style={styles1.payCell}>
             {money(
               (billing?.amount || 0) + (billing?.late_date_amount || 0)
             )}
@@ -1032,7 +1009,7 @@ export default function InvoicePdfDocument({
       </View>
     </View>
   </View>
-  <View style={styles1.checkContainer}>
+  <View style={styles1.checkContainerInvoice}>
   <Text style={styles1.invoiceLabel}>
       Invoice#: <Text style={styles1.invoiceValue}>{billing?.invoice_number || ""}</Text>
     </Text></View>
@@ -1059,36 +1036,65 @@ export default function InvoicePdfDocument({
   <View style={styles1.companyCustomerRow}>
     {/* Company Column */}
     <View style={styles1.column}>
-      <Text style={styles1.italicSmall}>Company Name:</Text>
-      <Text style={{ fontWeight: "bold", fontSize: 10 }}>
+      <Text style={styles1.italicSmall}>Company Name:
+      <Text style={{ fontWeight: "bold", fontSize: 10 , fontStyle : "normal"}}>
         {company?.company_name || ""}
+          {"\n\n"}
+        </Text>
       </Text>
-      <Text style={styles1.smallText}>
-        Address 1: {company?.street || ""}
+      <Text style={styles1.italicSmall}>Address 1: 
+      <Text
+  style={{
+    fontWeight: "bold",
+    fontSize: 10,
+    fontStyle: "normal",
+    marginTop: 100, // works perfectly
+  }}
+>
+  {company?.street || ""}
+    {"\n\n"}
+</Text>
+
       </Text>
-      <Text style={styles1.smallText}>
-        Address 2: {company?.city || ""}
+      <Text style={styles1.italicSmall}>Address 2:
+      <Text style={{  fontWeight: "bold",
+    fontSize: 10,
+    fontStyle: "normal",}}>
+        { ""}
+          {"\n\n"}
       </Text>
-      <Text style={styles1.smallText}>
-        City, State, zip: {company?.state || ""} {company?.zip || ""}
+      </Text>
+      <Text style={styles1.italicSmall}> City, State, zip:
+      <Text style={{ fontWeight: "bold", fontSize: 10 ,fontStyle: "normal",}}>
+       {company?.city || ""} {company?.state || ""} {company?.zip || ""}
+      </Text>
       </Text>
     </View>
 
     {/* Customer Column */}
     <View style={styles1.column}>
-      <Text style={styles1.italicSmall}>Customer:</Text>
+      <Text style={styles1.italicSmall}>Customer Name:
       <Text style={styles1.smallText}>
-        Name: {customer?.customer_name || ""}
+        {customer?.customer_name || ""}
+          {"\n\n"}
       </Text>
+       </Text>
+      <Text style={styles1.italicSmall}>Address 1:
       <Text style={styles1.smallText}>
-        Address 1: {customer?.address || ""}
+        {customer?.address  || ""}
+          {"\n\n"}
       </Text>
+       </Text>
+        <Text style={styles1.italicSmall}>Address 2: 
       <Text style={styles1.smallText}>
-        Address 2: {customer?.city || ""}
+        {""}
+          {"\n\n"}
       </Text>
+      </Text>
+      <Text style={styles1.italicSmall}>City, State, zip: 
       <Text style={styles1.smallText}>
-        City, State, zip: {customer?.state || ""} {customer?.zip || ""}
-      </Text>
+        {customer.city } {customer?.state || ""} {customer?.zip || ""}
+      </Text></Text>
     </View>
   </View>
 </View>
