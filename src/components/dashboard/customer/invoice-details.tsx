@@ -62,94 +62,82 @@ export default function InvoiceDetails() {
   const pdfRef = React.useRef<HTMLDivElement>(null);
 
   // make sure you have these imports at top of the file
-// import html2canvas from "html2canvas";
-// import jsPDF from "jspdf";
+  // import html2canvas from "html2canvas";
+  // import jsPDF from "jspdf";
 
-const handleDownloadPDF = async () => {
-  dispatch(setDashboardLoader(true));
+  const handleDownloadPDF = async () => {
+    dispatch(setDashboardLoader(true));
 
-  const original = pdfRef.current;
-  if (!original) {
-    dispatch(setDashboardLoader(false));
-    return;
-  }
+    const original = pdfRef.current;
+    if (!original) {
+      dispatch(setDashboardLoader(false));
+      return;
+    }
 
-  // Create clone and style it for desktop capture
-  const clone = original.cloneNode(true) as HTMLElement;
-  clone.style.width = "1024px";
-  clone.style.maxWidth = "1024px";
-  clone.style.padding = "24px";
-  clone.style.background = "#fff";
-  clone.style.position = "fixed";
-  clone.style.top = "-9999px";
-  clone.style.left = "0";
-  clone.style.zIndex = "-1";
-  // ensure full height (important)
-  clone.style.height = `${(original as HTMLElement).scrollHeight}px`;
+    // Clone safely as HTMLElement
+    const clone = original.cloneNode(true) as HTMLElement;
 
-  document.body.appendChild(clone);
-
-  try {
-    // Give browser a tick to render off-screen clone (helps html2canvas)
-    await new Promise((r) => setTimeout(r, 120));
-
-    // Capture the clone to a canvas
-    const canvas = await html2canvas(clone, {
-      scale: 2, // 2 gives good quality without exploding memory in most cases
-      useCORS: true,
-      windowWidth: 1024,
-      // scrollY: -window.scrollY, // optional
+    Object.assign(clone.style, {
+      width: "1024px",
+      maxWidth: "1024px",
+      padding: "24px",
+      background: "#fff",
+      position: "absolute",
+      top: "0",
+      left: "-9999px",
+      zIndex: "-1",
+      overflow: "visible",
     });
 
-    // Small safety pause so canvas finishes encoding (helps avoid corrupt PNG)
-    await new Promise((r) => setTimeout(r, 200));
+    document.body.appendChild(clone);
 
-    // Convert to image data
-    const imgData = canvas.toDataURL("image/png");
+    try {
+      await new Promise((r) => setTimeout(r, 200));
 
-    // Create PDF and compute sizes
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfPageHeight = pdf.internal.pageSize.getHeight();
+      const fullHeight = clone.scrollHeight;
+      clone.style.height = `${fullHeight}px`;
 
-    // computed image height in pdf units (mm)
-    const imgProps = {
-      widthPx: canvas.width,
-      heightPx: canvas.height,
-    };
-    const imgHeightInPdfUnits = (imgProps.heightPx * pdfWidth) / imgProps.widthPx;
+      const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        scrollY: 0,
+        windowWidth: clone.scrollWidth,
+        windowHeight: fullHeight,
+      });
 
-    // Add image(s) to PDF handling multi-page by offsetting
-    let position = 0;
-    let heightLeft = imgHeightInPdfUnits;
+      const imgData = canvas.toDataURL("image/png");
 
-    // first page
-    pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightInPdfUnits);
-    heightLeft -= pdfPageHeight;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
-    // additional pages
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeightInPdfUnits;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightInPdfUnits);
+      const imgWidthPx = canvas.width;
+      const imgHeightPx = canvas.height;
+      const imgHeightMM = (imgHeightPx * pdfWidth) / imgWidthPx;
+
+      let heightLeft = imgHeightMM;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
       heightLeft -= pdfPageHeight;
-    }
 
-    // Save PDF (you can set filename dynamically)
-    pdf.save(`invoice.pdf`);
-  } catch (err) {
-    console.error("Error generating PDF:", err);
-    // Optional: show a user-friendly message
-    alert("Failed to generate PDF. Please try again.");
-  } finally {
-    // Remove clone (if still present) and stop loader
-    if (clone && clone.parentNode) {
-      document.body.removeChild(clone);
-    }
-    dispatch(setDashboardLoader(false));
-  }
-};
+      while (heightLeft > 0) {
+        position -= pdfPageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
+        heightLeft -= pdfPageHeight;
+      }
 
+      pdf.save("invoice.pdf");
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      if (clone && clone.parentNode) document.body.removeChild(clone);
+      dispatch(setDashboardLoader(false));
+    }
+  };
 
   return (
     <SkeletonWrapper>
