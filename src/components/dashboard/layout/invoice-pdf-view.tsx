@@ -209,9 +209,9 @@ const styles1 = StyleSheet.create({
   },
   smallText: {
     fontSize: 10,
-    paddingTop :"10px",
+    paddingTop: "10px",
     fontStyle: "normal",
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   page: {
     padding: 24,
@@ -358,31 +358,31 @@ const styles1 = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#000",
   },
-payCellHeader: {
-  flex: 1,
-  paddingVertical: 4,
-  paddingLeft: 10, // left spacing
-  fontSize: 10,
-  fontWeight: "bold",
-  borderRightWidth: 1,
-  borderColor: "#000",
-  textAlign: "left",
-  backgroundColor: "#dbeafe",
-  flexWrap: "nowrap", // ✅ prevents text wrapping
-  overflow: "hidden", // ✅ keeps layout clean
-},
+  payCellHeader: {
+    flex: 1,
+    paddingVertical: 4,
+    paddingLeft: 10, // left spacing
+    fontSize: 10,
+    fontWeight: "bold",
+    borderRightWidth: 1,
+    borderColor: "#000",
+    textAlign: "left",
+    backgroundColor: "#dbeafe",
+    flexWrap: "nowrap", // ✅ prevents text wrapping
+    overflow: "hidden", // ✅ keeps layout clean
+  },
 
- payCell: {
-  flex: 1,
-  paddingVertical: 4,
-  paddingLeft: 10,
-  fontSize: 10,
-  borderRightWidth: 1,
-  borderColor: "#000",
-  textAlign: "left",
-  flexWrap: "nowrap", // ✅ keeps all words in a single line
-  overflow: "hidden",
-},
+  payCell: {
+    flex: 1,
+    paddingVertical: 4,
+    paddingLeft: 10,
+    fontSize: 10,
+    borderRightWidth: 1,
+    borderColor: "#000",
+    textAlign: "left",
+    flexWrap: "nowrap", // ✅ keeps all words in a single line
+    overflow: "hidden",
+  },
 
   /* ✅ Clean Check + Invoice Section */
   checkContainer: {
@@ -392,10 +392,10 @@ payCellHeader: {
     alignSelf: "flex-end",
     marginTop: 10,
     backgroundColor: "#fff",
-    borderBottomColor :"#fff"
+    borderBottomColor: "#fff",
   },
 
-   checkContainerInvoice: {
+  checkContainerInvoice: {
     borderWidth: 1,
     borderColor: "#000",
     width: "50%",
@@ -404,7 +404,7 @@ payCellHeader: {
     backgroundColor: "#fff",
   },
 
-   checkContainer1: {
+  checkContainer1: {
     borderWidth: 1,
     borderColor: "#fcf9f9",
     width: "50%",
@@ -437,8 +437,6 @@ payCellHeader: {
     fontWeight: "bold",
   },
 });
-
-
 
 const styles = StyleSheet.create({
   page: {
@@ -672,7 +670,7 @@ const styles = StyleSheet.create({
     borderColor: "#000",
   },
 
- // no borderRight here
+  // no borderRight here
 });
 const formatDate = (val?: any) => {
   if (!val) return "";
@@ -798,7 +796,7 @@ export default function InvoicePdfDocument({
                 wrap={false}
                 style={{ marginTop: 8 }}
               >
-                <Text style={styles.sectionTitle}>Item Descriptionfffff</Text>
+                <Text style={styles.sectionTitle}>Item Description</Text>
                 <Text style={styles.utilityTitle}>
                   <Text style={{ fontWeight: "700" }}>{utilityName}</Text>
                   {meterNumber ? ` - ${meterNumber}` : ""}{" "}
@@ -944,165 +942,198 @@ export default function InvoicePdfDocument({
         <Text style={styles.dashed}>{"- ".repeat(90)}</Text>
 
         {/* Bottom Paper / Payment stub */}
-      {/* --- Detachable Payment Stub Section (New Fields) --- */}
-<View style={styles1.bottomStub}>
-  {/* Instruction */}
-  <Text style={styles1.instruction}>
-    Please detach and return with your payment. Make Checks Payable to:{" "}
-    <Text style={{ fontWeight: "bold" }}>
-      {company?.company_name || ""}
-    </Text>
-  </Text>
-
-  {/* Update Info + Payment Table (Side by Side) */}
-  <View style={styles1.twoCol}>
-    {/* LEFT: Update Info */}
-    <View style={{ width: "50%" }}>
-      <View style={styles1.updateSection}>
-        <Text style={{fontSize:"10px"}}>Update Account information:</Text>
-        <Text style={{fontSize:"10px"}}>
-          I would like to go paperless (email to): ___________________________
-        </Text>
-        <Text style={styles1.smallText}>
-          Update My Address: ____________________________________________
-        </Text>
-        <Text style={styles1.smallText}>
-          Update My Phone #: ____________________________________________
-        </Text>
-      </View>
-    </View>
-
-    {/* RIGHT: Payment Table */}
-    <View style={styles1.rightCol}>
-      <View style={styles1.payTable}>
-        {/* Header row 1 */}
-        <View style={styles1.payRowHeader}>
-          <Text style={styles1.payCellHeader}>ACCOUNT NUMBER</Text>
-          <Text style={styles1.payCellHeader}>DUE DATE</Text>
-          <Text style={styles1.payCellHeader}>AMOUNT DUE</Text>
-        </View>
-
-        {/* Data row 1 */}
-        <View style={styles1.payRow}>
-          <Text style={styles1.payCell}>{customer?.acctnum || ""}</Text>
-          <Text style={styles1.payCell}>{formatDate(billing?.due_date)}</Text>
-          <Text style={styles1.payCell}>{money(billing?.amount)}</Text>
-        </View>
-
-        {/* Header row 2 */}
-        <View style={styles1.payRowHeader}>
-          <Text style={styles1.payCellHeader}>BILL DATE</Text>
-          <Text style={styles1.payCellHeader}>LATE DATE</Text>
-          <Text style={styles1.payCellHeader}>LATE AMOUNT</Text>
-        </View>
-
-        {/* Data row 2 */}
-        <View style={styles1.payRow}>
-          <Text style={styles1.payCell}>{formatDate(billing?.billing_date)}</Text>
-          <Text style={styles1.payCell}>{formatDate(billing?.late_date)}</Text>
-          <Text style={styles1.payCell}>
-            {money(
-              (billing?.amount || 0) + (billing?.late_date_amount || 0)
-            )}
+        {/* --- Detachable Payment Stub Section (New Fields) --- */}
+        <View style={styles1.bottomStub}>
+          {/* Instruction */}
+          <Text style={styles1.instruction}>
+            Please detach and return with your payment. Make Checks Payable to:{" "}
+            <Text style={{ fontWeight: "bold" }}>
+              {company?.company_name || ""}
+            </Text>
           </Text>
+
+          {/* Update Info + Payment Table (Side by Side) */}
+          <View style={styles1.twoCol}>
+            {/* LEFT: Update Info */}
+            <View style={{ width: "50%" }}>
+              <View style={styles1.updateSection}>
+                <Text style={{ fontSize: "10px" }}>
+                  Update Account information:
+                </Text>
+                <Text style={{ fontSize: "10px" }}>
+                  I would like to go paperless (email to):
+                  ___________________________
+                </Text>
+                <Text style={styles1.smallText}>
+                  Update My Address:
+                  ____________________________________________
+                </Text>
+                <Text style={styles1.smallText}>
+                  Update My Phone #:
+                  ____________________________________________
+                </Text>
+              </View>
+            </View>
+
+            {/* RIGHT: Payment Table */}
+            <View style={styles1.rightCol}>
+              <View style={styles1.payTable}>
+                {/* Header row 1 */}
+                <View style={styles1.payRowHeader}>
+                  <Text style={styles1.payCellHeader}>ACCOUNT NUMBER</Text>
+                  <Text style={styles1.payCellHeader}>DUE DATE</Text>
+                  <Text style={styles1.payCellHeader}>AMOUNT DUE</Text>
+                </View>
+
+                {/* Data row 1 */}
+                <View style={styles1.payRow}>
+                  <Text style={styles1.payCell}>{customer?.acctnum || ""}</Text>
+                  <Text style={styles1.payCell}>
+                    {formatDate(billing?.due_date)}
+                  </Text>
+                  <Text style={styles1.payCell}>{money(billing?.amount)}</Text>
+                </View>
+
+                {/* Header row 2 */}
+                <View style={styles1.payRowHeader}>
+                  <Text style={styles1.payCellHeader}>BILL DATE</Text>
+                  <Text style={styles1.payCellHeader}>LATE DATE</Text>
+                  <Text style={styles1.payCellHeader}>LATE AMOUNT</Text>
+                </View>
+
+                {/* Data row 2 */}
+                <View style={styles1.payRow}>
+                  <Text style={styles1.payCell}>
+                    {formatDate(billing?.billing_date)}
+                  </Text>
+                  <Text style={styles1.payCell}>
+                    {formatDate(billing?.late_date)}
+                  </Text>
+                  <Text style={styles1.payCell}>
+                    {money(
+                      (billing?.amount || 0) + (billing?.late_date_amount || 0)
+                    )}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={styles1.checkContainerInvoice}>
+            <Text style={styles1.invoiceLabel}>
+              Invoice#:{" "}
+              <Text style={styles1.invoiceValue}>
+                {billing?.invoice_number || ""}
+              </Text>
+            </Text>
+          </View>
+          <View style={styles1.checkContainer1}>&nbsp;</View>
+          {/* Check Number + Amount Paid */}
+          {/* 🔹 Invoice + Check Details Section */}
+          <View style={styles1.checkContainer}>
+            {/* Invoice Row */}
+            {/* Check Number Row */}
+            <View style={styles1.checkRow}>
+              <Text style={styles1.checkLabel}>Check Number:</Text>
+            </View>
+
+            {/* Amount Paid Row */}
+            <View style={styles1.checkRow}>
+              <Text style={styles1.checkLabel}>Amount Paid:</Text>
+            </View>
+          </View>
+
+          {/* Company and Customer Info */}
+          <View style={styles1.companyCustomerRow}>
+            {/* Company Column */}
+            <View style={styles1.column}>
+              <Text style={styles1.italicSmall}>
+                Company Name:
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 10,
+                    fontStyle: "normal",
+                  }}
+                >
+                  {company?.company_name || ""}
+                  {"\n\n"}
+                </Text>
+              </Text>
+              <Text style={styles1.italicSmall}>
+                Address 1:
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 10,
+                    fontStyle: "normal",
+                    marginTop: 100, // works perfectly
+                  }}
+                >
+                  {company?.street || ""}
+                  {"\n\n"}
+                </Text>
+              </Text>
+              <Text style={styles1.italicSmall}>
+                Address 2:
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 10,
+                    fontStyle: "normal",
+                  }}
+                >
+                  {""}
+                  {"\n\n"}
+                </Text>
+              </Text>
+              <Text style={styles1.italicSmall}>
+                {" "}
+                City, State, zip:
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 10,
+                    fontStyle: "normal",
+                  }}
+                >
+                  {company?.city || ""} {company?.state || ""}{" "}
+                  {company?.zip || ""}
+                </Text>
+              </Text>
+            </View>
+
+            {/* Customer Column */}
+            <View style={styles1.column}>
+              <Text style={styles1.italicSmall}>
+                Customer Name:
+                <Text style={styles1.smallText}>
+                  {customer?.customer_name || ""}
+                  {"\n\n"}
+                </Text>
+              </Text>
+              <Text style={styles1.italicSmall}>
+                Address 1:
+                <Text style={styles1.smallText}>
+                  {customer?.address || ""}
+                  {"\n\n"}
+                </Text>
+              </Text>
+              <Text style={styles1.italicSmall}>
+                Address 2:
+                <Text style={styles1.smallText}>
+                  {""}
+                  {"\n\n"}
+                </Text>
+              </Text>
+              <Text style={styles1.italicSmall}>
+                City, State, zip:
+                <Text style={styles1.smallText}>
+                  {customer.city} {customer?.state || ""} {customer?.zip || ""}
+                </Text>
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
-  </View>
-  <View style={styles1.checkContainerInvoice}>
-  <Text style={styles1.invoiceLabel}>
-      Invoice#: <Text style={styles1.invoiceValue}>{billing?.invoice_number || ""}</Text>
-    </Text></View>
- <View style={styles1.checkContainer1}>
-     &nbsp;
-    </View>
-  {/* Check Number + Amount Paid */}
- {/* 🔹 Invoice + Check Details Section */}
-<View style={styles1.checkContainer}>
-  {/* Invoice Row */}
-  {/* Check Number Row */}
-  <View style={styles1.checkRow}>
-    <Text style={styles1.checkLabel}>Check Number:</Text>
-  </View>
-
-  {/* Amount Paid Row */}
-  <View style={styles1.checkRow}>
-    <Text style={styles1.checkLabel}>Amount Paid:</Text>
-  </View>
-</View>
-
-
-  {/* Company and Customer Info */}
-  <View style={styles1.companyCustomerRow}>
-    {/* Company Column */}
-    <View style={styles1.column}>
-      <Text style={styles1.italicSmall}>Company Name:
-      <Text style={{ fontWeight: "bold", fontSize: 10 , fontStyle : "normal"}}>
-        {company?.company_name || ""}
-          {"\n\n"}
-        </Text>
-      </Text>
-      <Text style={styles1.italicSmall}>Address 1: 
-      <Text
-  style={{
-    fontWeight: "bold",
-    fontSize: 10,
-    fontStyle: "normal",
-    marginTop: 100, // works perfectly
-  }}
->
-  {company?.street || ""}
-    {"\n\n"}
-</Text>
-
-      </Text>
-      <Text style={styles1.italicSmall}>Address 2:
-      <Text style={{  fontWeight: "bold",
-    fontSize: 10,
-    fontStyle: "normal",}}>
-        { ""}
-          {"\n\n"}
-      </Text>
-      </Text>
-      <Text style={styles1.italicSmall}> City, State, zip:
-      <Text style={{ fontWeight: "bold", fontSize: 10 ,fontStyle: "normal",}}>
-       {company?.city || ""} {company?.state || ""} {company?.zip || ""}
-      </Text>
-      </Text>
-    </View>
-
-    {/* Customer Column */}
-    <View style={styles1.column}>
-      <Text style={styles1.italicSmall}>Customer Name:
-      <Text style={styles1.smallText}>
-        {customer?.customer_name || ""}
-          {"\n\n"}
-      </Text>
-       </Text>
-      <Text style={styles1.italicSmall}>Address 1:
-      <Text style={styles1.smallText}>
-        {customer?.address  || ""}
-          {"\n\n"}
-      </Text>
-       </Text>
-        <Text style={styles1.italicSmall}>Address 2: 
-      <Text style={styles1.smallText}>
-        {""}
-          {"\n\n"}
-      </Text>
-      </Text>
-      <Text style={styles1.italicSmall}>City, State, zip: 
-      <Text style={styles1.smallText}>
-        {customer.city } {customer?.state || ""} {customer?.zip || ""}
-      </Text></Text>
-    </View>
-  </View>
-</View>
-
-
-
-
-
       </Page>
     </Document>
   );
