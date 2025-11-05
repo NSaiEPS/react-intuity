@@ -37,10 +37,9 @@ import { borderColor } from "@mui/system";
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
-  phone: z
-    .string()
-    .min(6, "Phone must be at least 6 digits")
-    .regex(/^\d+$/, "Phone must contain only numbers"),
+  phone: z.string().regex(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/, {
+    message: "Phone number must be in the format xxx-xxx-xxxx",
+  }),
   requestedStopDate: z.date().refine((val) => !!val, { message: "Required" }),
   reading: z
     .number()
@@ -50,6 +49,7 @@ const schema = z.object({
   addressTwo: z.string().optional(),
   unit: z.string().optional(),
   city: z.string().min(1, "Required"),
+  state: z.string().min(1, "Required"),
   zip: z.string().min(1, "Required"),
   preferredOwnerMethod: z.enum(["Owner", "Tenant"]),
   comment: z.string().min(1, "Required"),
@@ -72,6 +72,7 @@ type FormDataContent = {
   addressTwo?: string;
   unit?: string;
   city: string;
+  state: string;
   zip: string;
   preferredOwnerMethod: "Owner" | "Tenant";
   comment: string;
@@ -100,6 +101,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
       unit: "",
       city: "",
       zip: "",
+      state: "",
       preferredOwnerMethod: "Owner",
       comment: "",
       applicableField: "",
@@ -138,6 +140,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     formData.append("amthe", data?.preferredOwnerMethod);
     formData.append("zip", data?.zip);
     formData.append("city", data?.city);
+    formData.append("state", data?.state);
     formData.append("apartment", data?.unit);
     formData.append("streetName", data?.addressTwo);
     formData.append("streetAddress", data?.address);
@@ -197,12 +200,38 @@ export function SendBillDetailsForm(): React.JSX.Element {
             <Grid md={6} xs={12}>
               <FormControl fullWidth required error={!!errors.phone}>
                 <InputLabel>Contact Phone</InputLabel>
-                <OutlinedInput
+                {/* <OutlinedInput
                   label="Contact Phone"
                   // type="tel"
                   type="text" // instead of tel
                   inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
                   {...register("phone")}
+                /> */}
+                <OutlinedInput
+                  label="Contact Phone"
+                  type="text"
+                  placeholder="123-456-7890"
+                  inputProps={{ inputMode: "numeric", maxLength: 12 }}
+                  {...register("phone", {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
+                      message:
+                        "Phone number must be in the format xxx-xxx-xxxx",
+                    },
+                    onChange: (e) => {
+                      let value = e.target.value.replace(/\D/g, ""); // remove all non-numeric
+                      if (value.length > 3 && value.length <= 6) {
+                        value = value.replace(/(\d{3})(\d+)/, "$1-$2");
+                      } else if (value.length > 6) {
+                        value = value.replace(
+                          /(\d{3})(\d{3})(\d+)/,
+                          "$1-$2-$3"
+                        );
+                      }
+                      e.target.value = value;
+                    },
+                  })}
                 />
                 {errors.phone && (
                   <FormHelperText>{errors.phone.message}</FormHelperText>
@@ -301,6 +330,16 @@ export function SendBillDetailsForm(): React.JSX.Element {
                 <OutlinedInput label="Zip Code" {...register("zip")} />
                 {errors.zip && (
                   <FormHelperText>{errors.zip.message}</FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid md={6} xs={12}>
+              <FormControl fullWidth required error={!!errors.state}>
+                <InputLabel>State</InputLabel>
+                <OutlinedInput label="State" {...register("state")} />
+                {errors.state && (
+                  <FormHelperText>{errors.state.message}</FormHelperText>
                 )}
               </FormControl>
             </Grid>

@@ -50,7 +50,7 @@ export function AccountInfo(): React.JSX.Element {
         </Stack>
       </CardContent>
       <Divider />
-      <CardActions>
+      {/* <CardActions>
         <Button
           fullWidth
           variant="text"
@@ -58,7 +58,7 @@ export function AccountInfo(): React.JSX.Element {
         >
           Upload picture
         </Button>
-      </CardActions>
+      </CardActions> */}
     </Card>
   );
 }

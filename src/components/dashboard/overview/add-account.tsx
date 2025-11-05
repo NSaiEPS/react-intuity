@@ -36,8 +36,8 @@ export default function AddAccountPage() {
     accountNumber: z
       .string()
       .min(2, "Account number must be at least 2 characters")
-      .refine((val) => /^\d*\.?\d*$/.test(val), {
-        message: "Only numbers or decimals are allowed",
+      .refine((val) => /^[0-9.-]+$/.test(val), {
+        message: "Only numbers, hyphens, or decimals are allowed",
       }),
     authenticationType: z.string().min(2, "Select an authentication type"),
     answer: z.string().min(2, "Answer must be at least 2 characters"),

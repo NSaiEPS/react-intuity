@@ -9,6 +9,7 @@ import {
   getConvenienceFeeAPI,
   getPaymentDetailsApi,
   getPaymentProcessorDetailsAPI,
+  getUserDetailsByToken,
   getWorldPlayPaymentDetailsAPI,
   guestPaymentRequestApi,
   listAnotherAccountAPI,
@@ -28,6 +29,7 @@ import {
 
 import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
+import secureLocalStorage from "react-secure-storage";
 
 import { toast } from "react-toastify";
 
@@ -947,5 +949,32 @@ export const getWorldPlayPaymentDetails: any =
       toast.error(e?.response?.data?.message ?? "Something went wrong!");
     } finally {
       dispatch(setAccountLoading(false));
+    }
+  };
+
+export const getUserInfoByToken: any =
+  (token, formData, successCallBack, setContextLoading) => async (dispatch) => {
+    dispatch(setAccountLoading(true));
+    try {
+      const res = await getUserDetailsByToken({ token, formData });
+
+      if (res.status) {
+        if (successCallBack) {
+          successCallBack(res?.body);
+        }
+      } else {
+        navigateTo("/login", { replace: true }, res?.message);
+
+        if (res?.message !== "You are not authorised to use this api") {
+          toast.error(res?.message ?? "Something went wrong!");
+        }
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Error Try again!");
+    } finally {
+      dispatch(setAccountLoading(false));
+      if (setContextLoading) {
+        setContextLoading(false);
+      }
     }
   };

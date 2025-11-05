@@ -1,5 +1,6 @@
 // 'use server';
 
+import secureLocalStorage from "react-secure-storage";
 import { BASE_URL } from "./axios";
 
 // import { cookies } from 'next/headers';
@@ -797,6 +798,35 @@ export async function getWorldPlayPaymentDetailsAPI({
   });
 
   const data = await res.json();
+
+  if (!res.ok) {
+    return { error: data?.body?.errors?.[0] || "Details failed" };
+  }
+
+  return data;
+}
+
+export async function getUserDetailsByToken({
+  token,
+  formData,
+}: AccountUpdateForm) {
+  const res = await fetch(`${BASE_URL}login-with-token`, {
+    method: "POST",
+
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+  secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
+  secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
+  secureLocalStorage.setItem(
+    "intuity-companyId",
+    data?.body?.alias || "intuityfe"
+  );
 
   if (!res.ok) {
     return { error: data?.body?.errors?.[0] || "Details failed" };

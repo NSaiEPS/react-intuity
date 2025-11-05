@@ -4,18 +4,44 @@ import { Box, Typography } from "@mui/material";
 import { ConfirmInfoDetails } from "@/components/auth/confirm-info";
 import { getLocalStorage } from "@/utils/auth";
 import { useDispatch } from "react-redux";
-import { getConfirmInfo } from "@/state/features/accountSlice";
+import {
+  getConfirmInfo,
+  getUserInfoByToken,
+} from "@/state/features/accountSlice";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { Helmet } from "react-helmet";
-
-// import { ConfirmInfoDetails } from '@/components/auth/confirm-info';
-
-// ✅ This line disables static export for this page
-
-// ✅ Lazy load ConfirmInfoDetails
+import { useLocation, useParams } from "react-router";
+import { decryptFromPHP } from "@/utils/decryptHelper";
 
 export default function ConfirmInformation() {
+  const { search } = useLocation();
+
+  // ✅ Extract token safely
+  const token = React.useMemo(() => {
+    const match = search.match(/[?&]token=([^&]*)/);
+    console.log(search, match);
+    if (!match) return null;
+    // Preserve '+' (used in AES base64)
+    const raw = match[1].replace(/\+/g, "%2B");
+    try {
+      return decodeURIComponent(raw);
+    } catch {
+      return raw;
+    }
+  }, [search]);
+  console.log(token);
+  // ✅ Decrypt token using your PHP-compatible function
+  const decrypted = React.useMemo(() => {
+    if (!token) return null;
+    try {
+      return decryptFromPHP(token);
+    } catch (err) {
+      console.error("Decryption error:", err);
+      return null;
+    }
+  }, [token]);
+
   const { setContextLoading } = useLoading();
 
   type IntuityUser = {
@@ -34,15 +60,67 @@ export default function ConfirmInformation() {
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   React.useEffect(() => {
-    const role_id = stored?.body?.acl_role_id;
-    const user_id = stored?.body?.customer_id;
-    const token = stored?.body?.token;
-    const formData = new FormData();
+    //   const role_id = stored?.body?.acl_role_id;
+    //   const user_id = stored?.body?.customer_id;
+    //   const token = stored?.body?.token;
+    //   const formData = new FormData();
+    // const params = new URLSearchParams(search);
 
-    formData.append("acl_role_id", role_id);
-    formData.append("customer_id", user_id);
+    // const token = params.get("token");
+    // const aclRoleId = params.get("acl_role_id");
+    // const customerId = params.get("customer_id");
+    //   formData.append("acl_role_id", "4");
+    //   formData.append("customer_id", "810");
+
+    //   dispatch(
+    //     getConfirmInfo(
+    //       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NjksImV4cCI6MTc2MjI2MzI2N30=.jMKhTD0/C5Mh6VLFs8hCzzcyIJgDSn3ZGzXk6/uoAwQ=",
+    //       formData,
+    //       undefined,
+    //       setContextLoading
+    //     )
+    //   );
+
+    if (search) {
+      console.log(search, "fromsearch");
+      const formData = new FormData();
+      const params = new URLSearchParams(search);
+
+      const aclRoleId = params.get("acl_role_id");
+      const customerId = params.get("customer_id");
+      formData.append("acl_role_id", aclRoleId);
+      formData.append("customer_id", customerId);
+      const token = decrypted;
+      dispatch(
+        getUserInfoByToken(
+          token,
+          formData,
+          getUserDetailsSuccess,
+          setContextLoading
+        )
+      );
+    } else {
+      const role_id = stored?.body?.acl_role_id;
+      const user_id = stored?.body?.customer_id;
+      const token = stored?.body?.token;
+      const formData = new FormData();
+
+      formData.append("acl_role_id", role_id);
+      formData.append("customer_id", user_id);
+      dispatch(getConfirmInfo(token, formData, undefined, setContextLoading));
+    }
+  }, [search]);
+  const getUserDetailsSuccess = () => {
+    const formData = new FormData();
+    const params = new URLSearchParams(search);
+
+    const aclRoleId = params.get("acl_role_id");
+    const customerId = params.get("customer_id");
+    formData.append("acl_role_id", aclRoleId);
+    formData.append("customer_id", customerId);
+    const token = decrypted;
     dispatch(getConfirmInfo(token, formData, undefined, setContextLoading));
-  }, []);
+  };
   return (
     <Box
       p={4}
