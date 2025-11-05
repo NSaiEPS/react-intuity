@@ -64,80 +64,85 @@ export default function InvoiceDetails() {
   // make sure you have these imports at top of the file
   // import html2canvas from "html2canvas";
   // import jsPDF from "jspdf";
+const handleDownloadPDF = async () => {
+  dispatch(setDashboardLoader(true));
 
-  const handleDownloadPDF = async () => {
-    dispatch(setDashboardLoader(true));
+  const original = pdfRef.current;
+  if (!original) {
+    dispatch(setDashboardLoader(false));
+    return;
+  }
 
-    const original = pdfRef.current;
-    if (!original) {
-      dispatch(setDashboardLoader(false));
-      return;
-    }
+  // Clone content for PDF rendering
+  const clone = original.cloneNode(true) as HTMLElement;
 
-    // Clone safely as HTMLElement
-    const clone = original.cloneNode(true) as HTMLElement;
+  // Force consistent layout
+  Object.assign(clone.style, {
+    width: "1024px",
+    maxWidth: "1024px",
+    height: "auto",
+    padding: "24px",
+    background: "#fff",
+    position: "fixed",
+    top: "0",
+    left: "-9999px",
+    zIndex: "-1",
+    overflow: "visible",
+    transform: "none",
+    zoom: "1",
+  });
 
-    Object.assign(clone.style, {
-      width: "1024px",
-      maxWidth: "1024px",
-      padding: "24px",
-      background: "#fff",
-      position: "absolute",
-      top: "0",
-      left: "-9999px",
-      zIndex: "-1",
-      overflow: "visible",
+  document.body.appendChild(clone);
+
+  try {
+    // Wait for render
+    await new Promise((r) => setTimeout(r, 300));
+
+    const fullHeight = Math.ceil(clone.getBoundingClientRect().height);
+    clone.style.height = `${fullHeight}px`;
+
+    // Detect device pixel ratio and normalize scale
+    const dpr = window.devicePixelRatio || 1;
+    const adjustedScale = dpr > 2 ? 1 / (dpr / 2) : 1; // e.g. iPhone DPR 3 → scale ~0.66
+
+    const canvas = await html2canvas(clone, {
+      scale: 2 * adjustedScale,  // Normalize actual pixel size
+      useCORS: true,
+      logging: false,
+      scrollY: 0,
+      windowWidth: 1024,
+      windowHeight: fullHeight,
+      width: 1024,
+      height: fullHeight,
     });
 
-    document.body.appendChild(clone);
+    const imgData = canvas.toDataURL("image/png");
 
-    try {
-      await new Promise((r) => setTimeout(r, 200));
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfPageHeight = pdf.internal.pageSize.getHeight();
 
-      const fullHeight = clone.scrollHeight;
-      clone.style.height = `${fullHeight}px`;
+    const imgWidthPx = canvas.width;
+    const imgHeightPx = canvas.height;
+    const imgHeightMM = (imgHeightPx * pdfWidth) / imgWidthPx;
+    const roundedHeight = Math.round(imgHeightMM * 100) / 100;
 
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        scrollY: 0,
-        windowWidth: clone.scrollWidth,
-        windowHeight: fullHeight,
-      });
+    // 🔒 If the height slightly exceeds A4, shrink it instead of creating a new page
+    const adjustedHeight =
+      roundedHeight > pdfPageHeight ? pdfPageHeight : roundedHeight;
 
-      const imgData = canvas.toDataURL("image/png");
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, adjustedHeight);
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+    pdf.save("invoice.pdf");
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    alert("Failed to generate PDF. Please try again.");
+  } finally {
+    if (clone && clone.parentNode) document.body.removeChild(clone);
+    dispatch(setDashboardLoader(false));
+  }
+};
 
-      const imgWidthPx = canvas.width;
-      const imgHeightPx = canvas.height;
-      const imgHeightMM = (imgHeightPx * pdfWidth) / imgWidthPx;
-
-      let heightLeft = imgHeightMM;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
-      heightLeft -= pdfPageHeight;
-
-      while (heightLeft > 0) {
-        position -= pdfPageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
-        heightLeft -= pdfPageHeight;
-      }
-
-      pdf.save("invoice.pdf");
-    } catch (err) {
-      console.error("Error generating PDF:", err);
-      alert("Failed to generate PDF. Please try again.");
-    } finally {
-      if (clone && clone.parentNode) document.body.removeChild(clone);
-      dispatch(setDashboardLoader(false));
-    }
-  };
 
   return (
     <SkeletonWrapper>
