@@ -40,3 +40,14 @@
 .read-the-docs {
   color: #888;
 }
+.my-datepicker-wrapper .react-datepicker {
+    width: 100%;
+}
+
+
+.react-datepicker__month .react-datepicker__week {
+  display: flex !important;
+  justify-content: space-between;
+}
+
+
