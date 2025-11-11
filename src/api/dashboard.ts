@@ -2,6 +2,7 @@
 
 import secureLocalStorage from "react-secure-storage";
 import { BASE_URL } from "./axios";
+import { navigateTo } from "@/utils/navigation";
 
 // import { cookies } from 'next/headers';
 
@@ -827,6 +828,7 @@ export async function getUserDetailsByToken({
     "intuity-companyId",
     data?.body?.alias || "intuityfe"
   );
+  navigateTo(`/${data?.body?.alias}/dashboard`, { replace: true });
 
   if (!res.ok) {
     return { error: data?.body?.errors?.[0] || "Details failed" };
