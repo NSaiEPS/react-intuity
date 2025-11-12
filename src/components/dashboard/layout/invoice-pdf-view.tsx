@@ -162,7 +162,6 @@
 
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
-// PDF styles (replace sx with StyleSheet rules)
 const styles1 = StyleSheet.create({
   section1: {
     borderColor: "#ddd",
@@ -1125,12 +1124,9 @@ export default function InvoicePdfDocument({
                   {"\n\n"}
                 </Text>
               </Text>
-              <Text style={styles1.italicSmall}>
-                City, State, zip:
                 <Text style={styles1.smallText}>
                   {customer.city} {customer?.state || ""} {customer?.zip || ""}
                 </Text>
-              </Text>
             </View>
           </View>
         </View>
