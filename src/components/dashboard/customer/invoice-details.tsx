@@ -17,7 +17,7 @@ import Button from "@/components/CommonComponents/Button";
 import { useSearchParams } from "react-router";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { InvoiceMainDetails } from "./Invoice-main-details";
+import { InvoiceMainDetails } from "./Invoice-main-details-new";
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();
