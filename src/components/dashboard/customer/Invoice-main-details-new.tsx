@@ -611,8 +611,8 @@ export const InvoiceMainDetails = () => {
           <Typography    sx={{ color: "#999", fontSize:"16px" , mt:1}}>
             {company_settings?.invoice_subheadline}
           </Typography>
-          <Typography sx={{  color: "#888" , fontSize:"16px",mt:1}}>
-            {company_settings?.invoice_text_header_open}
+          <Typography sx={{  color: "#888" , fontSize:"16px",mt:1 , mb:2}}>
+            {company_settings?.invoice_text_header_email}
           </Typography>
         </Grid>
         <Grid
@@ -655,13 +655,13 @@ export const InvoiceMainDetails = () => {
           >
             {customer?.customer_name}
           </Typography>
-          <Typography variant="body2" sx={{fontSize :"16px"}}>
+          <Typography variant="body2" sx={{fontSize :"16px",mt:.7}}>
             Billing address: {customer?.address}, {customer?.city}
           </Typography >
-          <Typography variant="body2" color="text.secondary"  sx={{fontSize :"16px"}}>
+          <Typography variant="body2" color="text.secondary"  sx={{fontSize :"16px" , mt:.7}}>
             Email: {customer?.email}
           </Typography>
-          <Typography variant="body2" color="text.secondary"  sx={{fontSize :"16px"}}>
+          <Typography variant="body2" color="text.secondary"  sx={{fontSize :"16px" , mt:.7}}>
             Phone: {customer?.phone}
           </Typography>
         </Grid>
@@ -975,14 +975,16 @@ export const InvoiceMainDetails = () => {
           width: "fit-content",
         }}
       >
-        <Typography sx={{fontSize :"16px"}}>
+        <Typography sx={{ fontWeight: 600,
+                                fontSize: { xs: 18, sm: 20, md: 18 }}}>
           Total Due: ${last_bill?.[0]?.amount}
         </Typography>
       </Box>
       {/* Do Not Pay Text */}
       {customer?.autopay ? (
         <Box textAlign="right">
-          <Typography sx={{ color: "red" ,fontSize :"16px"}}>
+          <Typography sx={{ color: "red" , fontWeight: 600,
+                                fontSize: { xs: 18, sm: 20, md: 18 }}}>
             {invoiceDetails?.autopay_do_not_pay_text}
           </Typography>
         </Box>
@@ -1000,7 +1002,12 @@ export const InvoiceMainDetails = () => {
           </Typography>
         </Grid>
       </Grid>
-      <Box
+      
+      {/* Bottom Details */}
+
+      <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
+
+        <Box
         sx={{
           width: "100%",
           textAlign: "center",
@@ -1009,15 +1016,12 @@ export const InvoiceMainDetails = () => {
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "clip",
-      marginTop:1.2,
+      marginTop:1.6,
       marginBottom: 3
         }}
       >
-        {"- ".repeat(200)}
+        {"- ".repeat(210)}
       </Box>
-      {/* Bottom Details */}
-
-      <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
         {/* Invoice Header */}
 
         {/* Payment Instructions */}
@@ -1031,7 +1035,7 @@ export const InvoiceMainDetails = () => {
             fontSize :"16px"
           }}
         >
-          <Typography variant="body2" sx={{  mb :1}}>
+          <Typography variant="body2" sx={{  mb :2.5}}>
             Please detach and return with your payment. Make Checks Payable to:
             <b> {company?.company_name}</b>
           </Typography>
@@ -1056,25 +1060,25 @@ export const InvoiceMainDetails = () => {
                   <TableRow sx={{ bgcolor: "#e0f0ff" }}>
                     <TableCell
                       sx={{  fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, borderRight: "1px solid black" }}
+                               fontSize: "15px", borderRight: "1px solid black" }}
                     >
                       ACCOUNT NUMBER
                     </TableCell>
                     <TableCell
                       sx={{  fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, borderRight: "1px solid black" }}
+                                fontSize: "15px", borderRight: "1px solid black" }}
                     >
                       DUE DATE
                     </TableCell>
                     <TableCell sx={{ fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, }}>AMOUNT DUE</TableCell>
+                                 fontSize: "15px" }}>AMOUNT DUE</TableCell>
                   </TableRow>
 
                   <TableRow>
-                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"16px"}}>
+                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"15px"}}>
                       {customer?.acctnum}
                     </TableCell>
-                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"16px"}}>
+                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"15px"}}>
                       {formatToMMDDYYYY(
                         last_bill?.[0]?.due_date,
                         false,
@@ -1082,28 +1086,28 @@ export const InvoiceMainDetails = () => {
                         true
                       )}
                     </TableCell>
-                    <TableCell sx={{fontSize :"16px"}}>${last_bill?.[0]?.amount}</TableCell>
+                    <TableCell sx={{fontSize :"15px"}}>${last_bill?.[0]?.amount}</TableCell>
                   </TableRow>
 
                   <TableRow sx={{ bgcolor: "#e0f0ff" }}>
                     <TableCell
                       sx={{  fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 },borderRight: "1px solid black" }}
+                                fontSize: "15px",borderRight: "1px solid black" }}
                     >
                       BILL DATE
                     </TableCell>
                     <TableCell
                       sx={{  fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, borderRight: "1px solid black" }}
+                                fontSize:"15px", borderRight: "1px solid black" }}
                     >
                       LATE DATE
                     </TableCell>
                     <TableCell sx={{  fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 },}}>LATE AMOUNT</TableCell>
+                                fontSize: "15px"}}>LATE AMOUNT</TableCell>
                   </TableRow>
 
                   <TableRow>
-                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"16px"}}>
+                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"15px"}}>
                       {formatToMMDDYYYY(
                         last_bill?.[0]?.billing_date,
                         false,
@@ -1111,7 +1115,7 @@ export const InvoiceMainDetails = () => {
                         true
                       )}
                     </TableCell>
-                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"16px"}}>
+                    <TableCell sx={{ borderRight: "1px solid black" ,fontSize :"15px"}}>
                       {formatToMMDDYYYY(
                         last_bill?.[0]?.late_date,
                         false,
@@ -1119,7 +1123,7 @@ export const InvoiceMainDetails = () => {
                         true
                       )}
                     </TableCell>
-                    <TableCell sx={{fontSize :"16px"}}>
+                    <TableCell sx={{fontSize :"15px"}}>
                       $
                       {(
                         last_bill?.[0]?.amount +
@@ -1191,11 +1195,10 @@ export const InvoiceMainDetails = () => {
               sx={{ fontWeight: 600,
                                 fontSize: { xs: 18, sm: 20, md: 18 }, ml: 1}}
             >
-              {company?.add}
+              {company?.city} , {company?.state_name}
  
           </Typography>
-
-          
+          {company?.address2 &&
             <Typography
               component="div"
               sx={{ fontWeight: 600,
@@ -1204,16 +1207,16 @@ export const InvoiceMainDetails = () => {
               {company?.address2}
            
           </Typography>
-
+}
          
             <Typography
               component="div"
               sx={{fontWeight: 600,
                                 fontSize: { xs: 18, sm: 20, md: 18 },  ml: 1 }}
             >
-               {[company?.city, company?.street, company?.zip].filter(Boolean)
+               {[ company?.street, company?.zip].filter(Boolean)
                 .length > 0 &&
-                [company?.city, company?.street, company?.zip]
+                [ company?.street, company?.zip]
                   .filter(Boolean)
                   .join(", ")}
             
@@ -1226,28 +1229,31 @@ export const InvoiceMainDetails = () => {
        <Box sx={{ lineHeight: 1.6 }}>
   <Typography
     component="div"
-    sx={{ fontWeight: 600, ml: 1 }}
+    sx={{ fontWeight: 600}}
   >
     {customer?.customer_name}
   </Typography>
-
+{customer?.address &&
   <Typography
     component="div"
-    sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 }, ml: 1 }}
+    sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 },  }}
   >
     {customer?.address}
   </Typography>
+}
 
+{customer?.address2 &&
   <Typography
     component="div"
-    sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 }, ml: 1 }}
+    sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 }, }}
   >
     {customer?.address2}
   </Typography>
+}
 
   <Typography
     component="div"
-    sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 }, ml: 1 }}
+    sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 }, }}
   >
     {[customer?.city, customer?.street, customer?.zip]
       .filter(Boolean)
