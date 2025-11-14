@@ -187,6 +187,7 @@ class AuthClient {
     // if (data?.status) {
     if (true) {
       clearLocalStorage();
+      navigateTo("/login", { replace: true });
     } else {
       // navigateTo("/login", { replace: true }, data?.message);
     }
