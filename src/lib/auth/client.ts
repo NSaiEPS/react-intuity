@@ -174,18 +174,17 @@ class AuthClient {
   }
 
   async signOut(token, formData): Promise<{ error?: string }> {
-    // const res = await fetch(`${BASE_URL}logout`, {
-    //   method: "POST",
-    //   headers: {
-    //     Accept: "application/json",
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    //   body: formData,
-    // });
+    const res = await fetch(`${BASE_URL}logout`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-    // const data = await res.json();
-    // if (data?.status) {
-    if (true) {
+    const data = await res.json();
+    if (data?.status) {
       clearLocalStorage();
       navigateTo("/login", { replace: true });
     } else {
