@@ -1,5 +1,12 @@
 import * as React from "react";
 import {
+  deleteUsageAlerts,
+  getUsageAlerts,
+} from "@/state/features/accountSlice";
+import { RootState } from "@/state/store";
+import { colors } from "@/utils";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import {
   Box,
   Card,
   Checkbox,
@@ -15,23 +22,16 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   TextField,
   Typography,
-  TableSortLabel,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { Button, CustomBackdrop, Loader } from "nsaicomponents";
-
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
 import dayjs, { Dayjs } from "dayjs";
+import { Button, CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/state/store";
-import { colors } from "@/utils";
-import {
-  deleteUsageAlerts,
-  getUsageAlerts,
-} from "@/state/features/accountSlice";
-import { getLocalStorage, IntuityUser } from "@/utils/auth";
+
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 type ConfirmDialogState = {
@@ -239,35 +239,51 @@ export default function AlertsScreen() {
             value={startDate}
             onChange={setStartDate}
             maxDate={endDate || dayjs()}
-            slotProps={{
-              // day: {
-              //   sx: {
-              //     "&.Mui-selected": {
-              //       backgroundColor: colors.blue,
-              //       color: "white", // optional
-              //       "&:hover": {
-              //         backgroundColor: colors.blue,
-              //       },
-              //     },
-              //   },
-              // },
-              textField: {
-                fullWidth: true,
-                sx: { mb: 2, bgcolor: "white", borderRadius: 1 },
-              },
-            }}
+            // slotProps={{
+            //   // day: {
+            //   //   sx: {
+            //   //     "&.Mui-selected": {
+            //   //       backgroundColor: colors.blue,
+            //   //       color: "white", // optional
+            //   //       "&:hover": {
+            //   //         backgroundColor: colors.blue,
+            //   //       },
+            //   //     },
+            //   //   },
+            //   // },
+            //   textField: {
+            //     fullWidth: true,
+            //     sx: { mb: 2, bgcolor: "white", borderRadius: 1 },
+            //   },
+            // }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                fullWidth
+                sx={{
+                  mb: 2,
+                  bgcolor: "white",
+                  borderRadius: 1,
+                }}
+              />
+            )}
           />
           <DatePicker
             value={endDate}
             onChange={setEndDate}
             maxDate={dayjs()}
             minDate={startDate || undefined}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                sx: { mb: 2, bgcolor: "white", borderRadius: 1 },
-              },
-            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                fullWidth
+                sx={{
+                  mb: 2,
+                  bgcolor: "white",
+                  borderRadius: 1,
+                }}
+              />
+            )}
           />
 
           <Button

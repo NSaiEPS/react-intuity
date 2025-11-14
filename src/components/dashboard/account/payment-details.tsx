@@ -747,16 +747,20 @@ const PaymentForm = () => {
                           onChange={(date: Dayjs | null) =>
                             field.onChange(date?.toDate())
                           }
-                          slotProps={{
-                            textField: {
-                              fullWidth: true,
-                              required: true,
-                              error: !!errors.duedate,
-                              helperText: errors.duedate?.message,
-                              inputProps: { readOnly: true },
-                              color: "primary",
-                            },
-                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              fullWidth
+                              required
+                              error={!!errors.duedate}
+                              helperText={errors.duedate?.message}
+                              inputProps={{
+                                ...params.inputProps,
+                                readOnly: true,
+                              }}
+                              color="primary"
+                            />
+                          )}
                         />
                       )}
                     />

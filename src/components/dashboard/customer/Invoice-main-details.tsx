@@ -38,7 +38,7 @@ export const InvoiceMainDetails = () => {
     //   } = InvoiceDetails?.body ?? {};
   } = invoiceDetails ?? {};
   return (
-    <Box sx={{ mx: "auto", p: { xs: 1.5, sm: 2 }, bgcolor: "#F7F7F7" }}>
+    <Box sx={{ mx: "auto", my: 4, p: { xs: 1.5, sm: 2 }, bgcolor: "#F7F7F7" }}>
       {/* Header */}
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
@@ -53,6 +53,9 @@ export const InvoiceMainDetails = () => {
           </Typography>
           <Typography variant="subtitle2" sx={{ color: "#999" }}>
             {company_settings?.invoice_subheadline}
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: "#888" }}>
+            {company_settings?.invoice_text_header_open}
           </Typography>
         </Grid>
         <Grid
@@ -79,14 +82,13 @@ export const InvoiceMainDetails = () => {
           <Divider />
         </Grid>
       </Grid>
-      <Typography sx={{ fontSize: 14, color: "#888", padding: "3px" }}>
-        {company_settings?.invoice_text_header_email}
-      </Typography>
       {/* Invoice + Total Due Row */}
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} sm={7}>
-          <Typography sx={{ color: "#777" }}>INVOICE TO</Typography>
-          <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 0.5 }}>
+          <Typography sx={{ color: "#777", fontSize: 12 }}>
+            INVOICE TO
+          </Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: 18, mb: 1.5 }}>
             {customer?.customer_name}
           </Typography>
           <Typography variant="body2">
@@ -108,7 +110,7 @@ export const InvoiceMainDetails = () => {
         >
           <Typography
             sx={{
-              fontSize: { xs: 32, sm: 44 },
+              fontSize: { xs: 32, sm: 30 },
               color: "#aaa",
               fontWeight: 700,
               letterSpacing: 1,
@@ -122,18 +124,20 @@ export const InvoiceMainDetails = () => {
               color: "white",
               borderRadius: 1,
               textAlign: "left",
-
               width: "100%",
               maxWidth: 300,
               ml: { xs: 0, sm: "auto" },
+              padding: 1,
             }}
           >
             <Grid container>
-              <Grid item xs={6} sx={{ p: 1 }}>
+              <Grid item xs={6}>
                 <Typography sx={{ fontSize: 15 }}>Invoice Date:</Typography>
               </Grid>
-              <Grid item xs={6} textAlign="right" sx={{ p: 1 }}>
-                <Typography sx={{ fontSize: 15, fontWeight: 600 }}>
+              <Grid item xs={5} textAlign="right">
+                <Typography
+                  sx={{ fontSize: 18, fontWeight: 600, paddingLeft: "47px" }}
+                >
                   {formatToMMDDYYYY(
                     last_bill?.[0]?.billing_date,
                     false,
@@ -143,13 +147,11 @@ export const InvoiceMainDetails = () => {
                   {/* {last_bill?.[0]?.billing_date} */}
                 </Typography>
               </Grid>
-              <Grid item xs={6} sx={{ p: 1 }}>
-                <Typography sx={{ fontSize: "15px", fontWeight: 400 }}>
-                  Total Due:
-                </Typography>
+              <Grid item xs={6}>
+                <Typography>Total Due:</Typography>
               </Grid>
-              <Grid item xs={6} textAlign="right" sx={{ p: 1 }}>
-                <Typography sx={{ fontSize: 15 }}>
+              <Grid item xs={6} textAlign="right">
+                <Typography sx={{ fontWeight: 600 }}>
                   ${last_bill?.[0]?.amount}
                 </Typography>
               </Grid>
@@ -170,18 +172,19 @@ export const InvoiceMainDetails = () => {
           <Box key={key}>
             <Typography
               sx={{
+                mb: 0.3,
                 fontWeight: 700,
                 color: colors.darkBlue,
               }}
             >
               Item Description
             </Typography>
-            <Typography sx={{ fontWeight: 700, color: colors.blue }}>
+            <Typography sx={{ mb: 1, fontWeight: 700, color: colors.blue }}>
               <strong>{utilityName}</strong> - {meterNumber} - {serviceAddress}
             </Typography>
             <TableContainer
               component={Paper}
-              sx={{ boxShadow: 0, overflowX: "auto" }}
+              sx={{ mb: 2, boxShadow: 0, overflowX: "auto" }}
             >
               <Table>
                 <TableBody>
@@ -190,10 +193,11 @@ export const InvoiceMainDetails = () => {
                       key={item.item}
                       sx={{
                         bgcolor: index % 2 !== 0 ? colors["blue.4"] : "white",
+                        "& td": { py: 0.7 },
                       }}
                     >
                       <TableCell
-                        sx={{ fontWeight: 600, fontSize: 16, border: 0 }}
+                        sx={{ fontWeight: 600, fontSize: 14, border: 0 }}
                       >
                         {item.product_id}
                       </TableCell>
@@ -226,14 +230,13 @@ export const InvoiceMainDetails = () => {
                   </TableRow>
 
                   <TableRow>
-                    <TableCell colSpan={2}>
+                    <TableCell colSpan={2} sx={{ py: 3 }}>
                       <Box
                         sx={{
-                          paddingLeft: 3,
+                          p: 2,
                           border: "1px solid #ddd",
                           borderRadius: 2,
                           backgroundColor: "#f9f9f9",
-                          py: 2,
                         }}
                       >
                         <Grid container spacing={3}>
@@ -338,7 +341,6 @@ export const InvoiceMainDetails = () => {
           key={index}
           display="flex"
           justifyContent="space-between"
-          pl={1}
           pt={0}
           pb={0}
         >
@@ -352,17 +354,19 @@ export const InvoiceMainDetails = () => {
       ))}
       {/* Total Bill bar */}
       <Box
+        textAlign="right"
         sx={{
           bgcolor: "#38699C",
           color: "white",
           borderRadius: 1,
-          textAlign: "center",
+          p: 0.5,
           // width: '100%',
-          maxWidth: 150,
+          maxWidth: 250,
           ml: "auto",
+          width: "fit-content",
         }}
       >
-        <Typography sx={{ fontWeight: 500, fontSize: "15px" }}>
+        <Typography sx={{ fontWeight: 700, fontSize: { xs: 18, sm: 16 } }}>
           Total Due: ${last_bill?.[0]?.amount}
         </Typography>
       </Box>
@@ -375,9 +379,9 @@ export const InvoiceMainDetails = () => {
         </Box>
       ) : null}
       <Divider sx={{ my: 2 }} />
-      <Grid container pt={0} pb={0}>
+      <Grid container p={3} pt={0} pb={0}>
         <Grid item xs={12} sm={6}>
-          <Typography sx={{ color: "#444", fontSize: 14, paddingLeft: 1 }}>
+          <Typography sx={{ color: "#444", fontSize: 14 }}>
             {last_bill?.[0]?.last_payment_info}
           </Typography>
         </Grid>
@@ -397,14 +401,13 @@ export const InvoiceMainDetails = () => {
           overflow: "hidden",
           textOverflow: "clip",
           my: 2,
-          mt: 10,
         }}
       >
         {"- ".repeat(200)}
       </Box>
       {/* Bottom Details */}
 
-      <Paper sx={{ maxWidth: "100%", mx: "auto", p: 2 }}>
+      <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
         {/* Invoice Header */}
 
         {/* Payment Instructions */}
@@ -417,70 +420,52 @@ export const InvoiceMainDetails = () => {
             // alignItems: { xs: "flex-start", md: "flex-end" },
           }}
         >
-          <Typography variant="body2" sx={{ fontSize: 13, paddingLeft: 1 }}>
+          <Typography variant="body2" sx={{ fontSize: 13 }}>
             Please detach and return with your payment. Make Checks Payable to:
             <b> {company?.company_name}</b>
           </Typography>
 
-          <Grid container spacing={2}>
-            {/* LEFT COLUMN - Update Info */}
+          <Grid container spacing={2} alignItems={"center"}>
             <Grid item xs={12} md={6}>
-              <Box sx={{ width: "100%", pr: 2 }}>
-                <Typography
-                  variant="body2"
-                  sx={{ fontSize: 13, fontWeight: 600, paddingLeft: 1 }}
-                >
-                  Update Account information:
-                </Typography>
-
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Grid>
+                <Box>
                   <Typography
-                    variant="body2"
-                    sx={{ fontSize: 13, mr: 1, paddingLeft: 1 }}
-                  >
-                    I would like to go paperless (email to):
-                  </Typography>
-                  <Box
+                    component="span"
                     sx={{
-                      flex: 1,
-                      borderBottom: "1px solid #555",
-                      height: "14px",
+                      fontWeight: 600,
+                      fontStyle: "normal",
+                      ml: 0.5,
+                      fontSize: 18,
                     }}
-                  />
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  >
+                    {company?.company_name}
+                  </Typography>
                   <Typography
-                    variant="body2"
-                    sx={{ fontSize: 13, mr: 1, paddingLeft: 1 }}
+                    component="span"
+                    sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
                   >
-                    Update My Address:
+                    {company?.add}
                   </Typography>
-                  <Box
-                    sx={{
-                      flex: 1,
-                      borderBottom: "1px solid #555",
-                      height: "14px",
-                    }}
-                  />
-                </Box>
-
-                <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography
-                    variant="body2"
-                    sx={{ fontSize: 13, mr: 1, paddingLeft: 1 }}
+                    component="span"
+                    sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
                   >
-                    Update My Phone #:
+                    {company?.address2}
                   </Typography>
-                  <Box
-                    sx={{
-                      flex: 1,
-                      borderBottom: "1px solid #555",
-                      height: "14px",
-                    }}
-                  />
+
+                  <Typography
+                    component="span"
+                    sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+                  >
+                    {[company?.city, company?.street, company?.zip].filter(
+                      Boolean
+                    ).length > 0 &&
+                      [company?.city, company?.street, company?.zip]
+                        .filter(Boolean)
+                        .join(", ")}
+                  </Typography>
                 </Box>
-              </Box>
+              </Grid>
             </Grid>
 
             {/* RIGHT COLUMN - Bill Table */}
@@ -491,6 +476,7 @@ export const InvoiceMainDetails = () => {
                   border: "1px solid black",
                   borderCollapse: "collapse",
                   width: "100%",
+                  mb: 1,
                 }}
               >
                 <TableBody>
@@ -572,6 +558,7 @@ export const InvoiceMainDetails = () => {
                   px: 1,
                   py: 0.5,
                   display: "inline-block",
+                  mb: 0.5,
                 }}
               >
                 <Typography variant="body2" sx={{ fontSize: 13 }}>
@@ -583,8 +570,6 @@ export const InvoiceMainDetails = () => {
                 sx={{
                   border: "1px solid black",
                   borderBottom: "none",
-
-                  // ⬅️ removes bottom border
                   p: 1,
                 }}
               >
@@ -608,125 +593,37 @@ export const InvoiceMainDetails = () => {
           </Grid>
         </Stack>
 
-        <Grid container spacing={2}>
-          {/* LEFT COLUMN - COMPANY INFO */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ lineHeight: 1.6 }}>
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                Company Name:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 600, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {company?.company_name}
-                </Typography>
-              </Typography>
+        <Grid container spacing={2} display={"flex"} justifyContent={"right"}>
+          <Box sx={{ lineHeight: 1.6 }} alignItems={"right"}>
+            <Typography
+              component="span"
+              sx={{ fontWeight: 600, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.customer_name}
+            </Typography>
 
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                Address 1:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {company?.add}
-                </Typography>
-              </Typography>
+            <br />
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.address}
+            </Typography>
 
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                Address 2:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {company?.address2}
-                </Typography>
-              </Typography>
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.address2}
+            </Typography>
 
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                City, State, zip:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {[company?.city, company?.street, company?.zip].filter(
-                    Boolean
-                  ).length > 0 &&
-                    [company?.city, company?.street, company?.zip]
-                      .filter(Boolean)
-                      .join(", ")}
-                </Typography>
-              </Typography>
-            </Box>
-          </Grid>
-
-          {/* RIGHT COLUMN - CUSTOMER INFO */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ lineHeight: 1.6 }}>
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                Customer Name:{" "}
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 600, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {customer?.customer_name}
-                </Typography>
-              </Typography>
-
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                Address 1:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {customer?.address}
-                </Typography>
-              </Typography>
-
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                Address 2:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {customer?.address2}
-                </Typography>
-              </Typography>
-
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, fontStyle: "italic", paddingLeft: 1 }}
-              >
-                City, State, zip:
-                <Typography
-                  component="span"
-                  sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
-                >
-                  {customer?.city}
-                </Typography>
-              </Typography>
-            </Box>
-          </Grid>
+            <Typography
+              component="span"
+              sx={{ fontWeight: 500, fontStyle: "normal", ml: 0.5 }}
+            >
+              {customer?.city}
+            </Typography>
+          </Box>
         </Grid>
       </Paper>
       {/* Footer */}

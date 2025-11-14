@@ -3,8 +3,6 @@ import { stopTransferService } from "@/state/features/accountSlice";
 import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler } from "react-hook-form";
-
 import {
   Button,
   Card,
@@ -21,19 +19,20 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
+import { borderColor } from "@mui/system";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import dayjs, { Dayjs } from "dayjs";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import { borderColor } from "@mui/system";
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
@@ -253,16 +252,20 @@ export function SendBillDetailsForm(): React.JSX.Element {
                       onChange={(date: Dayjs | null) =>
                         field.onChange(date?.toDate())
                       }
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          required: true,
-                          error: !!errors.requestedStopDate,
-                          helperText: errors.requestedStopDate?.message,
-                          inputProps: { readOnly: true },
-                          color: "primary",
-                        },
-                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          fullWidth
+                          required
+                          error={!!errors.requestedStopDate}
+                          helperText={errors.requestedStopDate?.message}
+                          inputProps={{
+                            ...params.inputProps,
+                            readOnly: true,
+                          }}
+                          color="primary"
+                        />
+                      )}
                     />
                   )}
                 />

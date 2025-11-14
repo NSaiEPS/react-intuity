@@ -1,14 +1,15 @@
 // CompanyRouteGuard.tsx
+import React, { useEffect } from "react";
 import {
   getConfirmInfo,
   getUserInfoByToken,
 } from "@/state/features/accountSlice";
 import { getLocalStorage } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
-import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
+
 import { useLoading } from "./skeletion-context";
 
 export default function CompanyRouteGuard() {

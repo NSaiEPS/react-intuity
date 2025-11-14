@@ -1,18 +1,18 @@
 import * as React from "react";
-
-import { Box, Typography } from "@mui/material";
-import { ConfirmInfoDetails } from "@/components/auth/confirm-info";
-import { getLocalStorage } from "@/utils/auth";
-import { useDispatch } from "react-redux";
 import {
   getConfirmInfo,
   getUserInfoByToken,
 } from "@/state/features/accountSlice";
+import { getLocalStorage } from "@/utils/auth";
+import { decryptFromPHP } from "@/utils/decryptHelper";
+import { Box, Typography } from "@mui/material";
+import { Helmet } from "react-helmet";
+import { useDispatch } from "react-redux";
+import { useLocation, useParams } from "react-router";
+
+import { ConfirmInfoDetails } from "@/components/auth/confirm-info";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { Helmet } from "react-helmet";
-import { useLocation, useParams } from "react-router";
-import { decryptFromPHP } from "@/utils/decryptHelper";
 
 export default function ConfirmInformation() {
   const { search } = useLocation();

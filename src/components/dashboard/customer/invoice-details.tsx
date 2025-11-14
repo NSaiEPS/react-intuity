@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import {
   getInvoiceDetails,
   setDashboardLoader,
@@ -7,14 +6,12 @@ import {
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
-
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router";
 
 import Button from "@/components/CommonComponents/Button";
-import { useSearchParams } from "react-router";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { InvoiceMainDetails } from "./Invoice-main-details-new";
@@ -64,6 +61,7 @@ export default function InvoiceDetails() {
   // make sure you have these imports at top of the file
   // import html2canvas from "html2canvas";
   // import jsPDF from "jspdf";
+
   const handleDownloadPDF = async () => {
     dispatch(setDashboardLoader(true));
 
@@ -73,47 +71,36 @@ export default function InvoiceDetails() {
       return;
     }
 
-    // Clone content for PDF rendering
+    // Clone safely as HTMLElement
     const clone = original.cloneNode(true) as HTMLElement;
 
-    // Force consistent layout
     Object.assign(clone.style, {
       width: "1024px",
       maxWidth: "1024px",
-      height: "auto",
       padding: "24px",
       background: "#fff",
-      position: "fixed",
+      position: "absolute",
       top: "0",
       left: "-9999px",
       zIndex: "-1",
       overflow: "visible",
-      transform: "none",
-      zoom: "1",
     });
 
     document.body.appendChild(clone);
 
     try {
-      // Wait for render
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 200));
 
-      const fullHeight = Math.ceil(clone.getBoundingClientRect().height);
+      const fullHeight = clone.scrollHeight;
       clone.style.height = `${fullHeight}px`;
 
-      // Detect device pixel ratio and normalize scale
-      const dpr = window.devicePixelRatio || 1;
-      const adjustedScale = dpr > 2 ? 1 / (dpr / 2) : 1; // e.g. iPhone DPR 3 → scale ~0.66
-
       const canvas = await html2canvas(clone, {
-        scale: 2 * adjustedScale, // Normalize actual pixel size
+        scale: 2,
         useCORS: true,
         logging: false,
         scrollY: 0,
-        windowWidth: 1024,
+        windowWidth: clone.scrollWidth,
         windowHeight: fullHeight,
-        width: 1024,
-        height: fullHeight,
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -125,13 +112,19 @@ export default function InvoiceDetails() {
       const imgWidthPx = canvas.width;
       const imgHeightPx = canvas.height;
       const imgHeightMM = (imgHeightPx * pdfWidth) / imgWidthPx;
-      const roundedHeight = Math.round(imgHeightMM * 100) / 100;
 
-      // 🔒 If the height slightly exceeds A4, shrink it instead of creating a new page
-      const adjustedHeight =
-        roundedHeight > pdfPageHeight ? pdfPageHeight : roundedHeight;
+      let heightLeft = imgHeightMM;
+      let position = 0;
 
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, adjustedHeight);
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
+      heightLeft -= pdfPageHeight;
+
+      while (heightLeft > 0) {
+        position -= pdfPageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
+        heightLeft -= pdfPageHeight;
+      }
 
       pdf.save("invoice.pdf");
     } catch (err) {
@@ -163,7 +156,6 @@ export default function InvoiceDetails() {
           style={{
             borderRadius: "12px",
             height: "41px",
-            marginBottom: "5px",
           }}
         >
           Download Invoice PDF

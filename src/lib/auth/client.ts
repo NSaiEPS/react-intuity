@@ -1,12 +1,12 @@
 // import api from '@/app/api/axios';
 import api, { BASE_URL } from "@/api/axios";
+import { navigateTo } from "@/utils/navigation";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "react-toastify";
 
 import type { User } from "@/types/user";
 
 import { clearLocalStorage, removeLocalStorage } from "../../utils/auth";
-import { navigateTo } from "@/utils/navigation";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
