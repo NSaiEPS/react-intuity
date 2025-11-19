@@ -64,6 +64,8 @@ function UsageHeader() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
 
+  console.log(CustomerInfo ,"dhyh")
+
   return (
     <Grid container spacing={2} direction="column">
       {/* Row 1: Usage History & Alerts */}
@@ -131,6 +133,9 @@ function UsageHeader() {
           </Typography>
           <Typography variant={isMobile ? "body2" : "subtitle1"} mr={2}>
             Name: {CustomerInfo?.customer_name}
+          </Typography>
+            <Typography variant={isMobile ? "body2" : "subtitle1"} mr={2}>
+             Address: {`${CustomerInfo?.address} ${CustomerInfo.city}`}
           </Typography>
         </Box>
       </Grid>
