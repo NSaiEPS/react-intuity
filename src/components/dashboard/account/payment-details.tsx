@@ -30,9 +30,10 @@ import {
   Select,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 // Correct hook for App Router
 import { Question } from "@phosphor-icons/react";
@@ -57,6 +58,7 @@ import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 import { PaymentMethods } from "../customer/payment-methods";
 import PaymentSummaryModal from "../overview/payment-summary-modal";
+import DOMPurify from "dompurify";
 
 // Register plugins
 dayjs.extend(utc);
@@ -91,6 +93,7 @@ const PaymentForm = () => {
   });
 
   const [paymentType, setPaymentType] = useState<"saved" | "no-save">("saved");
+
   const [debitType, setDebitType] = useState<"card" | "bank_account">("card");
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
@@ -544,6 +547,24 @@ const PaymentForm = () => {
     }
   };
 
+  const rawHTML =
+    paymentDetailsInfo?.company?.optional_instructions ??
+    `<p><a href="https://www.google.com">Google</a>&nbsp;
+       <a href="https://test-web.pay.waterbill.com/">
+         https://test-web.pay.waterbill.com/
+       </a>
+     </p>`;
+
+  const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
+    ADD_ATTR: ["target", "rel"],
+  });
+
+  // force links to open in new tab
+  const finalHTML = sanitizedHTML.replace(
+    /<a /g,
+    '<a target="_blank" rel="noopener noreferrer" '
+  );
+
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
@@ -680,34 +701,52 @@ const PaymentForm = () => {
                 min: { value: 0, message: "Amount must be greater than 0" },
               }}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  size="small"
-                  type="number"
-                  error={!!errors.amount}
-                  helperText={errors.amount?.message}
-                  InputProps={{
-                    startAdornment: <span style={{ marginRight: 4 }}>$</span>,
-                  }}
-                  onChange={(e) => {
-                    let value = e.target.value;
-
-                    // Prevent empty or 0
-                    if (Number(value) < 0) {
-                      toast.warn("Amount should be more than 0");
-                      return;
+                <Tooltip
+                  title={
+                    paymentDetailsInfo?.customer?.is_payments_blocked == 1
+                      ? paymentDetailsInfo?.block_individual_customer_pay_text ??
+                        "Payments are not allowed at this time."
+                      : paymentDetailsInfo?.company?.allow_partial_payments ==
+                          0 ||
+                        paymentDetailsInfo?.company?.allow_overpayments == 0
+                      ? "Partial payments are not allowed"
+                      : ""
+                  }
+                >
+                  <TextField
+                    {...field}
+                    fullWidth
+                    size="small"
+                    type="number"
+                    error={!!errors.amount}
+                    helperText={errors.amount?.message}
+                    InputProps={{
+                      startAdornment: <span style={{ marginRight: 4 }}>$</span>,
+                    }}
+                    disabled={
+                      paymentDetailsInfo?.company?.allow_partial_payments ==
+                        0 ||
+                      paymentDetailsInfo?.company?.allow_overpayments == 0
                     }
+                    onChange={(e) => {
+                      let value = e.target.value;
 
-                    field.onChange(value);
-                  }}
-                  // onBlur={(e) => {
-                  //   // Also enforce on blur (in case user clears and leaves field)
-                  //   if (!e.target.value || Number(e.target.value) <= 0) {
-                  //     field.onChange("1");
-                  //   }
-                  // }}
-                />
+                      // Prevent empty or 0
+                      if (Number(value) < 0) {
+                        toast.warn("Amount should be more than 0");
+                        return;
+                      }
+
+                      field.onChange(value);
+                    }}
+                    // onBlur={(e) => {
+                    //   // Also enforce on blur (in case user clears and leaves field)
+                    //   if (!e.target.value || Number(e.target.value) <= 0) {
+                    //     field.onChange("1");
+                    //   }
+                    // }}
+                  />
+                </Tooltip>
               )}
             />
             <Stack
@@ -899,7 +938,23 @@ const PaymentForm = () => {
 
           {/* Saved Card Info Block (only show if saved method selected) */}
           {paymentType === "saved" ? (
-            selectedCardDetails?.id ? (
+            paymentDetailsInfo?.company?.allow_payments == 0 ? (
+              <Box
+                className="instructions-html"
+                sx={{
+                  "& a": {
+                    color: "red !important", // this WILL override MUI tabs
+                    textDecoration: "none",
+                  },
+                }}
+                dangerouslySetInnerHTML={{ __html: finalHTML }}
+              />
+            ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
+              <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+                {paymentDetailsInfo?.block_individual_customer_pay_text ??
+                  "Payments are not allowed at this time."}
+              </Typography>
+            ) : selectedCardDetails?.id ? (
               <>
                 <Box
                   component={Paper}
@@ -1042,8 +1097,24 @@ const PaymentForm = () => {
           )}
         </form>
 
-        {paymentType === "no-save" &&
-          (Number(watch("amount")) <= 0 ? (
+        {paymentType === "no-save" ? (
+          paymentDetailsInfo?.company?.allow_payments == 0 ? (
+            <Box
+              className="instructions-html"
+              sx={{
+                "& a": {
+                  color: "red !important", // this WILL override MUI tabs
+                  textDecoration: "none",
+                },
+              }}
+              dangerouslySetInnerHTML={{ __html: finalHTML }}
+            />
+          ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
+            <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+              {paymentDetailsInfo?.block_individual_customer_pay_text ??
+                "Payments are not allowed at this time."}
+            </Typography>
+          ) : Number(watch("amount")) <= 0 ? (
             <Typography color="error" textAlign={"center"}>
               Amount must be greater than 0 to proceed for the payment{" "}
             </Typography>
@@ -1057,7 +1128,8 @@ const PaymentForm = () => {
               amount={(Number(watch("amount")) || 0).toFixed(2)}
               amountRequired={true}
             />
-          ))}
+          )
+        ) : null}
 
         {openPaymentModal && (
           <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>

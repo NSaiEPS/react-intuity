@@ -14,24 +14,24 @@ import {
 } from "@mui/material";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useSelector } from "react-redux";
+import DOMPurify from "dompurify";
 
 import { paths } from "@/utils/paths";
 
-// import PdfViewer from "../layout/invoice-pdf-view";
 import UtilityList from "./last-bill-itemInfo";
 import { PaymentModal } from "./paymnet-modal";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
-import InvoicePdfDocument from "../layout/invoice-pdf-view";
+
 import CustomModal from "../layout/invoice-pdf-modal";
 
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
-  const [pdfModal, setPdfModal] = React.useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
   );
+  console.log("lastBillInfo", lastBillInfo);
   const paymentLoader = useSelector(
     (state: RootState) => state?.Payment?.paymentLoader
   );
@@ -44,8 +44,6 @@ export function LastBill(): React.JSX.Element {
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
-
-  // const raw = getLocalStorage('intuity-user');
 
   const [balanceCount, setBalanceCount] = React.useState(0);
   React.useEffect(() => {
@@ -81,6 +79,24 @@ export function LastBill(): React.JSX.Element {
       navigate(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));
     }
   };
+
+  const rawHTML =
+    lastBillInfo?.company?.optional_instructions ??
+    `<p><a href="https://www.google.com">Google</a>&nbsp;
+     <a href="https://test-web.pay.waterbill.com/">
+       https://test-web.pay.waterbill.com/
+     </a>
+   </p>`;
+
+  const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
+    ADD_ATTR: ["target", "rel"],
+  });
+
+  // force links to open in new tab
+  const finalHTML = sanitizedHTML.replace(
+    /<a /g,
+    '<a target="_blank" rel="noopener noreferrer" '
+  );
   return (
     <Paper elevation={2} sx={{ p: 4, backgroundColor: "#f5f9fc" }}>
       <Grid container spacing={4}>
@@ -239,26 +255,54 @@ export function LastBill(): React.JSX.Element {
           <Typography variant="h3" color={colors.blue} fontWeight="bold">
             {/* $84.00 */}${lastBillInfo?.customer?.balance}
           </Typography>
+          {lastBillInfo?.company?.allow_payments == 0 ? (
+            // <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+            //   {
+            //     <div
+            //       className="instructions-html"
+            //       dangerouslySetInnerHTML={{
+            //         __html: finalHTML,
+            //       }}
+            //     />
+            //   }
+            // </Typography>
 
-          <Button
-            onClick={() => {
-              setOpen(true);
-            }}
-            variant="contained"
-            sx={{
-              mt: 3,
-              mb: 1,
-              px: 4,
-              fontWeight: "bold",
+            <Box
+              className="instructions-html"
+              sx={{
+                "& a": {
+                  color: "red !important", // this WILL override MUI tabs
+                  textDecoration: "none",
+                },
+              }}
+              dangerouslySetInnerHTML={{ __html: finalHTML }}
+            />
+          ) : lastBillInfo?.customer?.is_payments_blocked == 1 ? (
+            <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+              {lastBillInfo?.block_individual_customer_payment_text ??
+                "Payments are not allowed at this time"}
+            </Typography>
+          ) : (
+            <Button
+              onClick={() => {
+                setOpen(true);
+              }}
+              variant="contained"
+              sx={{
+                mt: 3,
+                mb: 1,
+                px: 4,
+                fontWeight: "bold",
 
-              backgroundColor: colors.blue,
-              "&:hover": {
-                backgroundColor: colors["blue.3"], // or any other hover color
-              },
-            }}
-          >
-            MAKE A PAYMENT
-          </Button>
+                backgroundColor: colors.blue,
+                "&:hover": {
+                  backgroundColor: colors["blue.3"], // or any other hover color
+                },
+              }}
+            >
+              MAKE A PAYMENT
+            </Button>
+          )}
           <Typography
             onClick={() => {
               // setPdfModal(true);
