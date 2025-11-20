@@ -1,8 +1,8 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
 import { RootState } from "@/state/store";
 import { colors, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
+import { paths } from "@/utils/paths";
 import {
   Box,
   Button,
@@ -12,16 +12,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import DOMPurify from "dompurify";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useSelector } from "react-redux";
-import DOMPurify from "dompurify";
-
-import { paths } from "@/utils/paths";
-
-import UtilityList from "./last-bill-itemInfo";
-import { PaymentModal } from "./paymnet-modal";
+import { useNavigate } from "react-router-dom";
 
 import CustomModal from "../layout/invoice-pdf-modal";
+import UtilityList from "./last-bill-itemInfo";
+import { PaymentModal } from "./paymnet-modal";
 
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -255,7 +253,11 @@ export function LastBill(): React.JSX.Element {
           <Typography variant="h3" color={colors.blue} fontWeight="bold">
             {/* $84.00 */}${lastBillInfo?.customer?.balance}
           </Typography>
-          {lastBillInfo?.company?.allow_payments == 0 ? (
+          {!lastBillInfo?.last_bill?.id ? (
+            <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+              No Invoice found
+            </Typography>
+          ) : lastBillInfo?.company?.allow_payments == 0 ? (
             // <Typography variant="body2" mt={2} color="red" fontWeight="bold">
             //   {
             //     <div
@@ -303,17 +305,19 @@ export function LastBill(): React.JSX.Element {
               MAKE A PAYMENT
             </Button>
           )}
-          <Typography
-            onClick={() => {
-              // setPdfModal(true);
+          {lastBillInfo?.last_bill?.id && (
+            <Typography
+              onClick={() => {
+                // setPdfModal(true);
 
-              handlePreviewInvoice();
-            }}
-            variant="body2"
-            sx={{ textDecoration: "underline", cursor: "pointer" }}
-          >
-            PREVIEW INVOICE
-          </Typography>
+                handlePreviewInvoice();
+              }}
+              variant="body2"
+              sx={{ textDecoration: "underline", cursor: "pointer" }}
+            >
+              PREVIEW INVOICE
+            </Typography>
+          )}
           <Typography
             fontWeight="bold"
             // onClick={() => {
