@@ -945,52 +945,63 @@ export const InvoiceMainDetails = () => {
       {extra_params?.map((item, index) => (
         <Box
           key={index}
-          display="flex"
-          justifyContent="space-between"
           pt={0}
           pb={0}
+          display={"flex"}
+          justifyContent={"space-between"}
         >
-          <Typography sx={{  fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, color: "#666" , pl : 1.2}}>
-            PREVIOUS BALANCE
-          </Typography>
-          <Typography sx={{  fontWeight: 600, pr :2,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, color: "#666" }}>
-            ${item?.amount}
-          </Typography>
-        </Box>
-      ))}
-      {/* Total Bill bar */}
-      <Box
-        textAlign="right"
-        sx={{
+          <Box   sx={{
           bgcolor: "#38699C",
           color: "white",
           borderRadius: 1,
           p: 0.5,
     mr : 1.5,
+    pl :.5,
           // width: '100%',
-          maxWidth: 250,
-          ml: "auto",
+         ml : 2,
           width: "fit-content",
-        }}
-      >
-        <Typography sx={{ fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }}}>
-          Total Due: ${last_bill?.[0]?.amount}
+          display:"flex" ,justifyContent:"space-between"
+        }}>
+          <Typography sx={{  fontWeight: 600,
+                                fontSize: { xs: 18, sm: 20, md: 18 }, pl : 1.2 ,pr :1}}>
+            PREVIOUS BALANCE :
+          </Typography>
+          <Typography sx={{  fontWeight: 600, pr :2,
+                                fontSize: { xs: 18, sm: 20, md: 18 },  pl : 1.2 }}>
+            ${item?.amount}
+          </Typography>
+     </Box>
+     <Box  sx={{
+          bgcolor: "#38699C",
+          color: "white",
+          borderRadius: 1,
+          p: 0.5,
+          mr : 1.7,
+          width: "fit-content",
+          display:"flex" ,justifyContent:"space-between"
+        }}>
+          <Typography sx={{ fontWeight: 600,
+                                fontSize: { xs: 18, sm: 20, md: 18 }, pr : 2 , pl :1.5}}>
+          Total Due :
         </Typography>
+        <Typography sx={{ fontWeight: 600,
+                                fontSize: { xs: 18, sm: 20, md: 18 } , pr :1.5}}>
+      ${last_bill?.[0]?.amount}
+        </Typography>
+        </Box>
       </Box>
+          ))}
       {/* Do Not Pay Text */}
       {customer?.autopay ? (
-        <Box textAlign="right">
+        <Box textAlign="right" >
           <Typography sx={{ color: "red" , fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }}}>
+                                fontSize: { xs: 18, sm: 20, md: 18 } ,}}>
             {invoiceDetails?.autopay_do_not_pay_text}
           </Typography>
         </Box>
       ) : null}
       <Divider sx={{ my: 2 }} />
-      <Grid container p={3} pt={0} pb={0}>
+      <Grid container p={2} pt={0} pb={0}  display={"flex"} mb={2}>
         <Grid item xs={12} sm={6}>
           <Typography sx={{ color: "#444", fontSize :"16px"}}>
             {last_bill?.[0]?.last_payment_info}
@@ -1005,7 +1016,7 @@ export const InvoiceMainDetails = () => {
       
       {/* Bottom Details */}
 
-      <Paper sx={{ p: 3, maxWidth: "100%", mx: "auto" }}>
+      <Paper sx={{ py: 3,px : 2, maxWidth: "100%", mx: "auto" }}>
 
         <Box
         sx={{
@@ -1022,16 +1033,11 @@ export const InvoiceMainDetails = () => {
       >
         {"- ".repeat(210)}
       </Box>
-        {/* Invoice Header */}
-
-        {/* Payment Instructions */}
         <Stack
           direction="column"
           sx={{
             width: "100%",
             pb: 2,
-            // textAlign: { xs: "left", md: "right" },
-            // alignItems: { xs: "flex-start", md: "flex-end" },
             fontSize :"16px"
           }}
         >
@@ -1040,20 +1046,16 @@ export const InvoiceMainDetails = () => {
             <b> {company?.company_name}</b>
           </Typography>
 
-          <Grid container spacing={2} alignItems={"center"}>
-            <Grid item xs={12} md={6}>
-         
-            </Grid>
-
+          <Grid container display={"flex"} justifyContent={"end"}>
             {/* RIGHT COLUMN - Bill Table */}
-            <Grid item xs={12} md={6}>
+            <Grid >
               <Table
                 size="small"
                 sx={{
                   border: "1px solid black",
                   borderCollapse: "collapse",
                   width: "100%",
-                  mb: 1,
+                  mb: .5,
                 }}
               >
                 <TableBody>
@@ -1183,7 +1185,7 @@ export const InvoiceMainDetails = () => {
             <Typography
               component="div"
               sx={{ fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 },  ml: 1 }}
+                                fontSize: { xs: 18, sm: 20, md: 18 },  ml: .2}}
             >
               {company?.company_name}
       
@@ -1193,7 +1195,7 @@ export const InvoiceMainDetails = () => {
             <Typography
               component="span"
               sx={{ fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 }, ml: 1}}
+                                fontSize: { xs: 18, sm: 20, md: 18 }, ml: .2}}
             >
               {company?.city} , {company?.state_name}
  
@@ -1202,7 +1204,7 @@ export const InvoiceMainDetails = () => {
             <Typography
               component="div"
               sx={{ fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 },  ml: 1 }}
+                                fontSize: { xs: 18, sm: 20, md: 18 },  ml: .2 }}
             >
               {company?.address2}
            
@@ -1212,7 +1214,7 @@ export const InvoiceMainDetails = () => {
             <Typography
               component="div"
               sx={{fontWeight: 600,
-                                fontSize: { xs: 18, sm: 20, md: 18 },  ml: 1 }}
+                                fontSize: { xs: 18, sm: 20, md: 18 },  ml: .2 }}
             >
                {[ company?.street, company?.zip].filter(Boolean)
                 .length > 0 &&
