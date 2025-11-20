@@ -1272,7 +1272,7 @@ export const InvoiceMainDetails = () => {
               >
                 {company?.company_name}
               </Typography>
-
+{company?.address ||company.street &&
               <Typography
                 component="span"
                 sx={{
@@ -1281,8 +1281,8 @@ export const InvoiceMainDetails = () => {
                   ml: 0.2,
                 }}
               >
-                {company?.city} , {company?.state_name}
-              </Typography>
+              {company?.address} {company.street}
+              </Typography>}
               {company?.address2 && (
                 <Typography
                   component="div"
@@ -1304,8 +1304,8 @@ export const InvoiceMainDetails = () => {
                   ml: 0.2,
                 }}
               >
-                {[company?.street, company?.zip].filter(Boolean).length > 0 &&
-                  [company?.street, company?.zip].filter(Boolean).join(", ")}
+                {[company?.street, company?.zip,   company?.city , company?.state_name].filter(Boolean).length > 0 &&
+                  [ company?.city , company?.state_name, company?.zip].filter(Boolean).join(", ")}
               </Typography>
             </Box>
           </Grid>
