@@ -165,27 +165,32 @@ export default function OneTimePaymentModal({ open, onClose }) {
     // company_id:4
     // company_alias:RiverPark-1
     dispatch(
-      guestPaymentRequest(paymentData, companyInfo?.company?.alias, (res) => {
-        // console.log(res, "companyInfo");
-        setCustomerDetails(res);
-        // if (res?.balance) {
-        //   console.log(res?.balance, "res?.balance");
-        //   // handleChange("amountToPay")(String(res?.balance));
-        //   setFormData({ ...formData, amountToPay: String(res?.balance) });
-        // }
-        setFormData((prev) => ({
-          ...prev,
+      guestPaymentRequest(
+        paymentData,
+        companyInfo?.company?.alias,
+        (res) => {
+          // console.log(res, "companyInfo");
+          setCustomerDetails(res);
+          // if (res?.balance) {
+          //   console.log(res?.balance, "res?.balance");
+          //   // handleChange("amountToPay")(String(res?.balance));
+          //   setFormData({ ...formData, amountToPay: String(res?.balance) });
+          // }
+          setFormData((prev) => ({
+            ...prev,
 
-          name: res?.customer_name,
-          email: res?.email,
-          // amountToPay: "0",
-          convenienceFee: "0",
-          totalPayment: "0",
-          street: res?.service_address,
-          amountToPay: String(res?.balance ?? 0),
-        }));
-        handleNext();
-      })
+            name: res?.customer_name,
+            email: res?.email,
+            // amountToPay: "0",
+            convenienceFee: "0",
+            totalPayment: "0",
+            street: res?.service_address,
+            amountToPay: String(res?.balance ?? 0),
+          }));
+          handleNext();
+        },
+        hanldeFailure
+      )
     );
   };
 
@@ -203,6 +208,14 @@ export default function OneTimePaymentModal({ open, onClose }) {
   // }, [companyInfo, formData, customerDetails]);
   // console.log(formData, "formData");
 
+  const hanldeFailure = (data) => {
+    if (data) {
+      toast.error(data ? data : "Try again something went wrong!");
+    } else {
+      toast.error("Try again something went wrong!");
+    }
+    onModalClose();
+  };
   const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
     if (data?.error) {
       toast.error(
@@ -475,15 +488,28 @@ export default function OneTimePaymentModal({ open, onClose }) {
             <Typography mb={2}>
               Due Amount: ${customerDetails.balance}
             </Typography>
-            <TextField
-              fullWidth
-              label="Amount To Pay"
-              value={formData.amountToPay}
-              onChange={handleChange("amountToPay")}
-              error={!!errors.amountToPay}
-              helperText={errors.amountToPay}
-              sx={{ mb: 2 }}
-            />
+            <Tooltip
+              title={
+                companyInfo?.company?.allow_partial_payments == 0 ||
+                companyInfo?.company?.allow_overpayments == 0
+                  ? "Partial payments are not allowed"
+                  : ""
+              }
+            >
+              <TextField
+                fullWidth
+                label="Amount To Pay"
+                value={formData.amountToPay}
+                onChange={handleChange("amountToPay")}
+                error={!!errors.amountToPay}
+                helperText={errors.amountToPay}
+                sx={{ mb: 2 }}
+                disabled={
+                  companyInfo?.company?.allow_partial_payments == 0 ||
+                  companyInfo?.company?.allow_overpayments == 0
+                }
+              />
+            </Tooltip>
             <Box display="flex" justifyContent="space-between">
               <Button
                 onClick={handleBack}

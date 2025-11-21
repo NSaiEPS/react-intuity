@@ -812,10 +812,14 @@ export const guestPaymentRequest: any =
       const res = await guestPaymentRequestApi({ formData, alias });
 
       if (res.status) {
-        dispatch(setOneTimePaymentInfo(res?.body));
+        if (res?.body?.is_payments_blocked) {
+          failureCallBack(res?.body?.is_payments_blocked);
+        } else {
+          dispatch(setOneTimePaymentInfo(res?.body));
 
-        if (successCallBack) {
-          successCallBack(res?.body?.customer);
+          if (successCallBack) {
+            successCallBack(res?.body?.customer);
+          }
         }
       } else {
         navigateTo("/login", { replace: true }, res?.message);

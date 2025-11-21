@@ -14,6 +14,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import DOMPurify from "dompurify";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -98,6 +99,24 @@ export default function PaymentInfoSection() {
       return "Sign Up Request";
     }
   };
+
+  const rawHTML =
+    companyInfo?.company?.optional_instructions ??
+    `<p><a href="https://www.google.com">Google</a>&nbsp;
+       <a href="https://test-web.pay.waterbill.com/">
+         https://test-web.pay.waterbill.com/
+       </a>
+     </p>`;
+
+  const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
+    ADD_ATTR: ["target", "rel"],
+  });
+
+  // force links to open in new tab
+  const finalHTML = sanitizedHTML.replace(
+    /<a /g,
+    '<a target="_blank" rel="noopener noreferrer" '
+  );
 
   return (
     <SkeletonWrapper>
@@ -300,27 +319,40 @@ export default function PaymentInfoSection() {
                             xl: 4, // very large desktops
                           }}
                         >
-                          <Button
-                            type="button"
-                            variant="contained"
-                            onClick={() => setOneTimePaymentModalOpen(true)}
-                            style={{
-                              borderRadius: "12px",
-                              height: "41px",
-                              width: "125px",
-                              backgroundColor: colors.blue,
-                            }}
-                            onMouseOver={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                colors["blue.3"])
-                            }
-                            onMouseOut={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                colors.blue)
-                            }
-                          >
-                            Pay Now
-                          </Button>
+                          {companyInfo?.company?.allow_payments == 0 ? (
+                            <Box
+                              className="instructions-html"
+                              sx={{
+                                "& a": {
+                                  color: "red !important", // this WILL override MUI tabs
+                                  textDecoration: "none",
+                                },
+                              }}
+                              dangerouslySetInnerHTML={{ __html: finalHTML }}
+                            />
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="contained"
+                              onClick={() => setOneTimePaymentModalOpen(true)}
+                              style={{
+                                borderRadius: "12px",
+                                height: "41px",
+                                width: "125px",
+                                backgroundColor: colors.blue,
+                              }}
+                              onMouseOver={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  colors["blue.3"])
+                              }
+                              onMouseOut={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  colors.blue)
+                              }
+                            >
+                              Pay Now
+                            </Button>
+                          )}
                         </Box>
                       </Stack>
                     </CardContent>
