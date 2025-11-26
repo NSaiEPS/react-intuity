@@ -96,7 +96,32 @@ export default function OneTimePaymentModal({ open, onClose }) {
       convenienceFee: fee,
       totalPayment: (Number(fee) + Number(formData.amountToPay)).toFixed(2),
     }));
-  }, [formData.amountToPay, convenienceFee]);
+
+    if (activeStep == 2 && convenienceFee?.config_data_ach) {
+      const worldPlayDetails = {
+        account_number: formData.accountNo,
+        invoice_amount: formData.invoiceAmount,
+        name: formData.name,
+        email: formData.email,
+        amount: Number(formData.amountToPay).toFixed(2),
+        convenienceFee: Number(fee).toFixed(2),
+        // totalPayment: Number(formData.totalPayment).toFixed(2),
+        totalPayment: (Number(fee) + Number(formData.amountToPay)).toFixed(2),
+
+        paymentType: formData.paymentType,
+        street: formData.street,
+        company_id: companyInfo?.company?.id,
+        company_alias: companyInfo?.company?.alias,
+        customer_id: customerDetails?.id,
+        success_authenticate: "1",
+        billing_id: customerDetails?.billing_id,
+        is_one_time: "1",
+        is_card: "1",
+      };
+      secureLocalStorage.setItem("worldplay-details", worldPlayDetails);
+      console.log(worldPlayDetails, "worldPlayDetails");
+    }
+  }, [formData.amountToPay, convenienceFee, activeStep]);
 
   // Validation per step
   const validateStep = () => {
@@ -347,26 +372,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
     formdata.append("company_id", companyInfo?.company?.id);
     formdata.append("alias", companyInfo?.company?.alias);
     if (activeStep == 2) {
-      const worldPlayDetails = {
-        account_number: formData.accountNo,
-        invoice_amount: formData.invoiceAmount,
-        name: formData.name,
-        email: formData.email,
-        amount: Number(formData.amountToPay).toFixed(2),
-        convenienceFee: Number(formData.convenienceFee).toFixed(2),
-        totalPayment: Number(formData.totalPayment).toFixed(2),
-        paymentType: formData.paymentType,
-        street: formData.street,
-        company_id: companyInfo?.company?.id,
-        company_alias: companyInfo?.company?.alias,
-        customer_id: customerDetails?.id,
-        success_authenticate: "1",
-        billing_id: customerDetails?.billing_id,
-        is_one_time: "1",
-        is_card: "1",
-      };
-      secureLocalStorage.setItem("worldplay-details", worldPlayDetails);
-
       dispatch(
         getPaymentProcessorDetails(
           undefined,
@@ -490,9 +495,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
             </Typography>
             <Tooltip
               title={
-                companyInfo?.company?.allow_partial_payments == 0 ||
+                companyInfo?.company?.allow_partial_payments == 0 &&
                 companyInfo?.company?.allow_overpayments == 0
-                  ? "Partial payments are not allowed"
+                  ? "Partial payments & over payments are not allowed"
                   : ""
               }
             >
