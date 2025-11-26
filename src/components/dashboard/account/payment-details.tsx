@@ -1172,16 +1172,22 @@ const PaymentForm = () => {
                 ? Number(cardAmount)
                 : Number(amount || cardAmount || 0)
             }
-            fee={Number(watch("convenienceFee") || cardConvenienceFee || 0)}
+            fee={
+              Number(cardConvenienceFee) || Number(watch("convenienceFee") || 0)
+            }
             cardType={
-              cardBankDetails
+              cardConvenienceFee && cardAmount && cardTransId
+                ? "card"
+                : cardBankDetails
                 ? cardBankDetails?.cardType ??
                   cardBankDetails?.ssl_card_short_description ??
                   "Bank Account"
                 : selectedCardDetails?.card_type || "Bank Account"
             }
             cardLast4={
-              cardBankDetails
+              cardConvenienceFee && cardAmount && cardTransId
+                ? "-"
+                : cardBankDetails
                 ? cardBankDetails?.cardNumber ??
                   cardBankDetails?.ssl_card_number ??
                   cardBankDetails?.accountNumber

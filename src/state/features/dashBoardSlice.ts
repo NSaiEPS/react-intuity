@@ -259,7 +259,9 @@ export const getNotificationList: any =
       }
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Error Try again!!");
-      failureCallBack();
+      if (failureCallBack) {
+        failureCallBack();
+      }
     } finally {
       dispatch(setDashboardLoader(false));
       dispatch(setNotificationLoader(false));
