@@ -1083,8 +1083,8 @@ export const InvoiceMainDetails = () => {
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "clip",
-            marginTop: 1.6,
-            marginBottom: 3,
+            marginTop: 20,
+            marginBottom: 1.6,
           }}
         >
           {"- ".repeat(210)}
@@ -1105,17 +1105,19 @@ export const InvoiceMainDetails = () => {
 
           
 
-          <Grid container display={"flex"} justifyContent={"space-between"} marginBottom={10}>
+          <Grid container display={"flex"} justifyContent={"space-between"} marginBottom={2}>
             <Grid>
               <Box
   sx={{
     border: "1px solid black",
     px: 1.5,
     py: 0.5,
-    display: "inline-block",
+    display: "flex",
     mb: 0.5,
     width: "360px",
     maxWidth: "360px",
+        height : 50,
+        alignItems : "center"
   }}
 >
 
@@ -1131,6 +1133,9 @@ export const InvoiceMainDetails = () => {
                   p: 1,
                    width: "360px",
     maxWidth: "360px",
+    height : 50,
+    display : "flex",
+    alignItems : "center"
                 }}
               >
                 <Typography variant="body2">Check Number:</Typography>
@@ -1272,7 +1277,7 @@ export const InvoiceMainDetails = () => {
               >
                 {company?.company_name}
               </Typography>
-{company?.address ||company.street &&
+{company?.address ||company?.street &&
               <Typography
                 component="span"
                 sx={{
@@ -1304,8 +1309,8 @@ export const InvoiceMainDetails = () => {
                   ml: 0.2,
                 }}
               >
-                {[company?.street, company?.zip,   company?.city , company?.state_name].filter(Boolean).length > 0 &&
-                  [ company?.city , company?.state_name, company?.zip].filter(Boolean).join(", ")}
+                {[company?.state_abbrev, company?.zip,   company?.city , ].filter(Boolean).length > 0 &&
+                  [ company?.city , company?.state_abbrev, company?.zip].filter(Boolean).join(", ")}
               </Typography>
             </Box>
           </Grid>
@@ -1338,7 +1343,7 @@ export const InvoiceMainDetails = () => {
                 component="div"
                 sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 } }}
               >
-                {[customer?.city, customer?.street, customer?.zip]
+                {[customer?.city, customer?.state_abbrev, customer?.zipcode]
                   .filter(Boolean)
                   .join(", ")}
               </Typography>
