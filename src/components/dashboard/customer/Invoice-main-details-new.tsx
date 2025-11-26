@@ -1083,8 +1083,8 @@ export const InvoiceMainDetails = () => {
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "clip",
-            marginTop: 1.6,
-            marginBottom: 3,
+            marginTop: 20,
+            marginBottom: 1.6,
           }}
         >
           {"- ".repeat(210)}
@@ -1102,7 +1102,49 @@ export const InvoiceMainDetails = () => {
             <b> {company?.company_name}</b>
           </Typography>
 
-          <Grid container display={"flex"} justifyContent={"end"}>
+
+          
+
+          <Grid container display={"flex"} justifyContent={"space-between"} marginBottom={2}>
+            <Grid>
+              <Box
+  sx={{
+    border: "1px solid black",
+    px: 1.5,
+    py: 0.5,
+    display: "flex",
+    mb: 0.5,
+    width: "360px",
+    maxWidth: "360px",
+        height : 50,
+        alignItems : "center"
+  }}
+>
+
+                <Typography variant="body2">
+                  Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  border: "1px solid black",
+                  borderBottom: "none",
+                  p: 1,
+                   width: "360px",
+    maxWidth: "360px",
+    height : 50,
+    display : "flex",
+    alignItems : "center"
+                }}
+              >
+                <Typography variant="body2">Check Number:</Typography>
+              </Box>
+
+              <Box sx={{ border: "1px solid black", p: 1 }}>
+                <Typography variant="body2">Amount Paid:</Typography>
+              </Box>
+              </Grid>
             {/* RIGHT COLUMN - Bill Table */}
             <Grid>
               <Table
@@ -1217,39 +1259,13 @@ export const InvoiceMainDetails = () => {
               </Table>
 
               {/* Invoice + Check info */}
-              <Box
-                sx={{
-                  border: "1px solid black",
-                  px: 1.5,
-                  py: 0.5,
-                  display: "inline-block",
-                  mb: 0.5,
-                }}
-              >
-                <Typography variant="body2">
-                  Invoice#: <b>{last_bill?.[0]?.invoice_number}</b>
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  border: "1px solid black",
-                  borderBottom: "none",
-                  p: 1,
-                }}
-              >
-                <Typography variant="body2">Check Number:</Typography>
-              </Box>
-
-              <Box sx={{ border: "1px solid black", p: 1 }}>
-                <Typography variant="body2">Amount Paid:</Typography>
-              </Box>
+            
             </Grid>
           </Grid>
         </Stack>
-        <Grid container spacing={2} sx={{ mb: 1.5 }}>
+        <Grid container spacing={2} sx={{ mb: 1.5, display: "flex", justifyContent: "space-between" }}>
           {/* LEFT COLUMN - COMPANY INFO */}
-          <Grid item xs={12} md={6}>
+          <Grid item >
             <Box sx={{ lineHeight: 1.6 }}>
               <Typography
                 component="div"
@@ -1261,7 +1277,7 @@ export const InvoiceMainDetails = () => {
               >
                 {company?.company_name}
               </Typography>
-
+{company?.address ||company?.street &&
               <Typography
                 component="span"
                 sx={{
@@ -1270,8 +1286,8 @@ export const InvoiceMainDetails = () => {
                   ml: 0.2,
                 }}
               >
-                {company?.city} , {company?.state_name}
-              </Typography>
+              {company?.address} {company.street}
+              </Typography>}
               {company?.address2 && (
                 <Typography
                   component="div"
@@ -1293,14 +1309,14 @@ export const InvoiceMainDetails = () => {
                   ml: 0.2,
                 }}
               >
-                {[company?.street, company?.zip].filter(Boolean).length > 0 &&
-                  [company?.street, company?.zip].filter(Boolean).join(", ")}
+                {[company?.state_abbrev, company?.zip,   company?.city , ].filter(Boolean).length > 0 &&
+                  [ company?.city , company?.state_abbrev, company?.zip].filter(Boolean).join(", ")}
               </Typography>
             </Box>
           </Grid>
 
           {/* RIGHT COLUMN - CUSTOMER INFO */}
-          <Grid item xs={12} md={6}>
+          <Grid item sx={{width: "455px"}} >
             <Box sx={{ lineHeight: 1.6 }}>
               <Typography component="div" sx={{ fontWeight: 600 }}>
                 {customer?.customer_name}
@@ -1327,7 +1343,7 @@ export const InvoiceMainDetails = () => {
                 component="div"
                 sx={{ fontWeight: 600, fontSize: { xs: 18, sm: 20, md: 18 } }}
               >
-                {[customer?.city, customer?.street, customer?.zip]
+                {[customer?.city, customer?.state_abbrev, customer?.zipcode]
                   .filter(Boolean)
                   .join(", ")}
               </Typography>
