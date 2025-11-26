@@ -9,7 +9,12 @@ import {
   schedulePayment,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { calculatePaymentAmount, colors, decryptFunction } from "@/utils";
+import {
+  calculatePaymentAmount,
+  colors,
+  decryptFunction,
+  maskValue,
+} from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { paths } from "@/utils/paths";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -1173,7 +1178,9 @@ const PaymentForm = () => {
                 : Number(amount || cardAmount || 0)
             }
             fee={
-              Number(cardConvenienceFee) || Number(watch("convenienceFee") || 0)
+              cardConvenienceFee
+                ? Number(cardConvenienceFee)
+                : Number(watch("convenienceFee") || 0)
             }
             cardType={
               cardConvenienceFee && cardAmount && cardTransId
@@ -1186,7 +1193,7 @@ const PaymentForm = () => {
             }
             cardLast4={
               cardConvenienceFee && cardAmount && cardTransId
-                ? "-"
+                ? maskValue(cardTransId)
                 : cardBankDetails
                 ? cardBankDetails?.cardNumber ??
                   cardBankDetails?.ssl_card_number ??

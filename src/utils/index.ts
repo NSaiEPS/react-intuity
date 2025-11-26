@@ -211,7 +211,7 @@ export function decryptFunction(encrypted: string): string {
   }
 }
 
-function maskValue(value: string): string {
+export function maskValue(value: string): string {
   if (!value) return value;
 
   const last4 = value.slice(-4);
