@@ -91,6 +91,9 @@ body.pdf-mode .pdf-text {
   color: red !important;
 }
 
+#print-section {
+  margin-top: 20px;
+}
 /* #print-section {
   width: 100%;
   height: auto;
