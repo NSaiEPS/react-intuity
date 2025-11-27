@@ -19,12 +19,13 @@ import { useNavigate } from "react-router-dom";
 
 import UtilityList from "./last-bill-itemInfo";
 import { PaymentModal } from "./paymnet-modal";
-
+import CustomModal from "../layout/invoice-pdf-modal";
 import { pdf } from "@react-pdf/renderer";
 import InvoicePdfDocument from "../layout/invoice-pdf-view";
 
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
+
 
   const navigate = useNavigate();
 
@@ -46,6 +47,7 @@ export function LastBill(): React.JSX.Element {
     : getLocalStorage("intuity-customerInfo");
 
   const [balanceCount, setBalanceCount] = React.useState(0);
+    const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
 
   React.useEffect(() => {
     let totalAmount = 0;
@@ -66,9 +68,13 @@ export function LastBill(): React.JSX.Element {
     setBalanceCount(Number(balance.toFixed(2)));
   }, [lastBillInfo?.billing_list]);
 
-  const handlePreviewInvoice = async () => {
-    if (!invoiceDetails) return;
+const handlePreviewInvoice = async () => {
+  if (!invoiceDetails) return;
 
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // 📱 MOBILE → DOWNLOAD PDF
+  if (isMobile) {
     try {
       const blob = await pdf(
         <InvoicePdfDocument invoiceDetails={invoiceDetails} />
@@ -76,10 +82,11 @@ export function LastBill(): React.JSX.Element {
 
       const url = URL.createObjectURL(blob);
 
-      // Auto download PDF
       const link = document.createElement("a");
       link.href = url;
-      link.download = `invoice-${lastBillInfo?.last_bill?.invoice_number || "file"}.pdf`;
+      link.download = `invoice-${
+        lastBillInfo?.last_bill?.invoice_number || "file"
+      }.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -88,7 +95,14 @@ export function LastBill(): React.JSX.Element {
     } catch (error) {
       console.error("PDF Download Error:", error);
     }
-  };
+
+    return; // ⛔ EXIT: do not continue
+  }
+
+  // 💻 DESKTOP → OPEN PDF VIEWER MODAL
+  setPdfPreviewInvocie(true);
+};
+
 
   const rawHTML =
     lastBillInfo?.company?.optional_instructions ??
@@ -273,11 +287,20 @@ export function LastBill(): React.JSX.Element {
           >
             {lastBillInfo?.payment_pending}
           </Typography>
+          
         </Grid>
       </Grid>
 
       <PaymentModal open={open} onClose={() => setOpen(false)} />
-
+         {previewInvoicePdf && (
+        <CustomModal
+          open={previewInvoicePdf}
+          onClose={() => {
+            setPdfPreviewInvocie(false);
+          }}
+          id={lastBillInfo?.last_bill?.id}
+        />
+      )}
       <CustomBackdrop open={paymentLoader} style={{ zIndex: 1300, color: "#fff" }}>
         <Loader />
       </CustomBackdrop>
