@@ -482,10 +482,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
                   : companyInfo?.customer?.is_payments_blocked == 1
                   ? companyInfo?.block_individual_customer_pay_text ??
                     "Payments are not allowed at this time."
-                  : companyInfo?.company?.allow_partial_payments == 0 ||
-                    companyInfo?.company?.allow_overpayments == 0
-                  ? "Partial payments are not allowed"
-                  : ""
+                  : // : companyInfo?.company?.allow_partial_payments == 0 ||
+                    //   companyInfo?.company?.allow_overpayments == 0
+                    // ? "Partial payments are not allowed"
+                    ""
               }
             >
               <TextField
@@ -744,8 +744,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     if (isMobile) {
       try {
         const blob = await pdf(
-      
-           <OneTimePdf  invoiceDetails={oneTimeData} />
+          <OneTimePdf invoiceDetails={oneTimeData} />
         ).toBlob();
 
         const url = URL.createObjectURL(blob);

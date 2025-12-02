@@ -714,11 +714,11 @@ const PaymentForm = () => {
                       : paymentDetailsInfo?.customer?.is_payments_blocked == 1
                       ? paymentDetailsInfo?.block_individual_customer_pay_text ??
                         "Payments are not allowed at this time."
-                      : paymentDetailsInfo?.company?.allow_partial_payments ==
-                          0 ||
-                        paymentDetailsInfo?.company?.allow_overpayments == 0
-                      ? "Partial payments are not allowed"
-                      : ""
+                      : // : paymentDetailsInfo?.company?.allow_overpayments == 0
+                        // ? "Over payments are not allowed at this time."
+                        // : paymentDetailsInfo?.company?.allow_partial_payments == 0
+                        // ? "Partial payments are not allowed"
+                        ""
                   }
                 >
                   <TextField
