@@ -17,19 +17,21 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import CustomModal from "../layout/invoice-pdf-modal";
 import UtilityList from "./last-bill-itemInfo";
 import { PaymentModal } from "./paymnet-modal";
+import CustomModal from "../layout/invoice-pdf-modal";
+import { pdf } from "@react-pdf/renderer";
+import InvoicePdfDocument from "../layout/invoice-pdf-view";
 
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
+
 
   const navigate = useNavigate();
 
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
   );
-  console.log("lastBillInfo", lastBillInfo);
   const paymentLoader = useSelector(
     (state: RootState) => state?.Payment?.paymentLoader
   );
@@ -39,23 +41,26 @@ export function LastBill(): React.JSX.Element {
   const invoiceDetails = useSelector(
     (state: RootState) => state?.DashBoard?.invoiceDetails
   );
+
   const CustomerInfo: any = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 
   const [balanceCount, setBalanceCount] = React.useState(0);
+    const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+
   React.useEffect(() => {
     let totalAmount = 0;
 
     if (lastBillInfo?.billing_list) {
-      {
-        Object?.entries(lastBillInfo?.billing_list).map(([key, items]: any) => {
-          totalAmount = items?.reduce(
+      Object.entries(lastBillInfo.billing_list).forEach(
+        ([_, items]: any) => {
+          totalAmount = items.reduce(
             (sum, item) => sum + Number(item.amount),
             0
           );
-        });
-      }
+        }
+      );
     }
 
     const safeAmount = Number(lastBillInfo?.last_bill?.amount);
@@ -63,20 +68,41 @@ export function LastBill(): React.JSX.Element {
     setBalanceCount(Number(balance.toFixed(2)));
   }, [lastBillInfo?.billing_list]);
 
-  // React.useEffect(() => {
-  //   if (lastBillInfo?.last_bill?.id) {
-  //     router.prefetch(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));
-  //   }
-  // }, [lastBillInfo]);
-  const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+const handlePreviewInvoice = async () => {
+  if (!invoiceDetails) return;
 
-  const handlePreviewInvoice = () => {
-    if (invoiceDetails?.send_pdf == 1) {
-      setPdfPreviewInvocie(true);
-    } else {
-      navigate(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // 📱 MOBILE → DOWNLOAD PDF
+  if (isMobile) {
+    try {
+      const blob = await pdf(
+        <InvoicePdfDocument invoiceDetails={invoiceDetails} />
+      ).toBlob();
+
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-${
+        lastBillInfo?.last_bill?.invoice_number || "file"
+      }.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF Download Error:", error);
     }
-  };
+
+    return; // ⛔ EXIT: do not continue
+  }
+
+  // 💻 DESKTOP → OPEN PDF VIEWER MODAL
+  setPdfPreviewInvocie(true);
+};
+
 
   const rawHTML =
     lastBillInfo?.company?.optional_instructions ??
@@ -90,11 +116,11 @@ export function LastBill(): React.JSX.Element {
     ADD_ATTR: ["target", "rel"],
   });
 
-  // force links to open in new tab
   const finalHTML = sanitizedHTML.replace(
     /<a /g,
     '<a target="_blank" rel="noopener noreferrer" '
   );
+
   return (
     <Paper elevation={2} sx={{ p: 4, backgroundColor: "#f5f9fc" }}>
       <Grid container spacing={4}>
@@ -127,29 +153,6 @@ export function LastBill(): React.JSX.Element {
 
             <Divider />
 
-            {/* Bill details table */}
-            {/* <Grid container spacing={2}>
-              <Grid item xs={6} md={8}>
-                <Typography fontWeight="bold" gutterBottom>
-                  Utility
-                </Typography>
-                <Typography>
-                  <strong>WATER</strong> - 48699537 - 40 PECAN COVE CT
-                </Typography>
-              </Grid>
-              <Grid item xs={3} md={2}>
-                <Typography fontWeight="bold" gutterBottom>
-                  Units
-                </Typography>
-                <Typography>1,000</Typography>
-              </Grid>
-              <Grid item xs={3} md={2}>
-                <Typography fontWeight="bold" gutterBottom>
-                  Amount
-                </Typography>
-                <Typography>$129.00</Typography>
-              </Grid>
-            </Grid> */}
             <UtilityList data={lastBillInfo?.billing_list ?? {}} />
 
             <Box
@@ -167,31 +170,21 @@ export function LastBill(): React.JSX.Element {
               </Grid>
             </Box>
 
-            {/* Due and Invoice Info */}
             <Grid container mt={2} spacing={2}>
               <Grid item xs={6}>
                 <Typography gutterBottom>Due date</Typography>
                 <Box
                   sx={{
                     backgroundColor: "#e7f0f7",
-
                     px: 2,
                     py: 1,
                     borderRadius: 1,
-                    width: "100%", // Full width
                   }}
                 >
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{
-                      fontSize: { xs: "14px", sm: "16px", md: "18px" },
-                      // textAlign: 'center',
-                    }}
-                  >
+                  <Typography variant="h6" fontWeight="bold">
                     {lastBillInfo?.last_bill?.due_date
                       ? formatToMMDDYYYY(
-                          lastBillInfo?.last_bill?.due_date,
+                          lastBillInfo.last_bill.due_date,
                           false,
                           true
                         )
@@ -204,21 +197,12 @@ export function LastBill(): React.JSX.Element {
                 <Box
                   sx={{
                     backgroundColor: "#e7f0f7",
-
                     px: 2,
                     py: 1,
                     borderRadius: 1,
-                    width: "100%", // Full width
                   }}
                 >
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{
-                      fontSize: { xs: "14px", sm: "16px", md: "18px" },
-                      // textAlign: 'center',
-                    }}
-                  >
+                  <Typography variant="h6" fontWeight="bold">
                     ${lastBillInfo?.last_bill?.amount}
                   </Typography>
                 </Box>
@@ -251,32 +235,17 @@ export function LastBill(): React.JSX.Element {
             Total Account Balance
           </Typography>
           <Typography variant="h3" color={colors.blue} fontWeight="bold">
-            {/* $84.00 */}${lastBillInfo?.customer?.balance}
+            ${lastBillInfo?.customer?.balance}
           </Typography>
+
           {!lastBillInfo?.last_bill?.id ? (
             <Typography variant="body2" mt={2} color="red" fontWeight="bold">
               No Invoice found
             </Typography>
           ) : lastBillInfo?.company?.allow_payments == 0 ? (
-            // <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-            //   {
-            //     <div
-            //       className="instructions-html"
-            //       dangerouslySetInnerHTML={{
-            //         __html: finalHTML,
-            //       }}
-            //     />
-            //   }
-            // </Typography>
-
             <Box
               className="instructions-html"
-              sx={{
-                "& a": {
-                  color: "red !important", // this WILL override MUI tabs
-                  textDecoration: "none",
-                },
-              }}
+              sx={{ "& a": { color: "red !important", textDecoration: "none" } }}
               dangerouslySetInnerHTML={{ __html: finalHTML }}
             />
           ) : lastBillInfo?.customer?.is_payments_blocked == 1 ? (
@@ -286,58 +255,44 @@ export function LastBill(): React.JSX.Element {
             </Typography>
           ) : (
             <Button
-              onClick={() => {
-                setOpen(true);
-              }}
+              onClick={() => setOpen(true)}
               variant="contained"
               sx={{
                 mt: 3,
                 mb: 1,
                 px: 4,
                 fontWeight: "bold",
-
                 backgroundColor: colors.blue,
-                "&:hover": {
-                  backgroundColor: colors["blue.3"], // or any other hover color
-                },
+                "&:hover": { backgroundColor: colors["blue.3"] },
               }}
             >
               MAKE A PAYMENT
             </Button>
           )}
+
           {lastBillInfo?.last_bill?.id && (
             <Typography
-              onClick={() => {
-                // setPdfModal(true);
-
-                handlePreviewInvoice();
-              }}
+              onClick={handlePreviewInvoice}
               variant="body2"
-              sx={{ textDecoration: "underline", cursor: "pointer" }}
+              sx={{ textDecoration: "underline", cursor: "pointer", mt: 1 }}
             >
               PREVIEW INVOICE
             </Typography>
           )}
+
           <Typography
             fontWeight="bold"
-            // onClick={() => {
-            //   // setPdfModal(true);
-            //   router.replace(paths.dashboard.invoiceDetails(lastBillInfo?.last_bill?.id));
-            // }}
             variant="body2"
             sx={{ cursor: "pointer", color: "red" }}
           >
             {lastBillInfo?.payment_pending}
           </Typography>
+          
         </Grid>
       </Grid>
-      <PaymentModal
-        open={open}
-        onClose={() => {
-          setOpen(false);
-        }}
-      />
-      {previewInvoicePdf && (
+
+      <PaymentModal open={open} onClose={() => setOpen(false)} />
+         {previewInvoicePdf && (
         <CustomModal
           open={previewInvoicePdf}
           onClose={() => {
@@ -346,18 +301,7 @@ export function LastBill(): React.JSX.Element {
           id={lastBillInfo?.last_bill?.id}
         />
       )}
-      {/* <PdfViewer
-        open={pdfModal}
-        onClose={() => {
-          setPdfModal(false);
-        }}
-        fileUrl=""
-      /> */}
-
-      <CustomBackdrop
-        open={paymentLoader}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
+      <CustomBackdrop open={paymentLoader} style={{ zIndex: 1300, color: "#fff" }}>
         <Loader />
       </CustomBackdrop>
     </Paper>

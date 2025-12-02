@@ -7,6 +7,7 @@ import {
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { calculatePaymentAmount, colors } from "@/utils";
+import { pdf } from "@react-pdf/renderer";
 import {
   Backdrop,
   Box,
@@ -32,10 +33,12 @@ import { Question, X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
+import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";
 import secureLocalStorage from "react-secure-storage";
+import InvoicePdfDocument from "../dashboard/layout/invoice-pdf-view";
+import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
@@ -51,6 +54,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const accountLoading = useSelector(
     (state: RootState) => state.Account.accountLoading
   );
+
+  const oneTimeData = useSelector(  (state: RootState) => state.Account.oneTimePaymentInfo)
+
+  console.log(oneTimeData)
 
   const [formData, setFormData] = useState({
     accountNo: "",
@@ -220,19 +227,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
   };
 
-  // useEffect(() => {
-  //   const handleMessage = (event) => {
-  //     if (event?.data?.custId) {
-  //       console.log(event?.data);
-  //       handleSaveDetails(event.data, companyInfo, formData, customerDetails);
-  //     }
-  //   };
 
-  //   window.addEventListener("message", handleMessage);
-
-  //   return () => window.removeEventListener("message", handleMessage);
-  // }, [companyInfo, formData, customerDetails]);
-  // console.log(formData, "formData");
 
   const hanldeFailure = (data) => {
     if (data) {
@@ -306,37 +301,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
       );
       paymentData.append("is_card", "0");
       paymentData.append("routing_number", data?.routingNumber);
-      // paymentData.append(
-      //   "account_type",
-      //   data?.accountType === "PC"
-      //     ? "Personal Checking"
-      //     : data?.accountType === "PS"
-      //     ? "Personal Savings"
-      //     : data?.accountType === "BC"
-      //     ? "Business Checking"
-      //     : data?.accountType === "BS"
-      //     ? "Business Savings"
-      //     : data?.accountType === "GL"
-      //     ? "General Ledger"
-      //     : " Other"
-      // );
     }
-    //    "account_number:0125
-    // invoice_amount:62.99
-    // amount:1.00
-    // company_id:2
-    // company_alias:cape-royale1
-    // customer_id:379
-    // success_authenticate:1
-    // name:JORDAN, JOAN H
-    // email:jordan@gmail.com
-    // billing_id:26323
-    // token:c662e0ea1cd34584a54c53f7276044ab
-    // credit_card_number:1111
-    // expiration:1131
-    // is_one_time:1
-    // is_card:1
-    // convenienceFee:0.04"
 
     dispatch(
       oneTimePayment(
@@ -383,11 +348,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
         )
       );
       formdata.append("customer_id", customerDetails?.id);
-
-      // const convenienceFeeFormdata = new FormData();
-      // convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
-      // convenienceFeeFormdata.append("customer_id", stored?.body?.customer_id);
-
       dispatch(getConvenienceFee(undefined, formdata));
     }
   }, [activeStep]);
@@ -491,9 +451,20 @@ export default function OneTimePaymentModal({ open, onClose }) {
             />
             {/* <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography> */}
-            <Typography mb={2}>
-              Due Amount: ${customerDetails.balance}
-            </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+  <Typography mb={0}>
+    Due Amount: ${customerDetails.balance}
+  </Typography>
+
+  <Typography
+    variant="body2"
+    sx={{ textDecoration: "underline", cursor: "pointer" , color : ""}}
+    onClick={handlePreviewInvoice}
+  >
+    PREVIEW INVOICE
+  </Typography>
+</Box>
+
             <Tooltip
               title={
                 // companyInfo?.company?.allow_partial_payments == 0 &&
@@ -758,6 +729,63 @@ export default function OneTimePaymentModal({ open, onClose }) {
     }
   };
 
+   const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+
+  const handlePreviewInvoice = async () => {
+    if (!oneTimeData) return;
+  
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+    // 📱 MOBILE → DOWNLOAD PDF
+    if (isMobile) {
+      try {
+        const blob = await pdf(
+          <InvoicePdfDocument invoiceDetails={oneTimeData} />
+        ).toBlob();
+  
+        const url = URL.createObjectURL(blob);
+  
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `invoice-${
+          oneTimeData?.last_bill?.invoice_number || "file"
+        }.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+  
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("PDF Download Error:", error);
+      }
+  
+      return; // ⛔ EXIT: do not continue
+    }
+  
+    // 💻 DESKTOP → OPEN PDF VIEWER MODAL
+    setPdfPreviewInvocie(true);
+  };
+
+
+  
+  
+    const rawHTML =
+      oneTimeData?.company?.optional_instructions ??
+      `<p><a href="https://www.google.com">Google</a>&nbsp;
+       <a href="https://test-web.pay.waterbill.com/">
+         https://test-web.pay.waterbill.com/
+       </a>
+     </p>`;
+  
+    const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
+      ADD_ATTR: ["target", "rel"],
+    });
+  
+    const finalHTML = sanitizedHTML.replace(
+      /<a /g,
+      '<a target="_blank" rel="noopener noreferrer" '
+    );
+
   return (
     <Dialog open={open} onClose={onModalClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -830,6 +858,16 @@ export default function OneTimePaymentModal({ open, onClose }) {
           <CircularProgress color="success" />
         </Backdrop>
       </DialogContent>
+          {previewInvoicePdf && (
+              <CustomModal
+                open={previewInvoicePdf}
+                onClose={() => {
+                  setPdfPreviewInvocie(false);
+                }}
+                id={oneTimeData?.last_bill?.id}
+                oneTime ={true}
+              />
+            )}
     </Dialog>
   );
 }

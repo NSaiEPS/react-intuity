@@ -6,7 +6,7 @@ import { getLocalStorage } from '@/utils/auth';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-
+import OneTimePdf from "./one-time-invoice"
 import { useLoading } from '@/components/core/skeletion-context';
 import { SkeletonWrapper } from '@/components/core/withSkeleton';
 
@@ -19,6 +19,7 @@ type ModalProps = {
 
   width?: string | number;
   id?: string;
+  oneTime ?: boolean
 };
 
 export default function CustomModal({
@@ -28,6 +29,7 @@ export default function CustomModal({
 
   width = '800px',
   id,
+  oneTime
 }: ModalProps) {
   const dispatch = useDispatch();
 
@@ -41,6 +43,7 @@ export default function CustomModal({
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
   const invoiceDetails = useSelector((state: RootState) => state.DashBoard.invoiceDetails);
   const dashboardLoader = useSelector((state: RootState) => state.DashBoard.dashboardLoader);
+    const oneTimeData = useSelector(  (state: RootState) => state.Account.oneTimePaymentInfo)
 
   // const raw = getLocalStorage('intuity-user');
   const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
@@ -85,13 +88,14 @@ export default function CustomModal({
     >
       <SkeletonWrapper customLoader={dashboardLoader}>
         <>
-          <PDFDownloadLink document={<InvoicePdfDocument invoiceDetails={invoiceDetails} />} fileName={`invoice.pdf`}>
+          <PDFDownloadLink document={<InvoicePdfDocument invoiceDetails={oneTime ?oneTimeData: invoiceDetails} />} fileName={`invoice.pdf`}>
             {({ loading }) => (loading ? 'Preparing PDF...' : '')}
           </PDFDownloadLink>
 
           <div style={{ height: '600px', marginTop: '20px' }}>
             <PDFViewer width="1000px" height="600">
-              <InvoicePdfDocument invoiceDetails={invoiceDetails} />
+{oneTime ?    <OneTimePdf invoiceDetails={oneTimeData} /> :   <InvoicePdfDocument invoiceDetails={invoiceDetails} />}
+           
             </PDFViewer>
           </div>
         </>
