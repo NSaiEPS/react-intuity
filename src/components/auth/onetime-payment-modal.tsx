@@ -55,9 +55,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
     (state: RootState) => state.Account.accountLoading
   );
 
-  const oneTimeData = useSelector(  (state: RootState) => state.Account.oneTimePaymentInfo)
+  const oneTimeData = useSelector(
+    (state: RootState) => state.Account.oneTimePaymentInfo
+  );
 
-  console.log(oneTimeData)
+  console.log(oneTimeData);
 
   const [formData, setFormData] = useState({
     accountNo: "",
@@ -226,8 +228,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
       )
     );
   };
-
-
 
   const hanldeFailure = (data) => {
     if (data) {
@@ -451,19 +451,23 @@ export default function OneTimePaymentModal({ open, onClose }) {
             />
             {/* <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography> */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-  <Typography mb={0}>
-    Due Amount: ${customerDetails.balance}
-  </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <Typography mb={0}>
+                Due Amount: ${customerDetails.balance}
+              </Typography>
 
-  <Typography
-    variant="body2"
-    sx={{ textDecoration: "underline", cursor: "pointer" , color : ""}}
-    onClick={handlePreviewInvoice}
-  >
-    PREVIEW INVOICE
-  </Typography>
-</Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  color: colors.blue,
+                }}
+                onClick={handlePreviewInvoice}
+              >
+                PREVIEW INVOICE
+              </Typography>
+            </Box>
 
             <Tooltip
               title={
@@ -729,22 +733,22 @@ export default function OneTimePaymentModal({ open, onClose }) {
     }
   };
 
-   const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+  const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
 
   const handlePreviewInvoice = async () => {
     if (!oneTimeData) return;
-  
+
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  
+
     // 📱 MOBILE → DOWNLOAD PDF
     if (isMobile) {
       try {
         const blob = await pdf(
           <InvoicePdfDocument invoiceDetails={oneTimeData} />
         ).toBlob();
-  
+
         const url = URL.createObjectURL(blob);
-  
+
         const link = document.createElement("a");
         link.href = url;
         link.download = `invoice-${
@@ -753,38 +757,35 @@ export default function OneTimePaymentModal({ open, onClose }) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-  
+
         URL.revokeObjectURL(url);
       } catch (error) {
         console.error("PDF Download Error:", error);
       }
-  
+
       return; // ⛔ EXIT: do not continue
     }
-  
+
     // 💻 DESKTOP → OPEN PDF VIEWER MODAL
     setPdfPreviewInvocie(true);
   };
 
-
-  
-  
-    const rawHTML =
-      oneTimeData?.company?.optional_instructions ??
-      `<p><a href="https://www.google.com">Google</a>&nbsp;
+  const rawHTML =
+    oneTimeData?.company?.optional_instructions ??
+    `<p><a href="https://www.google.com">Google</a>&nbsp;
        <a href="https://test-web.pay.waterbill.com/">
          https://test-web.pay.waterbill.com/
        </a>
      </p>`;
-  
-    const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
-      ADD_ATTR: ["target", "rel"],
-    });
-  
-    const finalHTML = sanitizedHTML.replace(
-      /<a /g,
-      '<a target="_blank" rel="noopener noreferrer" '
-    );
+
+  const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
+    ADD_ATTR: ["target", "rel"],
+  });
+
+  const finalHTML = sanitizedHTML.replace(
+    /<a /g,
+    '<a target="_blank" rel="noopener noreferrer" '
+  );
 
   return (
     <Dialog open={open} onClose={onModalClose} maxWidth="sm" fullWidth>
@@ -858,16 +859,16 @@ export default function OneTimePaymentModal({ open, onClose }) {
           <CircularProgress color="success" />
         </Backdrop>
       </DialogContent>
-          {previewInvoicePdf && (
-              <CustomModal
-                open={previewInvoicePdf}
-                onClose={() => {
-                  setPdfPreviewInvocie(false);
-                }}
-                id={oneTimeData?.last_bill?.id}
-                oneTime ={true}
-              />
-            )}
+      {previewInvoicePdf && (
+        <CustomModal
+          open={previewInvoicePdf}
+          onClose={() => {
+            setPdfPreviewInvocie(false);
+          }}
+          id={oneTimeData?.last_bill?.id}
+          oneTime={true}
+        />
+      )}
     </Dialog>
   );
 }
