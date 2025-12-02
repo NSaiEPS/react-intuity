@@ -37,7 +37,7 @@ import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";
 import secureLocalStorage from "react-secure-storage";
-import InvoicePdfDocument from "../dashboard/layout/invoice-pdf-view";
+import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
@@ -704,7 +704,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
     if (isMobile) {
       try {
         const blob = await pdf(
-          <InvoicePdfDocument invoiceDetails={oneTimeData} />
+      
+           <OneTimePdf  invoiceDetails={oneTimeData} />
         ).toBlob();
   
         const url = URL.createObjectURL(blob);
