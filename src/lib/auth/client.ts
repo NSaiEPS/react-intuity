@@ -188,6 +188,10 @@ class AuthClient {
       clearLocalStorage();
       navigateTo("/login", { replace: true });
     } else {
+      if (data?.message === "You are not authorised to use this api") {
+        navigateTo("/login", { replace: true });
+      }
+      console.log(data?.message, "logout error");
       // navigateTo("/login", { replace: true }, data?.message);
     }
     return {};
