@@ -53,7 +53,11 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
             ...(id ? { id } : {}),
             ...(amount ? { amount } : {}),
             ...(convenienceFee ? { convenience_fee: convenienceFee } : {}),
+
             ...(transId ? { transId } : {}),
+
+            paywithoutsave: "true", // add this
+            type: "card",
           });
           const token = stored?.body?.token;
           if (convenienceFee || amount) {

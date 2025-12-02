@@ -708,7 +708,10 @@ const PaymentForm = () => {
               render={({ field }) => (
                 <Tooltip
                   title={
-                    paymentDetailsInfo?.customer?.is_payments_blocked == 1
+                    paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
+                    paymentDetailsInfo?.company?.allow_overpayments == 0
+                      ? "Over payments are not allowed at this time. And also Partial payments are not allowed "
+                      : paymentDetailsInfo?.customer?.is_payments_blocked == 1
                       ? paymentDetailsInfo?.block_individual_customer_pay_text ??
                         "Payments are not allowed at this time."
                       : paymentDetailsInfo?.company?.allow_partial_payments ==
@@ -729,16 +732,37 @@ const PaymentForm = () => {
                       startAdornment: <span style={{ marginRight: 4 }}>$</span>,
                     }}
                     disabled={
-                      paymentDetailsInfo?.company?.allow_partial_payments ==
-                        0 ||
-                      paymentDetailsInfo?.company?.allow_overpayments == 0
+                      (paymentDetailsInfo?.company?.allow_partial_payments ==
+                        0 &&
+                        paymentDetailsInfo?.company?.allow_overpayments == 0) ||
+                      paymentDetailsInfo?.customer?.is_payments_blocked == 1
                     }
                     onChange={(e) => {
-                      let value = e.target.value;
+                      const value = e.target.value;
 
                       // Prevent empty or 0
                       if (Number(value) < 0) {
                         toast.warn("Amount should be more than 0");
+                        return;
+                      }
+                      if (
+                        paymentDetailsInfo?.company?.allow_overpayments == 0 &&
+                        Number(value) > paymentDetailsInfo?.customer?.balance
+                      ) {
+                        toast.warn(
+                          "Over payments are not allowed at this time."
+                        );
+                        return;
+                      }
+
+                      if (
+                        paymentDetailsInfo?.company?.allow_partial_payments ==
+                          0 &&
+                        Number(value) < paymentDetailsInfo?.customer?.balance
+                      ) {
+                        toast.warn(
+                          "Partial payments are not allowed at this time."
+                        );
                         return;
                       }
 

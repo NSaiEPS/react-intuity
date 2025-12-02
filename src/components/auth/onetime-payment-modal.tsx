@@ -145,8 +145,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
         newErrors.amountToPay = "Amount to Pay is required";
       if (!formData.name) newErrors.name = "Name  is required";
       if (!formData.email) newErrors.email = "Email  is required";
-      if (Number(formData.amountToPay) > customerDetails.balance)
-        newErrors.amountToPay = `Amount can't be greater than the  Due Amount: $${customerDetails.balance}`;
+      // if (Number(formData.amountToPay) > customerDetails.balance)
+      //   newErrors.amountToPay = `Amount can't be greater than the  Due Amount: $${customerDetails.balance}`;
     }
     if (activeStep === 2) {
       if (!formData.paymentType)
@@ -211,6 +211,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             totalPayment: "0",
             street: res?.service_address,
             amountToPay: String(res?.balance ?? 0),
+            // balance: String(res?.balance ?? 0),
           }));
           handleNext();
         },
@@ -495,9 +496,20 @@ export default function OneTimePaymentModal({ open, onClose }) {
             </Typography>
             <Tooltip
               title={
+                // companyInfo?.company?.allow_partial_payments == 0 &&
+                // companyInfo?.company?.allow_overpayments == 0
+                //   ? "Partial payments & over payments are not allowed"
+                //   : ""
+
                 companyInfo?.company?.allow_partial_payments == 0 &&
                 companyInfo?.company?.allow_overpayments == 0
-                  ? "Partial payments & over payments are not allowed"
+                  ? "Over payments are not allowed at this time. And also Partial payments are not allowed "
+                  : companyInfo?.customer?.is_payments_blocked == 1
+                  ? companyInfo?.block_individual_customer_pay_text ??
+                    "Payments are not allowed at this time."
+                  : companyInfo?.company?.allow_partial_payments == 0 ||
+                    companyInfo?.company?.allow_overpayments == 0
+                  ? "Partial payments are not allowed"
                   : ""
               }
             >
@@ -505,7 +517,31 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 fullWidth
                 label="Amount To Pay"
                 value={formData.amountToPay}
-                onChange={handleChange("amountToPay")}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (Number(value) < 0) {
+                    toast.warn("Amount should be more than 0");
+                    return;
+                  }
+                  if (
+                    companyInfo?.company?.allow_overpayments == 0 &&
+                    Number(value) > customerDetails.balance
+                  ) {
+                    toast.warn("Over payments are not allowed at this time.");
+                    return;
+                  }
+
+                  if (
+                    companyInfo?.company?.allow_partial_payments == 0 &&
+                    Number(value) < customerDetails.balance
+                  ) {
+                    toast.warn(
+                      "Partial payments are not allowed at this time."
+                    );
+                    return;
+                  }
+                  handleChange("amountToPay")(e);
+                }}
                 error={!!errors.amountToPay}
                 helperText={errors.amountToPay}
                 sx={{ mb: 2 }}

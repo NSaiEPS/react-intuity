@@ -30,12 +30,12 @@ export function PaymentModal({
   open,
   onClose,
 }: PaymentModalProps): React.JSX.Element {
-  const [paymentOption, setPaymentOption] = useState<"payNow" | "schedule">(
-    "payNow"
-  );
+  const [paymentOption, setPaymentOption] = useState<
+    "payNow" | "schedule" | "autopay"
+  >("payNow");
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setPaymentOption(event.target.value as "payNow" | "schedule");
+    setPaymentOption(event.target.value as "payNow" | "schedule" | "autopay");
   };
 
   const lastBillInfo = useSelector(
@@ -50,7 +50,10 @@ export function PaymentModal({
   const handleProceed = (): void => {
     // Proceed with the selected payment option
     onClose();
-
+    if (paymentOption == "autopay") {
+      navigate(paths.dashboard.autoPay());
+      return;
+    }
     navigate(paths.dashboard.paymentDetails(lastBillInfo?.last_bill?.id), {
       state: {
         isSchedule: paymentOption == "schedule" ? true : false,
@@ -114,6 +117,13 @@ export function PaymentModal({
         dispatch(getLastBillInfo(getData, token));
       })
     );
+  };
+  const getAutoPayInfo = (option) => {
+    return lastBillInfo?.company?.allow_auto_payment == 1
+      ? true
+      : option.value != "autopay"
+      ? true
+      : false;
   };
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
@@ -207,40 +217,54 @@ export function PaymentModal({
                       lastBillInfo?.schedule_payment_text ??
                       "Make a single scheduled payment - that's it!",
                   },
-                ]
-            ).map((option) => (
-              <FormControlLabel
-                key={option.value}
-                value={option.value}
-                control={<Radio />}
-                sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 2,
-                  p: 2,
-                  pr: 0,
-                  mr: 0,
-                  mb: 2,
-                  transition: "border-color 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    borderColor: "primary.main",
+                  {
+                    value: "autopay",
+                    title: "Sign up for Autopay",
+                    description:
+                      lastBillInfo?.text_autopay_billing ??
+                      "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
                   },
-                }}
-                label={
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {option.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mt={0.5}>
-                      {option.description}
-                    </Typography>
-                    {option.extraInfo}
-                  </Box>
-                }
-              />
-            ))}
+                ]
+            ).map(
+              (option) =>
+                getAutoPayInfo(option) && (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio />}
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      p: 2,
+                      pr: 0,
+                      mr: 0,
+                      mb: 2,
+                      transition: "border-color 0.2s, box-shadow 0.2s",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                      },
+                    }}
+                    label={
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {option.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          mt={0.5}
+                        >
+                          {option.description}
+                        </Typography>
+                        {option.extraInfo}
+                      </Box>
+                    }
+                  />
+                )
+            )}
           </RadioGroup>
         </FormControl>
 
