@@ -419,6 +419,9 @@ const PaymentForm = () => {
   const cardConvenienceFee = searchParams.get("convenience_fee");
   const cardAmount = searchParams.get("amount");
   const cardTransId = searchParams.get("transId");
+  const card_no = searchParams.get("card_no");
+  const card_type = searchParams.get("card_type");
+  const expiration = searchParams.get("expiration");
   // console.log(cardAmount, "cardAmount");
   useEffect(() => {
     if (cardAmount && cardConvenienceFee && cardTransId) {
@@ -513,22 +516,67 @@ const PaymentForm = () => {
       // formdata.append("price", String(watch("amount") || 0));
       formdata.append("price", Number(watch("amount") || 0).toFixed(2));
 
+      // if (cardConvenienceFee) {
+      //   const formdata = new FormData();
+
+      //   formdata.append("acl_role_id", stored?.body?.acl_role_id);
+      //   formdata.append("customer_id", stored?.body?.customer_id);
+      //   formdata.append("is_one_time", "1");
+      //   formdata.append("id", id);
+      //   // formdata.append("pay_payment_method", "pay_save_method");
+      //   formdata.append("pay_payment_method", "pay_unsave_method");
+      //   formdata.append("payment_method_id_radio", "card");
+      //   formdata.append("is_card", "1");
+      //   formdata.append("is_card_one_time", "1");
+      //   // formdata.append("payment_method_id_form", cardTransId);
+      //   formdata.append("token", cardTransId);
+
+      //   formdata.append(
+      //     "convenienceFee",
+      //     Number(cardConvenienceFee || 0).toFixed(2)
+      //   );
+      //   formdata.append("payment_method", "0");
+      //   formdata.append("price", Number(cardAmount || 0).toFixed(2));
+
+      //   // formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+
+      //   dispatch(
+      //     paymentWithoutSavingDetails(
+      //       stored?.body?.token,
+      //       formdata,
+      //       true,
+      //       () => {
+      //         navigate(paths.dashboard.payNow());
+      //       }
+      //     )
+      //   );
+      //   return;
+      // }
       if (cardConvenienceFee) {
         const formdata = new FormData();
 
         formdata.append("acl_role_id", stored?.body?.acl_role_id);
         formdata.append("customer_id", stored?.body?.customer_id);
-        formdata.append("is_one_time", "0");
+        formdata.append("is_one_time", "1");
         formdata.append("id", id);
-        formdata.append("pay_payment_method", "pay_save_method");
+        // formdata.append("pay_payment_method", "pay_save_method");
+        formdata.append("pay_payment_method", "pay_unsave_method");
         formdata.append("payment_method_id_radio", "card");
-        formdata.append("is_card", "0");
-        formdata.append("is_card_one_time", "0");
-        formdata.append("payment_method_id_form", cardTransId);
+        formdata.append("is_card", "1");
+        formdata.append("is_card_one_time", "1");
+        // formdata.append("payment_method_id_form", cardTransId);
+        formdata.append("token", cardTransId);
+        formdata.append("credit_card_number", card_no);
+        formdata.append("card_type", card_type);
+        formdata.append("expiration", expiration);
 
-        formdata.append("convenienceFee", cardConvenienceFee);
+        formdata.append(
+          "convenienceFee",
+          Number(cardConvenienceFee || 0).toFixed(2)
+        );
         formdata.append("payment_method", "0");
         formdata.append("price", Number(cardAmount || 0).toFixed(2));
+
         // formdata.append("price", Number(watch("amount") || 0).toFixed(2));
 
         dispatch(
@@ -543,7 +591,6 @@ const PaymentForm = () => {
         );
         return;
       }
-
       dispatch(
         paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
           navigate(paths.dashboard.payNow());

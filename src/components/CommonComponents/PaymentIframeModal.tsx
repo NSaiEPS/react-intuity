@@ -258,6 +258,9 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
       formdata.append("card_pay", "worldpay");
       formdata.append("invoice_id", invoiceId || "0");
+      if (!companyInfo?.company?.id) {
+        formdata.append("pay_without_save", "1");
+      }
       if (companyInfo?.company?.id) {
         formdata.append("is_one_time_pay", "1");
       }

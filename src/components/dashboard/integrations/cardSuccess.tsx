@@ -39,6 +39,9 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
     const id = sanitize(searchParams.get("id"));
     const amount = sanitize(searchParams.get("amount"));
     const transId = sanitize(searchParams.get("transId"));
+    const card_no = sanitize(searchParams.get("card_no"));
+    const card_type = sanitize(searchParams.get("card_type"));
+    const expiration = sanitize(searchParams.get("expiration"));
     const card_id = sanitize(searchParams.get("card_id"));
 
     if (!isOneTimePayment) {
@@ -55,6 +58,9 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
             ...(convenienceFee ? { convenience_fee: convenienceFee } : {}),
 
             ...(transId ? { transId } : {}),
+            ...(card_no ? { card_no } : {}),
+            ...(card_type ? { card_type } : {}),
+            ...(expiration ? { expiration } : {}),
 
             paywithoutsave: "true", // add this
             type: "card",
