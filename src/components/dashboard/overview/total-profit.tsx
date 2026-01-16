@@ -36,6 +36,7 @@ export function TotalProfit({
           navigate(paths.dashboard.usageHistory());
         }
       }}
+      elevation={0}
       sx={{
         ...sx,
         height: "100%",
@@ -47,6 +48,9 @@ export function TotalProfit({
         borderRadius: boarderRadius.card,
         padding: 2,
         paddingTop: 1,
+        boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
+        backgroundColor: "#fff",
+        border: "1px solid #EAEAEA",
       }}
     >
       <CardContent sx={{ flex: 1, width: "100%" }}>

@@ -74,7 +74,17 @@ export function Budget({
   }, []);
 
   return (
-    <Card sx={{ borderRadius: boarderRadius.card, ...sx }}>
+    // <Card sx={{ borderRadius: boarderRadius.card, ...sx }}>
+    <Card
+      elevation={0}
+      sx={{
+        borderRadius: boarderRadius.card,
+        backgroundColor: "#fff",
+        border: "1px solid #EAEAEA",
+        boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
+        ...sx,
+      }}
+    >
       <CardContent>
         {userInfo ? (
           <Stack spacing={1.5}>
