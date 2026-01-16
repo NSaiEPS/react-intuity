@@ -182,10 +182,10 @@ export function AccountDetailsForm(): React.JSX.Element {
                 { label: "Meter #", name: "meter_number" },
                 { label: "Service Address", name: "service_address" },
                 { label: "Billing Address", name: "billing_address" },
-                { label: "Primary Phone", name: "primary_phone" },
-                { label: "Alt Phone", name: "alt_phone" },
+                { label: "Primary Phone", name: "primary_phone", phone: true },
+                { label: "Alt Phone", name: "alt_phone", phone: true },
                 { label: "Email", name: "email", disabled: true },
-              ].map(({ label, name, disabled = false }) => (
+              ].map(({ label, name, phone, disabled = false }) => (
                 <Grid key={name} md={6} xs={12}>
                   <Controller
                     name={name as keyof FormSchema}
@@ -200,7 +200,26 @@ export function AccountDetailsForm(): React.JSX.Element {
                           {...field}
                           disabled={disabled || !isEditEnable}
                           label={label}
-                          type={name.includes("phone") ? "tel" : "text"}
+                          type={phone ? "tel" : "text"}
+                          inputProps={
+                            phone
+                              ? { inputMode: "decimal" } // mobile numeric keyboard
+                              : undefined
+                          }
+                          onChange={(e) => {
+                            let value = e.target.value;
+
+                            // 🔹 Normal input for non-phone fields
+                            if (!phone) {
+                              field.onChange(value);
+                              return;
+                            }
+
+                            // ✅ Allow ONLY digits and hyphen
+                            value = value.replace(/[^0-9-]/g, "");
+
+                            field.onChange(value);
+                          }}
                         />
                         {errors[name as keyof FormSchema] ? (
                           <FormHelperText>

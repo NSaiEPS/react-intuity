@@ -309,18 +309,20 @@ export default function AddAccountPage() {
             <Box
               sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}
             >
-              <Button
-                variant="outlined"
-                textTransform="none"
-                style={{
-                  color: colors.blue,
-                  borderColor: colors.blue,
-                  borderRadius: "12px",
-                  height: "41px",
-                }}
-              >
-                BACK
-              </Button>
+              {currentPage !== 1 && (
+                <Button
+                  variant="outlined"
+                  textTransform="none"
+                  style={{
+                    color: colors.blue,
+                    borderColor: colors.blue,
+                    borderRadius: "12px",
+                    height: "41px",
+                  }}
+                >
+                  BACK
+                </Button>
+              )}
               <Button
                 disabled={loading}
                 loading={loading}
@@ -333,6 +335,7 @@ export default function AddAccountPage() {
                 style={{
                   borderRadius: "12px",
                   height: "41px",
+                  marginLeft: "auto",
                   // backgroundColor: 'red',
                 }}
                 // onClick={handleNext}

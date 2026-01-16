@@ -64,7 +64,8 @@ export function TotalProfit({
                 startIcon={<IconCards type={"Headphones"} />}
                 // variant="outlined"
                 // color="primary"
-
+                component="a"
+                href="tel:+12345678900"
                 sx={{
                   textTransform: "none",
 
@@ -76,6 +77,8 @@ export function TotalProfit({
 
               <Button
                 startIcon={<IconCards type={"Envelope"} />}
+                component="a"
+                href="mailto:info@intuity.com"
                 // variant="outlined"
                 // color="primary"
                 sx={{ textTransform: "none", color: "black" }}

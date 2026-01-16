@@ -25,12 +25,12 @@ function Header({ title }: { title: string }): React.JSX.Element {
       <CardHeader
         subheader={
           <Typography variant="h6">
-            Name :{CustomerInfo?.customer_name}
+            Name: {CustomerInfo?.customer_name}
           </Typography>
         }
         title={
           <Typography variant="h6">
-            Account No :{CustomerInfo?.acctnum}
+            Account No: {CustomerInfo?.acctnum}
           </Typography>
         }
       />

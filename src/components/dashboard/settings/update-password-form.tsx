@@ -116,7 +116,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
                       onClick={() => toggleVisibility("password")}
                       edge="end"
                     >
-                      {show.password ? (
+                      {!show.password ? (
                         <EyeSlashIcon size={20} />
                       ) : (
                         <EyeIcon size={20} />
@@ -151,7 +151,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
                       onClick={() => toggleVisibility("new_password")}
                       edge="end"
                     >
-                      {show.new_password ? (
+                      {!show.new_password ? (
                         <EyeSlashIcon size={20} />
                       ) : (
                         <EyeIcon size={20} />
@@ -177,7 +177,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
                       onClick={() => toggleVisibility("repassword")}
                       edge="end"
                     >
-                      {show.repassword ? (
+                      {!show.repassword ? (
                         <EyeSlashIcon size={20} />
                       ) : (
                         <EyeIcon size={20} />
