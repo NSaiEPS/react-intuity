@@ -6,7 +6,7 @@
 # Node artifact files
 node_modules/
 dist/
-
+.vite-cache/
 # Compiled Java class files
 *.class
 

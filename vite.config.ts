@@ -7,17 +7,29 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
+  cacheDir: ".vite-cache",
+
   plugins: [react()],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
     },
   },
+
   server: {
     port: 3001,
   },
+
+  optimizeDeps: {
+    force: true,
+    // exclude: ["@react-pdf/renderer"], // only if needed
+  },
+
   build: {
-    chunkSizeWarningLimit: 300, // so Vite warns if chunks get too big
+    chunkSizeWarningLimit: 300,
+    sourcemap: false,
+    minify: "esbuild",
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -25,17 +37,12 @@ export default defineConfig({
             if (id.includes("react-apexcharts")) return "charts";
             if (id.includes("apexcharts")) return "charts";
             if (id.includes("@mui")) return "mui";
-            return "vendor"; // everything else in node_modules
+            return "vendor";
           }
         },
       },
     },
-    minify: "esbuild", // faster & smaller
-    sourcemap: false, // disable in prod for smaller size
   },
-  optimizeDeps: {
-    include: ["react", "react-dom"],
-    // exclude: ["@react-pdf/renderer"],
-  },
+
   base: "/",
 });
