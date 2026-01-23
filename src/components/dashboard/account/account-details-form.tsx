@@ -86,7 +86,8 @@ export function AccountDetailsForm(): React.JSX.Element {
     control,
     handleSubmit,
     reset,
-    formState: { errors },
+
+      formState: { errors, isDirty },
   } = useForm<FormSchema>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -102,6 +103,41 @@ export function AccountDetailsForm(): React.JSX.Element {
       comment: customer.comment || "",
     },
   });
+
+//   React.useEffect(() => {
+//   const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+//     if (isEditEnable && isDirty) {
+//       e.preventDefault();
+//       e.returnValue = ""; // Required for Chrome
+//     }
+//   };
+
+//   window.addEventListener("beforeunload", handleBeforeUnload);
+
+//   return () => {
+//     window.removeEventListener("beforeunload", handleBeforeUnload);
+//   };
+// }, [isDirty, isEditEnable]);
+  React.useEffect(() => {
+
+    const handleBeforeUnload = (event: any) => {
+      if (isDirty && isEditEnable) {
+        // Show confirmation dialog
+        const message =
+          "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message; // Some browsers require this for custom messages
+        return message; // For some older browsers
+      }
+      // Clean up builder data only if there are no unsaved changes
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty,isEditEnable]);
 
   React.useEffect(() => {
     if (customer) {
