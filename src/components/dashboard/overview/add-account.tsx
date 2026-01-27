@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { linkAnotherAccount } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
@@ -52,23 +52,51 @@ export default function AddAccountPage() {
       message: "Emails don't match",
       path: ["confirmEmail"],
     });
-  const {
-    control: controlPage1,
-    handleSubmit: handleSubmitPage1,
-    formState: { errors: errorsPage1 },
-    getValues: getValues1,
-  } = useForm({
-    resolver: zodResolver(page1Schema),
-  });
+  // const {
+  //   control: controlPage1,
+  //   handleSubmit: handleSubmitPage1,
+  //   formState: { errors: errorsPage1, isDirty },
+  //   getValues: getValues1,
+  // } = useForm({
+  //   resolver: zodResolver(page1Schema),
+  // });
 
   const {
-    control: controlPage2,
-    handleSubmit: handleSubmitPage2,
-    formState: { errors: errorsPage2 },
-    getValues: getValues2,
-  } = useForm({
-    resolver: zodResolver(page2Schema),
-  });
+  control: controlPage1,
+  handleSubmit: handleSubmitPage1,
+  formState: { errors: errorsPage1, isDirty },
+  getValues: getValues1,
+} = useForm({
+  resolver: zodResolver(page1Schema),
+  defaultValues: {
+    accountNumber: "",
+    authenticationType: "",
+    answer: "",
+  },
+});
+
+  // const {
+  //   control: controlPage2,
+  //   handleSubmit: handleSubmitPage2,
+  //   formState: { errors: errorsPage2 },
+  //   getValues: getValues2,
+  // } = useForm({
+  //   resolver: zodResolver(page2Schema),
+  // });
+
+
+  const {
+  control: controlPage2,
+  handleSubmit: handleSubmitPage2,
+  formState: { errors: errorsPage2 },
+  getValues: getValues2,
+} = useForm({
+  resolver: zodResolver(page2Schema),
+  defaultValues: {
+    notificationEmail: "",
+    confirmEmail: "",
+  },
+});
   const [currentPage, setCurrentPage] = useState(1);
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
@@ -80,7 +108,29 @@ export default function AddAccountPage() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [accountDetails, setAccountDetails] = useState<any>({});
-  console.log(errorsPage2, errorsPage1, loading, "errorsPage2");
+
+
+
+    React.useEffect(() => {
+  
+      const handleBeforeUnload = (event: any) => {
+        if (isDirty ) {
+          // Show confirmation dialog
+          const message =
+            "You have unsaved changes. Are you sure you want to leave?";
+          event.preventDefault();
+          event.returnValue = message; // Some browsers require this for custom messages
+          return message; // For some older browsers
+        }
+        // Clean up builder data only if there are no unsaved changes
+      };
+  
+      window.addEventListener("beforeunload", handleBeforeUnload);
+  
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }, [isDirty]);
 
   const handleStepOne = (step) => {
     console.log("Step:", step);
@@ -277,7 +327,7 @@ export default function AddAccountPage() {
                     </MenuItem>
                     <MenuItem value="pin">PIN</MenuItem>
                   </Select>
-                  <Typography variant="caption" color="error">
+                  <Typography variant="caption" color="error" mx={2}>
                     {typeof errorsPage1.authenticationType?.message == "string"
                       ? errorsPage1.authenticationType?.message
                       : ""}

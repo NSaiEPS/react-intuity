@@ -327,7 +327,7 @@ export default function PhoneModal({
             </FormControl>
           )}
 
-          <Controller
+          {/* <Controller
             name="phone"
             control={control}
             render={({ field }) => (
@@ -340,7 +340,36 @@ export default function PhoneModal({
                 helperText={errors.phone?.message}
               />
             )}
-          />
+          /> */}
+
+          <Controller
+  name="phone"
+  control={control}
+  render={({ field }) => (
+    <TextField
+      {...field}
+      label={isOtpModal ? "Otp" : "Phone No"}
+      variant="outlined"
+      fullWidth
+      error={!!errors.phone}
+      helperText={errors.phone?.message}
+      inputProps={{
+        inputMode: "numeric",
+        pattern: "[0-9-]*",
+        maxLength: 15, 
+
+      }}
+      onChange={(e) => {
+        const value = e.target.value;
+        // sirf number aur '-' allow
+        if (/^[0-9-]*$/.test(value)) {
+          field.onChange(value);
+        }
+      }}
+    />
+  )}
+/>
+
         </Box>
       </DialogContent>
 

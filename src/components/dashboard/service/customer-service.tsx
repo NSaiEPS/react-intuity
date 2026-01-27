@@ -69,7 +69,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -154,7 +154,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
     );
   }, [customer_id]);
   const successCallBack = (res) => {
-    console.log(res, "sdsdsdsdsdsdsd");
     const customer = res?.customer_data?.[0];
 
     setValue("accountName", customer?.customer_name);
@@ -188,6 +187,30 @@ export function CustomerDetailsForm(): React.JSX.Element {
     updatedFiles.splice(index, 1);
     setValue("files", updatedFiles, { shouldValidate: true });
   };
+
+
+
+  React.useEffect(() => {
+    const handleBeforeUnload = (event: any) => {
+      if (isDirty) {
+        // Show confirmation dialog
+        const message =
+          "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message; // Some browsers require this for custom messages
+        return message; // For some older browsers
+      }
+      // Clean up builder data only if there are no unsaved changes
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
+  
+  
 
   return (
     <SkeletonWrapper>
@@ -248,6 +271,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   )}
                 />
               </Grid>
+
+              
 
               <Grid md={6} xs={12}>
                 <Controller
