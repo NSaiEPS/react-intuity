@@ -572,7 +572,7 @@ export const registerApiRequest: any =
           successCallBack(res?.body);
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message);
+        // navigateTo("/login", { replace: true }, res?.message);
 
         toast.error(
           res?.message
