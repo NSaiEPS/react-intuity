@@ -39,7 +39,7 @@ export function AccountSettingsForm(): React.JSX.Element {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -82,6 +82,30 @@ export function AccountSettingsForm(): React.JSX.Element {
     let token = stored?.body?.token;
     dispatch(getDashboardInfo(roleId, userId, token));
   };
+
+
+
+   React.useEffect(() => {
+  
+      const handleBeforeUnload = (event: any) => {
+        if (isDirty) {
+          // Show confirmation dialog
+          const message =
+            "You have unsaved changes. Are you sure you want to leave?";
+          event.preventDefault();
+          event.returnValue = message; // Some browsers require this for custom messages
+          return message; // For some older browsers
+        }
+        // Clean up builder data only if there are no unsaved changes
+      };
+  
+      window.addEventListener("beforeunload", handleBeforeUnload);
+  
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }, [isDirty]);
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

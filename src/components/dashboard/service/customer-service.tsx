@@ -60,6 +60,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function CustomerDetailsForm(): React.JSX.Element {
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
+
   const { setContextLoading } = useLoading();
   React.useLayoutEffect(() => {
     setContextLoading(true);
@@ -69,7 +71,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -136,6 +138,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
     setValue("preferredOwnerMethod", "Owner");
     setValue("preferredContactMethod", "Phone");
     setValue("question", "");
+
+    setHasUnsavedChanges(false); 
   };
   React.useEffect(() => {
     const formData = new FormData();
@@ -154,7 +158,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
     );
   }, [customer_id]);
   const successCallBack = (res) => {
-    console.log(res, "sdsdsdsdsdsdsd");
     const customer = res?.customer_data?.[0];
 
     setValue("accountName", customer?.customer_name);
@@ -170,6 +173,9 @@ export function CustomerDetailsForm(): React.JSX.Element {
     } else {
       setValue("email", ""); // or omit setting it if schema allows optional
     }
+    
+    setHasUnsavedChanges(false); 
+
   };
   const rawFiles = watch("files");
   const files: File[] = Array.isArray(rawFiles)
@@ -180,6 +186,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
     setValue("files", [...files, ...selectedFiles], { shouldValidate: true });
+        setHasUnsavedChanges(true);
+
     e.target.value = ""; // reset input for duplicate file names
   };
 
@@ -187,7 +195,38 @@ export function CustomerDetailsForm(): React.JSX.Element {
     const updatedFiles = [...files];
     updatedFiles.splice(index, 1);
     setValue("files", updatedFiles, { shouldValidate: true });
+        setHasUnsavedChanges(true);
+
   };
+
+  React.useEffect(() => {
+    const subscription = watch(() => {
+      setHasUnsavedChanges(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  React.useEffect(() => {
+    const handleBeforeUnload = (event: any) => {
+      if (hasUnsavedChanges) {
+        // Show confirmation dialog
+        const message =
+          "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message; // Some browsers require this for custom messages
+        return message; // For some older browsers
+      }
+      // Clean up builder data only if there are no unsaved changes
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+  
+  
 
   return (
     <SkeletonWrapper>
@@ -248,6 +287,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   )}
                 />
               </Grid>
+
+              
 
               <Grid md={6} xs={12}>
                 <Controller
@@ -450,7 +491,10 @@ export function CustomerDetailsForm(): React.JSX.Element {
               sx={{ color: colors.blue, borderColor: colors.blue }}
               disables={accountLoading}
               textTransform="none"
-              onClick={() => handleReset()}
+              onClick={() => {
+               handleReset()
+                setHasUnsavedChanges(false);
+              }}
               style={{
                 color: colors.blue,
                 borderColor: colors.blue,
