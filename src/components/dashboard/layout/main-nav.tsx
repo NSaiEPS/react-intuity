@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
@@ -23,9 +23,11 @@ import { Logo } from "@/components/core/logo";
 import { MobileNav } from "./mobile-nav";
 import { UserPopover } from "./user-popover";
 import { paths } from "@/utils/paths";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 export function MainNav(): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
+  const navigate = useNavigate();
 
   const userPopover = usePopover<HTMLDivElement>();
   const notificationPopover = usePopover<HTMLDivElement>();
@@ -48,6 +50,24 @@ export function MainNav(): React.JSX.Element {
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return parts[0].charAt(0).toUpperCase() + parts[1].charAt(0).toUpperCase();
   };
+  const routeChecker = useSelector(
+      (state: RootState) => state?.DashBoard?.routeChecker
+    );
+
+
+  const handleLogoClickPath = ()=>{
+    if (routeChecker) {
+        const confirmLeave = window.confirm(
+          "You have unsaved changes. Are you sure you want to leave this page?"
+        );
+        if (confirmLeave) {
+          return navigate(paths.dashboard.overview())
+        }
+      }
+      else{
+        navigate(paths.dashboard.overview())
+      }
+  }
 
   return (
     <React.Fragment>
@@ -82,8 +102,8 @@ export function MainNav(): React.JSX.Element {
             }}
           >
             <Box
-              component={RouterLink}
-              to={paths.dashboard.overview()}
+              // component={RouterLink}
+              onClick={handleLogoClickPath}
               sx={{ display: "inline-flex" }}
             >
               {aliasUser ? (
