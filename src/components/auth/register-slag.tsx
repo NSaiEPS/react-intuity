@@ -36,6 +36,10 @@ export default function PaymentInfoSection() {
   const { accountLoading, companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
+  const routeChecker = useSelector(
+    (state: RootState) => state?.DashBoard?.routeChecker
+  );
+
   const location = useLocation();
   const pathname = location.pathname;
 
@@ -152,7 +156,7 @@ export default function PaymentInfoSection() {
               }}
             >
               {pathname?.split("/")[1] !== "login" &&
-              pathname?.includes("login") ? (
+                pathname?.includes("login") ? (
                 <Avatar
                   src={companyInfo?.company?.logo}
                   sx={{ width: 50, height: 50, mr: 1.5 }}
@@ -161,7 +165,21 @@ export default function PaymentInfoSection() {
                 <Box
                   // component={RouterLink}
                   // href={paths.auth.newLogin()}
-                  onClick={() => navigate(paths.auth.newLogin())}
+
+                  onClick={() => {
+                    if (routeChecker) {
+                      const confirmLeave = window.confirm(
+                        "You have unsaved changes. Are you sure you want to leave this page?"
+                      );
+                      if (confirmLeave) {
+                        return navigate(paths.auth.newLogin())
+                      }
+                    }
+                    else {
+
+                      navigate(paths.auth.newLogin())
+                    }
+                  }}
                   sx={{ display: "inline-flex" }}
                 >
                   <Logo color="dark" height={50} width={140} />
@@ -208,7 +226,7 @@ export default function PaymentInfoSection() {
                   width: "100%",
                   marginTop:
                     pathname?.split("/")[1] !== "login" &&
-                    pathname?.includes("login")
+                      pathname?.includes("login")
                       ? 0
                       : 5,
                   border: "1px solid #e0e0e0",
@@ -239,7 +257,7 @@ export default function PaymentInfoSection() {
 
                   {/* Divider and action row */}
                   {pathname?.split("/")[1] !== "login" &&
-                  pathname?.includes("login") ? null : (
+                    pathname?.includes("login") ? null : (
                     <Divider sx={{ my: 3 }} />
                   )}
                 </CardContent>
@@ -342,12 +360,12 @@ export default function PaymentInfoSection() {
                                 backgroundColor: colors.blue,
                               }}
                               onMouseOver={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  colors["blue.3"])
+                              (e.currentTarget.style.backgroundColor =
+                                colors["blue.3"])
                               }
                               onMouseOut={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  colors.blue)
+                              (e.currentTarget.style.backgroundColor =
+                                colors.blue)
                               }
                             >
                               Pay Now

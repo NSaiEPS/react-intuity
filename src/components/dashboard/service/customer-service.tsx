@@ -32,6 +32,7 @@ import { z } from "zod";
 import { paths } from "@/utils/paths";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 // Schema
 const formSchema = z.object({
@@ -141,6 +142,17 @@ export function CustomerDetailsForm(): React.JSX.Element {
 
     setHasUnsavedChanges(false); 
   };
+
+   React.useEffect(() => {
+  
+        if( hasUnsavedChanges ){
+          dispatch(setRouteChecker(true));
+          
+        }
+        return () => {
+          dispatch(setRouteChecker(false));
+        }
+      }, [hasUnsavedChanges]);
   React.useEffect(() => {
     const formData = new FormData();
     formData.append("acl_role_id", roleId);

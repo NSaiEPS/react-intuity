@@ -13,6 +13,7 @@ import {
 import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { set } from "react-hook-form";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "react-toastify";
 
@@ -28,6 +29,7 @@ interface DahBoardState {
   monthlyUsageGraph: any;
   usageUtilityFilters: any;
   monthlyUsageUam: string;
+  routeChecker: any;
 }
 
 const initialState = {
@@ -41,6 +43,7 @@ const initialState = {
   monthlyUsageGraph: {},
   usageUtilityFilters: {},
   monthlyUsageUam: "",
+  routeChecker: false
 } as DahBoardState;
 
 const DashBoardSlice = createSlice({
@@ -74,6 +77,9 @@ const DashBoardSlice = createSlice({
     setMonthlyUsageUam(state, action) {
       state.monthlyUsageUam = action.payload;
     },
+    setRouteChecker(state, action) {
+      state.routeChecker = action.payload;
+    }
   },
 });
 
@@ -87,6 +93,7 @@ export const {
   setMonthlyUsageGraph,
   setUsageUtilityFilters,
   setMonthlyUsageUam,
+  setRouteChecker,
 } = DashBoardSlice.actions;
 
 export default DashBoardSlice.reducer;

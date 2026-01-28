@@ -27,6 +27,7 @@ import { z } from "zod";
 import { paths } from "@/utils/paths";
 import Button from "@/components/CommonComponents/Button";
 import Header from "@/components/CommonComponents/Header";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 export default function AddAccountPage() {
   const navigate = useNavigate();
@@ -130,6 +131,17 @@ export default function AddAccountPage() {
       return () => {
         window.removeEventListener("beforeunload", handleBeforeUnload);
       };
+    }, [isDirty]);
+
+    React.useEffect(() => {
+
+      if( isDirty ){
+        dispatch(setRouteChecker(true));
+        
+      }
+      return () => {
+        dispatch(setRouteChecker(false));
+      }
     }, [isDirty]);
 
   const handleStepOne = (step) => {

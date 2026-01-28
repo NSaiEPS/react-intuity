@@ -1,6 +1,6 @@
 import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
-import { getDashboardInfo } from "@/state/features/dashBoardSlice";
+import { getDashboardInfo, setRouteChecker } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
@@ -84,7 +84,16 @@ export function AccountSettingsForm(): React.JSX.Element {
   };
 
 
+ React.useEffect(() => {
 
+      if( isDirty ){
+        dispatch(setRouteChecker(true));
+        
+      }
+      return () => {
+        dispatch(setRouteChecker(false));
+      }
+    }, [isDirty]);
    React.useEffect(() => {
   
       const handleBeforeUnload = (event: any) => {

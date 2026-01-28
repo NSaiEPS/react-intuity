@@ -46,6 +46,7 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 const schema = z.object({
   account_name: z.string().min(1, "Account name is required"),
@@ -118,6 +119,16 @@ export function AccountDetailsForm(): React.JSX.Element {
 //     window.removeEventListener("beforeunload", handleBeforeUnload);
 //   };
 // }, [isDirty, isEditEnable]);
+ React.useEffect(() => {
+
+      if( isDirty && isEditEnable){
+        dispatch(setRouteChecker(true));
+        
+      }
+      return () => {
+        dispatch(setRouteChecker(false));
+      }
+    }, [isDirty,isEditEnable]);
   React.useEffect(() => {
 
     const handleBeforeUnload = (event: any) => {

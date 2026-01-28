@@ -27,6 +27,7 @@ import { Button } from "nsaicomponents";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 const passwordSchema = z
   .string()
@@ -96,6 +97,17 @@ export function UpdatePasswordForm(): React.JSX.Element {
 
     dispatch(updateAccountInfo(token, formData, true));
   };
+
+   React.useEffect(() => {
+  
+        if( isDirty ){
+          dispatch(setRouteChecker(true));
+          
+        }
+        return () => {
+          dispatch(setRouteChecker(false));
+        }
+      }, [isDirty]);
 
   React.useEffect(() => {
   

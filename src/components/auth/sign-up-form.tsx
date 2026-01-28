@@ -28,6 +28,7 @@ import { useDispatch } from "react-redux";
 import { z } from "zod";
 import { useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 // Schema
 const schema = z
@@ -226,7 +227,7 @@ export function SignUpForm() {
     handleSubmit,
     trigger,
     getValues,
-    formState: { errors,isDirty },
+    formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -385,6 +386,17 @@ export function SignUpForm() {
   };
 
   React.useEffect(() => {
+
+    if (isDirty) {
+      dispatch(setRouteChecker(true));
+
+    }
+    return () => {
+      dispatch(setRouteChecker(false));
+    }
+  }, [isDirty]);
+
+  React.useEffect(() => {
     const handleMessage = (event) => {
       // Only accept messages from Worldpay’s domain
       if (event.origin.includes("hostedpayments.com")) {
@@ -398,26 +410,26 @@ export function SignUpForm() {
   }, []);
 
 
-    React.useEffect(() => {
-  
-      const handleBeforeUnload = (event: any) => {
-        if (isDirty ) {
-          // Show confirmation dialog
-          const message =
-            "You have unsaved changes. Are you sure you want to leave?";
-          event.preventDefault();
-          event.returnValue = message; // Some browsers require this for custom messages
-          return message; // For some older browsers
-        }
-        // Clean up builder data only if there are no unsaved changes
-      };
-  
-      window.addEventListener("beforeunload", handleBeforeUnload);
-  
-      return () => {
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-      };
-    }, [isDirty,]);
+  React.useEffect(() => {
+
+    const handleBeforeUnload = (event: any) => {
+      if (isDirty) {
+        // Show confirmation dialog
+        const message =
+          "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message; // Some browsers require this for custom messages
+        return message; // For some older browsers
+      }
+      // Clean up builder data only if there are no unsaved changes
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty,]);
 
   return (
     // <Paper

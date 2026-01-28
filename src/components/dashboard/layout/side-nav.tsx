@@ -163,6 +163,9 @@ function NavItem({
 
   const location = useLocation();
   const pathnames = location.pathname;
+  const routeChecker = useSelector(
+    (state: RootState) => state?.DashBoard?.routeChecker
+  );
 
   const slug = React.useMemo(() => {
     if (!pathnames) return "intuityfe";
@@ -183,7 +186,18 @@ function NavItem({
   // console.log(hrefs, href, pathFun, 'hrefshrefs', href?.split('/dashboard'));
   const handleClick = () => {
     if (hrefs && !external) {
-      navigate(hrefs);
+      if (routeChecker) {
+        const confirmLeave = window.confirm(
+          "You have unsaved changes. Are you sure you want to leave this page?"
+        );
+        if (confirmLeave) {
+          return navigate(hrefs);
+        }
+      }
+      else{
+
+        navigate(hrefs);
+      }
     } else if (hrefs && external) {
       window.open(hrefs, "_blank"); // ✅ external link
     }

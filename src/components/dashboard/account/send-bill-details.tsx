@@ -33,6 +33,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { z } from "zod";
+import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
@@ -87,7 +88,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     setValue,
     watch,
     reset,
-    formState: { errors , isDirty},
+    formState: { errors, isDirty },
   } = useForm<FormDataContent>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -179,27 +180,37 @@ export function SendBillDetailsForm(): React.JSX.Element {
   };
 
 
+  React.useEffect(() => {
 
-      React.useEffect(() => {
-    
-        const handleBeforeUnload = (event: any) => {
-          if (isDirty) {
-            // Show confirmation dialog
-            const message =
-              "You have unsaved changes. Are you sure you want to leave?";
-            event.preventDefault();
-            event.returnValue = message; // Some browsers require this for custom messages
-            return message; // For some older browsers
-          }
-          // Clean up builder data only if there are no unsaved changes
-        };
-    
-        window.addEventListener("beforeunload", handleBeforeUnload);
-    
-        return () => {
-          window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-      }, [isDirty]);
+    if (isDirty) {
+      dispatch(setRouteChecker(true));
+
+    }
+    return () => {
+      dispatch(setRouteChecker(false));
+    }
+  }, [isDirty]);
+
+  React.useEffect(() => {
+
+    const handleBeforeUnload = (event: any) => {
+      if (isDirty) {
+        // Show confirmation dialog
+        const message =
+          "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message; // Some browsers require this for custom messages
+        return message; // For some older browsers
+      }
+      // Clean up builder data only if there are no unsaved changes
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
