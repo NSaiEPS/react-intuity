@@ -114,6 +114,7 @@ export function MainNav(): React.JSX.Element {
                     height: 70,
                     mr: 1.5,
                     backgroundColor: "red",
+                    cursor: "pointer",
                   }}
                 />
               ) : (

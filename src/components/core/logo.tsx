@@ -38,7 +38,9 @@ export function Logo({
       width={width}
       src={src ?? url}
       loading="lazy" // Browser-native lazy image load
-      sx={{ display: "block" }}
+      sx={{ display: "block",
+        cursor: "pointer"
+       }}
     />
   );
 }
@@ -49,6 +51,8 @@ export interface DynamicLogoProps {
   emblem?: boolean;
   height?: number;
   width?: number;
+  style?: React.CSSProperties;
+  src?: null;
 }
 
 export function DynamicLogo({
@@ -61,5 +65,11 @@ export function DynamicLogo({
   const { colorScheme } = useColorScheme();
   const color = colorScheme === "dark" ? colorDark : colorLight;
 
-  return <Logo color={color} height={height} width={width} {...props} />;
+  return <Logo color={color} height={height} width={width}
+    style={{
+    cursor: "pointer",
+  }}
+  {...props}
+
+  />;
 }
