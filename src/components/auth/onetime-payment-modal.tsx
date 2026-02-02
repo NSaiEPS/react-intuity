@@ -180,6 +180,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
       setActiveStep((prev) => prev + 1);
     }
   };
+  
 
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
