@@ -88,6 +88,9 @@ export function UserPopover({
   const [onlyUnread, setOnlyUnread] = React.useState(true);
   const [pageNo, setPageNo] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(1);
+  const routeChecker = useSelector(
+    (state: RootState) => state?.DashBoard?.routeChecker
+  );
 
   const linkedAccountsInfo =
     dashBoardInfo?.body?.linked_customers || linkedCustomerInfo || [];
@@ -108,24 +111,50 @@ export function UserPopover({
       // acl_role_id:4
       // customer_id:810"
 
+
+
       const formData = new FormData();
 
       formData.append("email", loginUserEmail);
       formData.append("acl_role_id", roleId);
       formData.append("customer_id", userId);
 
-      const { error } = await authClient.signOut(token, formData);
+      console.log(routeChecker, "route");
 
-      if (error) {
-        logger.error("Sign out error", error);
-        return;
+
+      if (routeChecker) {
+        const confirmLeave = window.confirm(
+          "You have unsaved changes. Are you sure you want to leave this page?"
+        );
+        if (confirmLeave) {
+          const { error } = await authClient.signOut(token, formData);
+
+          if (error) {
+            logger.error("Sign out error", error);
+            return;
+          }
+
+          await checkSession?.();
+        }
       }
+      else {
+        const { error } = await authClient.signOut(token, formData);
+
+        if (error) {
+          logger.error("Sign out error", error);
+          return;
+        }
+
+        await checkSession?.();
+      }
+
+
 
       await checkSession?.();
     } catch (err) {
       logger.error("Sign out error", err);
     }
-  }, [checkSession]);
+  }, [checkSession,routeChecker]);
 
   const successCallBack = (id?: string | number) => {
     if (id) {
@@ -172,9 +201,7 @@ export function UserPopover({
   }, [notificationList]);
 
   const navigate = useNavigate();
-  const routeChecker = useSelector(
-    (state: RootState) => state?.DashBoard?.routeChecker
-  );
+  
 
   const handleNotificationClick = (item) => {
     const formData = new FormData();
@@ -410,7 +437,19 @@ export function UserPopover({
                 // hanldeAccountClick(account);
                 if (stored?.body?.customer_id != account?.link_customer_id) {
                   setAccountDetails(account);
-                  setSwitchConfirm(true);
+                  if (routeChecker) {
+                    const confirmLeave = window.confirm(
+                      "You have unsaved changes. Are you sure you want to leave this page?"
+                    );
+                    if (confirmLeave) {
+                      setSwitchConfirm(true);
+                    }
+                  }
+                  else {
+                    setSwitchConfirm(true);
+                  }
+
+                  
                 }
               }}
             >
@@ -480,7 +519,7 @@ export function UserPopover({
           <MenuItem
             // component={RouterLink}
             // to={paths.dashboard.linkAccount()}
-            onClick={()=> handleClickPath(paths.dashboard.linkAccount())}
+            onClick={() => handleClickPath(paths.dashboard.linkAccount())}
             sx={{ ml: 1 }}
           >
             <ListItemIcon sx={{ minWidth: "unset", color: "inherit" }}>
@@ -492,7 +531,7 @@ export function UserPopover({
           <MenuItem
             // component={RouterLink}
             // to={paths.dashboard.settings()}
-             onClick={()=> handleClickPath(paths.dashboard.settings())}
+            onClick={() => handleClickPath(paths.dashboard.settings())}
             sx={{ ml: 1 }}
           >
             <ListItemIcon sx={{ minWidth: "unset", color: "inherit" }}>
@@ -505,7 +544,7 @@ export function UserPopover({
             // component={RouterLink}
             // to={paths.dashboard.account()}
             // onClick={onClose}
-            onClick={()=> handleClickPath(paths.dashboard.account())}
+            onClick={() => handleClickPath(paths.dashboard.account())}
             sx={{ ml: 1 }}
           >
             <ListItemIcon sx={{ minWidth: "unset", color: "inherit" }}>

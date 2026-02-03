@@ -43,6 +43,7 @@ import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
 export default function OneTimePaymentModal({ open, onClose }) {
+  const [isDirty, setIsDirty] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const dispatch = useDispatch();
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -80,10 +81,19 @@ export default function OneTimePaymentModal({ open, onClose }) {
     paymentType?: string;
     [key: string]: string | undefined;
   };
+  const confirmIfDirty = () => {
+  if (!isDirty) return true;
+
+  return window.confirm(
+    "You have unsaved changes. Are you sure you want to leave?"
+  );
+};
+
 
   const [errors, setErrors] = useState<FormErrors>({}); // Track validation errors
 
   const handleChange = (field) => (e) => {
+    setIsDirty(true);
     setFormData({ ...formData, [field]: e.target.value });
     setErrors({ ...errors, [field]: "" }); // clear error once user types
   };
@@ -170,6 +180,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
       setActiveStep((prev) => prev + 1);
     }
   };
+  
 
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
@@ -315,6 +326,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
   };
   const onModalClose = () => {
+    if (!confirmIfDirty()) return;
+
+  setIsDirty(false);
     setActiveStep(0);
     setFormData({
       accountNo: "",
@@ -788,7 +802,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
   );
 
   return (
-    <Dialog open={open} onClose={onModalClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Stack
           direction="row"
