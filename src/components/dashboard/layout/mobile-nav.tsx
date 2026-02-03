@@ -40,8 +40,17 @@ export function MobileNav({
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const aliasUser: any = getLocalStorage("alias-details");
-  const companyDetails: any = getLocalStorage("intuity-company");
+
+    interface AliasUser {
+  logo?: string;
+}
+  let aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
+
+  interface CompanyDetails {
+  allow_auto_payment?: number | string;
+}
+
+  const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
 
   const { allow_auto_payment } =
     dashBoardInfo?.body?.company || companyDetails || {};

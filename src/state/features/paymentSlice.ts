@@ -2,16 +2,40 @@ import { getLastBillInfoAPI } from '@/api/dashboard';
 import { navigateTo } from '@/utils/navigation';
 import { createSlice } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
+import { AppDispatch } from '../store';
+import { AxiosError } from 'axios';
 
-interface DahBoardState {
-  lastBillInfo: any;
+
+interface ApiResponse<T> {
+  status: boolean;
+  message?: string;
+  body?: T;
+}
+
+interface LastBillInfo {
+  id?: string;
+  amount?: number;
+  dueDate?: string;
+  // add more fields as needed
+}
+
+interface DashBoardState {
+  lastBillInfo: LastBillInfo | null;
   paymentLoader: boolean;
 }
 
-const initialState = {
+type GetLastBillInfoThunk = (
+  formData: FormData,
+  token: string,
+  setContextLoading?: (loading: boolean) => void,
+  isPost?: boolean,
+  successCallBack?: (data: LastBillInfo) => void
+) => (dispatch: AppDispatch) => Promise<void>;
+
+const initialState:DashBoardState = {
   lastBillInfo: {},
   paymentLoader: false,
-} as DahBoardState;
+} as DashBoardState;
 
 const paymentSlice = createSlice({
   name: 'paymentSlice',
@@ -30,13 +54,13 @@ export const { setLastBillInfo, setPaymentLoader } = paymentSlice.actions;
 
 export default paymentSlice.reducer;
 
-export const getLastBillInfo: any =
+export const getLastBillInfo: GetLastBillInfoThunk =
   (formData, token, setContextLoading, isPost = false, successCallBack) =>
   async (dispatch) => {
     dispatch(setPaymentLoader(true));
 
     try {
-      const res = await getLastBillInfoAPI({ token, formData });
+      const res: ApiResponse<LastBillInfo> = await getLastBillInfoAPI({ token, formData });
 
       if (res?.status) {
         if (successCallBack) {
@@ -55,8 +79,12 @@ export const getLastBillInfo: any =
           toast.error(res?.message ?? 'Something went wrong!');
         }
       }
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? 'Error Try again!!');
+    } catch (e: unknown) {
+      const error = e as AxiosError<{ message?: string }>;
+
+  toast.error(
+    error.response?.data?.message ?? 'Error! Try again.'
+  );
 
       // toast(e?.response?.data?.message);
       // message.error(e?.response?.data?.message);

@@ -88,11 +88,30 @@ export function getCurrentCompanySlug(): string | undefined {
   return undefined;
 }
 
+type NumericLike = number | string | null | undefined;
+
+interface CardConfig {
+  credit_card_amount_convenience_fee?: NumericLike;
+  credit_card_percentage_convenience_fee?: NumericLike;
+  credit_card_minimum_amount_convenience_fee?: NumericLike;
+
+  credit_card_amex_amount_convenience_fee?: NumericLike;
+  credit_card_amex_percentage_convenience_fee?: NumericLike;
+  credit_card_amex_minimum_amount_convenience_fee?: NumericLike;
+}
+
+interface AchConfig {
+  bank_amount_convenience_fee_ach?: NumericLike;
+  bank_percentage_convenience_fee_ach?: NumericLike;
+  bank_minimum_amount_convenience_fee_ach?: NumericLike;
+}
+
+
 type PaymentConfig = {
-  config_data_card?: Record<string, any>;
-  config_data_ach?: Record<string, any>;
-  [key: string]: any;
+  config_data_card?: CardConfig;
+  config_data_ach?: AchConfig;
 };
+
 export const calculatePaymentAmount = ({
   amount,
   paymentType,
@@ -104,8 +123,8 @@ export const calculatePaymentAmount = ({
   cardType?: string;
   config?: PaymentConfig;
 }) => {
-  const parseNum = (v: any) => {
-    const n = parseFloat(v);
+  const parseNum = (v?: string | number | null) => {
+     const n = typeof v === "number" ? v : parseFloat(String(v));
     return Number.isFinite(n) ? n : 0;
   };
 
@@ -123,7 +142,10 @@ export const calculatePaymentAmount = ({
   const achConfig = (config && config.config_data_ach) || {};
 
   // Helper to compute same branching logic as PHP for a group of (fixed, percentage, minimum)
-  function computeFeeFromFields(baseAmount, fixedField, percField, minField) {
+  function computeFeeFromFields(baseAmount: number,
+  fixedField?: NumericLike,
+  percField?: NumericLike,
+  minField?: NumericLike):number {
     const fixed = parseNum(fixedField);
     const perc = parseNum(percField);
     const minimum = parseNum(minField);
@@ -217,6 +239,57 @@ export function maskValue(value: string): string {
   const last4 = value.slice(-4);
   return "********" + last4;
 }
+
+  export interface CustomerInfo {
+  is_voice_optout: number;
+  loginID: string;
+  user_name: string;
+  payment_method_id: string | Blob;
+  autopay: number;
+  customer_address: string;
+  customer_name: string;
+  acctnum: number;
+  id?: number;
+  company_logo?: string;
+  paperless?: 0 | 1;
+  allow_overpayments?: number;
+  balance?: number;
+  email?: string;
+  company_id?: string;
+}
+
+export interface UtilityItem {
+  item: string;
+  product_id: string;
+  amount: number;
+  service_address?: string;
+  start_date?: string;
+  end_date?: string;
+  consumption_days?: number;
+  previous_reading?: number | string;
+  current_reading?: number | string;
+  meter_number?: string;
+  consumption?: number | string;
+}
+
+export interface WorldPlayDetails {
+  account_number: string;
+  invoice_amount: string | number;
+  company_id: string;
+  company_alias: string;
+  customer_id: string;
+  success_authenticate: string;
+  name: string;
+  email: string;
+  billing_id: string;
+  is_one_time: "0" | "1";
+  is_card: "0" | "1";
+  amount: string | number;
+  convenienceFee: string | number;
+  totalPayment: string | number;
+  paymentType: string;
+}
+
 
 export const dummyCountriesList = [
   {

@@ -131,7 +131,7 @@ export function AccountDetailsForm(): React.JSX.Element {
     }, [isDirty,isEditEnable]);
   React.useEffect(() => {
 
-    const handleBeforeUnload = (event: any) => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isDirty && isEditEnable) {
         // Show confirmation dialog
         const message =

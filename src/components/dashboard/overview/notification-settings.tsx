@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import {
   Box,
@@ -30,7 +30,7 @@ function NotificationsSettings() {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const userInfo: any = dashBoardInfo?.customer
+  const userInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 
@@ -42,7 +42,7 @@ function NotificationsSettings() {
     setContextLoading(true);
   }, []);
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 

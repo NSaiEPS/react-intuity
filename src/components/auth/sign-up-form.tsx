@@ -123,7 +123,7 @@ export const CustomConnector = styled(StepConnector, {
     borderRadius: 1,
   },
 }));
-// const CustomStepIcon = ({ active, completed, icon }: any) => {
+// const CustomStepIcon = ({ active, completed, icon }) => {
 //   return (
 //     <div
 //       style={{
@@ -412,7 +412,7 @@ export function SignUpForm() {
 
   React.useEffect(() => {
 
-    const handleBeforeUnload = (event: any) => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isDirty) {
         // Show confirmation dialog
         const message =

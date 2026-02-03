@@ -77,7 +77,7 @@ type FormDataContent = {
   preferredOwnerMethod: "Owner" | "Tenant";
   comment: string;
   applicableField?: string;
-  files?: any;
+  files?: File[];
 };
 
 export function SendBillDetailsForm(): React.JSX.Element {
@@ -111,7 +111,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
   const dispatch = useDispatch();
 
   const onSubmit: SubmitHandler<FormDataContent> = (data) => {
-    let files: any = data?.files?.length ? data?.files : [];
+    let files:  File[] = data?.files?.length ? data?.files : [];
 
     // if (!files?.length) {
     //   toast.warning('Please upload any file');
@@ -193,7 +193,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
   React.useEffect(() => {
 
-    const handleBeforeUnload = (event: any) => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isDirty) {
         // Show confirmation dialog
         const message =

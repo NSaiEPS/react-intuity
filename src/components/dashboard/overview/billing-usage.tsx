@@ -295,7 +295,7 @@ const BarChart = () => {
   });
   const [uamType, setUamType] = useState("gallons");
 
-  // const chartData: any = {
+  // const chartData = {
   //   series: [
   //     {
   //       name: 'Gallons',
@@ -373,12 +373,13 @@ const BarChart = () => {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.usageGraph
   );
+type BarChartData = Record<string, [number, number]>;
 
-  const barData: any = dashBoardInfo;
+  const barData: BarChartData = dashBoardInfo;
 
   const getBarChartData = () => {
-    const gallons: any[] = [];
-    const dollars: any[] = [];
+    const gallons: number[] = [];
+    const dollars: number[] = [];
     const dates: string[] = [];
     const colors: string[] = [];
     if (barData.bar_chart_data) {
@@ -402,7 +403,7 @@ const BarChart = () => {
     }
   }, [dashBoardInfo]);
 
-  const chartData: any = useMemo(
+  const chartData = useMemo(
     () => ({
       series: [
         {

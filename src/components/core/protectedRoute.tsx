@@ -15,7 +15,10 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
   const user = getLocalStorage('intuity-user');
-  const aliasUser: any = getLocalStorage('alias-details');
+  interface AliasUser {
+  alias: string;
+}
+  const aliasUser: AliasUser | null = getLocalStorage('alias-details') as AliasUser | null;
   const location = useLocation();
 
   if (!user) {

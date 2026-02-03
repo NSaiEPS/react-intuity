@@ -1,6 +1,6 @@
 import * as React from "react";
 import { RootState } from "@/state/store";
-import { colors, formatToMMDDYYYY } from "@/utils";
+import { colors, CustomerInfo, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { paths } from "@/utils/paths";
 import {
@@ -23,6 +23,11 @@ import CustomModal from "../layout/invoice-pdf-modal";
 import { pdf } from "@react-pdf/renderer";
 import InvoicePdfDocument from "../layout/invoice-pdf-view";
 
+
+interface BillingItem {
+  amount: string | number;
+}
+
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
 
@@ -42,7 +47,7 @@ export function LastBill(): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.invoiceDetails
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 
@@ -53,8 +58,8 @@ export function LastBill(): React.JSX.Element {
     let totalAmount = 0;
 
     if (lastBillInfo?.billing_list) {
-      Object.entries(lastBillInfo.billing_list).forEach(
-        ([_, items]: any) => {
+      Object.entries(lastBillInfo.billing_list as Record<string, BillingItem[]>).forEach(
+        ([_, items]) => {
           totalAmount = items.reduce(
             (sum, item) => sum + Number(item.amount),
             0

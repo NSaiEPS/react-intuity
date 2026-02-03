@@ -11,6 +11,7 @@ import {
   Grid,
   MenuItem,
   Select,
+  SelectChangeEvent,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { CustomBackdrop, Loader } from "nsaicomponents";
@@ -18,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import PdfViewer from "../layout/invoice-pdf-view";
 import InvoiceTransactionTabs from "./billing-history-tabs";
-import { boarderRadius } from "@/utils";
+import { boarderRadius, CustomerInfo } from "@/utils";
 import Header from "@/components/CommonComponents/Header";
 
 function noop(): void {
@@ -65,8 +66,9 @@ export function BillingHistory({
   const years = Array.from({ length: 15 }, (_, index) => currentYear - index);
   const [selectedYear, setSelectedYear] = React.useState(years[0]);
 
-  const handleChange = (event: any) => {
-    setSelectedYear(event.target.value);
+  const handleChange = (event:  SelectChangeEvent<string>) => {
+    const year = Number(event.target.value);
+    setSelectedYear(year);
     filterByYear(event.target.value);
   };
   const dashBoardInfo = useSelector(
@@ -80,7 +82,7 @@ export function BillingHistory({
     (state: RootState) => state?.Payment?.paymentLoader
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   const dispatch = useDispatch();
@@ -122,7 +124,7 @@ export function BillingHistory({
       >
         <FormControl>
           <Select
-            value={selectedYear}
+            value={selectedYear.toString()}
             onChange={handleChange}
             sx={{ height: 40, mb: 1, mr: 2 }}
           >

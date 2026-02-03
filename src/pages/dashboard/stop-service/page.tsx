@@ -14,7 +14,7 @@ import { stopTransferService } from "@/state/features/accountSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 
-import { boarderRadius } from "@/utils";
+import { boarderRadius, CustomerInfo } from "@/utils";
 import { Card, CardHeader, Grid as MUIGrid } from "@mui/material";
 import Header from "@/components/CommonComponents/Header";
 
@@ -71,7 +71,7 @@ export default function StopTransferServicePage(): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   return (

@@ -14,13 +14,14 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
+import { CustomerInfo } from "@/utils";
 
 function UsageHeader() {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 

@@ -31,12 +31,24 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+interface CustomerInfo {
+  customer_name: string;
+  acctnum: number;
+  id?: number;
+  company_logo?: string;
+  paperless?: 0 | 1;
+  allow_overpayments?: number;
+  balance?: number;
+  email?: string;
+  company_id?: string;
+}
+
 type AuthCodeModalProps = {
   open: boolean;
   selectedVal: string;
   onClose: () => void;
   onVerify: (code: string) => void;
-  customerData: any;
+  customerData: CustomerInfo | null;
 };
 
 export default function AuthCodeModal({

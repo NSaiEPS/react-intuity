@@ -45,7 +45,22 @@ const initialState: ConfirmDialogState = {
   ids: [],
   type: "single",
 };
-const reducer = (state: ConfirmDialogState, action: any) => {
+
+type OpenDialogAction = {
+  type: "OPEN_DIALOG";
+  payload: {
+    ids: number[];
+    type?: "single" | "multiple";
+  };
+};
+
+type CloseDialogAction = {
+  type: "CLOSE_DIALOG";
+};
+
+type ConfirmDialogAction = OpenDialogAction | CloseDialogAction;
+
+const reducer = (state: ConfirmDialogState, action: ConfirmDialogAction) => {
   switch (action.type) {
     case "OPEN_DIALOG": {
       const { payload } = action;
@@ -88,11 +103,21 @@ export default function AlertsScreen() {
     );
   };
 
+  interface AlertItem {
+   id: number;
+  data?: string | Date;
+  acctnum?: string;
+  customer_name?: string;
+  utility_type_name?: string;
+  meter_number?: string;
+  message?: string;
+}
+
   const handleToggleAll = () => {
     if (allSelected) {
       setSelected([]);
     } else {
-      setSelected(alertsList.map((item: any) => item?.id));
+      setSelected(alertsList.map((item: AlertItem) => item?.id));
     }
   };
 
@@ -136,8 +161,8 @@ export default function AlertsScreen() {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
-  const sortedAlerts = React.useMemo(() => {
-    return [...alertsList].sort((a: any, b: any) => {
+  const sortedAlerts = React.useMemo<AlertItem[]>(() => {
+    return [...alertsList].sort((a, b) => {
       const dateA = dayjs(a.data);
       const dateB = dayjs(b.data);
 
@@ -418,7 +443,7 @@ export default function AlertsScreen() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  sortedAlerts.map((row: any, index: number) => (
+                  sortedAlerts.map((row, index) => (
                     <TableRow
                       key={index}
                       sx={{ bgcolor: index % 2 ? "#f9fcff" : "white" }}

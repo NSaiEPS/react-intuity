@@ -15,7 +15,10 @@ import { useLoading } from "./skeletion-context";
 export default function CompanyRouteGuard() {
   const user = getLocalStorage("intuity-user");
   const storedCompanyId = secureLocalStorage.getItem("intuity-companyId");
-  const aliasUser: any = getLocalStorage("alias-details");
+  interface AliasUser {
+  alias: string;
+}
+  const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
   const dispatch = useDispatch();
   const { setContextLoading } = useLoading();
 

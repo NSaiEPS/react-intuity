@@ -1,3 +1,4 @@
+import { UtilityItem } from "@/utils";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 const styles1 = StyleSheet.create({
@@ -515,7 +516,18 @@ const styles = StyleSheet.create({
 
   // no borderRight here
 });
-const formatDate = (val?: any) => {
+
+interface InvoiceItem {
+  product_id?: string;
+  amount?: number | string;
+}
+
+interface ExtraParam {
+  amount?: number | string;
+}
+
+type DateInput = string | number | Date | null | undefined;
+const formatDate = (val?: DateInput):string => {
   if (!val) return "";
   const d = new Date(val);
   if (Number.isNaN(d.getTime())) return String(val);
@@ -524,13 +536,63 @@ const formatDate = (val?: any) => {
   const yyyy = d.getFullYear();
   return `${mm}/${dd}/${yyyy}`;
 };
-const money = (n?: any) =>
+
+type MoneyInput = string | number | null | undefined;
+
+const money = (n?: MoneyInput):string =>
   n == null || n === "" ? "-" : `$${Number(n).toFixed(2)}`;
+
+ interface Company {
+  company_name?: string;
+  street?: string;
+  city?: string;
+  state_abbrev?: string;
+  zip?: string;
+}
+export interface Customer {
+  customer_name?: string;
+  address?: string;
+  city?: string;
+  state_abbrev?: string;
+  zipcode?: string;
+  email?: string;
+  phone?: string;
+  acctnum?: string;
+  autopay?: boolean;
+}
+export interface BillingInfo {
+  billing_date?: string;
+  due_date?: string;
+  late_date?: string;
+  late_date_amount?: number;
+  amount?: number;
+  invoice_number?: string;
+  last_payment_info?: string;
+}
+
+export interface CompanySettings {
+  invoice_subheadline?: string;
+  invoice_text_header_email?: string;
+  invoice_text_header_open?: string;
+  invoice_text_header_web?: string;
+  direct_debit?: string;
+  invoice_footer_column_3?: string;
+}
+
+ interface InvoiceDetails {
+  company?: Company;
+  company_settings?: CompanySettings;
+  customer?: Customer;
+  unique_by_utility?: Record<string, UtilityItem[]>;
+  last_bill?: BillingInfo[];
+  extra_params?: ExtraParam[];
+  autopay_do_not_pay_text?: string;
+}
 
 export default function InvoicePdfDocument({
   invoiceDetails,
 }: {
-  invoiceDetails: any;
+  invoiceDetails: InvoiceDetails;
 }) {
   const {
     company,
@@ -626,11 +688,11 @@ export default function InvoicePdfDocument({
 
         {/* Item Descriptions (per utility) */}
         {Object.entries(unique_by_utility || {}).map(
-          ([key, items]: any, uIdx: number) => {
+          ([key, items]: [string, UtilityItem[]], uIdx: number) => {
             const [utilityName = "", , meterNumber = "", ...addressParts] =
               String(key).split(";");
             const serviceAddress = addressParts.join(";");
-            const utilityDetails = items?.[0] ?? {};
+            const utilityDetails : UtilityItem = items?.[0] ?? ({} as UtilityItem);
             const subtotal = items.reduce(
               (acc, item) => acc + (item?.amount || 0),
               0
@@ -652,7 +714,7 @@ export default function InvoicePdfDocument({
                 {/* Items table (product_id + amount) */}
                 <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
     borderRadius: 4}}>
-                  {items.map((item: any, idx: number) => (
+                  {items.map((item: InvoiceItem, idx: number) => (
                     <View
                       key={idx}
                       style={[
@@ -748,7 +810,7 @@ export default function InvoicePdfDocument({
         {/* Previous Balance */}
         <View style={styles.balanceRowWrapper}>
         {Array.isArray(extra_params) &&
-          extra_params.map((it: any, i: number) => (
+          (extra_params as ExtraParam[]).map((it, i) => (
             <View key={i} style={styles.prevBalRow}>
               <Text style={{ fontWeight: "700", fontSize : 12 ,  color: "#fff" }}>
                 PREVIOUS BALANCE :  {money(it?.amount)}

@@ -12,6 +12,7 @@ import { RootState } from "@/state/store";
 import {
   calculatePaymentAmount,
   colors,
+  CustomerInfo,
   decryptFunction,
   maskValue,
 } from "@/utils";
@@ -161,7 +162,9 @@ const PaymentForm = () => {
     }
   }, [paymentDetailsInfo]);
   // const [maxPaymentModal, setMaxPaymentModal] = useState<any>(false);
-  const [myCustomerDetails, setCustomerDetails] = useState<any>({
+
+
+  const [myCustomerDetails, setCustomerDetails] = useState<{allow_overpayments: number; balance: number; id?: number; paperless?: 0 | 1;}>({
     allow_overpayments: 0,
     balance: 0,
   });
@@ -186,7 +189,8 @@ const PaymentForm = () => {
   }, [stored]);
   const [hovered, setHovered] = useState(false);
 
-  const CustomerInfo: any = dashBoardInfo?.body?.customer
+ 
+  const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
 
@@ -372,7 +376,25 @@ const PaymentForm = () => {
     );
   };
   const [openConfirm, setOpenConfirm] = useState(false);
-  const [selectedCardDetails, setSelectedCardDetails] = useState<any>({});
+ interface CardDetails {
+  date_used?: string | number | Date | Dayjs;
+
+  account_type?: string;
+  card_number?: string;          
+  bank_account_number?: string;  
+  card_type?: string;
+  card_token?: string;
+
+  id?: string;
+  last4?: string;
+  brand?: string;
+  expMonth?: number;
+  expYear?: number;
+
+  [key: string]: unknown;
+}
+
+  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
   useEffect(() => {
     setSelectedCardDetails(paymentMethodInfoCards);
   }, [paymentMethodInfoCards]);
@@ -407,7 +429,7 @@ const PaymentForm = () => {
       Number(amount) > Number(myCustomerDetails?.balance || 0) &&
       myCustomerDetails?.id
     ) {
-      setValue("amount", myCustomerDetails?.balance || "0");
+      setValue("amount",  `${myCustomerDetails?.balance ?? 0}`);
       toast.warn("Please don't pay more than you owe!");
     }
   }, [amount, myCustomerDetails, setValue]);
@@ -1197,8 +1219,7 @@ const PaymentForm = () => {
           ) : (
             <PaymentIframe
               type={debitType == "card" ? "card" : "account"}
-              // onSuccess={(data: any) => handleSaveDetails(data, debitType)}
-              onSuccess={(data: any) => setCardBankDetails(data)}
+              onSuccess={(data: CardDetails) => setCardBankDetails(data)}
               invoiceId={id}
               convenience_fee={String(watch("convenienceFee") || 0)}
               amount={(Number(watch("amount")) || 0).toFixed(2)}
@@ -1218,8 +1239,8 @@ const PaymentForm = () => {
               page={1}
               rows={[]}
               rowsPerPage={10}
-              onSaveCardDetails={(data) => {
-                setSelectedCardDetails(data);
+              onSaveCardDetails={(data: string) => {
+                setSelectedCardDetails(JSON.parse(data));
                 setOpenConfirm(true);
               }}
               paymentDetailsPage={true}

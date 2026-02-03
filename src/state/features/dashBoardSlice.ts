@@ -303,7 +303,7 @@ export const getInvoiceDetails: any =
   (formData, token, setContextLoading) => async (dispatch) => {
     dispatch(setDashboardLoader(true));
     try {
-      // const res: any = await api.post('/billing/front/invoice', data, {
+      // const res = await api.post('/billing/front/invoice', data, {
       //   headers: {
       //     Authorization: token,
       //   },

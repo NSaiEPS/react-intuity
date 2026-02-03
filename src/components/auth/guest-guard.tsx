@@ -13,7 +13,7 @@ export function GuestGuard({
   children,
 }: GuestGuardProps): React.JSX.Element | null {
   const navigate = useNavigate();
-  const { user, error, isLoading }: any = useUser();
+  const { user, error, isLoading } = useUser();
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
 
   const checkPermissions = async (): Promise<void> => {

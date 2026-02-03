@@ -268,6 +268,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
@@ -281,7 +282,8 @@ export default function NachaIframe({ onSuccess }) {
     agree: false,
   });
 
-  const [errors, setErrors] = useState<any>({});
+type FormErrors = Record<string, string>;
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const generateToken = () => {
     const now = new Date();
@@ -295,7 +297,15 @@ export default function NachaIframe({ onSuccess }) {
     );
   };
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name as string]: value,
+    }));
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -412,7 +422,7 @@ export default function NachaIframe({ onSuccess }) {
         <Select
           name="accountType"
           value={formData.accountType}
-          onChange={handleChange}
+          onChange={handleSelectChange}
         >
           <MenuItem value="PC">Personal Checking</MenuItem>
           <MenuItem value="PS">Personal Savings</MenuItem>

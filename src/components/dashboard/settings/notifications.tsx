@@ -4,7 +4,7 @@ import {
   updateVoicePreference,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+import { boarderRadius, colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -20,6 +20,7 @@ import {
   OutlinedInput,
   Stack,
   Switch,
+  SwitchProps,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -44,7 +45,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const IOSSwitch = styled((props: any) => (
+const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
   width: 70,
@@ -165,12 +166,12 @@ export function Notifications(): React.JSX.Element {
   const dispatch = useDispatch();
   const [clickedState, setClickedState] = React.useState(false);
 
-  // const userInfo: any = getLocalStorage("intuity-customerInfo");
+  // const userInfo = getLocalStorage("intuity-customerInfo");
 
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const userInfo: any = dashBoardInfo?.customer
+  const userInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 

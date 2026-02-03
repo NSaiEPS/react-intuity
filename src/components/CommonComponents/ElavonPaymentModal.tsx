@@ -7,7 +7,16 @@ import { ArrowClockwise } from "@phosphor-icons/react/dist/ssr";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router";
 
-const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
+
+type ElavonAddCardProps = {
+  type?: "card" | "bank";
+  onSuccess: (data: unknown) => void;
+  customerDetails?: {
+    id?: string | number;
+  };
+};
+
+const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess, customerDetails }) => {
   const [searchParams] = useSearchParams();
 
   const id = searchParams.get("id");
@@ -80,10 +89,10 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
     try {
       const formData = new FormData();
       if (token) {
-        formData.append("acl_role_id", roleId);
-        formData.append("customer_id", userId);
+        formData.append("acl_role_id", String(roleId));
+        formData.append("customer_id", String(userId));
       } else {
-        formData.append("customer_id", customerDetails?.id);
+        formData.append("customer_id", String(customerDetails?.id));
         // formData.append("company_alias", companyInfo?.company?.alias);
         formData.append("acl_role_id", "4");
       }
@@ -145,7 +154,7 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
         console.log("✅ Lightbox ready");
         setIframeVisible(true);
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         console.error("❌ Elavon error:", error);
         showResultAddCard("error", error);
       },
@@ -153,11 +162,11 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
         console.warn("⚠️ User cancelled payment");
         showResultAddCard("cancelled", "");
       },
-      onDeclined: (response: any) => {
+      onDeclined: (response: unknown) => {
         console.warn("❌ Payment declined:", response);
         showResultAddCard("declined", JSON.stringify(response, null, 2));
       },
-      onApproval: (response: any) => {
+      onApproval: (response: unknown) => {
         console.log("✅ Payment approved:", response);
         showResultAddCard("approval", response);
       },
@@ -175,7 +184,7 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
     try {
       console.log("Opening Elavon Lightbox...", sessionToken);
 
-      (window as any).PayWithConverge?.open(
+      (window).PayWithConverge?.open(
         {
           ssl_txn_auth_token: sessionToken,
           ssl_transaction_type: type == "card" ? "ccaddtoken" : "ecaddtoken",
@@ -214,7 +223,7 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
   };
 
   // 🧩 STEP 3: Handle Elavon callback results
-  const showResultAddCard = async (status: string, msg: any) => {
+  const showResultAddCard = async (status: string, msg: unknown) => {
     console.log("txn_status_add_card:", status);
     console.log("txn_response_add_card:", msg);
 
@@ -251,8 +260,8 @@ const ElavonAddCard = ({ type = "card", onSuccess, customerDetails }) => {
     setIframeVisible(false);
 
     // 🔹 Close SDK session if still open
-    if ((window as any).PayWithConverge?.close) {
-      (window as any).PayWithConverge.close();
+    if ((window).PayWithConverge?.close) {
+      (window).PayWithConverge.close();
     }
 
     console.log("🔁 Elavon SDK reset — ready for next open()");

@@ -38,7 +38,7 @@
 //   let utilityNameData = ""
 //   let serviceAddress = ""
 
-//   Object.entries(unique_by_utility).map(([key, items]: any) => {
+//   Object.entries(unique_by_utility).map(([key, items]) => {
 //   const [utilityName, , meterNumber, ...addressParts] = key.split(";");
 //    serviceAddress = addressParts.join(";");
 
@@ -341,7 +341,7 @@
 //           </TableCell>
 //           <TableCell colSpan={2}>
 //             <Typography sx={{ fontSize: 12 }}>
-//               If you have any questions about your bill, service, or need to
+//               If you have questions about your bill, service, or need to
 //               discuss payment arrangements, please call or come by.
 //             </Typography>
 //             <Typography sx={{ fontSize: 12 }}>City of Coleharbor</Typography>
@@ -556,7 +556,7 @@
 
 import * as React from "react";
 import { RootState } from "@/state/store";
-import { colors, formatToMMDDYYYY } from "@/utils";
+import { colors, formatToMMDDYYYY, UtilityItem } from "@/utils";
 import {
   Box,
   Checkbox,
@@ -576,6 +576,10 @@ import {
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useSelector } from "react-redux";
 import { fontSize } from "@mui/system";
+
+
+
+
 
 export const InvoiceMainDetails = () => {
   const invoiceDetails = useSelector(
@@ -735,10 +739,10 @@ export const InvoiceMainDetails = () => {
         </Grid>
       </Grid>
       {/* Item Descriptions */}
-      {Object?.entries(unique_by_utility).map(([key, items]: any) => {
+      {Object?.entries(unique_by_utility).map(([key, items]: [string, UtilityItem[]]) => {
         const [utilityName, , meterNumber, ...addressParts] = key.split(";");
         const serviceAddress = addressParts.join(";");
-        const utilityDetails = items?.[0] ?? {};
+        const utilityDetails : UtilityItem = items?.[0] ?? ({} as UtilityItem);
         const subtotal = items.reduce(
           (acc, item) => acc + (item?.amount || 0),
           0

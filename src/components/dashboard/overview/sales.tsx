@@ -120,7 +120,7 @@ export function Sales({
   //   secureLocalStorage.setItem('intuity-bar-chart', res?.body?.dashboard);
   // const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.usageGraph);
 
-  // const barData: any = monthlyUsageGraph?.length monthlyUsageGraph?.slice(1);
+  // const barData = monthlyUsageGraph?.length monthlyUsageGraph?.slice(1);
   // console.log(barData, 'barData');
   const getBarChartData = (barData) => {
     const gallons: string[] = [];
@@ -152,7 +152,7 @@ export function Sales({
       getBarChartData(monthlyUsageGraph?.slice(1));
     }
   }, [monthlyUsageGraph]);
-  const chartData: any = {
+  const chartData = {
     series: [
       {
         name: "Gallons",

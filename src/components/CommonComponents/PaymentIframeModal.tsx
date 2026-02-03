@@ -11,16 +11,17 @@ import { renderIframeRoot, unmountIframeRoot } from "@/utils/rootIframe";
 import { useSearchParams } from "react-router";
 import ElavonAddCard from "./ElavonPaymentModal";
 import ElavonBankIframe from "./ElavonBankIframe";
+import { CustomerInfo } from "@/utils";
 
 interface PaymentIframeProps {
   type: "card" | "account";
-  onSuccess: (data: any) => void; // handleSaveDetails
-  oneTimePayment?: any;
+  onSuccess: (data: string | unknown) => void; // handleSaveDetails
+  oneTimePayment?: { accountNo: string; name: string; street: string } | null;
   invoiceId?: string;
   convenience_fee?: string;
   amount?: string;
   amountRequired?: boolean;
-  customerDetails?: any;
+  customerDetails?: { id?: string | number } | null;
 }
 
 const PaymentIframe: FC<PaymentIframeProps> = ({
@@ -46,11 +47,30 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
     (state: RootState) => state?.Account
   );
   const dispatch = useDispatch();
-  const [processorDetails, setProcessorDetails] = useState<any>({});
-  const [decryptedDetails, setDecryptedDetails] = useState<any>({});
+  interface ProcessorDetails {
+  processor?: "worldpay" | "elavon" | "stripe" | string;
+  iframe_url?: string;
+  token?: string;
+  merchant_id?: string;
+  public_key?: string;
+  [key: string]: unknown;
+}
+
+interface DecryptedDetails {
+  card_token?: string;
+  last4?: string;
+  brand?: string;
+  expMonth?: number;
+  expYear?: number;
+  bank_account_number?: string;
+  account_type?: string;
+  [key: string]: unknown;
+}
+  const [processorDetails, setProcessorDetails] = useState<ProcessorDetails>({});
+  const [decryptedDetails, setDecryptedDetails] = useState<DecryptedDetails>({});
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
   console.log(processorDetails, "processorDetails");
-  const CustomerInfo: any = dashBoardInfo?.body?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
 
@@ -241,7 +261,16 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const [worldpayDetails, setWorldpayDetails] = useState<any>({});
+   interface WorldpayDetails {
+  iframeUrl?: string;
+  sessionId?: string;
+  merchantId?: string;
+  paymentMethod?: "card" | "bank";
+  amount?: string;
+  currency?: string;
+  [key: string]: unknown; // allow backend extensions safely
+}
+  const [worldpayDetails, setWorldpayDetails] = useState<WorldpayDetails | null>(null);
   console.log(worldpayDetails, "worldpayDetails");
   const companyInfo = useSelector(
     (state: RootState) => state.Account.companyInfo
@@ -341,7 +370,7 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   if (curentProcessor?.includes("elavon")) {
     return (
       <ElavonAddCard
-        type={type}
+        type={type === "account" ? "bank" : type}
         onSuccess={onSuccess}
         customerDetails={customerDetails}
       />

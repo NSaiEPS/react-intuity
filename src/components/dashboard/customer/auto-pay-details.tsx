@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors, decryptFunction } from "@/utils";
+import { boarderRadius, colors, CustomerInfo, decryptFunction } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -16,7 +16,7 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { SelectPaymentMethod } from "@/components/dashboard/customer/select-payment-method";
@@ -37,12 +37,22 @@ export default function AutoPayDetails(): React.JSX.Element {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const userInfo: any = getLocalStorage("intuity-customerInfo");
+  const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
-  const CustomerInfo: any = dashBoardInfo?.customer
+//   interface CustomerInfo {
+//   acctnum: React.ReactNode;
+//   customer_name: React.ReactNode;
+//   autopay: number;
+//   id?: number;
+//   company_logo?: string;
+//   paperless?: 0 | 1;
+//   allow_overpayments?: number;
+//   balance?: number;
+// }
+  const CustomerInfo: CustomerInfo | null = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   const [isAutoPay, setisAutoPay] = React.useState(false);
@@ -50,8 +60,33 @@ export default function AutoPayDetails(): React.JSX.Element {
   const [autoPayDetails, setAutoPayDetails] = React.useState(null);
   const [autoPaySettings, setAutoPaySettings] = React.useState(null);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  interface CardInfo {
+    card_type?: string;
+    account_type?: string;
+    card_number?: string;
+    bank_account_number?: string;
+    date_used?: string | number | Date | Dayjs;
+    [key: string]: unknown;
+  }
+
+  interface CardDetails {
+    card?: CardInfo;
+    token?: string;
+    date_used?: string | number | Date | Dayjs;
+    account_type?: string;
+    card_number?: string;          
+    bank_account_number?: string;  
+    card_type?: string;
+    card_token?: string;
+    id?: string;
+    last4?: string;
+    brand?: string;
+    expMonth?: number;
+    expYear?: number;
+    [key: string]: unknown;
+  }
   const [selectedCardDetails, setSelectedCardDetails] =
-    React.useState<any>(null);
+    React.useState<CardDetails>(null);
 
   console.log(autoPayDetails, selectedCardDetails, "autoPayDetails");
 
@@ -91,7 +126,7 @@ export default function AutoPayDetails(): React.JSX.Element {
       // customer_id:810
       // is_form:1"
 
-      formData.append("payment_method_id_model", selectedCardDetails?.token);
+      formData.append("payment_method_id_model", selectedCardDetails?.token as string);
 
       formData.append("is_form", "1");
       formData.append("auto_pay", isAutoPay ? "1" : "0");

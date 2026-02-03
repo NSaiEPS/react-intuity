@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useRouteError } from "react-router-dom";
 
 export default function RouteErrorBoundary() {
-  const error: any = useRouteError();
+  const error = useRouteError() as unknown;
   console.error("Route error:", error);
   useEffect(() => {
     if (
@@ -18,7 +18,7 @@ export default function RouteErrorBoundary() {
 
   return (
     <div style={{ padding: "2rem", textAlign: "center" }}>
-      {error.message.includes("Failed to fetch dynamically imported module") ? (
+      {error instanceof Error && error.message.includes("Failed to fetch dynamically imported module") ? (
         <>
           <h2>Reloading...</h2>
           <h2>Loading Fresh Content</h2>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Key, ReactNode, useState } from 'react';
 import {
   Box,
   Collapse,
@@ -16,6 +16,14 @@ import { CaretDown, CaretUp } from '@phosphor-icons/react';
 
 // Your data object with multiple utility keys
 
+
+interface BillingItem {
+   id: string | number;
+  product_id: string;
+  amount: string | number;
+  consumption?: number;
+}
+
 export default function UtilityList({ data }) {
   const [expandedKey, setExpandedKey] = useState(null);
 
@@ -27,7 +35,7 @@ export default function UtilityList({ data }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // or manually check screen width
   return (
     <Grid container spacing={2} style={{}}>
-      {Object?.entries(data).map(([key, items]: any) => {
+      {Object?.entries(data as Record<string, BillingItem[]>).map(([key, items]) => {
         // Parse key parts: "WATER;1;48699537;40 PECAN COVE CT"
         const [utilityName, , meterNumber, ...addressParts] = key.split(';');
         const serviceAddress = addressParts.join(';'); // in case address has ';'

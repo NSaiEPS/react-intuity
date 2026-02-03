@@ -3,14 +3,15 @@ export {};
 declare global {
   interface Window {
     PayWithConverge?: {
+      close: any;
       open: (
         paymentData: Record<string, any>,
         callbacks: {
           onReady?: () => void;
-          onError?: (error: any) => void;
+          onError?: (error: unknown) => void;
           onCancelled?: () => void;
-          onDeclined?: (response: any) => void;
-          onApproval?: (response: any) => void;
+          onDeclined?: (response: unknown) => void;
+          onApproval?: (response: unknown) => void;
         },
         options?: Record<string, any>
       ) => void;

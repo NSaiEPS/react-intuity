@@ -7,7 +7,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 //import { companySlugs, config } from "@/config";
 import { CustomerDetailsForm } from "@/components/dashboard/service/customer-service";
 import { Card, CardHeader, Grid as MUIGrid } from "@mui/material";
-import { boarderRadius } from "@/utils";
+import { boarderRadius, CustomerInfo } from "@/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage } from "@/utils/auth";
@@ -24,7 +24,7 @@ export default function CustomerServicePage(): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   return (

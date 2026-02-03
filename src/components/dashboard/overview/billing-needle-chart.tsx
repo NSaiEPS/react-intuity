@@ -14,7 +14,7 @@
 //   const value = usageGraph?.days_meter ?? 0;
 //   const series = [value]; // value from 0 to 100
 
-//   const options: any = {
+//   const options = {
 //     chart: {
 //       type: 'radialBar',
 //       offsetY: -20,
@@ -107,6 +107,7 @@ import { Box, Card, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 
 import { TotalProfitProps } from "./total-profit";
+import { ApexOptions } from "apexcharts";
 
 // const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 const Chart = React.lazy(() => import("react-apexcharts"));
@@ -121,7 +122,7 @@ export default function GaugeChart({ sx }: TotalProfitProps) {
   // Convert value (0–30) to percentage for chart fill
   const percent = (value / 30) * 100;
 
-  // const options: any = {
+  // const options = {
   //   chart: {
   //     height: 280,
   //     type: 'radialBar',
@@ -165,7 +166,7 @@ export default function GaugeChart({ sx }: TotalProfitProps) {
   //   },
   // };
 
-  const options: any = {
+  const options: ApexOptions  = {
     chart: {
       height: 280,
       type: "radialBar",

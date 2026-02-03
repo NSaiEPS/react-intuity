@@ -16,7 +16,7 @@ import { getAccountInfo } from "@/state/features/accountSlice";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
 
-import { boarderRadius } from "@/utils";
+import { boarderRadius, CustomerInfo } from "@/utils";
 import Header from "@/components/CommonComponents/Header";
 
 //export const metadata = {
@@ -60,7 +60,7 @@ export default function AccountPage(): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   return (

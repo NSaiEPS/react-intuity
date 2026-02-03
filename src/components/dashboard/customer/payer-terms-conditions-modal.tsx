@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
 import {
   CardActions,
@@ -30,7 +30,7 @@ const PayerTermsConditionsModal = () => {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   const [isPaperLessOn, setIsPaperLessOn] = useState(false);

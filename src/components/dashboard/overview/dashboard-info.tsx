@@ -14,7 +14,7 @@ import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
 import type { SxProps } from "@mui/material/styles";
-import Switch from "@mui/material/Switch";
+import Switch, { SwitchProps } from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
 import { Bell as BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
 import { ListBullets as ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
@@ -35,7 +35,7 @@ export interface DashboardInfoProps {
 }
 
 // Styled Switch with ON/OFF labels
-const IOSSwitch = styled((props: any) => (
+const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
   width: 70,

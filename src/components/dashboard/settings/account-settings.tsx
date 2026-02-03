@@ -2,7 +2,7 @@ import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { getDashboardInfo, setRouteChecker } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+import { boarderRadius, colors, CustomerInfo } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -35,7 +35,7 @@ type FormData = z.infer<typeof schema>;
 export function AccountSettingsForm(): React.JSX.Element {
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
-  const userInfo: any = getLocalStorage("intuity-customerInfo");
+  const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
   const {
     register,
     handleSubmit,
@@ -96,7 +96,7 @@ export function AccountSettingsForm(): React.JSX.Element {
     }, [isDirty]);
    React.useEffect(() => {
   
-      const handleBeforeUnload = (event: any) => {
+      const handleBeforeUnload = (event: BeforeUnloadEvent) => {
         if (isDirty) {
           // Show confirmation dialog
           const message =

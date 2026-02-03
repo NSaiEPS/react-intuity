@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { linkAnotherAccount } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+import { boarderRadius, colors, CustomerInfo } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -103,7 +103,7 @@ export default function AddAccountPage() {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   const dispatch = useDispatch();
@@ -114,7 +114,7 @@ export default function AddAccountPage() {
 
     React.useEffect(() => {
   
-      const handleBeforeUnload = (event: any) => {
+      const handleBeforeUnload = (event: BeforeUnloadEvent) => {
         if (isDirty ) {
           // Show confirmation dialog
           const message =

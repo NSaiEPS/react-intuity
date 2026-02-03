@@ -12,7 +12,7 @@ export interface LogoProps {
   emblem?: boolean;
   height?: number;
   width?: number;
-  src?: null;
+  src?: string | null;
 }
 
 export function Logo({

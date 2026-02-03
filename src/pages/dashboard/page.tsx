@@ -24,7 +24,11 @@ export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
   const isLargeUp = useMediaQuery(theme.breakpoints.up('lg'));
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
-  const companyDetails: any = getLocalStorage('intuity-company');
+ interface CompanyDetails {
+   allow_auto_payment?: number | string;
+ }
+ 
+   const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
 
   const { allow_auto_payment } = dashBoardInfo?.body?.company || companyDetails || {};
 

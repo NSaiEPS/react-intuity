@@ -36,9 +36,13 @@ export function MainNav(): React.JSX.Element {
     (state: RootState) => state?.DashBoard
   );
 
+  interface AliasUser {
+  logo?: string;
+}
+
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo");
-  let aliasUser: any = getLocalStorage("alias-details");
+  let aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 

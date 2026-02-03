@@ -107,11 +107,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
   let roleId = stored?.body?.acl_role_id;
   let customer_id = stored?.body?.customer_id;
   let token = stored?.body?.token;
+
+  
   const onSubmit = (data: FormValues) => {
-    let files: any = data?.files?.length ? data?.files : [];
+    const files: File[] = data.files ? Array.from(data.files) : [];
 
     // if (!files?.length) {
-    //   toast.warning('Please upload any file');
+    //   toast.warning('Please upload file');
     //   return;
     // }
     // console.log('Form Submitted:', data);
@@ -219,7 +221,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
   }, [watch]);
 
   React.useEffect(() => {
-    const handleBeforeUnload = (event: any) => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         // Show confirmation dialog
         const message =

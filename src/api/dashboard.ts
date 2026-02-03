@@ -16,7 +16,7 @@ export interface DashBoardAPIParams {
 }
 export interface AccountUpdateForm {
   token: string;
-  formData: any;
+  formData: FormData;
   type?: string;
 }
 // export async function homeApi(params: DashBoardAPIParams) {
@@ -370,7 +370,9 @@ export async function getCompanyDetailsApi({ formData }) {
   return data;
 }
 
-export async function registerApi({ formData }: any) {
+export async function registerApi({ formData }: {
+  formData: FormData;
+}) {
   //TODO: make dynamic
   const api = `${BASE_URL}register-cape-royale1`;
 
@@ -392,7 +394,10 @@ export async function registerApi({ formData }: any) {
   return data;
 }
 
-export async function listAnotherAccountAPI({ token, formData }: any) {
+export async function listAnotherAccountAPI({ token, formData }: {
+  token: string;
+  formData: FormData;
+}) {
   const api = `${BASE_URL}add-account`;
 
   const res = await fetch(api, {

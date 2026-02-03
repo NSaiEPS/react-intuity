@@ -17,7 +17,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 
@@ -248,7 +248,7 @@ function UsageFilter() {
     }
   };
 
-  const onSubmit = (start?: any, end?: any) => {
+  const onSubmit = (start?: Dayjs | null, end?: Dayjs | null) => {
     const startDate = dayjs(start);
     const endDate = dayjs(end);
     if (start) {
@@ -370,7 +370,7 @@ function UsageFilter() {
             sx={{
               backgroundColor: colors.blue,
               "&:hover": {
-                backgroundColor: colors["blue.3"], // or any other hover color
+                backgroundColor: colors["blue.3"], // or other hover color
               },
             }}
             variant="contained"

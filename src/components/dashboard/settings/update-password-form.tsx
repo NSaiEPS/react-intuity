@@ -111,7 +111,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
 
   React.useEffect(() => {
   
-      const handleBeforeUnload = (event: any) => {
+      const handleBeforeUnload = (event: BeforeUnloadEvent) => {
         if (isDirty) {
           // Show confirmation dialog
           const message =

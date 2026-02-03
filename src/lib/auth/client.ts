@@ -66,7 +66,7 @@ class AuthClient {
   //   formData.append('password', password);
 
   //   // Make API request
-  //   const res: any = await api.post('/login', formData);
+  //   const res = await api.post('/login', formData);
   //   console.log(res, 'errorerror');
   //   const token = res.data?.body.token;
 

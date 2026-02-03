@@ -16,7 +16,18 @@ import {
 // import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const SaveBankAccount = ({ companyName = "Creative Technologies" }) => {
-  const [formData, setFormData] = useState({
+    type BankFormData = {
+  routingNumber: string;
+  accountNumber: string;
+  accountType: "" | "PC" | "PS" | "BC" | "BS";
+  elavonCompanyName: string;
+  agree: boolean;
+};
+
+type FormErrors = Partial<Record<keyof BankFormData, string>>;
+
+
+  const [formData, setFormData] = useState<BankFormData>({
     routingNumber: "",
     accountNumber: "",
     accountType: "",
@@ -24,11 +35,13 @@ const SaveBankAccount = ({ companyName = "Creative Technologies" }) => {
     agree: false,
   });
 
-  const [errors, setErrors] = useState<any>({});
+
+
+  const [errors, setErrors] = useState<FormErrors>({});
   const [showAccountNumber, setShowAccountNumber] = useState(false);
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: Record<string, string> = {};
 
     // Routing number
     if (!formData.routingNumber) {

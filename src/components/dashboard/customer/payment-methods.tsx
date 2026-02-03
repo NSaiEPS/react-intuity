@@ -8,6 +8,7 @@ import { RootState } from "@/state/store";
 import {
   boarderRadius,
   colors,
+  CustomerInfo,
   decryptFunction,
   formatToMMDDYYYY,
 } from "@/utils";
@@ -77,6 +78,10 @@ interface CustomersTableProps {
   amount?: number;
   amountRequired?: boolean;
 }
+interface SelectedCardPayload {
+  id: string | number;
+  card_token: string | number;
+}
 
 const CardRow = React.memo(function CardRow({
   row,
@@ -86,15 +91,14 @@ const CardRow = React.memo(function CardRow({
 }: {
   row: CardDetails;
   isSelected: boolean;
-  onSelect: (id: number) => void;
+  onSelect: (data: { card_token: number; id: number }) => void;
   onDelete: (row: CardDetails) => void;
 }) {
   const handleRadioChange = React.useCallback(() => {
-    let data: any = {
-      card_token: row.card_token,
+    onSelect({
+      card_token: Number(row.card_token),
       id: row.id,
-    };
-    onSelect(data);
+    });
   }, [onSelect, row.card_token]);
 
   const handleDeleteClick = React.useCallback(
@@ -178,7 +182,7 @@ export const PaymentMethods = ({
   const { accountLoading, paymentMethodInfoCards } = useSelector(
     (state: RootState) => state?.Account
   );
-  const [selectedId, setSelectedId] = React.useState<any>(null);
+  const [selectedId, setSelectedId] = React.useState<{ card_token: number; id: number } | null>(null);
 
   const [cardModalOpen, setCardModalOpen] = React.useState(false);
   const [bankModalOpen, setBankModalOpen] = React.useState(false);
@@ -278,7 +282,7 @@ export const PaymentMethods = ({
   // 🧠 3. Stable row IDs for selection hook
   const rowIds = React.useMemo(() => myCards.map((r) => r.id), [myCards]);
   // const { selectOne, deselectOne, selected } = useSelection(rowIds);
-  const selectOne = React.useCallback((data: any) => {
+  const selectOne = React.useCallback((data: { card_token: number; id: number }) => {
     setSelectedId(data);
   }, []);
   const handleDelete = React.useCallback((row: CardDetails) => {
@@ -315,7 +319,7 @@ export const PaymentMethods = ({
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 
@@ -394,7 +398,7 @@ export const PaymentMethods = ({
                 minWidth: 0,
                 padding: "4px",
                 // backgroundColor: 'red',
-                width: "32px", // or any visible size
+                width: "32px", 
                 height: "32px",
               }}
               onClick={onClose}

@@ -42,7 +42,10 @@ export function AuthGuard({
       // router.replace(paths.auth.signIn);
       // router.replace(paths.auth.newLogin(company));
       // router.replace(paths.auth.newLogin(company == 'intuityfe' ? '' : company));
-      const aliasUser: any = getLocalStorage("alias-details");
+      interface AliasDetails {
+         alias?: string;
+      }
+      const aliasUser = getLocalStorage("alias-details") as AliasDetails | null;
 
       navigate(paths.auth.newLogin(aliasUser?.alias ?? ""));
 

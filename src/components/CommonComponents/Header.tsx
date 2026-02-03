@@ -1,4 +1,5 @@
 import { RootState } from "@/state/store";
+import { CustomerInfo } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { CardHeader, Grid, Typography } from "@mui/material";
 import React from "react";
@@ -9,7 +10,7 @@ function Header({ title }: { title: string }): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   return (

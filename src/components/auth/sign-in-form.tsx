@@ -20,7 +20,7 @@ import { Eye as EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
 import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
 // import Button from '@mui/material/Button';
 // import { Button } from 'nsaicomponents';
-import { Controller, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z as zod } from "zod";
 
@@ -66,8 +66,13 @@ export function SignInForm({ user = false }): React.JSX.Element {
     formState: { errors },
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
-  const onSubmit = React.useCallback(
-    async (values: any): Promise<void> => {
+  type Values = {
+  email: string;
+  password: string;
+}
+
+  const onSubmit: SubmitHandler<Values> = React.useCallback(
+    async (values): Promise<void> => {
       setIsPending(true);
 
       try {
@@ -85,19 +90,30 @@ export function SignInForm({ user = false }): React.JSX.Element {
         // await checkSession?.();
 
         // router.replace(paths.auth.confirmInfo);
-      } catch (error: any) {
-        const message =
-          error.response?.data?.message ||
-          "Something went wrong. Please try again.";
-        setError("root", { type: "server", message });
-      } finally {
+      } catch (error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : "Something went wrong. Please try again.";
+
+  setError("root", { type: "server", message });
+} finally {
         setIsPending(false);
       }
     },
     [checkSession, setError]
   );
+
   const dispatch = useDispatch();
-  const successCallBack = async (res: any) => {
+
+  type AuthResponse = {
+  body?: {
+    alias?: string;
+    is_verified?: number;
+  };
+};
+
+  const successCallBack = async (res: AuthResponse) => {
     dispatch(setUserInfo(res));
     if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
       setLocalStorage("alias-details", companyInfo?.company);

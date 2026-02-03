@@ -26,7 +26,8 @@ export function AccountInfo(): React.JSX.Element {
   const { customer_name, address } = accountInfo?.customer_data?.[0] || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo");
 
-  const { company_logo }: any = CustomerInfo || {};
+  const { company_logo }: { company_logo?: string } = (typeof CustomerInfo === "object" && CustomerInfo) || {};
+
   return (
     <Card
       sx={{

@@ -10,7 +10,7 @@ import { UpdatePasswordForm } from "@/components/dashboard/settings/update-passw
 
 import { Card, CardHeader, Grid as MUIGrid } from "@mui/material";
 
-import { boarderRadius } from "@/utils";
+import { boarderRadius, CustomerInfo } from "@/utils";
 import { RootState } from "@/state/store";
 import { useSelector } from "react-redux";
 import { getLocalStorage } from "@/utils/auth";
@@ -27,7 +27,7 @@ export default function SettingsPage(): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: any = dashBoardInfo?.customer
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
   return (
