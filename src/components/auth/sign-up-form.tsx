@@ -24,11 +24,12 @@ import { styled } from "@mui/material/styles";
 import { Check } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
 import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
+import { RootState } from "@/state/store";
 
 // Schema
 const schema = z
@@ -230,7 +231,7 @@ const slugMatch =
     "Login Credentials",
     "Contact Info",
   ];
-
+  const { companyInfo } = useSelector((state: RootState) => state?.Account);
   const {
     control,
     handleSubmit,
@@ -285,6 +286,7 @@ const slugMatch =
   };
   const dispatch = useDispatch();
   const [companyResponse, setCompanyResponse] = React.useState<any>({});
+  console.log(companyResponse,'companyResponse')
   const apiCall = () => {
     seLoading(true);
 
@@ -331,7 +333,7 @@ const slugMatch =
       formData.append("customer_id", companyResponse?.customer_id);
     }
 
-    formData.append("company_id", "2");
+    formData.append("company_id", companyInfo?.company?.id);
 
     formData.append("step", String(activeStep + 1));
     formData.append("acl_role_id", "4");
@@ -364,10 +366,10 @@ const slugMatch =
     // country_code:1
     // phone_no:(949) 200-8103
     // page:1
-
-    dispatch(registerApiRequest(formData, successCallBack, seLoading));
+const alias= companyInfo?.company?.alias;
+    dispatch(registerApiRequest(formData, successCallBack, seLoading,alias));
   };
-  const successCallBack = (data) => {
+  const successCallBack = (data:any) => {
     setActiveStep((prev) => prev + 1);
     setCompanyResponse({ ...companyResponse, ...data });
     seLoading(false);

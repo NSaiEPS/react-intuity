@@ -526,6 +526,7 @@ export const getCompanyDetails: any =
     dispatch(setAccountLoading(true));
     try {
       const res = await getCompanyDetailsApi({ formData });
+     
 
       if (res.status) {
         dispatch(setCompanyInfo(res?.body));
@@ -557,13 +558,18 @@ export const getCompanyDetails: any =
   };
 
 export const registerApiRequest: any =
-  (formData, successCallBack, seLoading) => async (dispatch) => {
+  (formData, successCallBack, seLoading,alias,) => async (dispatch) => {
     dispatch(setAccountLoading(true));
 
     try {
-      const res = await registerApi({ formData });
-
+      const res = await registerApi({ formData,alias });
+      
       // console.log(res, 'getPaymentDetails');
+      if (!alias) {
+  toast.error("Company alias missing. Please reload the page.");
+  dispatch(setAccountLoading(false));
+  return;
+}
 
       if (res?.status) {
         toast.success(res?.message ?? "Something went wrong!");
@@ -573,13 +579,13 @@ export const registerApiRequest: any =
         }
       } else {
         // navigateTo("/login", { replace: true }, res?.message);
-
+        
         toast.error(
           res?.message
-            ? typeof res?.message == "string"
-              ? res?.message
-              : res?.message[0]
-            : "Something went wrong!"
+          ? typeof res?.message == "string"
+          ? res?.message
+          : res?.message[0]
+          : "Something went wrong!"
         );
       }
     } catch (e: any) {

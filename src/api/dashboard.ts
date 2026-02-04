@@ -370,11 +370,12 @@ export async function getCompanyDetailsApi({ formData }) {
   return data;
 }
 
-export async function registerApi({ formData }: {
-  formData: FormData;
+export async function registerApi({ formData, alias }: {
+  formData: any;
+  alias:any;
 }) {
   //TODO: make dynamic
-  const api = `${BASE_URL}register-cape-royale1`;
+  const api = `${BASE_URL}register-${alias}`;
 
   const res = await fetch(api, {
     method: "POST",
