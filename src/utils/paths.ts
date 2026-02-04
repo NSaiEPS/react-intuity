@@ -20,6 +20,10 @@ export const paths = {
     register: (company?: string) =>
       company ? `/register` : "/RiverPark-1/auth/register",
     newLogin: (company?: string) => (company ? `/login-${company}` : "/login"),
+    //  registerWithAlias: (company?: string) =>
+    // company ? `/register-${company}` : "/register",
+    registerWithAlias: (company: string) => `/register-${company}`
+
   },
 
   dashboard: {

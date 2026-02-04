@@ -107,6 +107,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
+  path: "/register-:alias",
+  element: LoginSuspense(
+    <Authorization>
+      <SignInPage title={"Sign Up"} />
+    </Authorization>
+  ),
+},
+  {
     path: "/reset-password",
     element: LoginSuspense(
       <Authorization>

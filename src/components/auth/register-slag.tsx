@@ -42,55 +42,116 @@ export default function PaymentInfoSection() {
 
   const location = useLocation();
   const pathname = location.pathname;
-
+  const slug = pathname?.split("/")[1];
+  const hasCompanySlug =
+  slug?.startsWith("login-") || slug?.startsWith("register-");
+  
   const { setContextLoading } = useLoading();
-
+  
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
   React.useEffect(() => {
     const formData = new FormData();
 
-    if (
-      pathname?.split("/")[1] !== "login" &&
-      pathname?.split("/")[1]?.includes("login-")
-    ) {
-      formData.append("alias", pathname?.split("/")[1]?.split("login-")[1]);
-      dispatch(
-        getCompanyDetails(formData, undefined, failureCallBack, () => {
-          setContextLoading(false);
-        })
-      );
-    } else {
+    // if (
+    //   pathname?.split("/")[1] !== "login" &&
+    //   pathname?.split("/")[1]?.includes("login-")
+    // ) {
+    //   formData.append("alias", pathname?.split("/")[1]?.split("login-")[1]);
+    //   dispatch(
+    //     getCompanyDetails(formData, undefined, failureCallBack, () => {
+    //       setContextLoading(false);
+    //     })
+    //   );
+    // } else {
+    //   setContextLoading(false);
+    // }
+
+    const slug = pathname?.split("/")[1];
+
+
+
+if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
+  const alias = slug.replace("login-", "").replace("register-", "");
+
+  formData.append("alias", alias);
+
+  dispatch(
+    getCompanyDetails(formData, undefined, failureCallBack, () => {
       setContextLoading(false);
-    }
+    })
+  );
+} else {
+  setContextLoading(false);
+}
+
   }, []);
   const failureCallBack = () => {
     navigate("/login");
   };
+  // useEffect(() => {
+  //   if (
+  //     pathname !== "/login" &&
+  //     pathname !== "/sign-up" &&
+  //     pathname !== "/reset-password" &&
+  //     !pathname?.includes("login-") &&
+  //      !pathname?.includes("register-")
+  //   ) {
+  //     navigate("/login");
+  //   }
+  // }, [pathname]);
+
   useEffect(() => {
-    if (
-      pathname !== "/login" &&
-      pathname !== "/sign-up" &&
-      pathname !== "/reset-password" &&
-      !pathname?.includes("login-")
-    ) {
-      navigate("/login");
-    }
-  }, [pathname]);
+  const allowed =
+    pathname === "/login" ||
+    pathname === "/sign-up" ||
+    pathname === "/reset-password" ||
+    pathname.includes("login-") ||
+    pathname.includes("register-");
+
+  if (!allowed) {
+    navigate("/login");
+  }
+}, [pathname]);
+
+  // const getRequiredForms = () => {
+  //   const pathSplit = pathname?.split("/");
+  //   if (pathSplit[1] == "reset-password") {
+  //     return <ResetPasswordForm />;
+  //   }
+  //   if (pathname?.includes("login")) {
+  //     return <SignInForm user={true} />;
+  //   }
+  //   if (pathname?.includes("sign-up")) {
+  //     return <SignUpForm />;
+  //   }
+  // };
+ 
   const getRequiredForms = () => {
-    const pathSplit = pathname?.split("/");
-    if (pathSplit[1] == "reset-password") {
-      return <ResetPasswordForm />;
-    }
-    if (pathname?.includes("login")) {
-      return <SignInForm user={true} />;
-    }
-    if (pathname?.includes("sign-up")) {
-      return <SignUpForm />;
-    }
-  };
   const pathSplit = pathname?.split("/");
+
+  if (pathSplit[1] === "reset-password") {
+    return <ResetPasswordForm />;
+  }
+
+  if (pathname.includes("login-")) {
+    return <SignInForm user={true} />;
+  }
+
+   if (pathname.includes("login")) {
+    return <SignInForm user={true} />;
+  }
+if (pathname.includes("register") || pathname === "/sign-up") {
+    return <SignUpForm />;
+  }
+  if (pathname.includes("register-") || pathname === "/sign-up") {
+    return <SignUpForm />;
+  }
+};
+
+  const pathSplit = pathname?.split("/");
+
 
   const getRequiredText = () => {
     if (pathSplit[1] == "reset-password") {
@@ -155,8 +216,9 @@ export default function PaymentInfoSection() {
                 // marginLeft: 'auto',
               }}
             >
-              {pathname?.split("/")[1] !== "login" &&
-                pathname?.includes("login") ? (
+              {/* // pathname?.split("/")[1] !== "login" &&
+              //   pathname?.includes("login") ? ( */}
+              {hasCompanySlug ? (
                 <Avatar
                   src={companyInfo?.company?.logo}
                   sx={{ width: 50, height: 50, mr: 1.5 }}
@@ -185,8 +247,9 @@ export default function PaymentInfoSection() {
                   <Logo color="dark" height={50} width={140} />
                 </Box>
               )}
-              {pathname?.split("/")[1] !== "login" &&
-                pathname?.includes("login") && (
+              {/* {pathname?.split("/")[1] !== "login" &&
+                pathname?.includes("login") && ( */}
+                {hasCompanySlug && (
                   <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
                     <Typography variant="subtitle2" noWrap>
                       {companyInfo?.company?.company_name}

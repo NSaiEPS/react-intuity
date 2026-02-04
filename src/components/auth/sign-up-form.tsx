@@ -26,7 +26,7 @@ import { Button } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { z } from "zod";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
@@ -214,6 +214,15 @@ export const CustomStepper = ({ activeStep }: { activeStep: number }) => {
 export function SignUpForm() {
   const [activeStep, setActiveStep] = React.useState(0);
   // const router = useRouter();
+  const location = useLocation();
+const pathname = location.pathname;
+
+const slugMatch =
+  pathname.startsWith("/register-")
+    ? pathname.replace("/register-", "")
+    : null;
+
+
 
   const steps = [
     "Account Info",
@@ -372,8 +381,12 @@ export function SignUpForm() {
     if (activeStep === 0) {
       // Redirect to login if on the first step
       // window.location.href = '/intuityfe/auth/sign-in';
-
+ if (slugMatch) {
+      // slug register → slug login
+      navigate(paths.auth.newLogin(slugMatch));
+    } else {
       navigate(paths.auth.newLogin());
+    }
 
       return;
     }

@@ -35,6 +35,8 @@ import { Link as RouterLink } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { setLocalStorage } from "@/utils/auth";
 import { RootState } from "@/state/store";
+import axios from "axios";
+import { BASE_URL } from "@/api/axios";
 
 // import Button from '../CommonComponents/Button;
 
@@ -70,6 +72,70 @@ export function SignInForm({ user = false }): React.JSX.Element {
   email: string;
   password: string;
 }
+
+// const handleRegisterClick = async () => {
+//   try {
+//     const formData = new FormData();
+//     formData.append("alias", "RiverPark-1");
+
+//     const res = await axios.post(
+//       `${BASE_URL}/get-details-by-alias`,
+//       formData,
+//       {
+//         headers: {
+//           Accept: "application/json",
+//         },
+//         withCredentials: false, // important
+//       }
+//     );
+
+//     const alias = res?.data?.body?.company?.alias;
+//     console.log(res?.data?.body?.company?.alias,'resssss')
+
+//     if (alias) {
+//       navigate(paths.auth.registerWithAlias(alias));
+//     }
+//     console.log("Navigating to:", paths.auth.registerWithAlias(alias));
+
+//   } catch (error) {
+//     console.error("Alias fetch failed", error);
+//   }
+// };
+
+const handleRegisterClick = async () => {
+  const slug = pathname?.split("/")[1];
+
+  if (slug === "login") {
+    navigate("/sign-up");
+    return;
+  }
+
+  if (slug?.startsWith("login-")) {
+    try {
+      const aliasFromUrl = slug.replace("login-", "");
+
+      const formData = new FormData();
+      formData.append("alias", aliasFromUrl);
+
+      const res = await axios.post(
+        `${BASE_URL}/get-details-by-alias`,
+        formData,
+        { headers: { Accept: "application/json" } }
+      );
+
+      const alias = res?.data?.body?.company?.alias;
+
+      if (alias) {
+        navigate(`/register-${alias}`);
+      }
+    } catch (error) {
+      console.error("Alias fetch failed", error);
+    }
+  }
+};
+
+
+
 
   const onSubmit: SubmitHandler<Values> = React.useCallback(
     async (values): Promise<void> => {
@@ -312,7 +378,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
           {user && (
             <Typography variant="subtitle2" marginTop={1}>
               Don't have an account {` `}
-              <Link
+              {/* <Link
                 to="/sign-up"
                 style={{
                   color: colors.blue,
@@ -321,7 +387,17 @@ export function SignInForm({ user = false }): React.JSX.Element {
                 }}
               >
                 Register Now
-              </Link>{" "}
+              </Link>{" "} */}
+               <span
+      onClick={handleRegisterClick}
+      style={{
+        color: colors.blue,
+        cursor: "pointer",
+        textDecoration: "none",
+      }}
+    >
+      Register Now 
+    </span>{" "}
               to view your account details
             </Typography>
           )}
