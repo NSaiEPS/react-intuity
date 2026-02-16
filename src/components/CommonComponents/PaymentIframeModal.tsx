@@ -13,6 +13,7 @@ import ElavonAddCard from "./ElavonPaymentModal";
 import ElavonBankIframe from "./ElavonBankIframe";
 import { CustomerInfo } from "@/utils";
 import FortePayment from "./FortePayment";
+import ForteACH from "./ForteACH";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -311,6 +312,13 @@ interface DecryptedDetails {
     }
   }, [curentProcessor, amountRequired]);
 
+
+    if(true){
+  return <ForteACH onSuccess={onSuccess}
+      amount={String(amount ?? "0")}
+      convenience_fee={String(convenience_fee ?? "0")} />;
+  return <FortePayment onSuccess={onSuccess} />;
+}
   useEffect(() => {
     if (
       curentProcessor?.includes("worldpay") &&
@@ -380,78 +388,6 @@ interface DecryptedDetails {
 
 
 
-// const FortePaymentForm:FC = () => {
-//   return (
-//     <Box
-//       component="form"
-//       id="forte-payment-form"
-//         // onSubmit={onSubmit}
-//          action="javascript:void(0)"
-//       sx={{ maxWidth: 500, mx: "auto" }}
-//     >
-//       <Typography variant="h6" mb={2}>
-//         Credit / Debit Card
-//       </Typography>
-
-//       <Box mb={2}>
-//         <label>Card Number</label>
-//         <input
-//           type="text"
-//           forte-data="card_number"
-//           style={{ width: "100%", padding: 8 }}
-//         />
-//       </Box>
-
-//       <Box display="flex" gap={2} mb={2}>
-//         <Box>
-//           <label>Exp Month</label>
-//           <select forte-data="expire_month">
-//             {[...Array(12)].map((_, i) => (
-//               <option key={i + 1} value={i + 1}>
-//                 {i + 1}
-//               </option>
-//             ))}
-//           </select>
-//         </Box>
-
-//         <Box>
-//           <label>Exp Year</label>
-//           <select forte-data="expire_year">
-//             {[...Array(12)].map((_, i) => {
-//               const year = new Date().getFullYear() + i;
-//               return (
-//                 <option key={year} value={year}>
-//                   {year}
-//                 </option>
-//               );
-//             })}
-//           </select>
-//         </Box>
-//       </Box>
-
-//       <Box mb={2}>
-//         <label>CVV</label>
-//         <input
-//           type="text"
-//           forte-data="cvv"
-//           style={{ width: "100%", padding: 8 }}
-//         />
-//       </Box>
-
-//       <button
-//         type="submit"
-//         forte-api-login-id="7B0A10728C"
-//         forte-callback-success="onTokenCreated"
-//         forte-callback-error="onTokenFailed"
-//         onClick={handleForteSubmit}
-//         disabled={!forteReady}
-//       >
-//         Submit Payment
-//       </button>
-//     </Box>
-//   );
-// };
-
 
   if (
     curentProcessor?.includes("nacha") ||
@@ -491,10 +427,8 @@ interface DecryptedDetails {
     );
   }
 
-    // if (curentProcessor?.includes("forte")) {     // uncomment later
-  if(true){
-  return <FortePayment onSuccess={onSuccess} />;
-}
+    // if (curentProcessor?.includes("forte")) {   
+
 
 
 

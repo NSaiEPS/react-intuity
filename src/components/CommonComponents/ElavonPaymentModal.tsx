@@ -9,7 +9,7 @@ import { useSearchParams } from "react-router";
 
 
 type ElavonAddCardProps = {
-  type?: "card" | "bank";
+  type?: "card" | "bank" | "account";
   onSuccess: (data: unknown) => void;
   customerDetails?: {
     id?: string | number;
