@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router";
 import ElavonAddCard from "./ElavonPaymentModal";
 import ElavonBankIframe from "./ElavonBankIframe";
 import { CustomerInfo } from "@/utils";
+import FortePayment from "./FortePayment";
 
 interface PaymentIframeProps {
   type: "card" | "account";
@@ -136,17 +137,21 @@ interface DecryptedDetails {
   // const iframeUrl =
   //   "https://test-intuity-backend.pay.waterbill.com/nacha_bank_frame.php?companyName=South & Center Chautauqua Lake Sewer District&sec_code=ppd,ccd";
 
-  // Load external icheck script
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
-    script.async = true;
-    document.body.appendChild(script);
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+
+
+
+  // Load external icheck script
+  // useEffect(() => {
+  //   const script = document.createElement("script");
+  //   script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
+  //   script.async = true;
+  //   document.body.appendChild(script);
+
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
 
   // Listen for iframe postMessage
   useEffect(() => {
@@ -339,6 +344,115 @@ interface DecryptedDetails {
     };
   }, [curentProcessor, worldpayDetails]);
 
+
+
+//   useEffect(() => {
+//   if (!curentProcessor?.includes("forte")) return;
+
+//   if ((window as any).Forte) {
+//     setForteReady(true);
+//     return;
+//   }
+
+//   const script = document.createElement("script");
+//   script.src = "https://api.forte.net/js/v1";
+//     script.type = "text/javascript";
+//   script.async = false;
+//    script.defer = true;
+//   script.id = "forte-js";
+  
+
+//     script.onload = () => {
+//     console.log("✅ Forte JS loaded");
+//     setForteReady(true);
+//   };
+
+//   script.onerror = () => {
+//     console.error("❌ Failed to load Forte JS");
+//   };
+
+//   document.body.appendChild(script);
+
+//   return () => {
+//     document.getElementById("forte-js")?.remove();
+//   };
+// }, [curentProcessor]);
+
+
+
+// const FortePaymentForm:FC = () => {
+//   return (
+//     <Box
+//       component="form"
+//       id="forte-payment-form"
+//         // onSubmit={onSubmit}
+//          action="javascript:void(0)"
+//       sx={{ maxWidth: 500, mx: "auto" }}
+//     >
+//       <Typography variant="h6" mb={2}>
+//         Credit / Debit Card
+//       </Typography>
+
+//       <Box mb={2}>
+//         <label>Card Number</label>
+//         <input
+//           type="text"
+//           forte-data="card_number"
+//           style={{ width: "100%", padding: 8 }}
+//         />
+//       </Box>
+
+//       <Box display="flex" gap={2} mb={2}>
+//         <Box>
+//           <label>Exp Month</label>
+//           <select forte-data="expire_month">
+//             {[...Array(12)].map((_, i) => (
+//               <option key={i + 1} value={i + 1}>
+//                 {i + 1}
+//               </option>
+//             ))}
+//           </select>
+//         </Box>
+
+//         <Box>
+//           <label>Exp Year</label>
+//           <select forte-data="expire_year">
+//             {[...Array(12)].map((_, i) => {
+//               const year = new Date().getFullYear() + i;
+//               return (
+//                 <option key={year} value={year}>
+//                   {year}
+//                 </option>
+//               );
+//             })}
+//           </select>
+//         </Box>
+//       </Box>
+
+//       <Box mb={2}>
+//         <label>CVV</label>
+//         <input
+//           type="text"
+//           forte-data="cvv"
+//           style={{ width: "100%", padding: 8 }}
+//         />
+//       </Box>
+
+//       <button
+//         type="submit"
+//         forte-api-login-id="7B0A10728C"
+//         forte-callback-success="onTokenCreated"
+//         forte-callback-error="onTokenFailed"
+//         onClick={handleForteSubmit}
+//         disabled={!forteReady}
+//       >
+//         Submit Payment
+//       </button>
+//     </Box>
+//   );
+// };
+
+
   if (
     curentProcessor?.includes("nacha") ||
     curentProcessor?.includes("achworks") ||
@@ -376,6 +490,14 @@ interface DecryptedDetails {
       />
     );
   }
+
+    // if (curentProcessor?.includes("forte")) {     // uncomment later
+  if(true){
+  return <FortePayment onSuccess={onSuccess} />;
+}
+
+
+
 
   return (
     <Box sx={{ width: "100%", maxWidth: 600, mx: "auto" }}>
