@@ -496,6 +496,7 @@ export const PaymentMethods = ({
           <AddCardModal
             open={cardModalOpen}
             onClose={() => setCardModalOpen(false)}
+            onSuccess={() => setCardModalOpen(false)}
           />
         )}
         {bankModalOpen && (

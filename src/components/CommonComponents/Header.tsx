@@ -13,6 +13,9 @@ function Header({ title }: { title: string }): React.JSX.Element {
   const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
+
+    console.log(CustomerInfo,'CustomerInfo');
+    
   return (
     <Grid container spacing={2} justifyContent="space-between">
       <CardHeader

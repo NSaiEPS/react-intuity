@@ -312,10 +312,12 @@ interface DecryptedDetails {
   }, [curentProcessor, amountRequired]);
 
 
-    if(true){
+    if( curentProcessor?.includes("forte")){
+       if (type === "account") {
   return <ForteACH onSuccess={onSuccess}
       amount={String(amount ?? "0")}
-      convenience_fee={String(convenience_fee ?? "0")} />;
+      convenience_fee={String(convenience_fee ?? "0")} />
+       };
   return <FortePayment onSuccess={onSuccess} />;
 }
   useEffect(() => {
