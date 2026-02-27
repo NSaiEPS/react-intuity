@@ -23,9 +23,10 @@ import { toast } from "react-toastify";
 
 // -------------------- Types --------------------
 interface CustomerData {
-  acctnum?: string;
+  acctnum: number;
   phone_no?: string;
   email?: string;
+  customer_name: string;
 }
 
 interface TwoFAModalProps {

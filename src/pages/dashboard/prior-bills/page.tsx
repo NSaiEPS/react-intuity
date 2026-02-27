@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import { BillingHistory } from "@/components/dashboard/customer/billing-history";
 import type { Customer } from "@/components/dashboard/customer/customers-table";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { AppDispatch, RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { useLoading } from "@/components/core/skeletion-context";
@@ -24,7 +24,7 @@ export default function PriorBillsPage(): React.JSX.Element {
   const page = 0;
   const rowsPerPage = 10;
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { setContextLoading } = useLoading();
 
   const currentYear = new Date().getFullYear();

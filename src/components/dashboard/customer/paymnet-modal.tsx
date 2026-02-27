@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { paths } from "@/utils/paths";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/state/store";
+import { AppDispatch, RootState } from "@/state/store";
 import { useNavigate } from "react-router";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
@@ -67,7 +67,7 @@ export function PaymentModal({
       },
     });
   };
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");

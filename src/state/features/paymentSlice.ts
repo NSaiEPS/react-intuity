@@ -4,6 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 import { AppDispatch } from '../store';
 import { AxiosError } from 'axios';
+import { ReactNode } from 'react';
 
 
 interface ApiResponse<T> {
@@ -13,6 +14,24 @@ interface ApiResponse<T> {
 }
 
 interface LastBillInfo {
+  billing_list: {};
+  block_individual_customer_payment_text: string;
+  payment_pending: ReactNode;
+  recurring_payment_msg1: any;
+  autopay_text: ReactNode;
+  schedule_payment_text: string;
+  pay_now_text: any;
+  schedule_payment_msg: ReactNode;
+  achworks_pay_now_text: any;
+  nacha_pay_now_text: any;
+  last_bill: any;
+  customer_acknowledgement_text: any;
+  get_recurring_payments: any;
+  customer: any;
+  text_autopay_billing: string;
+  pending_payment: any;
+  pending_payment_text: boolean;
+  company: any;
   id?: string;
   amount?: number;
   dueDate?: string;

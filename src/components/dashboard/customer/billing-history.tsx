@@ -1,6 +1,6 @@
 import * as React from "react";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
-import { RootState } from "@/state/store";
+import { AppDispatch, RootState } from "@/state/store";
 
 import { getLocalStorage } from "@/utils/auth";
 import {
@@ -85,7 +85,7 @@ export function BillingHistory({
   const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   type IntuityUser = {
     body?: {
       acl_role_id?: string;

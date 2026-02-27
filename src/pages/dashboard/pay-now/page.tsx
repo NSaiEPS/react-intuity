@@ -1,7 +1,7 @@
 import * as React from "react";
 import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
-import { RootState } from "@/state/store";
+import { AppDispatch, RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import Stack from "@mui/material/Stack";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +23,7 @@ export default function PayNowPage(): React.JSX.Element {
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
