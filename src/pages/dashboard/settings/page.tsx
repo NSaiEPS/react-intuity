@@ -42,7 +42,7 @@ export default function SettingsPage(): React.JSX.Element {
         </Typography>
       </div> */}
 
-      <Header title="Update Login and Password" />
+      <Header title="Update Account Details and Password" />
       {/* no need as of now */}
       {/* <Notifications /> */}
       <AccountSettingsForm />

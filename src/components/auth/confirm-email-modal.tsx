@@ -131,7 +131,7 @@ export default function EmailDialog({ open, onClose, clickedDetails }) {
         <Button
           onClick={onClose}
           variant="outlined"
-          textTransform="none"
+          textTransform="capitalize"
           style={{
             color: colors.blue,
             borderColor: colors.blue,

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { updateAccountInfo } from "@/state/features/accountSlice";
-import { RootState } from "@/state/store";
-import { colors, CustomerInfo } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import React, { useEffect, useState } from 'react'
+import { updateAccountInfo } from '@/state/features/accountSlice'
+import { RootState } from '@/state/store'
+import { colors, CustomerInfo } from '@/utils'
+import { getLocalStorage } from '@/utils/auth'
 import {
   Box,
   Button,
@@ -16,97 +16,100 @@ import {
   Tooltip,
   Typography,
   Chip,
-} from "@mui/material";
-import { Question, Trash, ArrowClockwise, Plus } from "@phosphor-icons/react";
-import { useDispatch, useSelector } from "react-redux";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import PhoneModal from "@/components/auth/confirm-phone-modal";
-import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
-import Header from "@/components/CommonComponents/Header";
+} from '@mui/material'
+import { Question, Trash, ArrowClockwise, Plus } from '@phosphor-icons/react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLoading } from '@/components/core/skeletion-context'
+import { SkeletonWrapper } from '@/components/core/withSkeleton'
+import PhoneModal from '@/components/auth/confirm-phone-modal'
+import { ConfirmDialog } from '@/styles/theme/components/ConfirmDialog'
+import Header from '@/components/CommonComponents/Header'
+import EmailDialog from '@/components/auth/confirm-email-modal'
 
 function NotificationsSettings() {
   const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
+    (state: RootState) => state?.DashBoard?.dashBoardInfo,
+  )
 
   const userInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
+    : getLocalStorage('intuity-customerInfo')
 
-  const { setContextLoading } = useLoading();
-  const dispatch = useDispatch();
-  const [openConfirm, setOpenConfirm] = useState(false);
+  const { setContextLoading } = useLoading()
+  const dispatch = useDispatch()
+  const [openConfirm, setOpenConfirm] = useState(false)
 
   React.useLayoutEffect(() => {
-    setContextLoading(true);
-  }, []);
+    setContextLoading(true)
+  }, [])
 
   const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
+    : getLocalStorage('intuity-customerInfo')
 
   // mock contact list (normally from API)
   const { accountLoading, notificationPreferenceDetails } = useSelector(
-    (state: RootState) => state?.Account
-  );
+    (state: RootState) => state?.Account,
+  )
 
-  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false)
   const TextToValueFormat = {
-    Text: "2",
-    Email: "1",
-    Both: "3",
-    None: "4",
-  };
+    Text: '2',
+    Email: '1',
+    Both: '3',
+    None: '4',
+  }
   const billerTextToValueFormat = {
-    Text: "1",
-    Email: "0",
-    Both: "2",
-    None: "3",
-  };
+    Text: '1',
+    Email: '0',
+    Both: '2',
+    None: '3',
+  }
+
+  const [emailModalOpen, setEmailModalOpen] = useState(false)
 
   const [preferences, setPreferences] = useState<any>({
-    new_bill: "1",
-    payment_confirmation: "1",
-    reminders: "1",
-    biller_announcements: "1",
-    email: "",
-    email_updated_date: "",
+    new_bill: '1',
+    payment_confirmation: '1',
+    reminders: '1',
+    biller_announcements: '1',
+    email: '',
+    email_updated_date: '',
     is_phone_verified: 0,
-    phone_no: "",
-    updated_email: "",
-  });
+    phone_no: '',
+    updated_email: '',
+  })
 
   const [contacts, setContacts] = useState([
     {
-      type: "phone",
+      type: 'phone',
       value: preferences?.phone_no,
       verified: preferences?.is_phone_verified == 1 ? true : false,
     },
     {
-      type: "email",
+      type: 'email',
       value: preferences?.email,
       verified: preferences?.email_updated_date == 1 ? true : false,
     },
-  ]);
+  ])
 
   useEffect(() => {
     if (notificationPreferenceDetails) {
       setContacts([
         {
-          type: "phone",
+          type: 'phone',
           value:
             notificationPreferenceDetails?.phone_no &&
             notificationPreferenceDetails?.phone_no != 0
               ? notificationPreferenceDetails?.phone_no
-              : "",
+              : '',
           verified:
             notificationPreferenceDetails?.is_phone_verified == 1
               ? true
               : false,
         },
         {
-          type: "email",
+          type: 'email',
           value:
             notificationPreferenceDetails?.updated_email ??
             notificationPreferenceDetails?.email,
@@ -115,25 +118,25 @@ function NotificationsSettings() {
               ? true
               : false,
         },
-      ]);
+      ])
 
       setPreferences({
         new_bill:
           TextToValueFormat[
             notificationPreferenceDetails?.new_bill?.selected
-          ] || "1",
+          ] || '1',
         payment_confirmation:
           TextToValueFormat[
             notificationPreferenceDetails?.payment_confirmation?.selected
-          ] || "1",
+          ] || '1',
         reminders:
           TextToValueFormat[
             notificationPreferenceDetails?.reminders?.selected
-          ] || "1",
+          ] || '1',
         biller_announcements:
           billerTextToValueFormat[
             notificationPreferenceDetails?.biller_announcements?.selected
-          ] || "1",
+          ] || '1',
         email:
           notificationPreferenceDetails?.updated_email ??
           notificationPreferenceDetails.email,
@@ -143,35 +146,35 @@ function NotificationsSettings() {
           notificationPreferenceDetails?.phone_no &&
           notificationPreferenceDetails?.phone_no != 0
             ? notificationPreferenceDetails?.phone_no
-            : "",
+            : '',
         // notificationPreferenceDetails?.phone_no,
         updated_email: notificationPreferenceDetails.updated_email,
-      });
+      })
     }
-  }, [notificationPreferenceDetails]);
+  }, [notificationPreferenceDetails])
   const handleChange = (field: string, value: string) => {
-    setPreferences((prev) => ({ ...prev, [field]: value }));
-  };
+    setPreferences((prev) => ({ ...prev, [field]: value }))
+  }
 
   // contact actions
   const handleConfirm = () => {
     // console.log(value);
 
-    const formData = new FormData();
+    const formData = new FormData()
 
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("model_open", "5");
-    formData.append("notification", "1");
-    formData.append("remove_phone", "1");
+    formData.append('acl_role_id', roleId)
+    formData.append('customer_id', userId)
+    formData.append('id', userId)
+    formData.append('model_open', '5')
+    formData.append('notification', '1')
+    formData.append('remove_phone', '1')
 
     dispatch(
       updateAccountInfo(token, formData, true, () => {
-        getPrefDetails();
-        setOpenConfirm(false);
-      })
-    );
+        getPrefDetails()
+        setOpenConfirm(false)
+      }),
+    )
 
     // model_open:5
     // remove_phone:1
@@ -179,62 +182,68 @@ function NotificationsSettings() {
     // customer_id:810"
 
     // setContacts((prev) => prev.filter((c) => c.value !== value));
-  };
+  }
 
   const handleResendVerification = (value: string) => {
-    const formData = new FormData();
+    const formData = new FormData()
 
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("notification_email", value);
+    formData.append('acl_role_id', roleId)
+    formData.append('customer_id', userId)
+    formData.append('notification_email', value)
 
-    dispatch(updateAccountInfo(token, formData, true, null));
+    dispatch(updateAccountInfo(token, formData, true, null))
 
-    console.log("Resend verification for:", value);
+    console.log('Resend verification for:', value)
     // API call here
-  };
+  }
 
   type IntuityUser = {
     body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-  const raw = getLocalStorage("intuity-user");
+      acl_role_id?: string
+      customer_id?: string
+      token?: string
+    }
+  }
+  const raw = getLocalStorage('intuity-user')
   const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const roleId = stored?.body?.acl_role_id;
-  const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
+    typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null
+  const roleId = stored?.body?.acl_role_id
+  const userId = stored?.body?.customer_id
+  const token = stored?.body?.token
+
+  const userData = {
+    roleId,
+    userId,
+    token,
+  }
   const handleSave = () => {
-    console.log("Saved preferences:", preferences);
+    console.log('Saved preferences:', preferences)
 
-    const formData = new FormData();
+    const formData = new FormData()
 
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("model_open", "3");
-    formData.append("notification_new_bill", preferences.new_bill);
-    formData.append("notification_payment", preferences.payment_confirmation);
-    formData.append("notification_reminder", preferences.reminders);
-    formData.append("notification_biller", preferences.biller_announcements);
+    formData.append('acl_role_id', roleId)
+    formData.append('customer_id', userId)
+    formData.append('id', userId)
+    formData.append('model_open', '3')
+    formData.append('notification_new_bill', preferences.new_bill)
+    formData.append('notification_payment', preferences.payment_confirmation)
+    formData.append('notification_reminder', preferences.reminders)
+    formData.append('notification_biller', preferences.biller_announcements)
 
-    dispatch(updateAccountInfo(token, formData, true, getPrefDetails));
-  };
+    dispatch(updateAccountInfo(token, formData, true, getPrefDetails))
+  }
 
   useEffect(() => {
-    getPrefDetails();
-  }, [userId]);
+    getPrefDetails()
+  }, [userId])
 
   const getPrefDetails = () => {
-    const formData = new FormData();
+    const formData = new FormData()
 
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("model_open", "15");
+    formData.append('acl_role_id', roleId)
+    formData.append('customer_id', userId)
+    formData.append('id', userId)
+    formData.append('model_open', '15')
 
     dispatch(
       updateAccountInfo(
@@ -244,40 +253,40 @@ function NotificationsSettings() {
         successCallBack,
         true,
         setContextLoading,
-        true
-      )
-    );
-  };
+        true,
+      ),
+    )
+  }
 
   const successCallBack = (res) => {
     setPreferences({
-      new_bill: TextToValueFormat[res?.new_bill?.selected] || "1",
+      new_bill: TextToValueFormat[res?.new_bill?.selected] || '1',
       payment_confirmation:
-        TextToValueFormat[res?.payment_confirmation?.selected] || "1",
-      reminders: TextToValueFormat[res?.reminders?.selected] || "1",
+        TextToValueFormat[res?.payment_confirmation?.selected] || '1',
+      reminders: TextToValueFormat[res?.reminders?.selected] || '1',
       biller_announcements:
-        billerTextToValueFormat[res?.biller_announcements?.selected] || "1",
+        billerTextToValueFormat[res?.biller_announcements?.selected] || '1',
       email: res?.updated_email ?? res?.email,
       email_updated_date: res?.email_updated_date,
       is_phone_verified: res?.is_phone_verified,
-      phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
+      phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : '',
       updated_email: res?.updated_email,
-    });
+    })
     setContacts([
       {
-        type: "phone",
+        type: 'phone',
         // value: res?.phone_no,
-        value: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
+        value: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : '',
 
         verified: res?.is_phone_verified == 1 ? true : false,
       },
       {
-        type: "email",
+        type: 'email',
         value: res?.updated_email ?? res?.email,
         verified: res?.email_updated_date == 1 ? true : false,
       },
-    ]);
-  };
+    ])
+  }
 
   return (
     <SkeletonWrapper>
@@ -301,7 +310,7 @@ function NotificationsSettings() {
             >
               <Grid item>
                 <Typography>
-                  {contact.type === "phone" ? "📱" : "📧"} {contact.value}
+                  {contact.type === 'phone' ? '📱' : '📧'} {contact.value}
                 </Typography>
               </Grid>
               <Grid
@@ -311,16 +320,23 @@ function NotificationsSettings() {
                 justifyContent="flex-start"
                 gap={1}
               >
-                {!contact?.value || contact?.value == "0" ? (
+                {!contact?.value || contact?.value == '0' ? (
                   <Button
                     size="small"
                     variant="outlined"
                     startIcon={<Plus size={16} />}
-                    onClick={() => setPhoneModalOpen(true)}
+                    // onClick={() => setPhoneModalOpen(true)}
+                    onClick={() => {
+                      if (contact.type === 'phone') {
+                        setPhoneModalOpen(true)
+                      } else if (contact.type === 'email') {
+                        setEmailModalOpen(true)
+                      }
+                    }}
                   >
                     Add
                   </Button>
-                ) : contact.type === "email" && !preferences.updated_email ? (
+                ) : contact.type === 'email' && !preferences.updated_email ? (
                   <Chip label="Verified" color="success" size="small" />
                 ) : contact.verified ? (
                   <Chip label="Verified" color="success" size="small" />
@@ -337,9 +353,9 @@ function NotificationsSettings() {
                     </Button>
                   </>
                 )}
-                {contact.type === "phone" &&
+                {contact.type === 'phone' &&
                   contact.value &&
-                  contact.value !== "0" && (
+                  contact.value !== '0' && (
                     <Button
                       color="error"
                       size="small"
@@ -347,9 +363,9 @@ function NotificationsSettings() {
                       startIcon={<Trash size={18} />}
                       onClick={() => setOpenConfirm(true)}
                       sx={{
-                        borderColor: "error.main",
-                        color: "error.main",
-                        "& .MuiButton-startIcon svg": { color: "currentColor" }, // ensure svg follows text color
+                        borderColor: 'error.main',
+                        color: 'error.main',
+                        '& .MuiButton-startIcon svg': { color: 'currentColor' }, // ensure svg follows text color
                       }}
                     >
                       Remove
@@ -367,7 +383,7 @@ function NotificationsSettings() {
         </Typography>
         {(preferences?.is_phone_verified !== 1 ||
           !preferences?.phone_no ||
-          preferences?.phone_no == "0") && (
+          preferences?.phone_no == '0') && (
           <Box
             sx={{
               // backgroundColor: (theme) => theme.palette.error.light,
@@ -380,21 +396,21 @@ function NotificationsSettings() {
           >
             <Typography variant="body2">
               Text messaging is not available as an option until you first
-              validate your mobile phone number by selecting{" "}
+              validate your mobile phone number by selecting{' '}
               <Typography
                 component="span"
                 sx={{
-                  color: "primary.main",
-                  textDecoration: "underline",
-                  cursor: "pointer",
+                  color: 'primary.main',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
                 }}
                 onClick={() => {
-                  setPhoneModalOpen(true);
+                  setPhoneModalOpen(true)
                 }}
               >
-                {preferences?.phone_no && preferences?.phone_no !== "0"
-                  ? "Validate mobile phone number"
-                  : "Add mobile phone number"}
+                {preferences?.phone_no && preferences?.phone_no !== '0'
+                  ? 'Validate mobile phone number'
+                  : 'Add mobile phone number'}
               </Typography>
               .
             </Typography>
@@ -409,14 +425,14 @@ function NotificationsSettings() {
             <FormControl fullWidth>
               <Select
                 value={preferences.new_bill}
-                onChange={(e) => handleChange("new_bill", e.target.value)}
+                onChange={(e) => handleChange('new_bill', e.target.value)}
               >
                 <MenuItem
                   value="2"
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Text
@@ -427,7 +443,7 @@ function NotificationsSettings() {
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Both
@@ -446,7 +462,7 @@ function NotificationsSettings() {
               <Select
                 value={preferences.payment_confirmation}
                 onChange={(e) =>
-                  handleChange("payment_confirmation", e.target.value)
+                  handleChange('payment_confirmation', e.target.value)
                 }
               >
                 <MenuItem
@@ -454,7 +470,7 @@ function NotificationsSettings() {
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Text
@@ -465,7 +481,7 @@ function NotificationsSettings() {
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Both
@@ -491,14 +507,14 @@ function NotificationsSettings() {
             <FormControl fullWidth>
               <Select
                 value={preferences.reminders}
-                onChange={(e) => handleChange("reminders", e.target.value)}
+                onChange={(e) => handleChange('reminders', e.target.value)}
               >
                 <MenuItem
                   value="2"
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Text
@@ -509,7 +525,7 @@ function NotificationsSettings() {
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Both
@@ -539,7 +555,7 @@ function NotificationsSettings() {
               <Select
                 value={preferences.biller_announcements}
                 onChange={(e) =>
-                  handleChange("biller_announcements", e.target.value)
+                  handleChange('biller_announcements', e.target.value)
                 }
               >
                 <MenuItem
@@ -547,7 +563,7 @@ function NotificationsSettings() {
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Text
@@ -558,7 +574,7 @@ function NotificationsSettings() {
                   disabled={
                     preferences?.is_phone_verified !== 1 ||
                     !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
+                    preferences?.phone_no == '0'
                   }
                 >
                   Both
@@ -583,8 +599,8 @@ function NotificationsSettings() {
             variant="contained"
             sx={{
               backgroundColor: colors.blue,
-              "&:hover": {
-                backgroundColor: colors["blue.3"],
+              '&:hover': {
+                backgroundColor: colors['blue.3'],
               },
             }}
             color="primary"
@@ -596,7 +612,7 @@ function NotificationsSettings() {
       </Box>
       <ConfirmDialog
         open={openConfirm}
-        title={"Remove Phone Number"}
+        title={'Remove Phone Number'}
         message={`Are you sure want to Remove this ${preferences?.phone_no} 
           Phone Number?`}
         confirmLabel="Yes, Confirm"
@@ -611,8 +627,13 @@ function NotificationsSettings() {
         onClose={() => setPhoneModalOpen(false)}
         notificationPage={true}
       />
+      <EmailDialog
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        clickedDetails={{ id: userId }}
+      />
     </SkeletonWrapper>
-  );
+  )
 }
 
-export default NotificationsSettings;
+export default NotificationsSettings
