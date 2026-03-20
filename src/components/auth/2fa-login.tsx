@@ -123,11 +123,21 @@ export default function TwoFAModal({
     // TODO: handle verification
   };
 
+  // const methods = [
+  //   { value: "text_message", label: "Text message" },
+  //   { value: "phone_call", label: "Phone call" },
+  //   { value: "email", label: maskEmail(customerData?.email) },
+  // ];
+
   const methods = [
-    { value: "text_message", label: "Text message" },
-    { value: "phone_call", label: "Phone call" },
-    { value: "email", label: maskEmail(customerData?.email) },
-  ];
+  ...(customerData?.phone_no
+    ? [
+        { value: "text_message", label: "Text message" },
+        { value: "phone_call", label: "Phone call" },
+      ]
+    : []),
+  { value: "email", label: maskEmail(customerData?.email) },
+];
 
   return (
     <Dialog

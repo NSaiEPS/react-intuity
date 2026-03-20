@@ -8,6 +8,7 @@ import { UserProvider } from "@/contexts/user-context";
 
 import { LocalizationProvider } from "@/components/core/localization-provider";
 import { ThemeProvider } from "@/components/core/theme-provider/theme-provider";
+import ScrollNavButtons from "../ScrollNavButtons/ScrollNavButtons";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,12 +17,13 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps): React.JSX.Element {
   return (
     <>
-      <ToastContainer position="top-right" />
+      <ToastContainer  autoClose={10000} position="top-right" />
       <LocalizationProvider>
         <ThemeProvider>
           <Providers>
             {/* <RouteLoader /> */}
             {children}
+            <ScrollNavButtons/>
           </Providers>
         </ThemeProvider>
       </LocalizationProvider>

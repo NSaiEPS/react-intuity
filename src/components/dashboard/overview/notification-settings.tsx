@@ -299,11 +299,30 @@ function NotificationsSettings() {
               justifyContent="space-between"
               mb={1}
             >
-              <Grid item>
-                <Typography>
-                  {contact.type === "phone" ? "📱" : "📧"} {contact.value}
-                </Typography>
-              </Grid>
+             {/* <Grid item>
+  <Typography sx={{display:"flex",alignItems:"center",gap:"6px"}}>
+    <span style={{ fontSize: "1.5rem" }}>
+      {contact.type === "phone" ? "📱" : "📧"}
+    </span>{" "}
+    {contact.value}
+  </Typography>
+</Grid> */}
+<Grid item>
+  <Typography sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+    <span style={{ fontSize: "1.5rem" }}>
+      {contact.type === "phone" ? "📱" : "📧"}
+    </span>
+    {!contact?.value || contact?.value === "0" ? (
+      <Typography variant="body2" color="text.secondary" fontStyle="italic">
+        {contact.type === "phone"
+          ? "Number is not available, Please Add."
+          : "Email is not available, Please Add."}
+      </Typography>
+    ) : (
+      contact.value
+    )}
+  </Typography>
+</Grid>
               <Grid
                 item
                 display="flex"

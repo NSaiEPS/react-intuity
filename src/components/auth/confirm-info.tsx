@@ -115,6 +115,18 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     dispatch(getConfirmInfo(token, formData, successCallBack));
   };
 
+  const refreshData = () => {
+  const role_id = stored?.body?.acl_role_id;
+  const token = stored?.body?.token;
+  const formData = new FormData();
+
+  formData.append("acl_role_id", role_id);
+  formData.append("customer_id", user_id);
+  formData.append("company_login", "cape-royale1");
+
+  dispatch(getConfirmInfo(token, formData));
+};
+
   const { checkSession } = useUser();
 
   const successCallBack = async () => {
@@ -301,11 +313,13 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         open={phoneModalOpen}
         clickedDetails={clickedDetails}
         onClose={() => localDispatch({ type: "PHONE_MODAL", payload: false })}
+        onSuccess={refreshData} 
       />
       <EmailDialog
         open={emailModalOpen}
         clickedDetails={clickedDetails}
         onClose={() => localDispatch({ type: "EMAIL_MODAL", payload: false })}
+        onSuccess={refreshData} 
       />
       <TwoFAModal
         open={twoFAModalVisible}

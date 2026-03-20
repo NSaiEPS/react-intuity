@@ -30,7 +30,7 @@ const schema = zod.object({
     .email("Enter a valid email address"),
 });
 
-export default function EmailDialog({ open, onClose, clickedDetails }) {
+export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }) {
   const dispatch = useDispatch();
   const [isPending, setIsPending] = useState(false);
   const {
@@ -57,6 +57,7 @@ export default function EmailDialog({ open, onClose, clickedDetails }) {
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const successCallBack = () => {
     setIsPending(false);
+    onSuccess?.();
     onClose();
 
     let role_id = stored?.body?.acl_role_id;

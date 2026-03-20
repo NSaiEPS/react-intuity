@@ -35,7 +35,9 @@ type PhoneModal = {
   onClose: () => void;
   clickedDetails?: any;
   notificationPage?: boolean;
-  notificationNumber?: number | string | null;
+  notificationNumber?: any;
+  // notificationNumber?: number | string | null;
+   onSuccess?: () => void;
 };
 export default function PhoneModal({
   open,
@@ -43,7 +45,8 @@ export default function PhoneModal({
   clickedDetails = null,
   notificationPage = false,
   notificationNumber = null,
-}) {
+  onSuccess,
+}:PhoneModal) {
   const { confirmInfo, notificationPreferenceDetails } = useSelector(
     (state: RootState) => state?.Account
   );
@@ -134,6 +137,7 @@ export default function PhoneModal({
           formData,
           true,
           () => {
+            onSuccess?.(); 
             onClose();
           },
           true,
@@ -145,6 +149,7 @@ export default function PhoneModal({
     }
 
     if (isOtpModal) {
+      onSuccess?.(); 
       onClose();
     }
     if (!isOtpModal) {
