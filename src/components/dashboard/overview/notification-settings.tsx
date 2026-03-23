@@ -340,6 +340,7 @@ function NotificationsSettings() {
                 gap={1}
               >
                 {!contact?.value || contact?.value == "0" ? (
+             
                   <Button
                     size="small"
                     variant="outlined"
@@ -650,6 +651,7 @@ function NotificationsSettings() {
         open={emailModalOpen}
         onClose={() => setEmailModalOpen(false)}
         clickedDetails={{ id: userId }}
+        onSuccess={getPrefDetails}
       />
     </SkeletonWrapper>
   );
