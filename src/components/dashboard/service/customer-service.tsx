@@ -463,7 +463,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                 <FormControl fullWidth error={!!errors.files}>
                   <Typography variant="body1" mb={1}>
                     Please upload any supporting documents or photos:(Photos or
-                    PDfs,etc..)
+                    PDFs,etc..)
                   </Typography>
                   <OutlinedInput
                     type="file"

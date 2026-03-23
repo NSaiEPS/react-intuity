@@ -30,7 +30,12 @@ const schema = zod.object({
     .email("Enter a valid email address"),
 });
 
-export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }) {
+export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }: { 
+  open: boolean; 
+  onClose: () => void; 
+  clickedDetails: any;
+  onSuccess?: () => void; // 👈 ? makes it optional
+}) {
   const dispatch = useDispatch();
   const [isPending, setIsPending] = useState(false);
   const {
@@ -132,7 +137,7 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess })
         <Button
           onClick={onClose}
           variant="outlined"
-          textTransform="none"
+          textTransform="capitalize"
           style={{
             color: colors.blue,
             borderColor: colors.blue,

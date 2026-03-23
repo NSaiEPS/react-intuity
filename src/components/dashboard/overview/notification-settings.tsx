@@ -24,6 +24,7 @@ import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import Header from "@/components/CommonComponents/Header";
+import EmailDialog from '@/components/auth/confirm-email-modal'
 
 function NotificationsSettings() {
   const dashBoardInfo = useSelector(
@@ -65,6 +66,7 @@ function NotificationsSettings() {
     None: "3",
   };
 
+    const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [preferences, setPreferences] = useState<any>({
     new_bill: "1",
     payment_confirmation: "1",
@@ -207,6 +209,13 @@ function NotificationsSettings() {
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
+
+    const userData = {
+    roleId,
+    userId,
+    token,
+  }
+
   const handleSave = () => {
     console.log("Saved preferences:", preferences);
 
@@ -335,7 +344,14 @@ function NotificationsSettings() {
                     size="small"
                     variant="outlined"
                     startIcon={<Plus size={16} />}
-                    onClick={() => setPhoneModalOpen(true)}
+                    // onClick={() => setPhoneModalOpen(true)}
+                     onClick={() => {
+                      if (contact.type === 'phone') {
+                        setPhoneModalOpen(true)
+                      } else if (contact.type === 'email') {
+                        setEmailModalOpen(true)
+                      }
+                    }}
                   >
                     Add
                   </Button>
@@ -629,6 +645,11 @@ function NotificationsSettings() {
         // clickedDetails={clickedDetails}
         onClose={() => setPhoneModalOpen(false)}
         notificationPage={true}
+      />
+       <EmailDialog
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        clickedDetails={{ id: userId }}
       />
     </SkeletonWrapper>
   );

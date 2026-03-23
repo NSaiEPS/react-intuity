@@ -136,6 +136,7 @@ const PayerTermsConditionsModal = () => {
       <CardActions sx={{ justifyContent: "flex-end" }}>
         <Button
           variant="outlined"
+          textTransform="capitalize"
           style={{
             color: colors.blue,
             borderColor: colors.blue,
