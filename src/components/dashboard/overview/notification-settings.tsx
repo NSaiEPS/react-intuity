@@ -646,6 +646,7 @@ function NotificationsSettings() {
         // clickedDetails={clickedDetails}
         onClose={() => setPhoneModalOpen(false)}
         notificationPage={true}
+        onSuccess={getPrefDetails}
       />
        <EmailDialog
         open={emailModalOpen}
