@@ -20,19 +20,21 @@ export function TransferDetailsForm(): React.JSX.Element {
   );
 
   const {
-    customer_name,
-    acctnum,
-    address,
-    phone,
-    email,
-    role,
-    comment,
-    service_address,
-    phone2,
-    id,
-    meterNumber,
+  customer_name = "",
+  acctnum = "",
+  address = "",
+  phone = "",
+  email = "",
+  role = "",
+  comment = "",
+  service_address = "",
+  phone2 = "",
+  id = "",
+  meterNumber = "",
   } = transferInfo?.customer_data?.[0] || {};
 
+
+  console.log(transferInfo,'transferInfo');
   return (
     <>
       <form
@@ -57,7 +59,7 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={customer_name}
                     // onChange={handleChange}
                     name="firstName"
-                    defaultValue="Sofia"
+                   
                     label="Account name"
                   />
                 </FormControl>
@@ -72,7 +74,7 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={acctnum}
                     // onChange={handleChange}
                     name="firstName"
-                    defaultValue="Sofia"
+                   
                     label="Account #"
                   />
                 </FormControl>
@@ -87,7 +89,7 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={meterNumber}
                     // onChange={handleChange}
                     name="Meter"
-                    defaultValue="Sofia"
+                   
                     label="Meter"
                   />
                 </FormControl>
@@ -102,7 +104,7 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={service_address}
                     // onChange={handleChange}
                     name="service"
-                    defaultValue="Sofia"
+                   
                     label="Service Address"
                   />
                 </FormControl>

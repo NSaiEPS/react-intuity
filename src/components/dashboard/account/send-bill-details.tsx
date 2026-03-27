@@ -156,7 +156,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     //   formData.append('upload_file', '');
     // }
 
-    dispatch(stopTransferService(token, formData, false, successCallBack));
+    dispatch(stopTransferService(token, formData, false, successCallBack,null,true));
   };
   const successCallBack = () => {
     reset();
@@ -313,7 +313,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   type="number"
                   inputProps={{ min: 0 }}
                   label="Final Meter Reading"
-                  {...register("reading")}
+   {...register("reading", { valueAsNumber: true })}
                 />
                 {errors.reading && (
                   <FormHelperText>{errors.reading.message}</FormHelperText>

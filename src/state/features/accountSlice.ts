@@ -203,14 +203,18 @@ export const updateAccountCustomerInfo: any =
   };
 
 export const stopTransferService: any =
-  (token, formData, isGetApi = false, successCallBack, setContextLoading) =>
+  (token, formData, isGetApi = false, successCallBack, setContextLoading,nodataSaving=false) =>
   async (dispatch) => {
     dispatch(setAccountLoading(true));
     try {
       const res = await transferService({ token, formData });
 
       if (res.status) {
+        if(!nodataSaving){
         dispatch(setTransferInfo(res?.body));
+
+        }
+
         if (successCallBack) {
           successCallBack();
         }
