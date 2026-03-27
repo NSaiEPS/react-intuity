@@ -1,11 +1,11 @@
+
 import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Box,
   Card,
   CardActions,
   CardContent,
@@ -60,7 +60,9 @@ export function UpdatePasswordForm(): React.JSX.Element {
 
   const {
     register,
+    reset,
     handleSubmit,
+    watch,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -70,7 +72,11 @@ export function UpdatePasswordForm(): React.JSX.Element {
       repassword: "",
     },
   });
+
+  const watchedValues = watch();
+
   const dispatch = useDispatch();
+
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
@@ -78,10 +84,11 @@ export function UpdatePasswordForm(): React.JSX.Element {
       token?: string;
     };
   };
-  const raw = getLocalStorage("intuity-user");
 
+  const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
   const onSubmit = (data: FormData) => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
@@ -90,7 +97,6 @@ export function UpdatePasswordForm(): React.JSX.Element {
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-    // formData.append('step', '2');
     formData.append("new_password", data?.new_password);
     formData.append("repassword", data?.repassword);
     formData.append("password", data?.password);
@@ -98,40 +104,38 @@ export function UpdatePasswordForm(): React.JSX.Element {
     dispatch(updateAccountInfo(token, formData, true));
   };
 
-   React.useEffect(() => {
-  
-        if( isDirty ){
-          dispatch(setRouteChecker(true));
-          
-        }
-        return () => {
-          dispatch(setRouteChecker(false));
-        }
-      }, [isDirty]);
+  React.useEffect(() => {
+    if (isDirty) {
+      dispatch(setRouteChecker(true));
+    }
+    return () => {
+      dispatch(setRouteChecker(false));
+    };
+  }, [isDirty]);
 
   React.useEffect(() => {
-  
-      const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-        if (isDirty) {
-          // Show confirmation dialog
-          const message =
-            "You have unsaved changes. Are you sure you want to leave?";
-          event.preventDefault();
-          event.returnValue = message; // Some browsers require this for custom messages
-          return message; // For some older browsers
-        }
-        // Clean up builder data only if there are no unsaved changes
-      };
-  
-      window.addEventListener("beforeunload", handleBeforeUnload);
-  
-      return () => {
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-      };
-    }, [isDirty]);
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isDirty) {
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message;
+        return message;
+      }
+    };
 
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
 
-
+  const handleReset = () => {
+    reset({
+      password: "",
+      new_password: "",
+      repassword: "",
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -140,23 +144,21 @@ export function UpdatePasswordForm(): React.JSX.Element {
         <Divider />
         <CardContent>
           <Stack spacing={3} sx={{ maxWidth: "sm" }}>
+
+            {/* Old Password */}
             <FormControl fullWidth error={!!errors.password}>
-              <InputLabel>Old Password</InputLabel>
+              <InputLabel shrink={!!watchedValues.password}>
+                Old Password
+              </InputLabel>
               <OutlinedInput
                 label="Old Password"
+                notched={!!watchedValues.password}
                 type={show.password ? "text" : "password"}
                 {...register("password")}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => toggleVisibility("password")}
-                      edge="end"
-                    >
-                      {!show.password ? (
-                        <EyeSlashIcon size={20} />
-                      ) : (
-                        <EyeIcon size={20} />
-                      )}
+                    <IconButton onClick={() => toggleVisibility("password")} edge="end">
+                      {!show.password ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
                     </IconButton>
                   </InputAdornment>
                 }
@@ -166,16 +168,20 @@ export function UpdatePasswordForm(): React.JSX.Element {
               )}
             </FormControl>
 
+            {/* New Password */}
             <FormControl fullWidth error={!!errors.new_password}>
-              <InputLabel htmlFor="new-password">New password</InputLabel>
+              <InputLabel shrink={!!watchedValues.new_password}>
+                New Password
+              </InputLabel>
               <OutlinedInput
-                label="New password"
+                label="New Password"
+                notched={!!watchedValues.new_password}
                 type={show.new_password ? "text" : "password"}
                 {...register("new_password")}
                 endAdornment={
                   <InputAdornment position="end">
                     <Tooltip
-                      title="Passwords must be a minimum of 6 characters and must contain at least 1 number. Special characters (!@#$%^&*) are allowed but not ."
+                      title="Passwords must be a minimum of 5 characters. Special characters (!@#$%^&*) are allowed."
                       placement="top"
                       arrow
                     >
@@ -183,15 +189,8 @@ export function UpdatePasswordForm(): React.JSX.Element {
                         <Question size={20} color="#90caf9" weight="fill" />
                       </IconButton>
                     </Tooltip>
-                    <IconButton
-                      onClick={() => toggleVisibility("new_password")}
-                      edge="end"
-                    >
-                      {!show.new_password ? (
-                        <EyeSlashIcon size={20} />
-                      ) : (
-                        <EyeIcon size={20} />
-                      )}
+                    <IconButton onClick={() => toggleVisibility("new_password")} edge="end">
+                      {!show.new_password ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
                     </IconButton>
                   </InputAdornment>
                 }
@@ -201,32 +200,29 @@ export function UpdatePasswordForm(): React.JSX.Element {
               )}
             </FormControl>
 
+            {/* Confirm Password */}
             <FormControl fullWidth error={!!errors.repassword}>
-              <InputLabel>Confirm password</InputLabel>
+              <InputLabel shrink={!!watchedValues.repassword}>
+                Confirm Password
+              </InputLabel>
               <OutlinedInput
-                label="Confirm password"
+                label="Confirm Password"
+                notched={!!watchedValues.repassword}
                 type={show.repassword ? "text" : "password"}
                 {...register("repassword")}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => toggleVisibility("repassword")}
-                      edge="end"
-                    >
-                      {!show.repassword ? (
-                        <EyeSlashIcon size={20} />
-                      ) : (
-                        <EyeIcon size={20} />
-                      )}
+                    <IconButton onClick={() => toggleVisibility("repassword")} edge="end">
+                      {!show.repassword ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
                     </IconButton>
                   </InputAdornment>
                 }
               />
-
               {errors.repassword && (
                 <FormHelperText>{errors.repassword.message}</FormHelperText>
               )}
             </FormControl>
+
           </Stack>
         </CardContent>
         <Divider />
@@ -240,19 +236,11 @@ export function UpdatePasswordForm(): React.JSX.Element {
               borderRadius: "12px",
               height: "41px",
             }}
+            onClick={handleReset}
           >
             Cancel
           </Button>
           <Button
-            // type="submit"
-            // variant="contained"
-            // sx={{
-            //   backgroundColor: colors.blue,
-            //   '&:hover': {
-            //     backgroundColor: colors['blue.3'],
-            //   },
-            // }}
-
             disabled={accountLoading}
             loading={accountLoading}
             type="submit"
