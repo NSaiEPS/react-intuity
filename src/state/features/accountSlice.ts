@@ -293,6 +293,13 @@ export const updateAccountInfo: any =
           toast.error(res?.message);
           return;
         }
+         if (
+          res?.message ==
+          "We apologize but we are currently not able to verify your phone number. Please try again later."
+        ) {
+          toast.error(res?.message);
+          return;
+        }
         if (!noRedirect) {
           navigateTo("/login", { replace: true }, res?.message);
         }

@@ -167,7 +167,7 @@ export default function TwoFAModal({
         </Typography>
 
         <Typography fontWeight={500} mb={2}>
-          {maskPhone(customerData?.phone_no)}
+          {customerData?.phone_no?maskPhone(customerData?.phone_no):""}
         </Typography>
 
         <Typography gutterBottom>How would you like to receive it?</Typography>
