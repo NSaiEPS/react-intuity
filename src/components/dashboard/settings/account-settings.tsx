@@ -2,7 +2,7 @@ import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { getDashboardInfo, setRouteChecker } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors, CustomerInfo } from "@/utils";
+import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -36,18 +36,27 @@ export function AccountSettingsForm(): React.JSX.Element {
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
   const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
+
+  const defaultValues = {
+    name: userInfo?.user_name ?? "",
+    email: userInfo?.loginID ?? "",
+  };
+
   const {
     register,
     handleSubmit,
+    reset,
+    watch,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: userInfo?.user_name,
-      email: userInfo?.loginID,
-    },
+    defaultValues,
   });
+
+  const watchedValues = watch();
+
   const dispatch = useDispatch();
+
   type IntuityUser = {
     body?: {
       acl_role_id?: string;
@@ -55,13 +64,12 @@ export function AccountSettingsForm(): React.JSX.Element {
       token?: string;
     };
   };
-  const raw = getLocalStorage("intuity-user");
 
+  const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const onSubmit = (data: FormData) => {
-    console.log("Submitted Data:", data);
 
+  const onSubmit = (data: FormData) => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
     let token = stored?.body?.token;
@@ -74,8 +82,8 @@ export function AccountSettingsForm(): React.JSX.Element {
     formData.append("is_form", "1");
 
     dispatch(updateAccountInfo(token, formData, true, successCallBack));
-    // dispatch(updateAccountInfo(data));
   };
+
   const successCallBack = () => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
@@ -83,68 +91,71 @@ export function AccountSettingsForm(): React.JSX.Element {
     dispatch(getDashboardInfo(roleId, userId, token));
   };
 
+  const handleReset = () => {
+    reset(defaultValues);
+  };
 
- React.useEffect(() => {
+  React.useEffect(() => {
+    if (isDirty) {
+      dispatch(setRouteChecker(true));
+    }
+    return () => {
+      dispatch(setRouteChecker(false));
+    };
+  }, [isDirty]);
 
-      if( isDirty ){
-        dispatch(setRouteChecker(true));
-        
+  React.useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isDirty) {
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+        event.preventDefault();
+        event.returnValue = message;
+        return message;
       }
-      return () => {
-        dispatch(setRouteChecker(false));
-      }
-    }, [isDirty]);
-   React.useEffect(() => {
-  
-      const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-        if (isDirty) {
-          // Show confirmation dialog
-          const message =
-            "You have unsaved changes. Are you sure you want to leave?";
-          event.preventDefault();
-          event.returnValue = message; // Some browsers require this for custom messages
-          return message; // For some older browsers
-        }
-        // Clean up builder data only if there are no unsaved changes
-      };
-  
-      window.addEventListener("beforeunload", handleBeforeUnload);
-  
-      return () => {
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-      };
-    }, [isDirty]);
+    };
 
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ borderRadius: 0 }}>
-        <CardHeader
-          subheader="Manage account settings"
-          title="Account Settings"
-        />
+        <CardHeader subheader="Manage account settings" title="Account Settings" />
         <Divider />
         <CardContent>
           <Stack spacing={3} sx={{ maxWidth: "sm" }}>
+
+            {/* Name */}
             <FormControl fullWidth error={!!errors.name}>
-              <InputLabel>Name</InputLabel>
-              <OutlinedInput label="Name" type="text" {...register("name")} />
+              <InputLabel shrink={!!watchedValues.name}>Name</InputLabel>
+              <OutlinedInput
+                label="Name"
+                type="text"
+                notched={!!watchedValues.name}
+                {...register("name")}
+              />
               {errors.name && (
                 <FormHelperText>{errors.name.message}</FormHelperText>
               )}
             </FormControl>
 
+            {/* Email */}
             <FormControl fullWidth error={!!errors.email}>
-              <InputLabel>Login Id or Email</InputLabel>
+              <InputLabel shrink={!!watchedValues.email}>Login Id or Email</InputLabel>
               <OutlinedInput
                 label="Login Id or Email"
                 type="email"
+                notched={!!watchedValues.email}
                 {...register("email")}
               />
               {errors.email && (
                 <FormHelperText>{errors.email.message}</FormHelperText>
               )}
             </FormControl>
+
           </Stack>
         </CardContent>
         <Divider />
@@ -158,9 +169,10 @@ export function AccountSettingsForm(): React.JSX.Element {
               borderRadius: "12px",
               height: "41px",
             }}
+            onClick={handleReset}  // ← reset to original user values
           >
             Cancel
-          </Button>{" "}
+          </Button>
           <Button
             disabled={accountLoading}
             loading={accountLoading}
