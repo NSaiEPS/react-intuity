@@ -330,7 +330,8 @@ const handleRegisterClick = async () => {
                   // backgroundColor: 'red',
                 }}
               >
-                Sign In
+                {/* Sign In */}
+                Login
               </Button>
 
               <Link
@@ -341,8 +342,9 @@ const handleRegisterClick = async () => {
                   marginTop: "auto",
                   marginBottom: "auto",
                   marginLeft: "15px",
-                  textDecoration: "none",
+                  textDecoration: "underline",
                   borderColor: "transparent",
+
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.borderColor = colors["blue.1"];
@@ -393,7 +395,7 @@ const handleRegisterClick = async () => {
       style={{
         color: colors.blue,
         cursor: "pointer",
-        textDecoration: "none",
+        textDecoration: "underline",
       }}
     >
       Register Now 

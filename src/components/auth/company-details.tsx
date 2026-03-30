@@ -202,8 +202,9 @@ export default function CompanyDetails({ reset = false }) {
           {/* Right side */}
           <Link
             href="https://pay.waterbill.com/terms-of-use"
-            underline="hover"
+            // underline="hover"
             target="_blank"
+underline="always"
             sx={{ color: colors.blue, fontSize: "0.875rem" }}
           >
             Terms of use

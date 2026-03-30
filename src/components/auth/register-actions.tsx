@@ -3,16 +3,16 @@ import { CalendarCheck, Headphones, Leaf, Megaphone } from '@phosphor-icons/reac
 
 const quickActions = [
   { icon: <Leaf size={15} weight="fill" />, label1: 'Go', label2: 'Paperless' },
-  {
-    icon: <CalendarCheck size={15} weight="fill" />,
-    label1: 'Configure',
-    label2: 'Autopay',
-  },
-  {
-    icon: <Headphones size={15} weight="fill" />,
-    label1: 'Request',
-    label2: 'Support',
-  },
+  // {
+  //   icon: <CalendarCheck size={15} weight="fill" />,
+  //   label1: 'Configure',
+  //   label2: 'Autopay',
+  // },
+  // {
+  //   icon: <Headphones size={15} weight="fill" />,
+  //   label1: 'Request',
+  //   label2: 'Support',
+  // },
   {
     icon: <Megaphone size={15} weight="fill" />,
     label1: 'Receive',

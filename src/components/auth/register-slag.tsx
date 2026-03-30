@@ -382,7 +382,7 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                             style={{
                               color: colors.blue,
                               fontWeight: "bold",
-                              textDecoration: "none",
+                              textDecoration: "underline",
                             }}
                           >
                             Register Now

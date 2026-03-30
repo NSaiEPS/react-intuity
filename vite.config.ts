@@ -15,6 +15,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
     },
+    dedupe: ["react", "react-dom"],  // ← add this
   },
 
   server: {
@@ -23,7 +24,7 @@ export default defineConfig({
 
   optimizeDeps: {
     force: true,
-    // exclude: ["@react-pdf/renderer"], // only if needed
+    include: ["react", "react-dom"],  // ← add this
   },
 
   build: {

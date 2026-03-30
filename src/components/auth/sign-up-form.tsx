@@ -7,7 +7,11 @@ import {
   Box,
   // Button,
   Divider,
+  FormControl,
+  FormHelperText,
+  InputLabel,
   MenuItem,
+  Select,
   Stack,
   Step,
   // Stepper,
@@ -36,7 +40,8 @@ const schema = z
   .object({
     name: z.string().min(1, "Name is required"),
     accountNumber: z.string().min(1, "Account Number is required"),
-    email: z.string().email("Invalid email"),
+    // email: z.string().email("Invalid email"),
+    email: z.string().min(6, "Login Id or Email is too short, minimum 6 characters"),
     password: z.string().min(6, "Minimum 6 characters"),
     confirmPassword: z.string().min(6, "Minimum 6 characters"),
     authType: z.string().min(1, "Authentication is required"),
@@ -146,12 +151,12 @@ export const CustomConnector = styled(StepConnector, {
 // };
 
 // Example usage
-const steps = [
-  "Account Info",
-  "Authentication",
-  "Login Credentials",
-  "Contact Info",
-];
+ const steps = [
+    "Account Info",
+    "Authentication",
+    "Portal Registration",
+    "Contact Info",
+  ];
 const CustomStepIconRoot = styled("div")<{
   ownerState: { active?: boolean; completed?: boolean };
 }>(({ theme, ownerState }) => ({
@@ -225,18 +230,14 @@ const slugMatch =
 
 
 
-  const steps = [
-    "Account Info",
-    "Authentication",
-    "Login Credentials",
-    "Contact Info",
-  ];
+ 
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
   const {
     control,
     handleSubmit,
     trigger,
     getValues,
+    reset,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -251,9 +252,10 @@ const slugMatch =
       notificationEmail: "",
       confirmNotificationEmail: "",
       phone: "",
-      countryCode: "",
+      countryCode: "1",
     },
   });
+const values = getValues();
 
   const getFieldsForStep = (step: number) => {
     switch (step) {
@@ -368,14 +370,25 @@ const slugMatch =
     // page:1
 const alias= companyInfo?.company?.alias;
     dispatch(registerApiRequest(formData, successCallBack, seLoading,alias));
-  };
+  }
+  console.log(activeStep,'activeStep')
   const successCallBack = (data:any) => {
+
+       if (activeStep == 3) {
+        reset(values);
+const alias= companyInfo?.company?.alias;
+      
+      // window.location.href = "/intuityfe/auth/sign-in";
+   navigate(alias ? `/login-${alias}` : `/login`);
+
+      
+
+        return
+    }
     setActiveStep((prev) => prev + 1);
     setCompanyResponse({ ...companyResponse, ...data });
     seLoading(false);
-    if (activeStep == 3) {
-      window.location.href = "/intuityfe/auth/sign-in";
-    }
+ 
   };
   const navigate = useNavigate();
 
@@ -404,6 +417,10 @@ const alias= companyInfo?.company?.alias;
 
     if (isDirty) {
       dispatch(setRouteChecker(true));
+
+    }
+    else{
+      dispatch(setRouteChecker(false));
 
     }
     return () => {
@@ -445,6 +462,11 @@ const alias= companyInfo?.company?.alias;
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [isDirty,]);
+
+
+  const handleCancel=()=>{
+
+  }
 
   return (
     // <Paper
@@ -514,13 +536,27 @@ const alias= companyInfo?.company?.alias;
                 name="authType"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    label="Authentication Type"
-                    fullWidth
-                    {...field}
-                    error={!!errors.authType}
-                    helperText={errors.authType?.message}
-                  />
+                  // <TextField
+                  //   label="Authentication Type"
+                  //   fullWidth
+                  //   {...field}
+                  //   error={!!errors.authType}
+                  //   helperText={errors.authType?.message}
+                  // />
+                      <FormControl fullWidth error={!!errors.authType}>
+      <InputLabel>Authentication Type</InputLabel>
+      <Select
+        label="Authentication Type"
+        {...field}
+      >
+        <MenuItem value="lastName">Last Name</MenuItem>
+        <MenuItem value="billingAddress">Billing Address</MenuItem>
+        <MenuItem value="pin">PIN</MenuItem>
+      </Select>
+      {errors.authType && (
+        <FormHelperText>{errors.authType.message}</FormHelperText>
+      )}
+    </FormControl>
                 )}
               />
               <Controller
@@ -546,7 +582,7 @@ const alias= companyInfo?.company?.alias;
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Login Email"
+                    label="Login ID or Email"
                     fullWidth
                     {...field}
                     error={!!errors.email}
@@ -648,7 +684,10 @@ const alias= companyInfo?.company?.alias;
 
           <Divider sx={{ my: 2 }} />
 
-          <Stack direction="row" justifyContent="space-between">
+          <Stack direction="row" justifyContent={activeStep==0 ? 'flex-end':"space-between"}>
+            {
+              activeStep >0 &&
+            
             <Button
               // nClick={handleBack}>
               onClick={handleBack}
@@ -664,8 +703,29 @@ const alias= companyInfo?.company?.alias;
               }}
             >
               {activeStep === 0 ? "Login" : "Back"}
-            </Button>
+            </Button>}
             {activeStep < steps.length - 1 ? (
+              <Stack
+              direction="row"
+              >
+
+   <Button
+              // nClick={handleBack}>
+              onClick={handleCancel}
+              variant="outlined"
+              textTransform="none"
+              disabled={loading}
+              style={{
+                color: colors.blue,
+                borderColor: colors.blue,
+                borderRadius: "12px",
+
+                height: "41px",
+                marginRight:'5px'
+              }}
+            >
+Cancel
+            </Button>
               <Button
                 onClick={handleNext}
                 disabled={loading}
@@ -679,6 +739,7 @@ const alias= companyInfo?.company?.alias;
               >
                 Next
               </Button>
+              </Stack>
             ) : (
               <Button
                 loading={loading}
