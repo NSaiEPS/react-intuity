@@ -34,6 +34,13 @@ import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
+import { useState } from "react";
+import {
+IconButton,
+  InputAdornment, LinearProgress,
+  OutlinedInput, Tooltip,
+} from "@mui/material";
+import { Eye, EyeSlash, Question } from "@phosphor-icons/react";
 
 // Schema
 const schema = z
@@ -42,7 +49,9 @@ const schema = z
     accountNumber: z.string().min(1, "Account Number is required"),
     // email: z.string().email("Invalid email"),
     email: z.string().min(6, "Login Id or Email is too short, minimum 6 characters"),
-    password: z.string().min(6, "Minimum 6 characters"),
+password: z.string()
+  .min(6, "Minimum 6 characters")
+  .regex(/^(?=.*[0-9]).{6,}$/, "Must be at least 6 characters and include 1 number"),
     confirmPassword: z.string().min(6, "Minimum 6 characters"),
     authType: z.string().min(1, "Authentication is required"),
     authAnswer: z.string().min(1, "Answer is required"),
@@ -238,6 +247,7 @@ const slugMatch =
     trigger,
     getValues,
     reset,
+    watch,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -308,7 +318,7 @@ const values = getValues();
       formData.append("user_id", getValues("email"));
       formData.append("password", getValues("password"));
       formData.append("confirm_password", getValues("confirmPassword"));
-      formData.append("company_alias", companyResponse?.company_alias);
+      formData.append("company_alias", companyInfo?.company?.alias);
 
       formData.append("customer_id", companyResponse?.customer_id);
     }
@@ -322,7 +332,7 @@ const values = getValues();
       formData.append("user_id", getValues("email"));
       formData.append("password", getValues("password"));
       formData.append("confirm_password", getValues("confirmPassword"));
-      formData.append("company_alias", companyResponse?.company_alias);
+      formData.append("company_alias", companyInfo?.company?.alias);
       formData.append("user_id", getValues("email"));
       formData.append("password", getValues("password"));
       formData.append("confirm_password", getValues("confirmPassword"));
@@ -468,6 +478,57 @@ const alias= companyInfo?.company?.alias;
 
   }
 
+
+
+  // ─── State (add near your other useState hooks) ───────────────────────────────
+const [show, setShow] = useState({ password: false, confirmPassword: false });
+const toggleVisibility = (field: keyof typeof show) =>
+  setShow((prev) => ({ ...prev, [field]: !prev[field] }));
+
+// ─── Strength helper (outside component or in utils) ──────────────────────────
+// function getPasswordStrength(password = "") {
+//   if (!password) return null;
+//   let score = 0;
+//   if (password.length >= 6)            score++;
+//   if (password.length >= 10)           score++;
+//   if (/[A-Z]/.test(password))          score++;
+//   if (/[0-9]/.test(password))          score++;
+//   if (/[!@#$%^&*]/.test(password))     score++;
+
+//   const levels = [
+//     { score: 1, label: "Weak",        color: "#f44336", pct: 20 },
+//     { score: 2, label: "Fair",        color: "#ff9800", pct: 40 },
+//     { score: 3, label: "Good",        color: "#ffc107", pct: 60 },
+//     { score: 4, label: "Strong",      color: "#4caf50", pct: 80 },
+//     { score: 5, label: "Very Strong", color: "#2e7d32", pct: 100 },
+//   ];
+//   return levels[Math.min(score, 5) - 1] ?? levels[0];
+// }
+
+function getPasswordStrength(password = "") {
+  if (!password) return null;
+
+  let score = 0;
+  if (password.length >= 6)         score++;  // baseline length
+  if (password.length >= 10)        score++;  // longer = better
+  if (/[A-Z]/.test(password))       score++;  // uppercase
+  if (/[0-9]/.test(password))       score++;  // number
+  if (/[!@#$%^&*]/.test(password))  score++;  // special char
+
+  // score 0 → caught by !password guard above, won't reach here
+  // score 1–5 → map directly
+  const levels: Record<number, { label: string; color: string; pct: number }> = {
+    1: { label: "Weak",        color: "#f44336", pct: 20  },
+    2: { label: "Fair",        color: "#ff9800", pct: 40  },
+    3: { label: "Good",        color: "#ffc107", pct: 60  },
+    4: { label: "Strong",      color: "#4caf50", pct: 80  },
+    5: { label: "Very Strong", color: "#2e7d32", pct: 100 },
+  };
+
+  return levels[score] ?? levels[1];
+}
+const passwordValue = watch("password");
+const strength = getPasswordStrength(passwordValue);
   return (
     // <Paper
     //   // elevation={3}
@@ -590,7 +651,7 @@ const alias= companyInfo?.company?.alias;
                   />
                 )}
               />
-              <Controller
+              {/* <Controller
                 name="password"
                 control={control}
                 render={({ field }) => (
@@ -617,7 +678,96 @@ const alias= companyInfo?.company?.alias;
                     helperText={errors.confirmPassword?.message}
                   />
                 )}
-              />
+              /> */}
+
+              {/* ─── Password ──────────────────────────────────────────────────────────── */}
+<Controller
+  name="password"
+  control={control}
+  render={({ field }) => (
+    <FormControl fullWidth error={!!errors.password}>
+      <InputLabel shrink={!!field.value}>Password</InputLabel>
+      <OutlinedInput
+        label="Password"
+        notched={!!field.value}
+        type={show.password ? "text" : "password"}
+        {...field}
+        endAdornment={
+          <InputAdornment position="end">
+            <Tooltip
+              title="Minimum 6 characters with at least 1 number . Special characters (!@#$%^&*) allowed."
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+            <IconButton onClick={() => toggleVisibility("password")} edge="end">
+              {show.password ? <Eye size={20} /> : <EyeSlash size={20} />}
+            </IconButton>
+          </InputAdornment>
+        }
+      />
+
+      {/* Strength bar — visible only while typing */}
+      {strength && (
+        <Box sx={{ mt: 0.75, px: 0.25 }}>
+          <LinearProgress
+            variant="determinate"
+            value={strength.pct}
+            sx={{
+              height: 4,
+              borderRadius: 2,
+              bgcolor: "action.hover",
+              "& .MuiLinearProgress-bar": {
+                bgcolor: strength.color,
+                transition: "width 0.35s ease, background-color 0.35s ease",
+              },
+            }}
+          />
+          <Typography
+            variant="caption"
+            sx={{ color: strength.color, fontWeight: 600, mt: 0.25, display: "block" }}
+          >
+            {strength.label}
+          </Typography>
+        </Box>
+      )}
+
+      {errors.password && (
+        <FormHelperText>{errors.password.message}</FormHelperText>
+      )}
+    </FormControl>
+  )}
+/>
+
+{/* ─── Confirm Password ───────────────────────────────────────────────────── */}
+<Controller
+  name="confirmPassword"
+  control={control}
+  render={({ field }) => (
+    <FormControl fullWidth error={!!errors.confirmPassword}>
+      <InputLabel shrink={!!field.value}>Confirm Password</InputLabel>
+      <OutlinedInput
+        label="Confirm Password"
+        notched={!!field.value}
+        type={show.confirmPassword ? "text" : "password"}
+        {...field}
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton onClick={() => toggleVisibility("confirmPassword")} edge="end">
+              {show.confirmPassword ? <Eye size={20} /> : <EyeSlash size={20} />}
+            </IconButton>
+          </InputAdornment>
+        }
+      />
+      {errors.confirmPassword && (
+        <FormHelperText>{errors.confirmPassword.message}</FormHelperText>
+      )}
+    </FormControl>
+  )}
+/>
             </>
           )}
 
