@@ -366,17 +366,18 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                     >
                       <Stack>
                         <Typography variant="body1" marginTop={0}>
-                          Pay your bill in a few easy steps. All you need is
-                          your account number and original billing invoice
-                          amount.
+                         
+                          Pay your bill in a few easy steps. All you need is your account number, original billing invoice amount, and email address.
                         </Typography>
                         <Typography variant="body1" marginTop={3}>
                           Payments made will be posted to your account during
-                          business hours. For each payment you will receive a
-                          confirmation for your records.
+                          business hours. For each payment you will receive an email confirmation for your
+records.
                         </Typography>
                         <Typography variant="body1" marginTop={3}>
-                          <strong>To view your account details</strong>, use the{" "}
+                          {/* <strong>To view your account details</strong>, use the{" "} */}
+                          <strong>To access your account details</strong>, click {" "}
+                             
                           <Link
                             to="/sign-up"
                             style={{
@@ -387,9 +388,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                           >
                             Register Now
                           </Link>{" "}
-                          feature where you can access billing, payment history,
-                          and advanced features like autopay and paperless
-                          billing.
+                         link. This allows you to view billing
+information, review your payment history, and take advantage of convenient options like
+autopay and paperless billing.
                         </Typography>
                         <Box
                           mt={{
