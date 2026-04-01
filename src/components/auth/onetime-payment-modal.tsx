@@ -240,13 +240,26 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
   };
 
-  const hanldeFailure = (data) => {
+  const hanldeFailure = (data, noToast=false) => {
+
+    if(noToast){
+  setIsDirty(false);
+
+          // onModalClose();
+    // onClose();
+
+          return
+    }
+
     if (data) {
       toast.error(data ? data : "Try again something went wrong!");
     } else {
       toast.error("Try again something went wrong!");
     }
-    onModalClose();
+      setIsDirty(false);
+
+          onModalClose();
+
   };
   const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
     if (data?.error) {
@@ -445,23 +458,28 @@ export default function OneTimePaymentModal({ open, onClose }) {
       case 1:
         return (
           <>
+              <Typography mb={2}>
+                 Account No: ${formData.accountNo}
+              </Typography>
             <TextField
               fullWidth
-              label="Name: "
+              label="Account Name: "
               value={formData.name}
               onChange={handleChange("name")}
               error={!!errors.name}
               helperText={errors.name}
               sx={{ mb: 2 }}
+              disabled
             />
             <TextField
               fullWidth
-              label="Email: "
+              label="Send Email Confirmation to: "
               value={formData.email}
               onChange={handleChange("email")}
               error={!!errors.email}
               helperText={errors.email}
               sx={{ mb: 2 }}
+              placeholder="Enter your email address"
             />
             {/* <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography> */}
@@ -582,14 +600,43 @@ export default function OneTimePaymentModal({ open, onClose }) {
           <>
             <Typography>Name: {formData.name}</Typography>
             <Typography>Email: {formData.email}</Typography>
-            <Typography mt={2}>Amount: ${formData.amountToPay}</Typography>
+            {/* <Typography mt={2}>Payment Amount: ${formData.amountToPay}</Typography>
             <Typography>
-              Additional Convenience Fee: ${formData.convenienceFee}
+               Convenience Fee: ${formData.convenienceFee}
             </Typography>
-            <Typography>
+            <Typography fontWeight="bold">
               Total Payment: $
               {parseFloat(Number(formData.totalPayment).toFixed(2))}
-            </Typography>
+            </Typography> */}
+   
+   <Box mt={2}>
+  <Box display="flex">
+    <Typography sx={{ minWidth: 180 }}>
+      Payment Amount:
+    </Typography>
+    <Typography>
+      ${Number(formData.amountToPay).toFixed(2)}
+    </Typography>
+  </Box>
+
+  <Box display="flex">
+    <Typography sx={{ minWidth: 180 }}>
+      Convenience Fee:
+    </Typography>
+    <Typography>
+      ${Number(formData.convenienceFee).toFixed(2)}
+    </Typography>
+  </Box>
+
+  <Box display="flex">
+    <Typography sx={{ minWidth: 180 }} fontWeight="bold">
+      Total Payment:
+    </Typography>
+    <Typography fontWeight="bold">
+      ${Number(formData.totalPayment).toFixed(2)}
+    </Typography>
+  </Box>
+</Box>
 
             <Typography sx={{ mt: 2 }}>Select Payment Type</Typography>
             <RadioGroup

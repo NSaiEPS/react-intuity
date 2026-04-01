@@ -152,7 +152,7 @@ export function Sales({
       getBarChartData(monthlyUsageGraph?.slice(1));
     }
   }, [monthlyUsageGraph]);
-  const chartData = {
+  const chartData:any = {
     series: [
       {
         name: "Gallons",

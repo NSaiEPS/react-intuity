@@ -96,6 +96,27 @@ export default function CustomModal({
     >
       <SkeletonWrapper customLoader={dashboardLoader}>
         <>
+         <button
+        onClick={(e) => {
+          e.stopPropagation(); // prevent backdrop click
+          onClose();
+        }}
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "30px",
+          background: "#fff",
+          border: "none",
+          borderRadius: "50%",
+          width: "40px",
+          height: "40px",
+          fontSize: "20px",
+          cursor: "pointer",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        }}
+      >
+        ✕
+      </button>
           <PDFDownloadLink
             document={
               <InvoicePdfDocument

@@ -839,13 +839,13 @@ export const guestPaymentRequest: any =
           }
         }
       } else {
-        navigateTo("/login", { replace: true }, res?.message);
+        // navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
           toast.error(res?.message ?? "Something went wrong!");
         }
         if (failureCallBack) {
-          failureCallBack();
+          failureCallBack(undefined, true);
         }
       }
     } catch (e: any) {
