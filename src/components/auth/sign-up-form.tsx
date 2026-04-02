@@ -475,9 +475,36 @@ const alias= companyInfo?.company?.alias;
   }, [isDirty,]);
 
 
-  const handleCancel=()=>{
+const stepFieldsMap: Record<number, Partial<FormData>> = {
+  0: {
+    name: "",
+    accountNumber: "",
+  },
+  1: {
+    authType: "",
+    authAnswer: "",
+  },
+  2: {
+    email: "",
+    password: "",
+    confirmPassword: "",
+  },
+  3: {
+    notificationEmail: "",
+    confirmNotificationEmail: "",
+    countryCode: "",
+    phone: "",
+  },
+};
 
-  }
+const handleCancel = () => {
+  const currentValues = getValues(); // ✅ get all existing values
+
+  reset({
+    ...currentValues, // ✅ keep previous steps data
+    ...stepFieldsMap[activeStep], // ✅ clear only current step
+  });
+};
 
 
 
