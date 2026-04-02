@@ -219,10 +219,11 @@ if (pathname.includes("register") || pathname === "/sign-up") {
               {/* // pathname?.split("/")[1] !== "login" &&
               //   pathname?.includes("login") ? ( */}
               {hasCompanySlug ? (
+                companyInfo?.company?.logo?
                 <Avatar
                   src={companyInfo?.company?.logo}
-                  sx={{ width: 50, height: 50, mr: 1.5 }}
-                />
+                  sx={{ width: 80, height: 80, mr: 1.5 }}
+                />:null
               ) : (
                 <Box
                   // component={RouterLink}
@@ -251,12 +252,12 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                 pathname?.includes("login") && ( */}
                 {hasCompanySlug && (
                   <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
-                    <Typography variant="subtitle2" noWrap>
+                    <Typography variant="h5" noWrap>
                       {companyInfo?.company?.company_name}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" noWrap>
+                    {/* <Typography variant="caption" color="text.secondary" noWrap>
                       {companyInfo?.company?.alias}
-                    </Typography>
+                    </Typography> */}
                   </Box>
                 )}
             </Box>

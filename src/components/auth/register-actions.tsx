@@ -3,16 +3,16 @@ import { CalendarCheck, Headphones, Leaf, Megaphone } from '@phosphor-icons/reac
 
 const quickActions = [
   { icon: <Leaf size={15} weight="fill" />, label1: 'Go', label2: 'Paperless' },
-  // {
-  //   icon: <CalendarCheck size={15} weight="fill" />,
-  //   label1: 'Configure',
-  //   label2: 'Autopay',
-  // },
-  // {
-  //   icon: <Headphones size={15} weight="fill" />,
-  //   label1: 'Request',
-  //   label2: 'Support',
-  // },
+  {
+    icon: <CalendarCheck size={15} weight="fill" />,
+    label1: 'Configure',
+    label2: 'Autopay',
+  },
+  {
+    icon: <Headphones size={15} weight="fill" />,
+    label1: 'Request',
+    label2: 'Support',
+  },
   {
     icon: <Megaphone size={15} weight="fill" />,
     label1: 'Receive',
@@ -25,7 +25,7 @@ export default function QuickActionsBox() {
     <Paper
       elevation={0}
       sx={{
-        backgroundColor: '#f5f5f5',
+        // backgroundColor: '#f5f5f5',
         px: 2,
         py: 1,
         display: 'flex',
@@ -49,7 +49,7 @@ export default function QuickActionsBox() {
             overflow: 'hidden',
           }}
         >
-          <Box sx={{ color: 'black', alignItems: 'center', marginTop: '3.5px' }}>{item.icon}</Box>
+          {/* <Box sx={{ color: 'black', alignItems: 'center', marginTop: '3.5px' }}>{item.icon}</Box>
           <Box sx={{ lineHeight: 1.1 }}>
             <Typography
               sx={{
@@ -64,17 +64,8 @@ export default function QuickActionsBox() {
               {item.label1} {` `}
               {item.label2}
             </Typography>
-            {/* <Typography
-              sx={{
-                fontSize: '11px',
-                fontWeight: 500,
-                color: '#444',
-                lineHeight: 1.1,
-              }}
-            >
-              {item.label2}
-            </Typography> */}
-          </Box>
+         
+          </Box> */}
         </Box>
       ))}
     </Paper>

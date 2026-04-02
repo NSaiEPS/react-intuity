@@ -318,7 +318,7 @@ const handleRegisterClick = async () => {
                 onClick={handleSubmit(onSubmit)}
                 type="submit"
                 variant="contained"
-                textTransform="none"
+                textTransform="uppercase"
                 bgColor={colors.blue}
                 // onClick={onSubmit}
                 hoverBackgroundColor={colors["blue.3"]}
