@@ -45,8 +45,8 @@ import { Eye, EyeSlash, Question } from "@phosphor-icons/react";
 // Schema
 const schema = z
   .object({
-    name: z.string().min(1, "Name is required"),
-    accountNumber: z.string().min(1, "Account Number is required"),
+    name: z.string().min(3, "Name is required, at least 3 characters needed"),
+    accountNumber: z.string().min(3, "Account Number is required, at least 3 characters needed"),
     // email: z.string().email("Invalid email"),
     email: z.string().min(6, "Login Id or Email is too short, minimum 6 characters"),
 password: z.string()
@@ -162,7 +162,8 @@ export const CustomConnector = styled(StepConnector, {
 // Example usage
  const steps = [
     "Account Info",
-    "Authentication",
+    // "Authentication",
+    "Confirm Account Info ",
     "Portal Registration",
     "Contact Info",
   ];
@@ -834,9 +835,9 @@ const strength = getPasswordStrength(passwordValue);
 
           <Divider sx={{ my: 2 }} />
 
-          <Stack direction="row" justifyContent={activeStep==0 ? 'flex-end':"space-between"}>
+          <Stack direction="row" justifyContent={"space-between"}>
             {
-              activeStep >0 &&
+           true &&
             
             <Button
               // nClick={handleBack}>
@@ -852,7 +853,8 @@ const strength = getPasswordStrength(passwordValue);
                 height: "41px",
               }}
             >
-              {activeStep === 0 ? "Login" : "Back"}
+              {/* {activeStep === 0 ? "Login" : "Back"} */}
+              { "Back"}
             </Button>}
             {activeStep < steps.length - 1 ? (
               <Stack

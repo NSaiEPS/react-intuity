@@ -459,7 +459,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
         return (
           <>
               <Typography mb={2}>
-                 Account No: ${formData.accountNo}
+                 Account No: {formData.accountNo}
               </Typography>
             <TextField
               fullWidth
@@ -598,8 +598,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
       case 2:
         return (
           <>
-            <Typography>Name: {formData.name}</Typography>
-            <Typography>Email: {formData.email}</Typography>
+            <Typography paddingLeft={2}>Name: {formData.name}</Typography>
+            <Typography paddingLeft={2}>Email: {formData.email}</Typography>
             {/* <Typography mt={2}>Payment Amount: ${formData.amountToPay}</Typography>
             <Typography>
                Convenience Fee: ${formData.convenienceFee}
@@ -609,7 +609,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
               {parseFloat(Number(formData.totalPayment).toFixed(2))}
             </Typography> */}
    
-   <Box mt={2}>
+   <Box mt={2}
+   
+   border={1} padding={2} borderRadius={2}>
   <Box display="flex">
     <Typography sx={{ minWidth: 180 }}>
       Payment Amount:
@@ -638,10 +640,16 @@ export default function OneTimePaymentModal({ open, onClose }) {
   </Box>
 </Box>
 
-            <Typography sx={{ mt: 2 }}>Select Payment Type</Typography>
+            <Typography sx={{ mt: 2, }} paddingLeft={2}>Select Payment Type</Typography>
             <RadioGroup
               value={formData.paymentType}
               onChange={handleChange("paymentType")}
+              sx={{
+                display:"flex",
+                flexDirection:"row",
+                padding:2
+              }}
+
             >
               <FormControlLabel
                 value="card"
