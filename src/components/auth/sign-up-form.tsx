@@ -45,19 +45,25 @@ import { Eye, EyeSlash, Question } from "@phosphor-icons/react";
 // Schema
 const schema = z
   .object({
-    name: z.string().min(3, "Name is required, at least 3 characters needed"),
-    accountNumber: z.string().min(3, "Account Number is required, at least 3 characters needed"),
+    // name: z.string().min(3, "Name is required, at least 3 characters needed"),
+    // accountNumber: z.string().min(3, "Account Number is required, at least 3 characters needed"),
+        name: z.string().min(3, 'Enter a valid Name (minimum 3 characters)'),
+    accountNumber: z.string().min(4, "Enter a valid Account Number (minimum 4 characters)"),
     // email: z.string().email("Invalid email"),
-    email: z.string().min(6, "Login Id or Email is too short, minimum 6 characters"),
+    email: z.string().min(6, "Enter a valid Login ID or Email (minimum 6 characters)"),
 password: z.string()
   .min(6, "Minimum 6 characters")
   .regex(/^(?=.*[0-9]).{6,}$/, "Must be at least 6 characters and include 1 number"),
     confirmPassword: z.string().min(6, "Minimum 6 characters"),
     authType: z.string().min(1, "Authentication is required"),
     authAnswer: z.string().min(1, "Answer is required"),
-    notificationEmail: z.string().email("Invalid email"),
+    notificationEmail: z.string().email("Enter a valid  Email"),
     confirmNotificationEmail: z.string().email("Emails must match"),
-    phone: z.string().min(10, "Phone number required"),
+    // phone: z.string().min(10, "Phone number required"),
+    phone: z
+  .string()
+  .min(10, "Phone number must be at least 10 digits.")
+  .or(z.literal("")),
     countryCode: z.string().min(1, "Select a country code"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -396,6 +402,10 @@ const alias= companyInfo?.company?.alias;
 
         return
     }
+
+     if (activeStep === 0) {
+    reset({ ...getValues(), authType: "lastName" });
+  }
     setActiveStep((prev) => prev + 1);
     setCompanyResponse({ ...companyResponse, ...data });
     seLoading(false);
@@ -595,7 +605,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Name"
+                    label="Name *"
                     fullWidth
                     {...field}
                     error={!!errors.name}
@@ -608,7 +618,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Account Number"
+                    label="Account Number *"
                     fullWidth
                     {...field}
                     error={!!errors.accountNumber}
@@ -633,12 +643,12 @@ const strength = getPasswordStrength(passwordValue);
                   //   helperText={errors.authType?.message}
                   // />
                       <FormControl fullWidth error={!!errors.authType}>
-      <InputLabel>Authentication Type</InputLabel>
+      <InputLabel>Authentication Type *</InputLabel>
       <Select
-        label="Authentication Type"
+        label="Authentication Type *"
         {...field}
       >
-        <MenuItem value="lastName">Last Name</MenuItem>
+        <MenuItem value="lastName">Last Name / Business Name</MenuItem>
         <MenuItem value="billingAddress">Billing Address</MenuItem>
         <MenuItem value="pin">PIN</MenuItem>
       </Select>
@@ -653,7 +663,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Authentication Answer"
+                    label="Authentication Answer *"
                     fullWidth
                     {...field}
                     error={!!errors.authAnswer}
@@ -671,7 +681,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Login ID or Email"
+                    label="Login ID or Email *"
                     fullWidth
                     {...field}
                     error={!!errors.email}
@@ -714,9 +724,9 @@ const strength = getPasswordStrength(passwordValue);
   control={control}
   render={({ field }) => (
     <FormControl fullWidth error={!!errors.password}>
-      <InputLabel shrink={!!field.value}>Password</InputLabel>
+      <InputLabel shrink={!!field.value}>Password *</InputLabel>
       <OutlinedInput
-        label="Password"
+        label="Password *"
         notched={!!field.value}
         type={show.password ? "text" : "password"}
         {...field}
@@ -776,9 +786,9 @@ const strength = getPasswordStrength(passwordValue);
   control={control}
   render={({ field }) => (
     <FormControl fullWidth error={!!errors.confirmPassword}>
-      <InputLabel shrink={!!field.value}>Confirm Password</InputLabel>
+      <InputLabel shrink={!!field.value}>Confirm Password *</InputLabel>
       <OutlinedInput
-        label="Confirm Password"
+        label="Confirm Password *"
         notched={!!field.value}
         type={show.confirmPassword ? "text" : "password"}
         {...field}
@@ -806,7 +816,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Notification Email"
+                    label="Notification Email *"
                     fullWidth
                     {...field}
                     error={!!errors.notificationEmail}
@@ -819,7 +829,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Confirm Notification Email"
+                    label="Confirm Notification Email *"
                     fullWidth
                     {...field}
                     error={!!errors.confirmNotificationEmail}
@@ -827,7 +837,7 @@ const strength = getPasswordStrength(passwordValue);
                   />
                 )}
               />
-              <Controller
+              {/* <Controller
                 name="countryCode"
                 control={control}
                 render={({ field }) => (
@@ -856,7 +866,63 @@ const strength = getPasswordStrength(passwordValue);
                     helperText={errors.phone?.message}
                   />
                 )}
-              />
+              /> */}
+
+              {/* ─── Country Code + Phone (inline row) ─────────────────────────── */}
+    <Stack direction="row" spacing={1} alignItems="flex-start">
+      {/* Country Code Select */}
+      <Controller
+        name="countryCode"
+        control={control}
+        render={({ field }) => (
+          <FormControl
+            error={!!errors.countryCode}
+            sx={{ minWidth: 160 }}
+          >
+            <InputLabel>Country</InputLabel>
+            <Select label="Country" {...field}>
+              <MenuItem value="1">1 - United States</MenuItem>
+              <MenuItem value="91">91 - India</MenuItem>
+            </Select>
+            {errors.countryCode && (
+              <FormHelperText>{errors.countryCode.message}</FormHelperText>
+            )}
+          </FormControl>
+        )}
+      />
+
+      {/* Phone with US formatting */}
+      <Controller
+        name="phone"
+        control={control}
+        render={({ field }) => {
+          const formatUS = (value: string) => {
+            const digits = value.replace(/\D/g, "").slice(0, 10);
+            if (digits.length < 4) return digits;
+            if (digits.length < 7)
+              return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+            return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+          };
+
+          return (
+            <TextField
+              label="Phone No"
+              fullWidth
+              {...field}
+              value={formatUS(field.value || "")}
+              onChange={(e) => {
+                const formatted = formatUS(e.target.value);
+                field.onChange(formatted);
+              }}
+              error={!!errors.phone}
+              helperText={errors.phone?.message}
+              placeholder="(555) 000-0000"
+              inputProps={{ maxLength: 14 }}
+            />
+          );
+        }}
+      />
+    </Stack>
             </>
           )}
 
