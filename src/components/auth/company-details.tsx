@@ -67,7 +67,7 @@ export default function CompanyDetails({ reset = false }) {
               )} */}
             {pathname?.split("/")[1] !== "login" &&
             pathname?.includes("login") ? (
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" >
                 <strong style={{ color: colors.blue }}>Contact Us: 📞 </strong>
                 {companyInfo?.company?.country}
                 {companyInfo?.company?.phone ?? ""} &nbsp;&nbsp;&nbsp; &nbsp;
@@ -80,7 +80,7 @@ export default function CompanyDetails({ reset = false }) {
                 {` `} {companyInfo?.company?.time_zone}, {` `}{" "}
               </Typography>
             ) : (
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" >
                 <strong style={{ color: colors.blue }}>Contact Us: </strong>
                 📞+1 234 567 8900 &nbsp;&nbsp;&nbsp; &nbsp;
                 &nbsp;📧info@intuity.com&nbsp; &nbsp; &nbsp; &nbsp;
@@ -129,7 +129,7 @@ export default function CompanyDetails({ reset = false }) {
             {/* Left content */}
             <Typography
               variant="body1"
-              color="text.secondary"
+              // color="text.secondary"
               sx={{ flex: 1, minWidth: "60%" }}
             >
               <strong style={{ color: colors.blue }}>Important:</strong> A
