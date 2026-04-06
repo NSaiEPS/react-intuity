@@ -473,7 +473,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             />
             <TextField
               fullWidth
-              label="Send Email Confirmation to: "
+              label="Send Payment Confirmation to: "
               value={formData.email}
               onChange={handleChange("email")}
               error={!!errors.email}

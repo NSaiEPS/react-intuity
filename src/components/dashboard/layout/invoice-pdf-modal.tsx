@@ -92,28 +92,35 @@ export default function CustomModal({
         justifyContent: "center",
         zIndex: 1300,
       }}
-      onClick={onClose}
+      // onClick={onClose}
     >
       <SkeletonWrapper customLoader={dashboardLoader}>
-        <>
+   <div
+        style={{ position: "relative", display: "inline-block" }}
+        onClick={(e) => e.stopPropagation()}
+      >
          <button
         onClick={(e) => {
           e.stopPropagation(); // prevent backdrop click
           onClose();
         }}
         style={{
-          position: "absolute",
-          top: "20px",
-          right: "30px",
-          background: "#fff",
-          border: "none",
-          borderRadius: "50%",
-          width: "40px",
-          height: "40px",
-          fontSize: "20px",
-          cursor: "pointer",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-        }}
+            position: "absolute",
+            top: "35px",
+            right: "-45px",
+            background: "#fff",
+            border: "none",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            fontSize: "20px",
+            cursor: "pointer",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            zIndex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
       >
         ✕
       </button>
@@ -137,7 +144,7 @@ export default function CustomModal({
               )}
             </PDFViewer>
           </div>
-        </>
+</div>
       </SkeletonWrapper>
     </div>
   );
