@@ -1025,7 +1025,7 @@ Please enter your information into the fields below and click SUBMIT. You will r
               <Stack
               direction="row"
               >
-
+{/* 
    <Button
               // nClick={handleBack}>
               onClick={handleCancel}
@@ -1042,11 +1042,11 @@ Please enter your information into the fields below and click SUBMIT. You will r
               }}
             >
 Cancel
-            </Button>
+            </Button> */}
               <Button
                 onClick={handleNext}
                 disabled={loading}
-                loading={loading}
+                // loading={loading}
                 variant="contained"
                 textTransform="none"
                 bgColor={colors.blue}
