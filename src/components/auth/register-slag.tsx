@@ -380,7 +380,10 @@ records.
                           <strong>To access your account details</strong>, click {" "}
                              
                           <Link
-                            to="/sign-up"
+                            to={
+                              companyInfo?.company?.alias?
+                              `/register-${companyInfo.company.alias}`:
+                              "/sign-up"}
                             style={{
                               color: colors.blue,
                               fontWeight: "bold",

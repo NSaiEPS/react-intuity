@@ -41,6 +41,7 @@ IconButton,
   OutlinedInput, Tooltip,
 } from "@mui/material";
 import { Eye, EyeSlash, Question } from "@phosphor-icons/react";
+import { Helmet } from "react-helmet";
 
 // Schema
 const schema = z
@@ -258,6 +259,9 @@ const slugMatch =
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    //  mode: "onTouched",
+      mode: "onChange",           // ✅ show error after field is blurred
+  reValidateMode: "onChange",
     defaultValues: {
       name: "",
       accountNumber: "",
@@ -570,7 +574,9 @@ const strength = getPasswordStrength(passwordValue);
   return (
 
     <Box sx={{ maxWidth: 600, margin: "auto" }}>
-   
+    <Helmet key={'Register'}>
+           <title>{'Register'}</title>
+         </Helmet>
       <CustomStepper activeStep={activeStep} />
 
 {activeStep!==3 && 
