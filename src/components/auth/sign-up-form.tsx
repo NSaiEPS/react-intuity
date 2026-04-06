@@ -62,7 +62,7 @@ password: z.string()
     // phone: z.string().min(10, "Phone number required"),
     phone: z
   .string()
-  .min(10, "Phone number must be at least 10 digits.")
+  .min(14, "Phone number must be at least 10 digits.")
   .or(z.literal("")),
     countryCode: z.string().min(1, "Select a country code"),
   })
@@ -568,29 +568,16 @@ function getPasswordStrength(password = "") {
 const passwordValue = watch("password");
 const strength = getPasswordStrength(passwordValue);
   return (
-    // <Paper
-    //   // elevation={3}
-    //   sx={{ maxWidth: 600, margin: 'auto' }}
-    // >
+
     <Box sx={{ maxWidth: 600, margin: "auto" }}>
-      {/* <Typography variant="h4" gutterBottom>
-        Sign Up Request
-      </Typography> */}
+   
       <CustomStepper activeStep={activeStep} />
 
-      {/* <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-        {steps.map((label) => (
-          <Step key={label} sx={{}}>
-            <StepLabel
-              sx={{
-                color: colors.blue,
-              }}
-            >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper> */}
+{activeStep!==3 && 
+
+ <Typography variant="body1"  mb={4}>
+Please enter your information into the fields below and click NEXT to continue creating your account.          </Typography>
+}
 
       <Typography variant="h6" sx={{ mb: 2, color: colors.blue }}>
         {steps[activeStep]}
@@ -646,7 +633,25 @@ const strength = getPasswordStrength(passwordValue);
       <InputLabel>Authentication Type *</InputLabel>
       <Select
         label="Authentication Type *"
+          sx={{ paddingRight: "40px" }}
         {...field}
+            endAdornment={
+          <InputAdornment position="end" style={{
+
+          }}>
+            <Tooltip
+              title="Your PIN was sent with your new bill email notice.If you cannot find your PIN, please select one of the other authentication methods.
+"
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+
+          </InputAdornment>
+        }
       >
         <MenuItem value="lastName">Last Name / Business Name</MenuItem>
         <MenuItem value="billingAddress">Billing Address</MenuItem>
@@ -663,7 +668,7 @@ const strength = getPasswordStrength(passwordValue);
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="Authentication Answer *"
+                    label=" Answer *"
                     fullWidth
                     {...field}
                     error={!!errors.authAnswer}
@@ -676,7 +681,7 @@ const strength = getPasswordStrength(passwordValue);
 
           {activeStep === 2 && (
             <>
-              <Controller
+              {/* <Controller
                 name="email"
                 control={control}
                 render={({ field }) => (
@@ -686,9 +691,56 @@ const strength = getPasswordStrength(passwordValue);
                     {...field}
                     error={!!errors.email}
                     helperText={errors.email?.message}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <Tooltip
+              title="This ID or email is what you will use to log in to your account."
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+          </InputAdornment>
+        )
+
+
+
                   />
                 )}
-              />
+
+              /> */}
+
+              <Controller
+  name="email"
+  control={control}
+  render={({ field }) => (
+    <TextField
+      label="Login ID or Email *"
+      fullWidth
+      {...field}
+      error={!!errors.email}
+      helperText={errors.email?.message}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <Tooltip
+              title="This ID or email is what you will use to log in to your account."
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+          </InputAdornment>
+        ),
+      }}
+    />
+  )}
+/>
               {/* <Controller
                 name="password"
                 control={control}
@@ -733,7 +785,7 @@ const strength = getPasswordStrength(passwordValue);
         endAdornment={
           <InputAdornment position="end">
             <Tooltip
-              title="Minimum 6 characters with at least 1 number . Special characters (!@#$%^&*) allowed."
+              title="Passwords must be a minimum of 6 characters and must contain at least 1 number. Special characters (!@#$%^&*) are allowed but not required."
               placement="top"
               arrow
             >
@@ -821,6 +873,21 @@ const strength = getPasswordStrength(passwordValue);
                     {...field}
                     error={!!errors.notificationEmail}
                     helperText={errors.notificationEmail?.message}
+                          InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <Tooltip
+              title="This email is where you will receive notifications and may be the same as a login email."
+              placement="top"
+              arrow
+            >
+              <IconButton size="small" edge="end">
+                <Question size={20} color="#90caf9" weight="fill" />
+              </IconButton>
+            </Tooltip>
+          </InputAdornment>
+        ),
+      }}
                   />
                 )}
               />
@@ -927,7 +994,12 @@ const strength = getPasswordStrength(passwordValue);
           )}
 
           <Divider sx={{ my: 2 }} />
-
+          {
+            activeStep===3 &&
+          
+ <Typography variant="body1" fontWeight="bold" mb={2}>
+Please enter your information into the fields below and click SUBMIT. You will receive an email confirmation with a link to finish creating your account.
+          </Typography>}
           <Stack direction="row" justifyContent={"space-between"}>
             {
            true &&
