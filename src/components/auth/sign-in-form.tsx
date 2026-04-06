@@ -378,7 +378,7 @@ const handleRegisterClick = async () => {
             </Button>
           )}
           {user && (
-            <Typography variant="subtitle2" marginTop={1}>
+            <Typography variant="body1" marginTop={1}>
               Don't have an account {` `}
               {/* <Link
                 to="/sign-up"

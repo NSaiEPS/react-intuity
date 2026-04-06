@@ -29,7 +29,7 @@ export function SignInPage({ title }): React.JSX.Element {
       </Box>
       <Box
         sx={{
-          marginTop: 5,
+          // marginTop: 5,
         }}
       >
         <CompanyDetails />
