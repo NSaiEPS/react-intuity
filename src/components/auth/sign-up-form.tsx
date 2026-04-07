@@ -724,7 +724,7 @@ Please enter your information into the fields below and click NEXT to continue c
   control={control}
   render={({ field }) => (
     <TextField
-      label="Login ID or Email *"
+      label="User Name *"
       fullWidth
       {...field}
       error={!!errors.email}

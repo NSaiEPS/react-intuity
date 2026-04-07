@@ -219,9 +219,11 @@ const handleRegisterClick = async () => {
                   label="Login ID or Email"
                   type="text"
                 />
-                {errors.email ? (
-                  <FormHelperText>{errors.email.message}</FormHelperText>
-                ) : null}
+
+                  <FormHelperText
+                  sx={{ minHeight: "20px" }}
+                  >{errors?.email?.message ??''}</FormHelperText>
+
               </FormControl>
             )}
           />
@@ -255,9 +257,12 @@ const handleRegisterClick = async () => {
                   label="Password"
                   type={showPassword ? "text" : "password"}
                 />
-                {errors.password ? (
-                  <FormHelperText>{errors.password.message}</FormHelperText>
-                ) : null}
+
+                  <FormHelperText
+                  sx={{ minHeight: "20px" }}
+                  
+                  >{errors?.password?.message??''}</FormHelperText>
+
               </FormControl>
             )}
           />
@@ -303,13 +308,14 @@ const handleRegisterClick = async () => {
           ) : null}
           {/* <Button></Button> */}
 
-          <Box> {user && <QuickActionsBox />}</Box>
+          {/* <Box> {user && <QuickActionsBox />}</Box> */}
 
           {user ? (
             <Box
-              mt={2}
+              mt={-0.5}
               sx={{
                 display: "flex",
+                flexDirection:"column"
               }}
             >
               <Button
@@ -334,14 +340,20 @@ const handleRegisterClick = async () => {
                 Login
               </Button>
 
-              <Link
+
+
+                <Typography variant="body1" marginTop={2.9}>
+
+                                 Forget your password ? use this link to get it back
+
+                                       <Link
                 to={paths.auth.resetPassword()}
                 style={{
                   color: colors.blue,
                   justifyContent: "center",
                   marginTop: "auto",
                   marginBottom: "auto",
-                  marginLeft: "15px",
+                  marginLeft: "5px",
                   textDecoration: "underline",
                   borderColor: "transparent",
 
@@ -353,8 +365,12 @@ const handleRegisterClick = async () => {
                   e.currentTarget.style.borderColor = "transparent";
                 }}
               >
-                Forgot password?
+                Forgot password
               </Link>
+                                     
+                                      </Typography>
+
+            
             </Box>
           ) : (
             <Button
@@ -378,7 +394,7 @@ const handleRegisterClick = async () => {
             </Button>
           )}
           {user && (
-            <Typography variant="body1" marginTop={1}>
+            <Typography variant="body1" >
               Don't have an account {` `}
               {/* <Link
                 to="/sign-up"

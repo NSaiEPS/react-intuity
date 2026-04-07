@@ -385,7 +385,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
           <>
             <TextField
               fullWidth
-              label="Account No."
+              label="Account No. *"
               value={formData.accountNo}
               onChange={handleChange("accountNo")}
               error={!!errors.accountNo}
@@ -404,7 +404,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
             <TextField
               fullWidth
-              label="Original Invoice Amount"
+              label="Original Invoice Amount *"
               value={formData.invoiceAmount}
               onChange={handleChange("invoiceAmount")}
               error={!!errors.invoiceAmount}
@@ -473,7 +473,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             />
             <TextField
               fullWidth
-              label="Send Payment Confirmation to: "
+              label="Send Payment Confirmation to: *"
               value={formData.email}
               onChange={handleChange("email")}
               error={!!errors.email}
@@ -522,7 +522,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
             >
               <TextField
                 fullWidth
-                label="Amount To Pay"
+                label="Amount To Pay *"
                 value={formData.amountToPay}
                 onChange={(e) => {
                   const value = e.target.value;

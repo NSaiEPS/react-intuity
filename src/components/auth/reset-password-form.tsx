@@ -22,6 +22,8 @@ import { paths } from "@/utils/paths";
 import Button from "../CommonComponents/Button";
 import { Link } from "react-router";
 import { Box } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
 
 const schema = zod.object({
   email: zod.string().min(1, { message: "Email is required" }).email(),
@@ -61,7 +63,9 @@ export function ResetPasswordForm(): React.JSX.Element {
     },
     [setError]
   );
-
+  const {  companyInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
   return (
     <Stack spacing={4}>
       <Typography variant="h5">{/* Reset password */}</Typography>
@@ -109,7 +113,7 @@ export function ResetPasswordForm(): React.JSX.Element {
               Send recovery link
             </Button>
             <Link
-              to={paths.auth.newLogin()}
+              to={paths.auth.newLogin(companyInfo?.company?.alias)}
               style={{
                 color: colors.blue,
                 // textDecoration: "underline",
