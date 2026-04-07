@@ -207,7 +207,7 @@ const handleRegisterClick = async () => {
         </Stack>
       )}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
+        <Stack spacing={0}>
           <Controller
             control={control}
             name="email"
@@ -309,13 +309,53 @@ const handleRegisterClick = async () => {
           {/* <Button></Button> */}
 
           {/* <Box> {user && <QuickActionsBox />}</Box> */}
+                <Typography
+              variant="body1"
+              // color="text.secondary"
+              sx={{ flex: 1, minWidth: "60%" }}
+            >
+              <strong style={{ color: colors.blue }}>Important:</strong> A
+              convenience or service fee may be charged by the payment processor
+              for credit/debit card, e-check or ACH online payments. The fee
+              amount will be displayed before you complete your transaction.
+            </Typography>
+             {user && (
+            <Typography variant="body1" 
+              mt={1.5}
+            
+            >
+              Don't have an account {` `}
+              {/* <Link
+                to="/sign-up"
+                style={{
+                  color: colors.blue,
+                  borderColor: "transparent",
+                  textDecoration: "none",
+                }}
+              >
+                Register Now
+              </Link>{" "} */}
+               <span
+      onClick={handleRegisterClick}
+      style={{
+        color: colors.blue,
+        cursor: "pointer",
+        textDecoration: "underline",
+      }}
+    >
+      Register Now 
+    </span>{" "}
+              to view your account details
+            </Typography>
+          )}
 
           {user ? (
             <Box
-              mt={-0.5}
+              mt={1.5}
+              mb={-0.5}
               sx={{
                 display: "flex",
-                flexDirection:"column"
+                // flexDirection:"column"
               }}
             >
               <Button
@@ -342,9 +382,9 @@ const handleRegisterClick = async () => {
 
 
 
-                <Typography variant="body1" marginTop={2.9}>
+                {/* <Typography variant="body1" marginTop={2.9}>
 
-                                 Forget your password ? use this link to get it back
+                                 Forget your password ? use this link to get it back */}
 
                                        <Link
                 to={paths.auth.resetPassword()}
@@ -353,7 +393,7 @@ const handleRegisterClick = async () => {
                   justifyContent: "center",
                   marginTop: "auto",
                   marginBottom: "auto",
-                  marginLeft: "5px",
+                  marginLeft: "15px",
                   textDecoration: "underline",
                   borderColor: "transparent",
 
@@ -368,7 +408,7 @@ const handleRegisterClick = async () => {
                 Forgot password
               </Link>
                                      
-                                      </Typography>
+                                      {/* </Typography> */}
 
             
             </Box>
@@ -393,32 +433,7 @@ const handleRegisterClick = async () => {
               Sign In
             </Button>
           )}
-          {user && (
-            <Typography variant="body1" >
-              Don't have an account {` `}
-              {/* <Link
-                to="/sign-up"
-                style={{
-                  color: colors.blue,
-                  borderColor: "transparent",
-                  textDecoration: "none",
-                }}
-              >
-                Register Now
-              </Link>{" "} */}
-               <span
-      onClick={handleRegisterClick}
-      style={{
-        color: colors.blue,
-        cursor: "pointer",
-        textDecoration: "underline",
-      }}
-    >
-      Register Now 
-    </span>{" "}
-              to view your account details
-            </Typography>
-          )}
+         
         </Stack>
       </form>
     </Stack>

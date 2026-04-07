@@ -375,7 +375,7 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                           business hours. For each payment you will receive an email confirmation for your
 records.
                         </Typography>
-                        <Typography variant="body1" marginTop={3}>
+                        <Typography variant="body1" marginTop={3}  marginBottom={3}>
                           {/* <strong>To view your account details</strong>, use the{" "} */}
                           <strong>To access your account details</strong>, click {" "}
                              
@@ -426,6 +426,7 @@ autopay and paperless billing.
                                 height: "41px",
                                 width: "125px",
                                 backgroundColor: colors.blue,
+
                               }}
                               onMouseOver={(e) =>
                               (e.currentTarget.style.backgroundColor =

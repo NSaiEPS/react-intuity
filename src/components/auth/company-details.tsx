@@ -127,7 +127,7 @@ export default function CompanyDetails({ reset = false }) {
             }}
           >
             {/* Left content */}
-            <Typography
+            {/* <Typography
               variant="body1"
               // color="text.secondary"
               sx={{ flex: 1, minWidth: "60%" }}
@@ -136,7 +136,7 @@ export default function CompanyDetails({ reset = false }) {
               convenience or service fee may be charged by the payment processor
               for credit/debit card, e-check or ACH online payments. The fee
               amount will be displayed before you complete your transaction.
-            </Typography>
+            </Typography> */}
 
             {/* Right content */}
             {/* <Typography
