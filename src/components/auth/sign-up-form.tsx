@@ -51,7 +51,9 @@ const schema = z
         name: z.string().min(3, 'Enter a valid Name (minimum 3 characters)'),
     accountNumber: z.string().min(4, "Enter a valid Account Number (minimum 4 characters)"),
     // email: z.string().email("Invalid email"),
-    email: z.string().min(6, "Enter a valid Login ID or Email (minimum 6 characters)"),
+    // email: z.string().min(6, "Enter a valid Login ID or Email (minimum 6 characters)"),
+    email: z.string().min(6, 'Enter a valid User Name (minimum 6 characters)'),
+
 password: z.string()
   .min(6, "Minimum 6 characters")
   .regex(/^(?=.*[0-9]).{6,}$/, "Must be at least 6 characters and include 1 number"),
