@@ -390,7 +390,7 @@ type FormErrors = Record<string, string>;
       </Typography>
       <TextField
         fullWidth
-        label="Routing Number"
+        label="Routing Number *"
         variant="standard"
         name="routingNumber"
         value={formData.routingNumber}
@@ -402,7 +402,7 @@ type FormErrors = Record<string, string>;
 
       <TextField
         fullWidth
-        label="Account Number"
+        label="Account Number *"
         variant="standard"
         name="accountNumber"
         value={formData.accountNumber}

@@ -67,7 +67,7 @@ export default function PhoneModal({
     phone: zod
       .string()
       .min(
-        isOtpModal ? 4 : 7,
+        isOtpModal ? 4 : 14,
         isOtpModal
           ? "Otp is must be atleast of 4 digits"
           : "Phone number is too short"
@@ -348,7 +348,7 @@ export default function PhoneModal({
             )}
           /> */}
 
-          <Controller
+          {/* <Controller
   name="phone"
   control={control}
   render={({ field }) => (
@@ -374,6 +374,39 @@ export default function PhoneModal({
       }}
     />
   )}
+/> */}
+<Controller
+  name="phone"
+  control={control}
+  render={({ field }) => {
+    const formatUS = (value: string) => {
+      const digits = value.replace(/\D/g, "").slice(0, 10);
+      if (digits.length < 4) return digits;
+      if (digits.length < 7)
+        return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    };
+
+    return (
+      <TextField
+        {...field}
+        label={isOtpModal ? "Otp" : "Phone No"}
+        variant="outlined"
+        fullWidth
+        error={!!errors.phone}
+        helperText={errors.phone?.message}
+        placeholder="(555) 000-0000"
+        value={formatUS(field.value || "")}
+        onChange={(e) => {
+          field.onChange(formatUS(e.target.value));
+        }}
+        inputProps={{
+          inputMode: "numeric",
+          maxLength: 14, // ✅ (XXX) XXX-XXXX = 14 chars
+        }}
+      />
+    );
+  }}
 />
 
         </Box>

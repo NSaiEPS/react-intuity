@@ -224,14 +224,14 @@ export function AccountDetailsForm(): React.JSX.Element {
           <CardContent>
             <Grid container spacing={3}>
               {[
-                { label: "Account name", name: "account_name" },
-                { label: "Account #", name: "account_number" },
-                { label: "Meter #", name: "meter_number" },
-                { label: "Service Address", name: "service_address" },
-                { label: "Billing Address", name: "billing_address" },
-                { label: "Primary Phone", name: "primary_phone", phone: true },
-                { label: "Alt Phone", name: "alt_phone", phone: true },
-                { label: "Email", name: "email", disabled: true },
+                { label: "Account name *", name: "account_name" },
+                { label: "Account # *", name: "account_number" },
+                { label: "Meter # *", name: "meter_number" },
+                { label: "Service Address *", name: "service_address" },
+                { label: "Billing Address *", name: "billing_address" },
+                { label: "Primary Phone *", name: "primary_phone", phone: true },
+                { label: "Alt Phone ", name: "alt_phone", phone: true },
+                { label: "Email *", name: "email", disabled: true },
               ].map(({ label, name, phone, disabled = false }) => (
                 <Grid key={name} md={6} xs={12}>
                   <Controller
@@ -314,11 +314,11 @@ export function AccountDetailsForm(): React.JSX.Element {
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.comment}>
-                    <InputLabel>Comment</InputLabel>
+                    <InputLabel>Comment *</InputLabel>
                     <OutlinedInput
                       {...field}
                       disabled={!isEditEnable}
-                      label="Comment"
+                      label="Comment *"
                       multiline
                     />
                     {errors.comment ? (

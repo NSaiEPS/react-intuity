@@ -148,10 +148,10 @@ export function UpdatePasswordForm(): React.JSX.Element {
             {/* Old Password */}
             <FormControl fullWidth error={!!errors.password}>
               <InputLabel shrink={!!watchedValues.password}>
-                Old Password
+                Old Password *
               </InputLabel>
               <OutlinedInput
-                label="Old Password"
+                label="Old Password *"
                 notched={!!watchedValues.password}
                 type={show.password ? "text" : "password"}
                 {...register("password")}
@@ -171,10 +171,10 @@ export function UpdatePasswordForm(): React.JSX.Element {
             {/* New Password */}
             <FormControl fullWidth error={!!errors.new_password}>
               <InputLabel shrink={!!watchedValues.new_password}>
-                New Password
+                New Password *
               </InputLabel>
               <OutlinedInput
-                label="New Password"
+                label="New Password *"
                 notched={!!watchedValues.new_password}
                 type={show.new_password ? "text" : "password"}
                 {...register("new_password")}
@@ -203,10 +203,10 @@ export function UpdatePasswordForm(): React.JSX.Element {
             {/* Confirm Password */}
             <FormControl fullWidth error={!!errors.repassword}>
               <InputLabel shrink={!!watchedValues.repassword}>
-                Confirm Password
+                Confirm Password *
               </InputLabel>
               <OutlinedInput
-                label="Confirm Password"
+                label="Confirm Password *"
                 notched={!!watchedValues.repassword}
                 type={show.repassword ? "text" : "password"}
                 {...register("repassword")}
