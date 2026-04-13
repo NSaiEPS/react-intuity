@@ -374,8 +374,9 @@ export async function registerApi({ formData, alias }: {
   formData: any;
   alias:any;
 }) {
-  //TODO: make dynamic
-  const api = `${BASE_URL}register-${alias}`;
+ //new url
+  // const api = `${BASE_URL}register-${alias}`;
+  const api = `${BASE_URL}registerfe-${alias}`;
 
   const res = await fetch(api, {
     method: "POST",

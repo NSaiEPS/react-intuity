@@ -22,7 +22,8 @@ export const paths = {
     newLogin: (company?: string) => (company ? `/login-${company}` : "/login"),
     //  registerWithAlias: (company?: string) =>
     // company ? `/register-${company}` : "/register",
-    registerWithAlias: (company: string) => `/register-${company}`
+    registerWithAlias: (company: string) => `/register-${company}`,
+    registerSuccess: (company: string) => `/register-success-${company}`,
 
   },
 

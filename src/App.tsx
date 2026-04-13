@@ -10,6 +10,7 @@ import ProtectedRoute, {
 } from "./components/core/protectedRoute";
 import CardSuccess from "./components/dashboard/integrations/cardSuccess";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
+import RegisterSuccess from "./components/auth/RegisterSuccess";
 
 // Lazy imports for all pages
 const SignInPage = React.lazy(() =>
@@ -130,6 +131,14 @@ export const router = createBrowserRouter([
       </Authorization>
     ),
   },
+     {
+    path: "/register-success-:alias",
+    element:
+        <RegisterSuccess  />,
+
+
+    errorElement: <RouteErrorBoundary />,
+  },
   {
     path: "/:logincompany/",
     element: LoginSuspense(
@@ -139,6 +148,7 @@ export const router = createBrowserRouter([
     ),
     errorElement: <RouteErrorBoundary />,
   },
+
 
   {
     path: "/:company/confirm-information",

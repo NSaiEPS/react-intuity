@@ -28,6 +28,7 @@ import { paths } from "@/utils/paths";
 import OneTimePaymentModal from "./onetime-payment-modal";
 import { SkeletonWrapper } from "../core/withSkeleton";
 import { useLoading } from "../core/skeletion-context";
+import RegisterSuccess from "./RegisterSuccess";
 
 export default function PaymentInfoSection() {
   const dispatch = useDispatch();
@@ -73,7 +74,7 @@ export default function PaymentInfoSection() {
 
 
 if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
-  const alias = slug.replace("login-", "").replace("register-", "");
+  const alias = slug.replace("login-", "").replace("register-success-", "").replace("register-", "")
 
   formData.append("alias", alias);
 
@@ -108,6 +109,7 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
     pathname === "/sign-up" ||
     pathname === "/reset-password" ||
     pathname.includes("login-") ||
+    pathname.includes("register-success-") ||
     pathname.includes("register-");
 
   if (!allowed) {
@@ -142,19 +144,23 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
    if (pathname.includes("login")) {
     return <SignInForm user={true} />;
   }
+    if (pathname.includes("register-success-")) {
+    return <RegisterSuccess />;
+  }
 if (pathname.includes("register") || pathname === "/sign-up") {
     return <SignUpForm />;
   }
-  if (pathname.includes("register-") || pathname === "/sign-up") {
-    return <SignUpForm />;
-  }
+
 };
 
   const pathSplit = pathname?.split("/");
 
 
   const getRequiredText = () => {
-    if (pathSplit[1] == "reset-password") {
+    if (pathSplit[1]?.includes("register-success")) {
+      return "Register Success";
+    }
+     if (pathSplit[1] == "reset-password") {
       return "Reset password";
     }
     if (pathname?.includes("login")) {
@@ -297,6 +303,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                 }}
               >
                 {/* Header */}
+                {
+                  !pathSplit[1]?.includes("register-success") &&
+                
                 <Box
                   sx={{
                     // backgroundColor: '#f5f5f5',
@@ -309,19 +318,22 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                     alignItems: "center",
                   }}
                 >
-                  {/* <Typography variant="h6" fontWeight={600}> */}
+
                   <Typography variant="h6" fontWeight="bold">
                     {getRequiredText()}
                   </Typography>
-                </Box>
+                </Box>}
 
                 {/* Content */}
                 <CardContent sx={{ p: 4 }}>
                   {getRequiredForms()}
 
                   {/* Divider and action row */}
+
                   {pathname?.split("/")[1] !== "login" &&
-                    pathname?.includes("login") ? null : (
+                    pathname?.includes("login") ||
+                    pathSplit[1]?.includes("register-success")
+                    ? null : (
                     <Divider sx={{ my: 3 }} />
                   )}
                 </CardContent>
