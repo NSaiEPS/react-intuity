@@ -208,7 +208,7 @@ export function SignUpForm() {
       email: "",
       password: "",
       confirmPassword: "",
-      authType: "",
+      authType: "last_name",
       authAnswer: "",
       notificationEmail: "",
       confirmNotificationEmail: "",
