@@ -109,29 +109,36 @@ const handleRegisterClick = async () => {
     navigate("/sign-up");
     return;
   }
+  else {
+      const alias = slug?.split('login-');
 
-  if (slug?.startsWith("login-")) {
-    try {
-      const aliasFromUrl = slug.replace("login-", "");
+        navigate(`/register-${alias[1]}`);
 
-      const formData = new FormData();
-      formData.append("alias", aliasFromUrl);
-
-      const res = await axios.post(
-        `${BASE_URL}/get-details-by-alias`,
-        formData,
-        { headers: { Accept: "application/json" } }
-      );
-
-      const alias = res?.data?.body?.company?.alias;
-
-      if (alias) {
-        navigate(`/register-${alias}`);
-      }
-    } catch (error) {
-      console.error("Alias fetch failed", error);
-    }
   }
+
+
+  // if (slug?.startsWith("login-")) {
+  //   try {
+  //     const aliasFromUrl = slug.replace("login-", "");
+
+  //     const formData = new FormData();
+  //     formData.append("alias", aliasFromUrl);
+
+  //     const res = await axios.post(
+  //       `${BASE_URL}/get-details-by-alias`,
+  //       formData,
+  //       { headers: { Accept: "application/json" } }
+  //     );
+
+  //     const alias = res?.data?.body?.company?.alias;
+
+  //     if (alias) {
+  //       navigate(`/register-${alias}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("Alias fetch failed", error);
+  //   }
+  // }
 };
 
 
@@ -388,7 +395,7 @@ const handleRegisterClick = async () => {
                                  Forget your password ? use this link to get it back */}
 
                                        <Link
-                to={paths.auth.resetPassword()}
+                to={paths.auth.resetPassword(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
                 style={{
                   color: colors.blue,
                   justifyContent: "center",

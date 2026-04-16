@@ -45,7 +45,7 @@ export default function PaymentInfoSection() {
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
   const hasCompanySlug =
-  slug?.startsWith("login-") || slug?.startsWith("register-");
+  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") ;
   
   const { setContextLoading } = useLoading();
   
@@ -107,7 +107,7 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
   const allowed =
     pathname === "/login" ||
     pathname === "/sign-up" ||
-    pathname === "/reset-password" ||
+    pathname?.includes("/reset-password") ||
     pathname.includes("login-") ||
     pathname.includes("register-success-") ||
     pathname.includes("register-");
@@ -133,7 +133,7 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
   const getRequiredForms = () => {
   const pathSplit = pathname?.split("/");
 
-  if (pathSplit[1] === "reset-password") {
+  if (pathname?.includes("reset-password")) {
     return <ResetPasswordForm />;
   }
 
@@ -160,7 +160,7 @@ if (pathname.includes("register") || pathname === "/sign-up") {
     if (pathSplit[1]?.includes("register-success")) {
       return "Register Success";
     }
-     if (pathSplit[1] == "reset-password") {
+     if (pathSplit[1]?.includes("reset-password")) {
       return "Reset password";
     }
     if (pathname?.includes("login")) {
@@ -217,7 +217,6 @@ if (pathname.includes("register") || pathname === "/sign-up") {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                cursor: "pointer",
                 width: "100%",
                 // marginLeft: 'auto',
               }}
@@ -275,9 +274,10 @@ if (pathname.includes("register") || pathname === "/sign-up") {
             sx={{ maxWidth: "1440px", width: "90%", mx: "auto" }}
             py={
               pathname?.split("/")[1] !== "login" && pathname?.includes("login")
-                ? 10
+                ? 4
                 : 0
             }
+
             pb={5}
             // columnSpacing={3} // space between columns
             // rowSpacing={3} // space between rows (on small screens)

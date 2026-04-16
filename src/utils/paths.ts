@@ -10,7 +10,7 @@ export const paths = {
     signIn: (company?: string) => (company ? `sign-in` : "/sign-in"),
     signUp: (company?: string) => (company ? `/sign-up` : "/sign-up"),
     resetPassword: (company?: string) =>
-      company ? `/reset-password` : "/reset-password",
+      company ? `/reset-password-${company}` : "/reset-password",
 
     confirmInfo: (company?: string) =>
       company

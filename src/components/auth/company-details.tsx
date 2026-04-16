@@ -66,14 +66,14 @@ export default function CompanyDetails({ reset = false }) {
                 </Typography>
               )} */}
             {pathname?.split("/")[1] !== "login" &&
-            pathname?.includes("login") ? (
+            (pathname?.includes("login")|| pathname?.includes("register-")||pathname?.includes("reset-password-") )? (
               <Typography variant="body1" >
                 <strong style={{ color: colors.blue }}>Contact Us: 📞 </strong>
                 {companyInfo?.company?.country}
                 {companyInfo?.company?.phone ?? ""} &nbsp;&nbsp;&nbsp; &nbsp;
                 &nbsp;📧 {companyInfo?.company?.email ?? ""}&nbsp; &nbsp; &nbsp;
-                &nbsp; {companyInfo?.company?.website ? "🌐" : ""} &nbsp;
-                {companyInfo?.company?.website ?? ""} &nbsp;
+                &nbsp; {companyInfo?.company?.company_website ? "🌐" : ""} &nbsp;
+                {companyInfo?.company?.company_website ?? ""} &nbsp;
                 
                  {/* 📍&nbsp;
                 {companyInfo?.company?.street
