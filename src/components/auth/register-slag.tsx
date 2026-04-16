@@ -29,9 +29,12 @@ import OneTimePaymentModal from "./onetime-payment-modal";
 import { SkeletonWrapper } from "../core/withSkeleton";
 import { useLoading } from "../core/skeletion-context";
 import RegisterSuccess from "./RegisterSuccess";
+import { useTheme } from "@mui/material/styles";
+
 
 export default function PaymentInfoSection() {
   const dispatch = useDispatch();
+  const theme = useTheme();
   const navigate = useNavigate();
   const [onetimePaymentModalOpen, setOneTimePaymentModalOpen] = useState(false);
   const { accountLoading, companyInfo } = useSelector(
@@ -374,7 +377,10 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                       sx={{
                         border: "1px solid #e0e0e0",
                         borderTop: "0px",
-                        minHeight: "380px",
+  minHeight: {
+      xs: "auto",   // 👈 below 900px → no extra space
+      md: "381px",  // 👈 ≥900px → keep layout height
+    },
                       }}
                     >
                       <Stack>
@@ -388,7 +394,12 @@ if (pathname.includes("register") || pathname === "/sign-up") {
 records.
                         </Typography>
                         <Typography variant="body1" marginTop={3}  marginBottom={3}
-                           visibility="hidden"
+       sx={{
+    visibility: "hidden", // default (≥900px → keep space)
+    [theme.breakpoints.down(900)]: {
+      display: "none", // 👈 below 900px → remove space completely
+    },
+  }}
                         >
                           {/* <strong>To view your account details</strong>, use the{" "} */}
                           <strong>To access your account details</strong>, click {" "}

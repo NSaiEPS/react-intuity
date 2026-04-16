@@ -364,6 +364,10 @@ const handleRegisterClick = async () => {
               sx={{
                 display: "flex",
                 // flexDirection:"column"
+                  flexDirection: {
+    xs: "column", // 👈 below 600px (includes <450)
+    sm: "row",    // 👈 600px+
+  },
               }}
             >
               <Button
@@ -401,7 +405,7 @@ const handleRegisterClick = async () => {
                   justifyContent: "center",
                   marginTop: "auto",
                   marginBottom: "auto",
-                  marginLeft: "15px",
+                  marginLeft: window.innerWidth < 600 ? "0px" : "15px",
                   textDecoration: "underline",
                   borderColor: "transparent",
 
@@ -412,6 +416,7 @@ const handleRegisterClick = async () => {
                 onMouseOut={(e) => {
                   e.currentTarget.style.borderColor = "transparent";
                 }}
+                
               >
                 Forgot password
               </Link>

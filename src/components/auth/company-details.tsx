@@ -70,8 +70,8 @@ export default function CompanyDetails({ reset = false }) {
               <Typography variant="body1" >
                 <strong style={{ color: colors.blue }}>Contact Us: 📞 </strong>
                 {companyInfo?.company?.country}
-                {companyInfo?.company?.phone ?? ""} &nbsp;&nbsp;&nbsp; &nbsp;
-                &nbsp;📧 {companyInfo?.company?.email ?? ""}&nbsp; &nbsp; &nbsp;
+                {companyInfo?.company?.phone ?? ""} &nbsp;
+                &nbsp;📧 {companyInfo?.company?.email ?? ""}
                 &nbsp; {companyInfo?.company?.company_website ? "🌐" : ""} &nbsp;
                 {companyInfo?.company?.company_website ?? ""} &nbsp;
                 
