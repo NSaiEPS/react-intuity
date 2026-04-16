@@ -322,6 +322,7 @@ const handleRegisterClick = async () => {
              {user && (
             <Typography variant="body1" 
               mt={1.5}
+               sx={{ fontWeight: 700 }}
             
             >
               Don't have an account {` `}

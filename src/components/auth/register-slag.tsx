@@ -387,7 +387,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                           business hours. For each payment you will receive an email confirmation for your
 records.
                         </Typography>
-                        <Typography variant="body1" marginTop={3}  marginBottom={3}>
+                        <Typography variant="body1" marginTop={3}  marginBottom={3}
+                           visibility="hidden"
+                        >
                           {/* <strong>To view your account details</strong>, use the{" "} */}
                           <strong>To access your account details</strong>, click {" "}
                              

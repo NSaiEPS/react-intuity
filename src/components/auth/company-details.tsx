@@ -73,19 +73,22 @@ export default function CompanyDetails({ reset = false }) {
                 {companyInfo?.company?.phone ?? ""} &nbsp;&nbsp;&nbsp; &nbsp;
                 &nbsp;📧 {companyInfo?.company?.email ?? ""}&nbsp; &nbsp; &nbsp;
                 &nbsp; {companyInfo?.company?.website ? "🌐" : ""} &nbsp;
-                {companyInfo?.company?.website ?? ""} &nbsp; 📍&nbsp;
+                {companyInfo?.company?.website ?? ""} &nbsp;
+                
+                 {/* 📍&nbsp;
                 {companyInfo?.company?.street
                   ? `${companyInfo?.company?.street},`
                   : ""}{" "}
-                {` `} {companyInfo?.company?.time_zone}, {` `}{" "}
+                {` `} {companyInfo?.company?.time_zone}, {` `}{" "} */}
               </Typography>
             ) : (
               <Typography variant="body1" >
                 <strong style={{ color: colors.blue }}>Contact Us: </strong>
                 📞+1 234 567 8900 &nbsp;&nbsp;&nbsp; &nbsp;
                 &nbsp;📧info@intuity.com&nbsp; &nbsp; &nbsp; &nbsp;
-                🌐&nbsp;www.intuity.com &nbsp; 📍&nbsp;1234 Water Ave, Suite 100
-                &nbsp; &nbsp; &nbsp; Springfield, IL 62701
+                🌐&nbsp;www.intuity.com &nbsp; 
+                {/* 📍&nbsp;1234 Water Ave, Suite 100
+                &nbsp; &nbsp; &nbsp; Springfield, IL 62701 */}
               </Typography>
             )}
           </Stack>
