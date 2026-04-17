@@ -216,9 +216,13 @@ export function SignUpForm() {
       countryCode: "1",
     },
   });
-
+const authTooltips = {
+  last_name: "Last Name of your Account Name or Business Name",
+  billingAddress: "Billing Address of your Account Name or Business Name",
+  pin: "Your PIN was sent with your new bill email notice. If you cannot find your PIN, please select one of the other authentication methods.",
+};
   const values = getValues();
-
+console.log(values.authType)
   const getFieldsForStep = (step: number) => {
     switch (step) {
       case 0:
@@ -432,12 +436,28 @@ export function SignUpForm() {
                       label="Authentication Type *"
                       sx={{ paddingRight: "40px" }}
                       {...field}
+                       value={field.value || ""}
+                         onChange={(e) => {
+    field.onChange(e.target.value); // 👈 MUST
+    console.log("Selected:", e.target.value); // debug
+  }}
                       endAdornment={
                         <InputAdornment position="end">
                           <Tooltip
-                            title="Your PIN was sent with your new bill email notice. If you cannot find your PIN, please select one of the other authentication methods."
-                            placement="top"
+//                             title={
+//                               values.authType=='last_name'?'Last Name of your Account Name or Business Name':
+//                               values.authType=='billingAddress'?'Billing Address of your Account Name or Business Name':
+//                               values.authType=='pin'?
+//                               "Your PIN was sent with your new bill email notice. If you cannot find your PIN, please select one of the other authentication methods."
+// :
+                              
+//                               "Your PIN was sent with your new bill email notice. If you cannot find your PIN, please select one of the other authentication methods."
+//                              } 
+title={authTooltips[field.value] || ""}
+                             placement="top"
                             arrow
+                              enterTouchDelay={0} // 👈 show immediately on tap
+  leaveTouchDelay={3000} // 👈 stays visible for 3s
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -493,6 +513,8 @@ export function SignUpForm() {
                             title="This ID or email is what you will use to log in to your account."
                             placement="top"
                             arrow
+                              enterTouchDelay={0} // 👈 show immediately on tap
+  leaveTouchDelay={3000} // 👈 stays visible for 3s
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -522,6 +544,8 @@ export function SignUpForm() {
                             title="Passwords must be a minimum of 6 characters and must contain at least 1 number. Special characters (!@#$%^&*) are allowed but not required."
                             placement="top"
                             arrow
+                              enterTouchDelay={0} // 👈 show immediately on tap
+  leaveTouchDelay={3000} // 👈 stays visible for 3s
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -625,6 +649,9 @@ export function SignUpForm() {
                             title="This email is where you will receive notifications and may be the same as a login email."
                             placement="top"
                             arrow
+                                enterTouchDelay={0} // 👈 show immediately on tap
+  leaveTouchDelay={3000} // 👈 stays visible for 3s
+
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
