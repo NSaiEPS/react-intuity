@@ -127,7 +127,7 @@ export const router = createBrowserRouter([
     path: "/auth-card-redirect",
     element: withSuspense(
       <Authorization>
-        <CardSuccess isOneTimePayment={true} />
+        <CardSuccess isOneTimePayment={true} successPage={true} />
       </Authorization>
     ),
   },

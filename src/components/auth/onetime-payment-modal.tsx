@@ -39,6 +39,7 @@ import { CustomConnector, CustomStepIcon } from "./sign-up-form";
 import secureLocalStorage from "react-secure-storage";
 import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";
+import { navigateTo } from "@/utils/navigation";
 
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
@@ -164,6 +165,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
         newErrors.amountToPay = "Amount to Pay is required";
       if (!formData.name) newErrors.name = "Name  is required";
       if (!formData.email) newErrors.email = "Email  is required";
+      const isValidEmail = (email) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!isValidEmail(formData.email)) {
+  newErrors.email = "Enter a valid email address";
+}
       // if (Number(formData.amountToPay) > customerDetails.balance)
       //   newErrors.amountToPay = `Amount can't be greater than the  Due Amount: $${customerDetails.balance}`;
     }
@@ -331,13 +337,36 @@ export default function OneTimePaymentModal({ open, onClose }) {
       oneTimePayment(
         paymentData,
         () => {
-          onModalClose();
+
+successModalClose()
         },
         undefined,
         companyInfo?.company?.alias
       )
     );
   };
+
+  const successModalClose=()=>{
+  setIsDirty(false);
+  setActiveStep(0);
+    setFormData({
+      accountNo: "",
+      invoiceAmount: "",
+      name: "",
+      email: "",
+      amountToPay: "",
+      convenienceFee: "",
+      totalPayment: "",
+      paymentType: "card",
+      street: "",
+    });
+    onClose();
+    navigateTo('/auth-card-redirect',{
+        state: { alias: companyInfo?.company?.alias,  },
+
+    })
+  }
+
   const onModalClose = () => {
     if (!confirmIfDirty()) return;
 
@@ -458,10 +487,35 @@ export default function OneTimePaymentModal({ open, onClose }) {
       case 1:
         return (
           <>
-              <Typography mb={2}>
-                 Account No: {formData.accountNo}
+             <Typography >
+                 Enter your email address to receive a payment confirmation.
               </Typography>
-            <TextField
+              {/* <Typography mb={2}>
+                 Account No: {formData.accountNo}
+              </Typography> */}
+
+
+                <Box mt={2}
+mb={4}   
+   border={1} padding={2} borderRadius={2}>
+  <Box display="flex">
+    <Typography sx={{ minWidth: 180 }}>
+   Account No:
+    </Typography>
+    <Typography>
+{formData.accountNo}
+    </Typography>
+  </Box>
+    <Box display="flex">
+    <Typography sx={{ minWidth: 180 }}>
+  Customer :
+    </Typography>
+    <Typography>
+{formData.name}
+    </Typography>
+  </Box>
+  </Box>
+            {/* <TextField
               fullWidth
               label="Account Name: "
               value={formData.name}
@@ -470,7 +524,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
               helperText={errors.name}
               sx={{ mb: 2 }}
               disabled
-            />
+            /> */}
             <TextField
               fullWidth
               label="Send Payment Confirmation to: *"

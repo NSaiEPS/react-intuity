@@ -6,9 +6,11 @@ import { Helmet } from "react-helmet";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { oneTimePayment } from "@/state/features/accountSlice";
 import { useDispatch } from "react-redux";
-import { WorldPlayDetails } from "@/utils";
+import { colors, WorldPlayDetails } from "@/utils";
+import { Button } from "nsaicomponents";
+import { paths } from "@/utils/paths";
 
-const CardSuccess = ({ isOneTimePayment = false }) => {
+const CardSuccess = ({ isOneTimePayment = false ,successPage=false}) => {
   //   useEffect(() => {
   //     const timer = setTimeout(() => {
 
@@ -115,6 +117,7 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
       paymentData.append("paymentType", String(worldPlayDetails.paymentType));
       paymentData.append("card_id", String(card_id));
 
+if(!successPage){
       dispatch(
         oneTimePayment(paymentData, () => {
           console.log("One time payment success callback");
@@ -124,7 +127,7 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
         () => {
           handleCallBack();
         }
-      );
+      );}
     }
   }, [navigate, location, searchParams]);
   const handleCallBack = () => {
@@ -133,6 +136,17 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
     }, 1000);
   };
 
+
+
+
+
+
+console.log(location.state);
+  const handleBackToLogin = () => {
+   const alias = location.state?.email;
+      navigate(paths.auth.newLogin(alias));
+    
+  };
   return (
     <Box
       display="flex"
@@ -144,23 +158,45 @@ const CardSuccess = ({ isOneTimePayment = false }) => {
       gap={2}
     >
       <Helmet key={"Card Redirect"}>
-        <title>Card Redirect</title>
+        <title>
+          
+          {
+            successPage ?
+            'Payment confirmation'
+          :
+          "Card Redirect"}</title>
       </Helmet>
       <CheckCircle size={80} weight="fill" color="#2e7d32" />
       {/* Phosphor success icon (filled green) */}
 
       <Typography variant="h5" fontWeight={600}>
-        {convenienceFee
+        {
+        successPage ?'Payment Successful!':
+        convenienceFee
           ? "Transaction Initiated..."
           : "Card added successfully"}
       </Typography>
+      {
+     successPage ?   
+         <Button
+              onClick={handleBackToLogin}
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{ borderRadius: "12px", height: "41px", marginTop: "8px", minWidth: "160px" }}
+            >
+              Back to Login
+            </Button>:
 
       <Box display="flex" alignItems="center" gap={1} mt={2}>
+
         <CircularProgress size={24} />
         <Typography variant="body2" color="text.secondary">
           Redirecting back...
         </Typography>
-      </Box>
+      </Box>}
     </Box>
   );
 };

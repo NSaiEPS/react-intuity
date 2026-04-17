@@ -70,7 +70,7 @@ interface DecryptedDetails {
   const [processorDetails, setProcessorDetails] = useState<ProcessorDetails>({});
   const [decryptedDetails, setDecryptedDetails] = useState<DecryptedDetails>({});
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
-  console.log(processorDetails, "processorDetails");
+  console.log(processorDetails, "processorDetails",iframeDynamicUrl,'iframeDynamicUrl');
   const CustomerInfo: CustomerInfo = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
