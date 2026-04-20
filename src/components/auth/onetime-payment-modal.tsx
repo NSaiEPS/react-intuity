@@ -149,9 +149,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
     if (activeStep === 0) {
       if (!formData.accountNo) {
         newErrors.accountNo = "Account No. is required";
-      } else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
-        newErrors.accountNo = "Only numbers allowed";
-      }
+      } 
+      
+      // else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
+      //   newErrors.accountNo = "Only numbers allowed";
+      // }
 
       // Invoice Amount
       if (!formData.invoiceAmount) {
@@ -527,7 +529,7 @@ mb={4}
             /> */}
             <TextField
               fullWidth
-              label="Send Payment Confirmation to: *"
+              label="Send Payment Confirmation to *"
               value={formData.email}
               onChange={handleChange("email")}
               error={!!errors.email}

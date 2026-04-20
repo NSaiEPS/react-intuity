@@ -42,8 +42,8 @@ import { BASE_URL } from "@/api/axios";
 
 const schema = zod.object({
   // email: zod.string().min(1, { message: 'Email is required' }).email(),
-  email: zod.string().min(1, { message: "Email is required" }),
-  password: zod.string().min(1, { message: "Password is required" }),
+  email: zod.string().min(1, { message: "Login ID or Email is required" }),
+  password: zod.string().min(6, { message: "Enter a password with at least 6 characters " }),
 });
 
 type Values = zod.infer<typeof schema>;
