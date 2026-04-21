@@ -517,6 +517,24 @@ function NotificationsSettings() {
             <Tooltip
               title="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
               arrow
+                  componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
             >
               <IconButton edge="end">
                 <Question size={20} color="#90caf9" weight="fill" />
@@ -563,6 +581,24 @@ function NotificationsSettings() {
               title="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
               placement="top"
               arrow
+                  componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
             >
               <IconButton edge="end">
                 <Question size={20} color="#90caf9" weight="fill" />

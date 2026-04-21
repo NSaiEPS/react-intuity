@@ -217,9 +217,26 @@ export function SignUpForm() {
     },
   });
 const authTooltips = {
-  last_name: "Last Name of your Account Name or Business Name",
-  billingAddress: "Billing Address of your Account Name or Business Name",
-  pin: "Your PIN was sent with your new bill email notice. If you cannot find your PIN, please select one of the other authentication methods.",
+  // last_name: "For last name or business name, only enter one primary word ( e.g., The Miller & Sons Manufacturing Group, LLC, only enter Miller). Do NOT enter punctuation (e.g., O’Conner & Sons, only enter Conner)",
+  last_name: (
+    <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
+      For last name or business name, only enter one primary word (e.g.,{" "}
+      The Miller &amp; Sons Manufacturing Group, LLC, only enter{" "}
+      <strong>Miller</strong>). Do NOT enter punctuation (e.g.,{" "}
+      <em>O'Conner &amp; Sons</em>, only enter <strong>Conner</strong>).
+    </span>
+  ),
+
+  // billingAddress: "Billing Address of your Account Name or Business Name",
+  billingAddress: (
+    <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
+      e.g., 1020 W. Maple Rd., only enter 
+     
+      <strong> <br/> <em>Maple</em></strong>
+    </span>
+  ),
+  // pin: "Your PIN was sent with your new bill email notice. If you cannot find your PIN, please select one of the other authentication methods.",
+  pin: "Your personal identification number (PIN) was sent with your new bill email notice. If you cannot find your PIN, select one of the other verification questions.",
 };
   const values = getValues();
 console.log(values.authType)
@@ -395,12 +412,16 @@ console.log(values.authType)
 
       <CustomStepper activeStep={activeStep} />
 
-      {activeStep !== 2 && (
+      {activeStep !== 2 ? (
         <Typography variant="body1" mb={4}>
           Please enter your information into the fields below and click NEXT to
           continue creating your account.
         </Typography>
-      )}
+      ):
+      <Typography variant="body1" mb={4}>
+       Please enter your name, email address and mobile phone number. If you do not have a mobile phone then leave it blank.
+        </Typography>
+      }
 
       <Typography variant="h6" sx={{ mb: 2, color: colors.blue }}>
         {steps[activeStep]}
@@ -431,9 +452,9 @@ console.log(values.authType)
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!showError(errors.authType)}>
-                    <InputLabel>Authentication Type *</InputLabel>
+                    <InputLabel>Verification Question  *</InputLabel>
                     <Select
-                      label="Authentication Type *"
+                      label="Verification Question  *"
                       sx={{ paddingRight: "40px" }}
                       {...field}
                        value={field.value || ""}
@@ -458,6 +479,24 @@ title={authTooltips[field.value] || ""}
                             arrow
                               enterTouchDelay={0} // 👈 show immediately on tap
   leaveTouchDelay={3000} // 👈 stays visible for 3s
+   componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -466,9 +505,9 @@ title={authTooltips[field.value] || ""}
                         </InputAdornment>
                       }
                     >
-                      <MenuItem value="last_name">Last Name / Business Name</MenuItem>
-                      <MenuItem value="billingAddress">Billing Address</MenuItem>
-                      <MenuItem value="pin">PIN</MenuItem>
+                      <MenuItem value="last_name">Last Name or Business Name?</MenuItem>
+                      <MenuItem value="billingAddress">Billing Street Name?</MenuItem>
+                      <MenuItem value="pin">PIN?</MenuItem>
                     </Select>
                     {showError(errors.authType) && (
                       <FormHelperText>{errors.authType?.message}</FormHelperText>
@@ -510,11 +549,30 @@ title={authTooltips[field.value] || ""}
                       endAdornment: (
                         <InputAdornment position="end">
                           <Tooltip
-                            title="This ID or email is what you will use to log in to your account."
+                            // title="This ID or email is what you will use to log in to your account."
+                            title="Enter your username (e.g., jdoe123) or your email (e.g., jane@email.com). You will use this to log in to your account. "
                             placement="top"
                             arrow
                               enterTouchDelay={0} // 👈 show immediately on tap
   leaveTouchDelay={3000} // 👈 stays visible for 3s
+     componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -546,6 +604,24 @@ title={authTooltips[field.value] || ""}
                             arrow
                               enterTouchDelay={0} // 👈 show immediately on tap
   leaveTouchDelay={3000} // 👈 stays visible for 3s
+     componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -651,7 +727,24 @@ title={authTooltips[field.value] || ""}
                             arrow
                                 enterTouchDelay={0} // 👈 show immediately on tap
   leaveTouchDelay={3000} // 👈 stays visible for 3s
-
+    componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
                           >
                             <IconButton size="small" edge="end">
                               <Question size={20} color="#90caf9" weight="fill" />
@@ -730,9 +823,10 @@ title={authTooltips[field.value] || ""}
 
           {activeStep === 2 && (
             <Typography variant="body1" fontWeight="bold" mb={2}>
-              Please enter your information into the fields below and click SUBMIT.
+              {/* Please enter your information into the fields below and click SUBMIT.
               You will receive an email confirmation with a link to finish creating
-              your account.
+              your account. */}
+              After selecting Submit, you will receive an email confirmation with a link to activate your account.
             </Typography>
           )}
 

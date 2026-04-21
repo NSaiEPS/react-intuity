@@ -31,14 +31,52 @@ export default function ScrollNavButtons() {
   return (
     <Stack spacing={1} sx={{ position: "fixed", bottom: 32, right: 32, zIndex: 1000 }}>
       {!isAtTop && (
-        <Tooltip title="Scroll to Top" placement="left">
+        <Tooltip title="Scroll to Top" placement="left"
+            componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
+        >
           <Fab size="small" onClick={scrollToTop} color="primary">
             <ArrowUp size={20} weight="bold" />
           </Fab>
         </Tooltip>
       )}
       {!isAtBottom && (
-        <Tooltip title="Scroll to Bottom" placement="left">
+        <Tooltip title="Scroll to Bottom" placement="left"
+            componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
+        >
           <Fab size="small" onClick={scrollToBottom} color="primary">
             <ArrowDown size={20} weight="bold" />
           </Fab>

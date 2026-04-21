@@ -789,6 +789,24 @@ const PaymentForm = () => {
                         // ? "Partial payments are not allowed"
                         ""
                   }
+                      componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
                 >
                   <TextField
                     {...field}

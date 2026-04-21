@@ -44,14 +44,21 @@ const RegisterSuccess = () => {
         Registration Successful!
       </Typography>
 
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        sx={{ maxWidth: 460, lineHeight: 1.7 }}
-      >
-        An email has been sent to the notification email you provided. Please
-        follow the instructions in that email to finish activating your account.
-      </Typography>
+    <Typography
+  variant="body1"
+  color="text.primary"
+  sx={{ 
+    maxWidth: 460, 
+    lineHeight: 1.7,
+    backgroundColor: '#FFF9C4',
+    color: '#000000',
+    padding: '10px 14px',
+    borderRadius: '6px',
+    my:2
+  }}
+>
+  Please check your email inbox and click Activate to complete your account setup.
+</Typography>
 
       <Button
         onClick={handleBackToLogin}

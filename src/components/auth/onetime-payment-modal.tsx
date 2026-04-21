@@ -455,6 +455,24 @@ successModalClose()
                       }
                       placement="top"
                       arrow
+                          componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
                     >
                       <IconButton edge="end" size="small">
                         <Question size={20} color="#5dade2" weight="fill" />
@@ -575,6 +593,24 @@ mb={4}
                     // ? "Partial payments are not allowed"
                     ""
               }
+                  componentsProps={{
+    tooltip: {
+      sx: {
+        backgroundColor: '#E7E6E6',
+        color: '#000000',
+        border: '1px solid #d0cfcf',
+           fontSize: '14px',        // 👈 updated
+      lineHeight: 1.4,
+        // fontSize: '0.8rem',
+        '& .MuiTooltip-arrow': {
+          color: '#E7E6E6',
+          '&::before': {
+            border: '1px solid #d0cfcf',
+          },
+        },
+      },
+    },
+  }}
             >
               <TextField
                 fullWidth
