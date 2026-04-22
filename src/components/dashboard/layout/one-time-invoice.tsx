@@ -323,19 +323,26 @@ const styles = StyleSheet.create({
     marginTop: 3,
     marginBottom: 3,
   },
-  balanceRowWrapper: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
+//   balanceRowWrapper: {
+//   flexDirection: "row",
+//   justifyContent: "space-between",
+//   alignItems: "center",
+//   width: "100%",
+//   marginTop: 10,
+//   paddingHorizontal : 3
+// },
+balanceRowWrapper: {
+  flexDirection: "column",   // stack vertically
+  alignItems: "flex-end",    // push everything to right
   width: "100%",
   marginTop: 10,
-  paddingHorizontal : 3
+  paddingHorizontal: 3
 },
   invoiceToCol: { width: "65%" , paddingHorizontal : 4},
   invoiceBoxCol: { width: "33%", alignItems: "flex-end" , paddingHorizontal : 4},
 
   invoiceTitle: {
-    fontSize: 12,
+    fontSize: 25,
     color: "#aaa",
     fontWeight: "700",
     letterSpacing: 1,
@@ -698,56 +705,7 @@ export default function InvoicePdfDocument({
           </View>
         </View>
 
-        {/* Item Descriptions (per utility) */}
-     
-
-            
-              <View
-                
-                wrap={false}
-                style={{ marginTop: 8 , paddingHorizontal : 3}}
-              >
-                
-                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
-    borderRadius: 4}}>
-               
-                    <View
-                      
-                      style={[
-                        styles.tableRow,
-                      styles.rowStrip ,
-                      ]}
-                    >
-                      <Text style={styles.tableCellLeft}>
-                        {invoiceDetails.bill_items[0].product_id} 
-                      </Text>
-                      <Text style={styles.tableCellRight}>
-                        {money(invoiceDetails.bill_items[0]?.amount)}
-                      </Text>
-                    </View>
-                    
-                  
-                     <View
-                     
-                      style={[
-                        styles.tableRow,
-                        styles.rowStrip
-                      ]}
-                    >
-                      <Text style={styles.tableCellLeft}>
-                        Subtotal
-                      </Text>
-                      <Text style={styles.tableCellRight}>
-                     {money(invoiceDetails.bill_items[0]?.amount)}
-                      </Text>
-                    </View>
-               
-                
-             
-            
-          
-        
-   <View style={{ marginTop: 3 }}>
+          <View style={{ marginTop: 3 }}>
                     <View style={styles.detailBox}>
                       <View style={styles.detailRow}>
                         <View style={styles.detailCol1}>
@@ -802,9 +760,60 @@ export default function InvoicePdfDocument({
                       </View>
                     </View>
                   </View>
+
+        {/* Item Descriptions (per utility) */}
+     
+
+            
+              <View
+                
+                wrap={false}
+                style={{ marginTop: 8 , paddingHorizontal : 3}}
+              >
+                
+                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
+    borderRadius: 4}}>
+               
+                    <View
+                      
+                      style={[
+                        styles.tableRow,
+                      styles.rowStrip ,
+                      ]}
+                    >
+                      <Text style={styles.tableCellLeft}>
+                        {invoiceDetails.bill_items[0].product_id} 
+                      </Text>
+                      <Text style={styles.tableCellRight}>
+                        {money(invoiceDetails.bill_items[0]?.amount)}
+                      </Text>
+                    </View>
+                    
+                  
+                     <View
+                     
+                      style={[
+                        styles.tableRow,
+                        styles.rowStrip
+                      ]}
+                    >
+                      <Text style={styles.tableCellLeft}>
+                        Subtotal
+                      </Text>
+                      <Text style={styles.tableCellRight}>
+                     {money(invoiceDetails.bill_items[0]?.amount)}
+                      </Text>
+                    </View>
+               
+                
+             
+            
+          
+        
+ 
                    </View></View>
         {/* Previous Balance */}
-        <View style={styles.balanceRowWrapper}>
+        {/* <View style={styles.balanceRowWrapper}>
         {Array.isArray(extra_params) &&
            (extra_params as ExtraParam[]).map((it, i) => (
             <View key={i} style={styles.prevBalRow}>
@@ -815,12 +824,28 @@ export default function InvoicePdfDocument({
             </View>
           ))}
 
-        {/* Total Due Box */}
+
         <View style={styles.totalBox}>
           <Text style={styles.totalText}>
             Total Due: {money(invoiceDetails.bill_items[0]?.amount)}
           </Text>
         </View>
+</View> */}
+<View style={styles.balanceRowWrapper}>
+  {Array.isArray(extra_params) &&
+    extra_params.map((it, i) => (
+      <View key={i} style={styles.prevBalRow}>
+        <Text style={{ fontWeight: "700", fontSize: 12, color: "#fff" }}>
+          PREVIOUS BALANCE : {money(it?.amount)}
+        </Text>
+      </View>
+    ))}
+
+  <View style={styles.totalBox}>
+    <Text style={styles.totalText}>
+      Total Due: {money(invoiceDetails.bill_items[0]?.amount)}
+    </Text>
+  </View>
 </View>
         {/* Autopay do not pay text */}
         {customer?.autopay ? (
