@@ -342,7 +342,7 @@ balanceRowWrapper: {
   invoiceBoxCol: { width: "33%", alignItems: "flex-end" , paddingHorizontal : 4},
 
   invoiceTitle: {
-    fontSize: 25,
+    fontSize: 30,
     color: "#aaa",
     fontWeight: "700",
     letterSpacing: 1,
@@ -637,17 +637,26 @@ export default function InvoicePdfDocument({
               <Text style={styles.rightHeaderText}>
               {invoiceDetails?.customer?.company_street || ""}
             </Text>
-             <Text style={styles.rightHeaderText}>
-              {invoiceDetails?.invoice_text_header_email || ""}
+              <Text style={styles.rightHeaderText}>
+              {invoiceDetails?.customer?.company_city || ""}
             </Text>
+              <Text style={styles.rightHeaderText}>
+              {invoiceDetails?.customer?.company_state_abbrev || ""}
+            </Text>
+                <Text style={styles.rightHeaderText}>
+              {invoiceDetails?.customer?.company_zip || ""}
+            </Text>
+             {/* <Text style={styles.rightHeaderText}>
+              {invoiceDetails?.invoice_text_header_email || ""}dddd
+            </Text> */}
           </View>
           <View style={styles.rightHeaderCol}>
            
             <Text style={styles.rightHeaderText}>
               {invoiceDetails?.invoice_text_header_email || ""}
-              <Text style={styles.rightHeaderText}>
+              {/* <Text style={styles.rightHeaderText}>
               {invoiceDetails?.invoice_text_header_email|| ""}
-              </Text>   
+              </Text>    */}
             </Text>
           </View>
         </View>

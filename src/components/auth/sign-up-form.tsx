@@ -247,7 +247,7 @@ console.log(values.authType)
       case 1:
         return ["email", "password", "confirmPassword"];
       case 2:
-        return ["name", "notificationEmail", "confirmNotificationEmail", "phone", "countryCode"];
+        return [ "notificationEmail", "confirmNotificationEmail", "phone", "countryCode"];
       default:
         return [];
     }
@@ -341,7 +341,7 @@ console.log(values.authType)
     setCompanyResponse({ ...companyResponse, ...data });
     seLoading(false);
   };
-
+console.log(companyResponse,'companyResponse')
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -419,7 +419,7 @@ console.log(values.authType)
         </Typography>
       ):
       <Typography variant="body1" mb={4}>
-       Please enter your name, email address and mobile phone number. If you do not have a mobile phone then leave it blank.
+       Please enter your email address and mobile phone number. If you do not have a mobile phone then leave it blank.
         </Typography>
       }
 
@@ -694,7 +694,7 @@ title={authTooltips[field.value] || ""}
           {/* ─── Step 2: Contact Info ─────────────────────────────────────────── */}
           {activeStep === 2 && (
             <>
-              <Controller
+              {/* <Controller
                 name="name"
                 control={control}
                 render={({ field }) => (
@@ -706,8 +706,14 @@ title={authTooltips[field.value] || ""}
                     helperText={showError(errors.name)?.message}
                   />
                 )}
-              />
+              /> */}
+      <Typography variant="body1" >
+      Account Number : {companyResponse?.account_no}
+        </Typography>
+              <Typography variant="body1" mb={1}>
+      Customer Name &nbsp;: {companyResponse?.customer_name}
 
+        </Typography>
               <Controller
                 name="notificationEmail"
                 control={control}
