@@ -1,5 +1,6 @@
 import { UtilityItem } from "@/utils";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import HeaderSection from "./HeaderSection";
 
 const styles1 = StyleSheet.create({
   section1: {
@@ -621,6 +622,7 @@ export default function InvoicePdfDocument({
   const billing = invoiceDetails.last_bill?.[0];
 
   console.log("hiii",invoiceDetails)
+  const customerDetails=invoiceDetails?.customer
   return (
     <Document>
       <Page size="A4" style={styles1.page}>
@@ -653,12 +655,14 @@ export default function InvoicePdfDocument({
           <View style={styles.rightHeaderCol}>
            
             <Text style={styles.rightHeaderText}>
-              {invoiceDetails?.invoice_text_header_email || ""}
+              {/* {invoiceDetails?.invoice_text_header_email || ""} */}
               {/* <Text style={styles.rightHeaderText}>
               {invoiceDetails?.invoice_text_header_email|| ""}
               </Text>    */}
             </Text>
           </View>
+
+          <HeaderSection customerDetails={customerDetails}/>
         </View>
 
         {/* Invoice + Total Due */}

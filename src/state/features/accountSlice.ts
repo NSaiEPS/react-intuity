@@ -569,7 +569,7 @@ export const getCompanyDetails: any =
   };
 
 export const registerApiRequest: any =
-  (formData, successCallBack, seLoading,alias,) => async (dispatch) => {
+  (formData, successCallBack, seLoading,alias,activeStep) => async (dispatch) => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -583,7 +583,11 @@ export const registerApiRequest: any =
 }
 
       if (res?.status) {
+        if(activeStep!==2)
+        {
         toast.success(res?.message ?? "Something went wrong!");
+
+        }
 
         if (successCallBack) {
           successCallBack(res?.body);

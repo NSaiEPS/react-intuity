@@ -321,7 +321,7 @@ console.log(values.authType)
 //  }
 //     return
     const alias = companyInfo?.company?.alias;
-    dispatch(registerApiRequest(formData, successCallBack, seLoading, alias));
+    dispatch(registerApiRequest(formData, successCallBack, seLoading, alias,activeStep));
   };
 
   const successCallBack = (data: any) => {
