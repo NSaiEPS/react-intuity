@@ -15,7 +15,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { set } from "react-hook-form";
 import secureLocalStorage from "react-secure-storage";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 
 type Users = {};
 interface DahBoardState {

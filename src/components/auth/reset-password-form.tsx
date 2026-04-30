@@ -21,6 +21,8 @@ import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
 import { paths } from "@/utils/paths";
 import Button from "../CommonComponents/Button";
 import { Link } from "react-router";
+import { Button  as MUIButton} from "@mui/material";
+
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
@@ -68,16 +70,26 @@ export function ResetPasswordForm(): React.JSX.Element {
   );
   return (
     <Stack spacing={4}>
-      <Typography variant="h5">{/* Reset password */}</Typography>
+      {/* <Typography variant="h5"></Typography> */}
       <form onSubmit={handleSubmit(onSubmit)}>
+      <Typography 
+      variant="body1" 
+
+mb={3.5}
+
+      >
+You will receive an email with a link for resetting your password.
+
+      </Typography>
+
         <Stack spacing={2}>
           <Controller
             control={control}
             name="email"
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput {...field} label="Email address" type="email" />
+                <InputLabel>Enter login username</InputLabel>
+                <OutlinedInput {...field} label="Enter login username" type="email" />
                 {errors.email ? (
                   <FormHelperText>{errors.email.message}</FormHelperText>
                 ) : null}
@@ -94,25 +106,8 @@ export function ResetPasswordForm(): React.JSX.Element {
               display: "flex",
             }}
           >
-            <Button
-              disabled={isPending}
-              loading={isPending}
-              type="submit"
-              variant="contained"
-              textTransform="none"
-              bgColor={colors.blue}
-              hoverBackgroundColor={colors["blue.3"]}
-              hoverColor="white"
-              style={{
-                borderRadius: "12px",
-
-                height: "41px",
-                width: "175px",
-              }}
-            >
-              Send recovery link
-            </Button>
-            <Link
+          
+            {/* <Link
               to={paths.auth.newLogin(companyInfo?.company?.alias)}
               style={{
                 color: colors.blue,
@@ -130,7 +125,45 @@ export function ResetPasswordForm(): React.JSX.Element {
               }}
             >
               Back to Login
-            </Link>
+            </Link> */}
+
+            <MUIButton
+  component={Link}
+  to={paths.auth.newLogin(companyInfo?.company?.alias)}
+  variant="contained"
+  sx={{
+    textTransform: "none",
+    backgroundColor: colors.blue,
+    borderRadius: "12px",
+    height: "41px",
+    width: "175px",
+    "&:hover": {
+      backgroundColor: colors["blue.3"],
+      color: "white",
+    },
+  }}
+>
+  Back to Login
+</MUIButton>
+
+  <Button
+              disabled={isPending}
+              loading={isPending}
+              type="submit"
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{
+                borderRadius: "12px",
+marginLeft:"15px",
+                height: "41px",
+                width: "175px",
+              }}
+            >
+              Send recovery link
+            </Button>
           </Box>
         </Stack>
       </form>

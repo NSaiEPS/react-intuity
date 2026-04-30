@@ -32,7 +32,7 @@ import {
 import { Question, X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 import { CustomConnector, CustomStepIcon } from "./sign-up-form";

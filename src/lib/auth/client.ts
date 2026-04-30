@@ -2,7 +2,7 @@
 import api, { BASE_URL } from "@/api/axios";
 import { navigateTo } from "@/utils/navigation";
 import secureLocalStorage from "react-secure-storage";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 
 import type { User } from "@/types/user";
 

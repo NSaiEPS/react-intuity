@@ -25,7 +25,7 @@ import {
 import { Question, X } from '@phosphor-icons/react';
 import { CustomBackdrop, Loader } from 'nsaicomponents';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/custom-toast';
 
 import PaymentIframeModal from '@/components/CommonComponents/PaymentIframeModal';
 import PaymentIframe from '@/components/CommonComponents/PaymentIframeModal';

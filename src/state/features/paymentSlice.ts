@@ -1,7 +1,7 @@
 import { getLastBillInfoAPI } from '@/api/dashboard';
 import { navigateTo } from '@/utils/navigation';
 import { createSlice } from '@reduxjs/toolkit';
-import { toast } from 'react-toastify';
+import { toast } from '@/lib/custom-toast';
 import { AppDispatch } from '../store';
 import { AxiosError } from 'axios';
 import { ReactNode } from 'react';

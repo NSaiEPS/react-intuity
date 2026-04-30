@@ -53,7 +53,7 @@ import { useDispatch, useSelector } from "react-redux";
 // const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
 
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 import { z as zod } from "zod";
 
 import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";

@@ -5,7 +5,7 @@ import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 import OneTimePdf from "./one-time-invoice";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";

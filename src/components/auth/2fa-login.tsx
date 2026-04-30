@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { updateAccountInfo } from "@/state/features/accountSlice";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 
 // -------------------- Types --------------------
 interface CustomerData {

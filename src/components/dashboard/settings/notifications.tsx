@@ -31,7 +31,7 @@ import * as z from "zod";
 
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { useLoading } from "@/components/core/skeletion-context";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 
 const schema = z.object({

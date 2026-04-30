@@ -220,10 +220,11 @@ const handleRegisterClick = async () => {
             name="email"
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Login ID or Email</InputLabel>
+                {/* <InputLabel>Login ID or Email</InputLabel> */}
+                <InputLabel> Username </InputLabel>
                 <OutlinedInput
                   {...field}
-                  label="Login ID or Email"
+                  label=" Username"
                   type="text"
                 />
 
@@ -397,7 +398,7 @@ const handleRegisterClick = async () => {
                 {/* <Typography variant="body1" marginTop={2.9}>
 
                                  Forget your password ? use this link to get it back */}
-
+  {/* </Typography> */}
                                        <Link
                 to={paths.auth.resetPassword(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
                 style={{
@@ -420,8 +421,30 @@ const handleRegisterClick = async () => {
               >
                 Forgot password
               </Link>
-                                     
-                                      {/* </Typography> */}
+
+                       <Link
+                to={paths.auth.resetPassword(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
+                style={{
+                  color: colors.blue,
+                  justifyContent: "center",
+                  marginTop: "auto",
+                  marginBottom: "auto",
+                  marginLeft: window.innerWidth < 600 ? "0px" : "15px",
+                  textDecoration: "underline",
+                  borderColor: "transparent",
+
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = colors["blue.1"];
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = "transparent";
+                }}
+                
+              >
+                Forgot login username
+              </Link>                    
+                                    
 
             
             </Box>

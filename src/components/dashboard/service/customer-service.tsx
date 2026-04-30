@@ -26,7 +26,7 @@ import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import { Button } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 import { z } from "zod";
 
 import { paths } from "@/utils/paths";

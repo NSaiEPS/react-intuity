@@ -31,7 +31,7 @@ import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
 import secureLocalStorage from "react-secure-storage";
 
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 
 interface DahBoardState {
   userInfo: any;

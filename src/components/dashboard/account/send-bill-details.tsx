@@ -31,7 +31,7 @@ import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import dayjs, { Dayjs } from "dayjs";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "@/lib/custom-toast";
 import { z } from "zod";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
