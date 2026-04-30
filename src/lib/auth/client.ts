@@ -141,7 +141,12 @@ class AuthClient {
 
     const data = await res.json();
     if (data?.status) {
-      toast.success(data?.message ?? "Email sent!");
+      // toast.success(data?.message ?? "Email sent!");
+      toast.success(data?.message ?? "Email sent!", 
+         "Please check your email inbox and click the link to change your password.",
+        () => {
+  navigateTo("/login");          // redirect after OK
+});
     }
 
     if (!res.ok || data?.status == false || data?.body?.errors?.[0]) {

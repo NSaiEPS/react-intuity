@@ -3,6 +3,15 @@
  * Drop-in replacement for `import { toast } from "react-toastify"`.
  * Uses a lightweight global event-emitter so it works from anywhere —
  * React components, Redux slices, plain TS modules, etc.
+ *
+ * API  (all params optional)
+ *   toast.success(message?, subMessage?, onOk?)
+ *   toast.error(message?, subMessage?, onOk?)
+ *   toast.warning(message?, subMessage?, onOk?)   // also .warn()
+ *
+ *  message    → plain white-bg title  e.g. "Email Sent"
+ *  subMessage → coloured-box text     e.g. "Please check your inbox…"
+ *  onOk       → callback fired when user clicks OK
  */
 
 export type ToastType = "success" | "error" | "warning";
@@ -10,6 +19,8 @@ export type ToastType = "success" | "error" | "warning";
 export interface ToastPayload {
   type: ToastType;
   message: string;
+  subMessage?: string; // ← 2nd optional text shown in the coloured box
+  onOk?: () => void;   // ← optional fallback called when user clicks OK
   id: number;
 }
 
@@ -21,18 +32,18 @@ let _dismissListeners: DismissListener[] = [];
 let _idCounter = 0;
 
 export const toast = {
-  success(message: string) {
-    _emit({ type: "success", message, id: ++_idCounter });
+  success(message?: string, subMessage?: string, onOk?: () => void) {
+    _emit({ type: "success", message: message ?? "", subMessage, onOk, id: ++_idCounter });
   },
-  error(message: string) {
-    _emit({ type: "error", message, id: ++_idCounter });
+  error(message?: string, subMessage?: string, onOk?: () => void) {
+    _emit({ type: "error", message: message ?? "", subMessage, onOk, id: ++_idCounter });
   },
-  warning(message: string) {
-    _emit({ type: "warning", message, id: ++_idCounter });
+  warning(message?: string, subMessage?: string, onOk?: () => void) {
+    _emit({ type: "warning", message: message ?? "", subMessage, onOk, id: ++_idCounter });
   },
   /** Alias — some code uses toast.warn() */
-  warn(message: string) {
-    _emit({ type: "warning", message, id: ++_idCounter });
+  warn(message?: string, subMessage?: string, onOk?: () => void) {
+    _emit({ type: "warning", message: message ?? "", subMessage, onOk, id: ++_idCounter });
   },
   /** Programmatically dismiss the currently visible alert */
   dismiss() {

@@ -59,7 +59,7 @@ export function ResetPasswordForm(): React.JSX.Element {
       }
 
       setIsPending(false);
-      setOpen(true);
+      // setOpen(true);xs
 
       // Redirect to confirm password reset
     },

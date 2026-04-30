@@ -32,6 +32,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import secureLocalStorage from "react-secure-storage";
 
 import { toast } from "@/lib/custom-toast";
+import {toast as simpleToast   } from "react-toastify";
 
 interface DahBoardState {
   userInfo: any;
@@ -585,7 +586,7 @@ export const registerApiRequest: any =
       if (res?.status) {
         if(activeStep!==2)
         {
-        toast.success(res?.message ?? "Something went wrong!");
+        simpleToast.success(res?.message ?? "Something went wrong!");
 
         }
 
@@ -594,13 +595,14 @@ export const registerApiRequest: any =
         }
       } else {
         // navigateTo("/login", { replace: true }, res?.message);
-        
-        toast.error(
-          res?.message
+        let msg= res?.message
           ? typeof res?.message == "string"
           ? res?.message
-          : res?.message[0]
-          : "Something went wrong!"
+          : res?.message[0]:"Something went wrong!"
+
+        toast.error('',
+         msg==="Oops! We're sorry, we did not find a match with the authentication information you provided. Please try again or try a different authentication method to match."?
+         ' Oops! We’re sorry, your verification answer did not match the selected question. Please try again or use a different verification question.':msg
         );
       }
     } catch (e: any) {

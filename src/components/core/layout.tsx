@@ -3,6 +3,7 @@ import * as React from "react";
 import "@/styles/global.css";
 import Providers from "@/state/Provider";
 import CustomAlertModal from "@/components/CommonComponents/CustomAlertModal";
+import { ToastContainer } from "react-toastify";
 
 import { UserProvider } from "@/contexts/user-context";
 
@@ -18,6 +19,7 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
   return (
     <>
       <CustomAlertModal />
+      <ToastContainer autoClose={10000} position="top-right" />
       <LocalizationProvider>
         <ThemeProvider>
           <Providers>

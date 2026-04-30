@@ -123,6 +123,14 @@ export const router = createBrowserRouter([
       </Authorization>
     ),
   },
+   {
+    path: "/update-password",
+    element: LoginSuspense(
+      <Authorization>
+        <SignInPage title={"Update Password"} />
+      </Authorization>
+    ),
+  },
   {
     path: "/auth-card-redirect",
     element: withSuspense(

@@ -30,6 +30,7 @@ import { SkeletonWrapper } from "../core/withSkeleton";
 import { useLoading } from "../core/skeletion-context";
 import RegisterSuccess from "./RegisterSuccess";
 import { useTheme } from "@mui/material/styles";
+import { UpdatePasswordScreen } from "../dashboard/account/UpdatePasswordScreen";
 
 
 export default function PaymentInfoSection() {
@@ -111,6 +112,7 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
     pathname === "/login" ||
     pathname === "/sign-up" ||
     pathname?.includes("/reset-password") ||
+    pathname?.includes("/update-password") ||
     pathname.includes("login-") ||
     pathname.includes("register-success-") ||
     pathname.includes("register-");
@@ -139,6 +141,9 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
   if (pathname?.includes("reset-password")) {
     return <ResetPasswordForm />;
   }
+    if (pathname?.includes("update-password")) {
+    return <UpdatePasswordScreen />;
+  }
 
   if (pathname.includes("login-")) {
     return <SignInForm user={true} />;
@@ -165,6 +170,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
     }
      if (pathSplit[1]?.includes("reset-password")) {
       return "Reset password";
+    }
+        if (pathSplit[1]?.includes("update-password")) {
+      return "Update password";
     }
     if (pathname?.includes("login")) {
       return "Login";
@@ -335,7 +343,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
 
                   {pathname?.split("/")[1] !== "login" &&
                     pathname?.includes("login") ||
-                    pathSplit[1]?.includes("register-success")
+                    pathSplit[1]?.includes("register-success") ||
+                    pathSplit[1]?.includes("update-password") 
+
                     ? null : (
                     <Divider sx={{ my: 3 }} />
                   )}
