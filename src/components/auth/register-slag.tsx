@@ -219,7 +219,8 @@ if (pathname.includes("register") || pathname === "/sign-up") {
           backgroundPosition: "center",
           color: "#0d1b2a",
           py: 2,
-          px: 2,
+          // px: 2,
+           px: { xs: 0, sm: 2 },  // 0 below 600px, 2 above
           paddingBottom: 0,
         }}
       >
@@ -335,7 +336,7 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                     backgroundColor: "#e0e0e0",
 
                     px: 3,
-                    py: 2,
+                    py: 2,            
                     borderBottom: "1px solid #ddd",
                     display: "flex",
                     alignItems: "center",
@@ -348,7 +349,13 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                 </Box>}
 
                 {/* Content */}
-                <CardContent sx={{ p: 4 }}>
+<CardContent 
+ sx={{
+    p: 1.5,
+    "@media (min-width:500px)": { p: 4 },
+    "@media (min-width:900px)": { p: 4 },
+    "&:last-child": { pb: 4 },
+  }}>
                   {getRequiredForms()}
 
                   {/* Divider and action row */}
