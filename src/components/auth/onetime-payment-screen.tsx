@@ -538,6 +538,8 @@ export default function OneTimePaymentScreen() {
                   borderRadius: "12px",
                   height: "41px",
                   backgroundColor: colors.blue,
+  // textTransform: window.innerWidth < 500 ? 'lowercase' : 'none'
+
                 }}
                 onMouseOver={(e) =>
                   (e.currentTarget.style.backgroundColor = colors["blue.3"])
@@ -545,6 +547,8 @@ export default function OneTimePaymentScreen() {
                 onMouseOut={(e) =>
                   (e.currentTarget.style.backgroundColor = colors.blue)
                 }
+textTransform={'none'}
+
               >
                 Enter Payment Method
               </Button>
@@ -684,27 +688,19 @@ export default function OneTimePaymentScreen() {
 
   return (
     // ── Full-page screen wrapper ──────────────────────────────────────────────
-    <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 4, px: { xs: 2, sm: 4 } }}>
+    <Box sx={{  bgcolor: "background.default", py: 0, px: { xs: 0.5, sm: 4 } }}>
 
-      {/* ── Page header with back button ───────────────────────────────────── */}
-      <Stack direction="row" alignItems="center" mb={3} gap={1}>
-        <IconButton onClick={handleGoBack} sx={{ color: colors.blue }}>
-          <ArrowLeft size={24} />
-        </IconButton>
-        <Typography variant="h5" sx={{ fontWeight: 500 }}>
-          One Time Payment
-        </Typography>
-      </Stack>
+ 
 
       {/* ── Card container (replaces Dialog box) ───────────────────────────── */}
       <Box
         sx={{
-          bgcolor: "background.paper",
-          maxWidth: 600,
-          mx: "auto",
-          borderRadius: 2,
-          boxShadow: 3,
-          p: { xs: 2, sm: 4 },
+          // bgcolor: "background.paper",
+          // maxWidth: 600,
+          // mx: "auto",
+          // borderRadius: 2,
+          // boxShadow: 3,
+          p: { xs: 0.5, sm: 4 },
         }}
       >
         <Stepper

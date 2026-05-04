@@ -114,7 +114,7 @@ const S: Record<string, React.CSSProperties> = {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const AUTO_CLOSE_MS = 5000;
+const AUTO_CLOSE_MS = 10000;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
