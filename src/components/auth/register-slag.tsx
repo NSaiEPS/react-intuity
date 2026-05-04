@@ -32,6 +32,7 @@ import RegisterSuccess from "./RegisterSuccess";
 import { useTheme } from "@mui/material/styles";
 import { UpdatePasswordScreen } from "../dashboard/account/UpdatePasswordScreen";
 import { ForgotLoginForm } from "./forget-login-form";
+import OneTimePaymentScreen from "./onetime-payment-screen";
 
 
 export default function PaymentInfoSection() {
@@ -50,7 +51,7 @@ export default function PaymentInfoSection() {
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
   const hasCompanySlug =
-  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") ;
+  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") ;
   
   const { setContextLoading } = useLoading();
   
@@ -78,8 +79,8 @@ export default function PaymentInfoSection() {
 
 
 
-if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
-  const alias = slug.replace("login-", "").replace("register-success-", "").replace("register-", "")
+if (slug?.startsWith("login-") || slug?.startsWith("register-")|| slug?.startsWith("onetime-payment-")) {
+  const alias = slug.replace("login-", "").replace("register-success-", "").replace("register-", "").replace('onetime-payment-', '')
 
   formData.append("alias", alias);
 
@@ -117,7 +118,8 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
     pathname?.includes("/update-password") ||
     pathname.includes("login-") ||
     pathname.includes("register-success-") ||
-    pathname.includes("register-");
+    pathname.includes("register-") ||
+    pathname.includes("onetime-payment-");
 
   if (!allowed) {
     navigate("/login");
@@ -140,6 +142,9 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
   const getRequiredForms = () => {
   const pathSplit = pathname?.split("/");
 
+    if (pathname?.includes("onetime-payment")) {
+    return <OneTimePaymentScreen/>;
+  }
   if (pathname?.includes("reset-password")) {
     return <ResetPasswordForm />;
   }
@@ -173,6 +178,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
     if (pathSplit[1]?.includes("register-success")) {
       return "Register Success";
     }
+        if (pathname?.includes("onetime-payment")) {
+    return 'One Time Payment';
+  }
      if (pathSplit[1]?.includes("reset-password")) {
       return "Reset password";
     }
@@ -208,6 +216,11 @@ if (pathname.includes("register") || pathname === "/sign-up") {
     '<a target="_blank" rel="noopener noreferrer" '
   );
 
+
+  const handlePayNow=()=>{
+            navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
+    
+  }
   return (
     <SkeletonWrapper>
       <Box
@@ -477,7 +490,8 @@ autopay and paperless billing.
                             <Button
                               type="button"
                               variant="contained"
-                              onClick={() => setOneTimePaymentModalOpen(true)}
+                              // onClick={() => setOneTimePaymentModalOpen(true)}
+                              onClick={handlePayNow}
                               style={{
                                 borderRadius: "12px",
                                 height: "41px",

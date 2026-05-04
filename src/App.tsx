@@ -115,6 +115,14 @@ export const router = createBrowserRouter([
     </Authorization>
   ),
 },
+{
+  path: "/onetime-payment-:alias",
+  element: LoginSuspense(
+    <Authorization>
+      <SignInPage title={"One Time Payment"} />
+    </Authorization>
+  ),
+},
   {
     path: "/reset-password",
     element: LoginSuspense(

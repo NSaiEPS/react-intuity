@@ -25,6 +25,7 @@ export const paths = {
     // company ? `/register-${company}` : "/register",
     registerWithAlias: (company: string) => `/register-${company}`,
     registerSuccess: (company: string) => `/register-success-${company}`,
+    oneTimePayment: (company: string) => `/onetime-payment-${company}`,
 
   },
 
