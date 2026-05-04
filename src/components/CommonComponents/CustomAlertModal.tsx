@@ -1,64 +1,31 @@
-/**
- * CustomAlertModal.tsx
- * Global alert modal — mounts once in <Layout>.
- * Subscribes to the custom-toast singleton and renders
- * the success / error / warning dialog.
- *
- * Visual layout (matches client spec):
- *   ┌──────────────────────────────┐
- *   │       [icon circle]          │
- *   │                              │
- *   │   message   ← white-bg title │  e.g. "Email Sent"
- *   │                              │
- *   │ ┌──────────────────────────┐ │
- *   │ │  subMessage (coloured)   │ │  e.g. "Please check your inbox…"
- *   │ └──────────────────────────┘ │  yellow / pink / orange bg
- *   │           [ OK ]             │
- *   └──────────────────────────────┘
- *
- * Both `message` and `subMessage` are fully optional:
- *   toast.success("Email Sent", "Please check your inbox…", onOk?)
- *   toast.success("Email Sent")
- *   toast.error("Something went wrong.")
- */
-
 import * as React from "react";
-import { toast, ToastPayload, ToastType } from "@/lib/custom-toast";
+import { toast, ToastPayload } from "@/lib/custom-toast";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
+// ─── Style helpers ────────────────────────────────────────────────────────────
 
-const TOKEN: Record<
-  ToastType,
-  {
-    iconBg: string;
-    iconSymbol: string;
-    iconFontSize: string;
-    boxBg: string;     // subMessage coloured-box background
-    boxColor: string;
-  }
-> = {
-  success: {
+function getStyles(type: "success" | "error" | "warning") {
+  if (type === "success") return {
     iconBg: "#3A9E5F",
     iconSymbol: "✓",
     iconFontSize: "2rem",
-    boxBg: "#FFF2CC",    // RGB 255 242 204 — exact hex from client screenshot
+    boxBg: "#FFF2CC",
     boxColor: "#5C4700",
-  },
-  error: {
+  };
+  if (type === "error") return {
     iconBg: "#D95C4A",
     iconSymbol: "!",
     iconFontSize: "1.75rem",
     boxBg: "#FDE8E8",
     boxColor: "#8B1A1A",
-  },
-  warning: {
+  };
+  return {
     iconBg: "#E07B2A",
     iconSymbol: "!",
     iconFontSize: "1.75rem",
     boxBg: "#FFF3E0",
     boxColor: "#7A4000",
-  },
-};
+  };
+}
 
 // ─── Static styles ────────────────────────────────────────────────────────────
 
@@ -95,7 +62,6 @@ const S: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     flexShrink: 0,
   },
-  // ① message — plain white-bg heading
   title: {
     fontSize: "1.2rem",
     fontWeight: 700,
@@ -104,7 +70,6 @@ const S: Record<string, React.CSSProperties> = {
     margin: 0,
     lineHeight: 1.3,
   },
-  // ② subMessage — coloured box
   subBox: {
     width: "100%",
     borderRadius: "8px",
@@ -127,25 +92,107 @@ const S: Record<string, React.CSSProperties> = {
     letterSpacing: "0.02em",
     transition: "background-color 0.15s ease",
   },
+  progressTrack: {
+    width: "100%",
+    height: "4px",
+    backgroundColor: "#e0e0e0",
+    borderRadius: "2px",
+    overflow: "hidden",
+    marginTop: "0.2rem",
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#3B5EA6",
+  },
+  countdown: {
+    fontSize: "0.78rem",
+    color: "#888",
+    margin: 0,
+    marginTop: "-0.4rem",
+  },
 };
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const AUTO_CLOSE_MS = 5000;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CustomAlertModal() {
   const [payload, setPayload] = React.useState<ToastPayload | null>(null);
+  const [progress, setProgress] = React.useState(100);
+  const [secsLeft, setSecsLeft] = React.useState(5);
+  const [hovered, setHovered] = React.useState(false);
 
+  const rafRef     = React.useRef<number | null>(null);
+  const startRef   = React.useRef<number | null>(null);
+  const elapsedRef = React.useRef(0);
+  const hoveredRef = React.useRef(false);
+
+  // keep ref in sync so rAF closure always reads latest hover value
   React.useEffect(() => {
-    const unsubToast   = toast._subscribe((p) => setPayload(p));
+    hoveredRef.current = hovered;
+  }, [hovered]);
+
+  // subscribe to toast singleton
+  React.useEffect(() => {
+    const unsubToast = toast._subscribe((p) => {
+      setPayload(p);
+      setProgress(100);
+      setSecsLeft(5);
+      setHovered(false);
+      elapsedRef.current = 0;
+      startRef.current = null;
+    });
     const unsubDismiss = toast._onDismiss(() => setPayload(null));
-    return () => { unsubToast(); unsubDismiss(); };
+    return () => {
+      unsubToast();
+      unsubDismiss();
+    };
   }, []);
+
+  // progress bar rAF loop
+  React.useEffect(() => {
+    if (!payload) {
+      elapsedRef.current = 0;
+      startRef.current = null;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      return;
+    }
+
+    const tick = (ts: number) => {
+      if (!startRef.current) startRef.current = ts;
+      const delta = ts - startRef.current;
+      startRef.current = ts;
+
+      if (!hoveredRef.current) {
+        elapsedRef.current = Math.min(elapsedRef.current + delta, AUTO_CLOSE_MS);
+      }
+
+      const pct = (elapsedRef.current / AUTO_CLOSE_MS) * 100;
+      setProgress(100 - pct);
+      setSecsLeft(Math.ceil((AUTO_CLOSE_MS - elapsedRef.current) / 1000));
+
+      if (elapsedRef.current >= AUTO_CLOSE_MS) {
+        setPayload(null);
+        return;
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [payload]);
 
   if (!payload) return null;
 
-  const tk = TOKEN[payload.type];
+  const tk = getStyles(payload.type);
 
-  /** Close modal and fire optional onOk callback */
   const handleOk = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     setPayload(null);
     payload.onOk?.();
   };
@@ -159,11 +206,16 @@ export default function CustomAlertModal() {
         }
       `}</style>
 
-      {/* Backdrop — click outside closes (no callback fired) */}
+      {/* Backdrop */}
       <div style={S.backdrop} onClick={() => setPayload(null)}>
-        <div style={S.modal} onClick={(e) => e.stopPropagation()}>
+        <div
+          style={S.modal}
+          onClick={(e) => e.stopPropagation()}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
 
-          {/* ① Icon circle */}
+          {/* Icon circle */}
           <div style={{ ...S.iconCircle, backgroundColor: tk.iconBg }}>
             <span style={{
               color: "#fff",
@@ -176,19 +228,19 @@ export default function CustomAlertModal() {
             </span>
           </div>
 
-          {/* ② message — white-bg title, shown when provided */}
+          {/* Title */}
           {payload.message && (
             <p style={S.title}>{payload.message}</p>
           )}
 
-          {/* ③ subMessage — coloured box, shown when provided */}
+          {/* Sub-message */}
           {payload.subMessage && (
             <div style={{ ...S.subBox, backgroundColor: tk.boxBg, color: tk.boxColor }}>
               {payload.subMessage}
             </div>
           )}
 
-          {/* ④ OK button */}
+          {/* OK button */}
           <button
             style={S.okBtn}
             onClick={handleOk}
@@ -201,6 +253,16 @@ export default function CustomAlertModal() {
           >
             OK
           </button>
+
+          {/* Progress bar */}
+          <div style={S.progressTrack}>
+            <div style={{ ...S.progressBar, width: `${progress}%` }} />
+          </div>
+
+          {/* Countdown label */}
+          {/* <p style={S.countdown}>
+            {hovered ? "Paused" : `Closing in ${secsLeft}s`}
+          </p> */}
 
         </div>
       </div>
