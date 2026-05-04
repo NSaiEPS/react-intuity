@@ -848,7 +848,11 @@ export const guestPaymentRequest: any =
         // navigateTo("/login", { replace: true }, res?.message);
 
         if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
+          let msg=res?.message==="Invoice amount must match your last bill."?
+          'Enter the amount from your original invoice for this billing period. Do not include any recently added late fees. Do not reduce the invoice amount due to any payments made since you received the initial bill.':
+          res?.message
+
+          toast.error('',msg ?? "Something went wrong!");
         }
         if (failureCallBack) {
           failureCallBack(undefined, true);

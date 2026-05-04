@@ -423,7 +423,7 @@ const handleRegisterClick = async () => {
               </Link>
 
                        <Link
-                to={paths.auth.resetPassword(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
+                to={paths.auth.forgotLogin(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
                 style={{
                   color: colors.blue,
                   justifyContent: "center",

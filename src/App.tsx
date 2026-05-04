@@ -131,6 +131,14 @@ export const router = createBrowserRouter([
       </Authorization>
     ),
   },
+    {
+    path: "/forgot-login",
+    element: LoginSuspense(
+      <Authorization>
+        <SignInPage title={"Recover Password"} />
+      </Authorization>
+    ),
+  },
   {
     path: "/auth-card-redirect",
     element: withSuspense(

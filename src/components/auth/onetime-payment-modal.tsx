@@ -515,26 +515,28 @@ successModalClose()
               </Typography> */}
 
 
-                <Box mt={2}
-mb={4}   
-   border={1} padding={2} borderRadius={2}>
-  <Box display="flex">
-    <Typography sx={{ minWidth: 180 }}>
-   Account No:
-    </Typography>
-    <Typography>
-{formData.accountNo}
-    </Typography>
-  </Box>
-    <Box display="flex">
-    <Typography sx={{ minWidth: 180 }}>
-  Customer :
-    </Typography>
-    <Typography>
-{formData.name}
-    </Typography>
-  </Box>
-  </Box>
+                <Box
+                  mt={2}
+                  mb={4}
+                  border={1}
+                  padding={2}
+                  borderRadius={2}
+                  sx={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: 0.5 }}
+                >
+                  <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
+                    Account No:
+                  </Typography>
+                  <Typography sx={{ wordBreak: "break-word" }}>
+                    {formData.accountNo}
+                  </Typography>
+
+                  <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
+                    Customer:
+                  </Typography>
+                  <Typography sx={{ wordBreak: "break-word" }}>
+                    {formData.name}
+                  </Typography>
+                </Box>
             {/* <TextField
               fullWidth
               label="Account Name: "
@@ -701,36 +703,34 @@ mb={4}
               {parseFloat(Number(formData.totalPayment).toFixed(2))}
             </Typography> */}
    
-   <Box mt={2}
-   
-   border={1} padding={2} borderRadius={2}>
-  <Box display="flex">
-    <Typography sx={{ minWidth: 180 }}>
-      Payment Amount:
-    </Typography>
-    <Typography>
-      ${Number(formData.amountToPay).toFixed(2)}
-    </Typography>
-  </Box>
+            <Box
+              mt={2}
+              border={1}
+              padding={2}
+              borderRadius={2}
+              sx={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: 0.5 }}
+            >
+              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }}>
+                Payment Amount:
+              </Typography>
+              <Typography sx={{ wordBreak: "break-word" }}>
+                ${Number(formData.amountToPay).toFixed(2)}
+              </Typography>
 
-  <Box display="flex">
-    <Typography sx={{ minWidth: 180 }}>
-      Convenience Fee:
-    </Typography>
-    <Typography>
-      ${Number(formData.convenienceFee).toFixed(2)}
-    </Typography>
-  </Box>
+              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }}>
+                Convenience Fee:
+              </Typography>
+              <Typography sx={{ wordBreak: "break-word" }}>
+                ${Number(formData.convenienceFee).toFixed(2)}
+              </Typography>
 
-  <Box display="flex">
-    <Typography sx={{ minWidth: 180 }} fontWeight="bold">
-      Total Payment:
-    </Typography>
-    <Typography fontWeight="bold">
-      ${Number(formData.totalPayment).toFixed(2)}
-    </Typography>
-  </Box>
-</Box>
+              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }} fontWeight="bold">
+                Total Payment:
+              </Typography>
+              <Typography fontWeight="bold" sx={{ wordBreak: "break-word" }}>
+                ${Number(formData.totalPayment).toFixed(2)}
+              </Typography>
+            </Box>
 
             <Typography sx={{ mt: 2, }} paddingLeft={2}>Select Payment Type</Typography>
             <RadioGroup

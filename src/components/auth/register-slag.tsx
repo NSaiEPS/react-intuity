@@ -31,6 +31,7 @@ import { useLoading } from "../core/skeletion-context";
 import RegisterSuccess from "./RegisterSuccess";
 import { useTheme } from "@mui/material/styles";
 import { UpdatePasswordScreen } from "../dashboard/account/UpdatePasswordScreen";
+import { ForgotLoginForm } from "./forget-login-form";
 
 
 export default function PaymentInfoSection() {
@@ -112,6 +113,7 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
     pathname === "/login" ||
     pathname === "/sign-up" ||
     pathname?.includes("/reset-password") ||
+    pathname?.includes("/forgot-login") ||
     pathname?.includes("/update-password") ||
     pathname.includes("login-") ||
     pathname.includes("register-success-") ||
@@ -140,6 +142,9 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")) {
 
   if (pathname?.includes("reset-password")) {
     return <ResetPasswordForm />;
+  }
+   if (pathname?.includes("forgot-login")) {
+    return <ForgotLoginForm />;
   }
     if (pathname?.includes("update-password")) {
     return <UpdatePasswordScreen />;
@@ -170,6 +175,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
     }
      if (pathSplit[1]?.includes("reset-password")) {
       return "Reset password";
+    }
+      if (pathSplit[1]?.includes("forgot-login")) {
+      return "Forgot Login";
     }
         if (pathSplit[1]?.includes("update-password")) {
       return "Update password";
@@ -293,7 +301,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
             // columnSpacing={3} // space between columns
             // rowSpacing={3} // space between rows (on small screens)
             justifyContent={
-              pathname?.split("/")[1] !== "login" && pathname?.includes("login")
+              pathname?.split("/")[1] !== "login" && pathname?.includes("login")&&
+              !pathname?.includes("forgot") 
+
                 ? "space-between"
                 : "center"
             }
@@ -307,7 +317,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                   width: "100%",
                   marginTop:
                     pathname?.split("/")[1] !== "login" &&
-                      pathname?.includes("login")
+                      pathname?.includes("login") &&
+              !pathname?.includes("forgot") 
+
                       ? 0
                       : 5,
                   border: "1px solid #e0e0e0",
@@ -353,7 +365,10 @@ if (pathname.includes("register") || pathname === "/sign-up") {
               </Grid>
             </Grid>
             {pathname?.split("/")[1] !== "login" &&
-              pathname?.includes("login") && (
+              pathname?.includes("login") &&
+              !pathname?.includes("forgot") 
+              
+              && (
                 <Grid
                   xs={12}
                   md={6}

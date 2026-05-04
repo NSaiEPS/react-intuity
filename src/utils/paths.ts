@@ -11,7 +11,8 @@ export const paths = {
     signUp: (company?: string) => (company ? `/sign-up` : "/sign-up"),
     resetPassword: (company?: string) =>
       company ? `/reset-password-${company}` : "/reset-password",
-
+    forgotLogin: (company?: string) =>
+      company ? `/forgot-login-${company}` : "/forgot-login",
     confirmInfo: (company?: string) =>
       company
         ? `/${company}/confirm-information`
