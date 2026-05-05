@@ -295,6 +295,53 @@ checkContainerInvoice: {
   },
 });
 
+const summaryStyles = StyleSheet.create({
+  subTotalBox: {
+    alignSelf: "flex-end",
+    width: 180,
+    padding: 8,
+    borderRadius: 6,
+    marginTop: 2,
+  },
+  subTotalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 2,
+  },
+  subTotalLabel: {
+    fontSize: 12,
+    textAlign: "left",
+  },
+  subTotalValue: {
+    fontSize: 12,
+    textAlign: "right",
+  },
+  totalBox: {
+    alignSelf: "flex-end",
+    width: 180,
+    backgroundColor: "#38699C",
+    padding: 8,
+    borderRadius: 6,
+    marginTop: 2,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  totalText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
+    textAlign: "left",
+  },
+  totalValue: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
+    textAlign: "right",
+  },
+});
+
 const styles = StyleSheet.create({
   page: {
     padding: 20,
@@ -311,7 +358,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingHorizontal : 3
   },
-  companyCol: { width: "50%"  , paddingHorizontal : 3},
+  companyCol: { width: "100%"  , paddingHorizontal : 3},
   rightHeaderCol: { width: "50%", textAlign: "right" ,paddingHorizontal : 3},
   companyName: { fontSize: 12, fontWeight: "700",paddingHorizontal : 3, width : "100%"},
   subHeadline: { fontSize: 10, color: "#888", marginBottom: 4 , marginTop : 4,paddingHorizontal : 3},
@@ -379,10 +426,16 @@ balanceRowWrapper: {
   },
 
   tableRow: { flexDirection: "row", paddingVertical: 6, alignItems: "center" },
-  tableCellLeft: { width: "70%", fontSize: 12, fontWeight: "700" , padding :4},
+  tableCellLeft: { width: "70%", fontSize: 12, fontWeight: "700" , padding :4,
+
+
+  },
   tableCellRight: { width: "30%", fontSize: 10, textAlign: "right" , padding : 4},
   rowStrip: { backgroundColor: "#E9F5FF" },
+ subTotlaCellLeft: { width: "100%", fontSize: 12, fontWeight: "700" , padding :4,
+  alignSelf: "flex-end",
 
+  },
   // box under items (service address + dates + meter readings etc)
   detailBox: {
     marginTop: 4,
@@ -421,13 +474,15 @@ balanceRowWrapper: {
     borderRadius: 6,
     marginTop: 2,
   },
+
   subTotalBox: {
     alignSelf: "flex-end",
     width: 150,
-    backgroundColor: "#3377c0ff",
+    // backgroundColor: "#3377c0ff",
     padding: 8,
     borderRadius: 6,
     marginTop: 2,
+    justifyContent:"space-between"
   },
   totalText: {
     color: "#fff",
@@ -449,11 +504,13 @@ balanceRowWrapper: {
   dashed: {
     textAlign: "center",
     marginBottom: 8,
-    marginTop : 110,
+    // marginTop : 110,
+    // marginTop : 10,
     color: "#999",
     fontSize: 10,
     maxWidth: "100%",
     overflow: "hidden",
+    marginTop:"auto"
   },
 
   // bottom paper / paystub
@@ -622,7 +679,12 @@ export default function InvoicePdfDocument({
   const billing = invoiceDetails.last_bill?.[0];
 
   console.log("hiii",invoiceDetails)
-  const customerDetails=invoiceDetails?.customer
+  const customerDetails=invoiceDetails?.customer;
+
+   const subtotal = invoiceDetails?.bill_items?.reduce(
+              (acc, item) => acc + (item?.amount || 0),
+              0
+            );
   return (
     <Document>
       <Page size="A4" style={styles1.page}>
@@ -637,17 +699,18 @@ export default function InvoicePdfDocument({
               {invoiceDetails?.invoice_subheadline || ""}
             </Text>
               <Text style={styles.rightHeaderText}>
-              {invoiceDetails?.customer?.company_street || ""}
-            </Text>
-              <Text style={styles.rightHeaderText}>
+              {invoiceDetails?.customer?.company_street || ""} {` `}
               {invoiceDetails?.customer?.company_city || ""}
             </Text>
+              {/* <Text style={styles.rightHeaderText}>
+            </Text> */}
               <Text style={styles.rightHeaderText}>
-              {invoiceDetails?.customer?.company_state_abbrev || ""}
-            </Text>
-                <Text style={styles.rightHeaderText}>
+              {invoiceDetails?.customer?.company_state_abbrev || ""} {` `}
               {invoiceDetails?.customer?.company_zip || ""}
+
             </Text>
+                {/* <Text style={styles.rightHeaderText}>
+            </Text> */}
              {/* <Text style={styles.rightHeaderText}>
               {invoiceDetails?.invoice_text_header_email || ""}dddd
             </Text> */}
@@ -784,66 +847,34 @@ export default function InvoicePdfDocument({
                 style={{ marginTop: 8 , paddingHorizontal : 3}}
               >
                 
-                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
+                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd",
     borderRadius: 4}}>
-               
-                    <View
+               {
+                invoiceDetails?.bill_items?.map((item: InvoiceItem, idx: number)=>{
+                  return(
+ <View
                       
                       style={[
                         styles.tableRow,
-                      styles.rowStrip ,
+                      // styles.rowStrip ,
+                        idx % 2 === 1 ? styles.rowStrip : {},
+
                       ]}
                     >
                       <Text style={styles.tableCellLeft}>
-                        {invoiceDetails.bill_items[0].product_id} 
+                        {item.product_id} 
                       </Text>
                       <Text style={styles.tableCellRight}>
-                        {money(invoiceDetails.bill_items[0]?.amount)}
+                        {money(item?.amount)}
                       </Text>
                     </View>
-                    
-                  
-                     <View
-                     
-                      style={[
-                        styles.tableRow,
-                        styles.rowStrip
-                      ]}
-                    >
-                      <Text style={styles.tableCellLeft}>
-                        Subtotal
-                      </Text>
-                      <Text style={styles.tableCellRight}>
-                     {money(invoiceDetails.bill_items[0]?.amount)}
-                      </Text>
-                    </View>
-               
-                
-             
-            
-          
-        
- 
+                  )
+                })
+               }
+                   
+
                    </View></View>
-        {/* Previous Balance */}
-        {/* <View style={styles.balanceRowWrapper}>
-        {Array.isArray(extra_params) &&
-           (extra_params as ExtraParam[]).map((it, i) => (
-            <View key={i} style={styles.prevBalRow}>
-              <Text style={{ fontWeight: "700", fontSize : 12 ,  color: "#fff" }}>
-                PREVIOUS BALANCE :  {money(it?.amount)}
-              </Text>
-          
-            </View>
-          ))}
-
-
-        <View style={styles.totalBox}>
-          <Text style={styles.totalText}>
-            Total Due: {money(invoiceDetails.bill_items[0]?.amount)}
-          </Text>
-        </View>
-</View> */}
+        
 <View style={styles.balanceRowWrapper}>
   {Array.isArray(extra_params) &&
     extra_params.map((it, i) => (
@@ -854,11 +885,43 @@ export default function InvoicePdfDocument({
       </View>
     ))}
 
+ {/* <View
+         style={styles.subTotalBox}            
+                  
+                    >
+                      <Text >
+                        Subtotal :         {money(subtotal)}
+                      </Text>
+                          <Text >
+                        Tax :        0
+                      </Text>
+                    
+                    </View>
   <View style={styles.totalBox}>
+ 
     <Text style={styles.totalText}>
-      Total Due: {money(invoiceDetails.bill_items[0]?.amount)}
+      Total Due: {money(invoiceDetails.invoice?.amount)}
     </Text>
+  </View> */}
+
+
+<View style={summaryStyles.subTotalBox}>
+  <View style={summaryStyles.subTotalRow}>
+    <Text style={summaryStyles.subTotalLabel}>SUB TOTAL:</Text>
+    <Text style={summaryStyles.subTotalValue}>{money(subtotal)}</Text>
   </View>
+  <View style={summaryStyles.subTotalRow}>
+    <Text style={summaryStyles.subTotalLabel}>Tax:</Text>
+    <Text style={summaryStyles.subTotalValue}>$ 0.00</Text>
+  </View>
+</View>
+
+<View style={summaryStyles.totalBox}>
+  <View style={summaryStyles.totalRow}>
+    <Text style={summaryStyles.totalText}>Total Due:</Text>
+    <Text style={summaryStyles.totalValue}>{money(invoiceDetails.invoice?.amount)}</Text>
+  </View>
+</View>
 </View>
         {/* Autopay do not pay text */}
         {customer?.autopay ? (

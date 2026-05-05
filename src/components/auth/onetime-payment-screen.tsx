@@ -410,7 +410,7 @@ const handleBackToLogin=()=>{
               type="button"
               variant="contained"
               onClick={handleBackToLogin}
-              loading={accountLoading}
+
               style={{
                 borderRadius: "12px",
                 height: "41px",
