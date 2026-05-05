@@ -441,7 +441,8 @@ const styles = StyleSheet.create({
   dashed: {
     textAlign: "center",
     marginBottom: 8,
-    marginTop : 110,
+    // marginTop : 110,
+    marginTop:'auto',
     color: "#999",
     fontSize: 10,
     maxWidth: "100%",
@@ -611,7 +612,7 @@ export default function InvoicePdfDocument({
         <View style={styles.headerRow}>
           <View style={styles.companyCol}>
             <Text style={styles.companyName}>
-              {company?.company_name || ""}
+              {company?.company_name || ""} 
             </Text>
             <Text style={styles.subHeadline}>
               {company_settings?.invoice_subheadline || ""}

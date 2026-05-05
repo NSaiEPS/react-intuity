@@ -137,11 +137,17 @@ export default function CustomModal({
 
           <div style={{ height: "600px", marginTop: "20px" }}>
             <PDFViewer width="1000px" height="600">
-              {oneTime ? (
+              {/* {oneTime ? (
                 <OneTimePdf invoiceDetails={oneTimeData} />
               ) : (
                 <InvoicePdfDocument invoiceDetails={invoiceDetails} />
-              )}
+              )} */}
+              {
+                <OneTimePdf
+                IsNormal={oneTime ?false:true}
+                invoiceDetails={oneTime ?oneTimeData:invoiceDetails} />
+
+              }
             </PDFViewer>
           </div>
 </div>
