@@ -302,7 +302,12 @@ export default function OneTimePaymentScreen() {
       state: { alias: companyInfo?.company?.alias },
     });
   };
+const handleBackToLogin=()=>{
+      navigateTo(`/login-${companyInfo?.company?.alias}`, 
 
+    );
+
+}
   // replaces onModalClose — navigates back instead of closing a dialog
   const handleGoBack = () => {
     if (!confirmIfDirty()) return;
@@ -400,15 +405,16 @@ export default function OneTimePaymentScreen() {
                 ),
               }}
             />
-            <Button
+            <Box display="flex" justifyContent="space-between">
+  <Button
               type="button"
               variant="contained"
-              onClick={handleRetrieveBill}
+              onClick={handleBackToLogin}
               loading={accountLoading}
               style={{
                 borderRadius: "12px",
                 height: "41px",
-                width: "100%",
+                width: "50%",
                 backgroundColor: colors.blue,
               }}
               onMouseOver={(e) =>
@@ -417,9 +423,37 @@ export default function OneTimePaymentScreen() {
               onMouseOut={(e) =>
                 (e.currentTarget.style.backgroundColor = colors.blue)
               }
+                textTransform="none"
+
+            >
+Back to Login
+            </Button>
+              <Button
+              type="button"
+              variant="contained"
+              onClick={handleRetrieveBill}
+              loading={accountLoading}
+              style={{
+                borderRadius: "12px",
+                height: "41px",
+                width: "50%",
+                marginLeft:"4px",
+                backgroundColor: colors.blue,
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = colors["blue.3"])
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = colors.blue)
+              }
+                textTransform="none"
+
             >
               Retrieve Bill
             </Button>
+
+            </Box>
+          
           </>
         );
 

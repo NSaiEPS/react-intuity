@@ -393,6 +393,8 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                   xs={12}
                   md={6}
                   sx={{
+                        display: { xs: "none", md: "block" },  // 👈 Add this line
+
                     // borderRight: '1px solid #e0e0e0',
                     pl: { xs: 0, md: "20px" },
                     pt: { xs: "20px", md: 0 },
