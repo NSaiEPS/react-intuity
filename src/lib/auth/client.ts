@@ -125,10 +125,10 @@ class AuthClient {
     return {};
   }
 
-  async resetPassword(params: { email: string }): Promise<{ error?: string }> {
+  async resetPassword(params: { email: string },alias:string): Promise<{ error?: string }> {
     const { email } = params;
     const formData = new FormData();
-
+// console.log(alias)
     formData.append("email", email);
 
     const res = await fetch(`${BASE_URL}index/recover-password`, {
@@ -145,7 +145,7 @@ class AuthClient {
       toast.success(data?.message ?? "Email sent!", 
          "Please check your email inbox and click the link to change your password.",
         () => {
-  navigateTo("/login");          // redirect after OK
+  navigateTo(`/login-${alias}`);          // redirect after OK
 });
     }
 

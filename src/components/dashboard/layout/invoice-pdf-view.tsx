@@ -1,5 +1,6 @@
 import { UtilityItem } from "@/utils";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import HeaderSection from "./HeaderSection";
 
 const styles1 = StyleSheet.create({
   section1: {
@@ -331,11 +332,25 @@ const styles = StyleSheet.create({
   marginTop: 10,
   paddingHorizontal : 3
 },
+itemDescription:{
+   flexDirection: "row",
+  justifyContent: "space-between", 
+},
+  sectionTitleRight: {
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 4,
+    marginBottom: 2,
+    color: "#0B3D91",
+    paddingHorizontal : 3,
+    marginLeft:"auto"
+  },
+
   invoiceToCol: { width: "65%" , paddingHorizontal : 4},
   invoiceBoxCol: { width: "33%", alignItems: "flex-end" , paddingHorizontal : 4},
 
   invoiceTitle: {
-    fontSize: 12,
+    fontSize: 30,
     color: "#aaa",
     fontWeight: "700",
     letterSpacing: 1,
@@ -604,6 +619,12 @@ export default function InvoicePdfDocument({
     extra_params = [],
   } = invoiceDetails || {};
   const billing = last_bill?.[0];
+
+  const utilityDetails: UtilityItem = Object.values(unique_by_utility || {})?.[0]?.[0] ?? ({} as UtilityItem);
+const firstKey = Object.keys(unique_by_utility || {})?.[0] ?? "";
+const [utilityName = "", , meterNumber = "", ...addressParts] = String(firstKey).split(";");
+const serviceAddress = addressParts.join(";");
+
   return (
     <Document>
       <Page size="A4" style={styles1.page}>
@@ -621,7 +642,7 @@ export default function InvoicePdfDocument({
               {company_settings?.invoice_text_header_email || ""}
             </Text>
           </View>
-          <View style={styles.rightHeaderCol}>
+          {/* <View style={styles.rightHeaderCol}>
             <Text style={styles.rightHeaderText}>
               {company_settings?.invoice_text_header_open || ""}
             </Text>
@@ -631,7 +652,13 @@ export default function InvoicePdfDocument({
               {company_settings?.direct_debit || ""}
               </Text>   
             </Text>
-          </View>
+          </View> */}
+          <HeaderSection customerDetails={{
+            company_website: company_settings?.company_url || "",
+            company_phone: company_settings?.invoice_text_header_web || "",
+            company_email: company_settings?.invoice_text_header_email || ""
+          }}/>
+
         </View>
 
         {/* Invoice + Total Due */}
@@ -686,67 +713,7 @@ export default function InvoicePdfDocument({
             </View>
           </View>
         </View>
-
-        {/* Item Descriptions (per utility) */}
-        {Object.entries(unique_by_utility || {}).map(
-          ([key, items]: [string, UtilityItem[]], uIdx: number) => {
-            const [utilityName = "", , meterNumber = "", ...addressParts] =
-              String(key).split(";");
-            const serviceAddress = addressParts.join(";");
-            const utilityDetails : UtilityItem = items?.[0] ?? ({} as UtilityItem);
-            const subtotal = items.reduce(
-              (acc, item) => acc + (item?.amount || 0),
-              0
-            );
-
-            return (
-              <View
-                key={String(key) + uIdx}
-                wrap={false}
-                style={{ marginTop: 8 , paddingHorizontal : 3}}
-              >
-                <Text style={styles.sectionTitle}>Item Description</Text>
-                <Text style={styles.utilityTitle}>
-                  <Text style={{ fontWeight: "700", fontSize:12 }}>{utilityName}</Text>
-                  {meterNumber ? ` - ${meterNumber}` : ""}{" "}
-                  {serviceAddress ? ` - ${serviceAddress}` : ""}
-                </Text>
-
-                {/* Items table (product_id + amount) */}
-                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
-    borderRadius: 4}}>
-                  {items.map((item: InvoiceItem, idx: number) => (
-                    <View
-                      key={idx}
-                      style={[
-                        styles.tableRow,
-                        idx % 2 === 1 ? styles.rowStrip : {},
-                      ]}
-                    >
-                      <Text style={styles.tableCellLeft}>
-                        {item?.product_id || ""}
-                      </Text>
-                      <Text style={styles.tableCellRight}>
-                        {money(item?.amount)}
-                      </Text>
-                    </View>
-                    
-                  ))}
-                     <View
-                     
-                      style={[
-                        styles.tableRow,
-                        styles.rowStrip
-                      ]}
-                    >
-                      <Text style={styles.tableCellLeft}>
-                        Subtotal
-                      </Text>
-                      <Text style={styles.tableCellRight}>
-                     {money(subtotal)}
-                      </Text>
-                    </View>
-                  {/* The special boxed detail (the MUI TableRow -> Box you pointed out) */}
+  {/* The special boxed detail (the MUI TableRow -> Box you pointed out) */}
                   <View style={{ marginTop: 3 }}>
                     <View style={styles.detailBox}>
                       <View style={styles.detailRow}>
@@ -802,6 +769,78 @@ export default function InvoicePdfDocument({
                       </View>
                     </View>
                   </View>
+        {/* Item Descriptions (per utility) */}
+        {Object.entries(unique_by_utility || {}).map(
+          ([key, items]: [string, UtilityItem[]], uIdx: number) => {
+            const [utilityName = "", , meterNumber = "", ...addressParts] =
+              String(key).split(";");
+              let updatedItems=items?.filter((item)=>item?.product_id)
+            const serviceAddress = addressParts.join(";");
+            // const utilityDetails : UtilityItem = items?.[0] ?? ({} as UtilityItem);
+            const subtotal = updatedItems.reduce(
+              (acc, item) => acc + (item?.amount || 0),
+              0
+            );
+
+            return (
+              <View
+                key={String(key) + uIdx}
+                wrap={false}
+                style={{ marginTop: 8 , paddingHorizontal : 3}}
+              >
+                {/* <Text style={styles.sectionTitle}>Item Description</Text>
+                 */}
+                      <View
+                                 style={
+                                   styles.itemDescription
+                                 }
+                                 >
+                            
+                                       <Text style={styles.sectionTitle}>Item Description</Text>
+                                       <Text style={styles.sectionTitleRight}>Total</Text>
+                                       </View>
+                <Text style={styles.utilityTitle}>
+                  <Text style={{ fontWeight: "700", fontSize:12 }}>{utilityName}</Text>
+                  {meterNumber ? ` - ${meterNumber}` : ""}{" "}
+                  {serviceAddress ? ` - ${serviceAddress}` : ""}
+                </Text>
+
+                {/* Items table (product_id + amount) */}
+                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
+    borderRadius: 4}}>
+                  {updatedItems.map((item: InvoiceItem, idx: number) => (
+                    item?.product_id &&
+                    <View
+                      key={idx}
+                      style={[
+                        styles.tableRow,
+                        idx % 2 === 1 ? styles.rowStrip : {},
+                      ]}
+                    >
+                      <Text style={styles.tableCellLeft}>
+                        {item?.product_id || ""}
+                      </Text>
+                      <Text style={styles.tableCellRight}>
+                        {money(item?.amount)}
+                      </Text>
+                    </View>
+                    
+                  ))}
+                     <View
+                     
+                      style={[
+                        styles.tableRow,
+                        styles.rowStrip
+                      ]}
+                    >
+                      <Text style={styles.tableCellLeft}>
+                        Subtotal
+                      </Text>
+                      <Text style={styles.tableCellRight}>
+                     {money(subtotal)}
+                      </Text>
+                    </View>
+                
                 </View>
               </View>
             );

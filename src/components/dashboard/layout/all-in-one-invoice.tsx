@@ -663,8 +663,9 @@ export interface CompanySettings {
   autopay_do_not_pay_text?: string;
 }
 
-export default function InvoicePdfDocument({
+export default function AllInOneInvoicePdfDocument({
   invoiceDetails,
+  isOneTime=false
 }: {
   invoiceDetails: InvoiceDetails;
 }) {
@@ -685,11 +686,16 @@ export default function InvoicePdfDocument({
               (acc, item) => acc + (item?.amount || 0),
               0
             );
+
+             
   return (
     <Document>
       <Page size="A4" style={styles1.page}>
         <View style={{ marginTop: 4 ,backgroundColor : "#f4f1f1ff" ,  borderColor: "#ddd", paddingBottom :6,
     borderRadius: 4 }}>
+      {
+        isOneTime ?
+      
         <View style={styles.headerRow}>
           <View style={styles.companyCol}>
             <Text style={styles.companyName}>
@@ -709,11 +715,7 @@ export default function InvoicePdfDocument({
               {invoiceDetails?.customer?.company_zip || ""}
 
             </Text>
-                {/* <Text style={styles.rightHeaderText}>
-            </Text> */}
-             {/* <Text style={styles.rightHeaderText}>
-              {invoiceDetails?.invoice_text_header_email || ""}dddd
-            </Text> */}
+            
           </View>
           <View style={styles.rightHeaderCol}>
            
@@ -726,7 +728,34 @@ export default function InvoicePdfDocument({
           </View>
 
           <HeaderSection customerDetails={customerDetails}/>
+        </View>:
+  <View style={styles.headerRow}>
+          <View style={styles.companyCol}>
+            <Text style={styles.companyName}>
+              {company?.company_name || ""} 
+            </Text>
+            <Text style={styles.subHeadline}>
+              {company_settings?.invoice_subheadline || ""}
+            </Text>
+              <Text style={styles.rightHeaderText}>
+              {company_settings?.invoice_text_header_email || ""}
+            </Text>
+          </View>
+          {/* <View style={styles.rightHeaderCol}>
+            <Text style={styles.rightHeaderText}>
+              {company_settings?.invoice_text_header_open || ""}
+            </Text>
+            <Text style={styles.rightHeaderText}>
+              {company_settings?.invoice_text_header_web || ""}
+              <Text style={styles.rightHeaderText}>
+              {company_settings?.direct_debit || ""}
+              </Text>   
+            </Text>
+          </View> */}
+          <HeaderSection customerDetails={customerDetails}/>
+
         </View>
+              }
 
         {/* Invoice + Total Due */}
         <View style={styles.invoiceRow}>

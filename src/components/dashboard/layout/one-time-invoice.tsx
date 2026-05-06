@@ -308,14 +308,8 @@ const summaryStyles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 2,
   },
-  subTotalLabel: {
-    fontSize: 12,
-    textAlign: "left",
-  },
-  subTotalValue: {
-    fontSize: 12,
-    textAlign: "right",
-  },
+
+ 
   totalBox: {
     alignSelf: "flex-end",
     width: 180,
@@ -328,18 +322,31 @@ const summaryStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  totalText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 12,
-    textAlign: "left",
-  },
-  totalValue: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 12,
-    textAlign: "right",
-  },
+
+  subTotalLabel: {
+  fontSize: 12,
+  textAlign: "left",
+  flex: 1,        // ← add this
+},
+subTotalValue: {
+  fontSize: 12,
+  textAlign: "right",
+  flex: 1,        // ← add this
+},
+totalText: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 12,
+  textAlign: "left",
+  flex: 1,        // ← add this
+},
+totalValue: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 12,
+  textAlign: "right",
+  flex: 1,        // ← add this
+},
 });
 
 const styles = StyleSheet.create({
@@ -417,6 +424,19 @@ balanceRowWrapper: {
     color: "#0B3D91",
     paddingHorizontal : 3
   },
+  sectionTitleRight: {
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 4,
+    marginBottom: 2,
+    color: "#0B3D91",
+    paddingHorizontal : 3,
+    marginLeft:"auto"
+  },
+  itemDescription:{
+   flexDirection: "row",
+  justifyContent: "space-between", 
+},
   utilityTitle: {
     fontSize: 12,
     fontWeight: "700",
@@ -846,9 +866,26 @@ export default function InvoicePdfDocument({
                 wrap={false}
                 style={{ marginTop: 8 , paddingHorizontal : 3}}
               >
+                <View
+                style={
+                  styles.itemDescription
+                }
+                >
+           
+                      <Text style={styles.sectionTitle}>Item Description</Text>
+                      <Text style={styles.sectionTitleRight}>Total</Text>
+                      </View>
+
+                <Text style={styles.utilityTitle}>
+
+                                        <Text style={{ fontWeight: "700", fontSize:12 }}>
+{invoiceDetails?.bill_items?.[0]?.utility_type_name}
+                                      </Text>
+                                      </Text>
                 
                 <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd",
     borderRadius: 4}}>
+      
                {
                 invoiceDetails?.bill_items?.map((item: InvoiceItem, idx: number)=>{
                   return(
@@ -912,7 +949,11 @@ export default function InvoicePdfDocument({
   </View>
   <View style={summaryStyles.subTotalRow}>
     <Text style={summaryStyles.subTotalLabel}>Tax:</Text>
-    <Text style={summaryStyles.subTotalValue}>$ 0.00</Text>
+    <Text style={summaryStyles.subTotalValue}>
+      {/* {Number(invoiceDetails.invoice?.amount) - Number(subtotal)} */}
+        $ {(Number(invoiceDetails.invoice?.amount) - Number(subtotal)).toFixed(2)}
+
+      </Text>
   </View>
 </View>
 

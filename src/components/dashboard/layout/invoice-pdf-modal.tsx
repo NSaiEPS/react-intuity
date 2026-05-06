@@ -11,6 +11,7 @@ import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 
 import InvoicePdfDocument from "./invoice-pdf-view";
+import AllInOneInvoicePdfDocument from "./all-in-one-invoice";
 
 type ModalProps = {
   open: boolean;
@@ -137,17 +138,18 @@ export default function CustomModal({
 
           <div style={{ height: "600px", marginTop: "20px" }}>
             <PDFViewer width="1000px" height="600">
-              {/* {oneTime ? (
+              {oneTime ? (
                 <OneTimePdf invoiceDetails={oneTimeData} />
               ) : (
                 <InvoicePdfDocument invoiceDetails={invoiceDetails} />
-              )} */}
-              {
-                <OneTimePdf
-                IsNormal={oneTime ?false:true}
+              )}
+              {/* {
+                <AllInOneInvoicePdfDocument
+                isOneTime={oneTime ?true:false}
                 invoiceDetails={oneTime ?oneTimeData:invoiceDetails} />
 
-              }
+                
+              } */}
             </PDFViewer>
           </div>
 </div>

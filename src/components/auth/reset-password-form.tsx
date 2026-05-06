@@ -46,11 +46,15 @@ export function ResetPasswordForm(): React.JSX.Element {
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
   const [open, setOpen] = React.useState(false);
 
+   const {  companyInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
+  console.log(companyInfo)
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
       // @ts-ignore
-      const { error } = await authClient.resetPassword(values);
+      const { error } = await authClient.resetPassword(values,companyInfo?.company?.alias);
 
       if (error) {
         setError("root", { type: "server", message: error });
@@ -65,9 +69,7 @@ export function ResetPasswordForm(): React.JSX.Element {
     },
     [setError]
   );
-  const {  companyInfo } = useSelector(
-    (state: RootState) => state?.Account
-  );
+ 
   return (
     <Stack spacing={4}>
       {/* <Typography variant="h5"></Typography> */}
@@ -104,43 +106,28 @@ You will receive an email with a link for resetting your password.
             mt={5}
             sx={{
               display: "flex",
+              justifyContent:"space-between"
             }}
           >
           
-            {/* <Link
-              to={paths.auth.newLogin(companyInfo?.company?.alias)}
-              style={{
-                color: colors.blue,
-                // textDecoration: "underline",
-                // fontSize: "0.875rem", // corresponds to subtitle2 usually
-                borderColor: "transparent",
-                marginLeft: "15px",
-                justifyContent: "center",
-                marginTop: "auto",
-                marginBottom: "auto",
-                textDecoration: "none",
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = colors["blue.1"];
-              }}
-            >
-              Back to Login
-            </Link> */}
+         
 
             <MUIButton
   component={Link}
   to={paths.auth.newLogin(companyInfo?.company?.alias)}
-  variant="contained"
+  variant="outlined"
   sx={{
     textTransform: "none",
-    backgroundColor: colors.blue,
+    // backgroundColor: colors.blue,
     borderRadius: "12px",
     height: "41px",
-    width: "175px",
-    "&:hover": {
-      backgroundColor: colors["blue.3"],
-      color: "white",
-    },
+    // width: "175px",
+      color: colors.blue,
+                    borderColor: colors.blue,
+                    backgroundColor:"#efefef"
+
+
+ 
   }}
 >
   Back to Login

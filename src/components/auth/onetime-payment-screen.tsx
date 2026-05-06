@@ -408,21 +408,24 @@ const handleBackToLogin=()=>{
             <Box display="flex" justifyContent="space-between">
   <Button
               type="button"
-              variant="contained"
+              variant="outlined"
               onClick={handleBackToLogin}
 
               style={{
                 borderRadius: "12px",
                 height: "41px",
-                width: "50%",
-                backgroundColor: colors.blue,
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = colors["blue.3"])
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = colors.blue)
-              }
+                      color: colors.blue,
+                    borderColor: colors.blue,
+
+
+ 
+  }}
+              // onMouseOver={(e) =>
+              //   (e.currentTarget.style.backgroundColor = colors["blue.3"])
+              // }
+              // onMouseOut={(e) =>
+              //   (e.currentTarget.style.backgroundColor = colors.blue)
+              // }
                 textTransform="none"
 
             >
@@ -436,7 +439,7 @@ Back to Login
               style={{
                 borderRadius: "12px",
                 height: "41px",
-                width: "50%",
+                // width: "50%",
                 marginLeft:"4px",
                 backgroundColor: colors.blue,
               }}

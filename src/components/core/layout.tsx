@@ -20,7 +20,12 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
     <>
       <CustomAlertModal />
       <ToastContainer autoClose={13000} position="top-center" 
-        style={{ top: "50px" }}
+       style={{ top: "50px",  maxWidth: "90vw" ,
+    left: "50%",
+    transform: "translateX(-50%)",
+
+       }}
+
       />
       <LocalizationProvider>
         <ThemeProvider>

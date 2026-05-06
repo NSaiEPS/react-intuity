@@ -107,43 +107,27 @@ Your Login will be sent to the email on file for this account.
             mt={5}
             sx={{
               display: "flex",
+              justifyContent:"space-between"
+
             }}
           >
           
-            {/* <Link
-              to={paths.auth.newLogin(companyInfo?.company?.alias)}
-              style={{
-                color: colors.blue,
-                // textDecoration: "underline",
-                // fontSize: "0.875rem", // corresponds to subtitle2 usually
-                borderColor: "transparent",
-                marginLeft: "15px",
-                justifyContent: "center",
-                marginTop: "auto",
-                marginBottom: "auto",
-                textDecoration: "none",
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = colors["blue.1"];
-              }}
-            >
-              Back to Login
-            </Link> */}
+           
 
             <MUIButton
   component={Link}
   to={paths.auth.newLogin(companyInfo?.company?.alias)}
-  variant="contained"
+  variant="outlined"
   sx={{
     textTransform: "none",
-    backgroundColor: colors.blue,
+    // backgroundColor: colors.blue,
     borderRadius: "12px",
     height: "41px",
-    width: "175px",
-    "&:hover": {
-      backgroundColor: colors["blue.3"],
-      color: "white",
-    },
+    // width: "175px",
+      color: colors.blue,
+                    borderColor: colors.blue,
+                    backgroundColor:"#efefef"
+ 
   }}
 >
   Back to Login
@@ -162,7 +146,7 @@ Your Login will be sent to the email on file for this account.
                 borderRadius: "12px",
 marginLeft:"15px",
                 height: "41px",
-                width: "175px",
+                width: "75px",
               }}
             >
               Send 
