@@ -325,9 +325,9 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   balanceRowWrapper: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
+  flexDirection: "column",   // stack vertically
+  alignItems: "flex-end",    // push everything to right
+
   width: "100%",
   marginTop: 10,
   paddingHorizontal : 3
@@ -398,7 +398,7 @@ itemDescription:{
     marginHorizontal : 4,
     marginBottom : 4,
     borderRadius: 6,
-    borderColor : "#666",
+    borderColor : "#f9f9f9",
     backgroundColor: "#f9f9f9",
   },
   detailRow: {
@@ -532,7 +532,59 @@ itemDescription:{
 
   // no borderRight here
 });
+const summaryStyles = StyleSheet.create({
+  subTotalBox: {
+    alignSelf: "flex-end",
+    width: 180,
+    padding: 8,
+    borderRadius: 6,
+    marginTop: 2,
+  },
+  subTotalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 2,
+  },
 
+ 
+  totalBox: {
+    alignSelf: "flex-end",
+    width: 180,
+    backgroundColor: "#38699C",
+    padding: 8,
+    borderRadius: 6,
+    marginTop: 2,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  subTotalLabel: {
+  fontSize: 12,
+  textAlign: "left",
+  flex: 1,        // ← add this
+},
+subTotalValue: {
+  fontSize: 12,
+  textAlign: "right",
+  flex: 1,        // ← add this
+},
+totalText: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 12,
+  textAlign: "left",
+  flex: 1,        // ← add this
+},
+totalValue: {
+  color: "#fff",
+  fontWeight: "700",
+  fontSize: 12,
+  textAlign: "right",
+  flex: 1,        // ← add this
+},
+});
 interface InvoiceItem {
   product_id?: string;
   amount?: number | string;
@@ -624,7 +676,19 @@ export default function InvoicePdfDocument({
 const firstKey = Object.keys(unique_by_utility || {})?.[0] ?? "";
 const [utilityName = "", , meterNumber = "", ...addressParts] = String(firstKey).split(";");
 const serviceAddress = addressParts.join(";");
+const utilityTotal = Object.values(unique_by_utility || {})
+  .flat()
+  .filter((item) => item?.product_id)
+  .reduce((sum, item) => sum + (item?.amount || 0), 0);
 
+const extraParamsTotal = Array.isArray(extra_params)
+  ? extra_params.reduce(
+      (sum, item) => sum + (Number(item?.amount) || 0),
+      0
+    )
+  : 0;
+
+const grandTotal = utilityTotal + extraParamsTotal;;
   return (
     <Document>
       <Page size="A4" style={styles1.page}>
@@ -653,6 +717,15 @@ const serviceAddress = addressParts.join(";");
               </Text>   
             </Text>
           </View> */}
+          <View style={styles.rightHeaderCol}>
+                     
+                      <Text style={styles.rightHeaderText}>
+                        {/* {invoiceDetails?.invoice_text_header_email || ""} */}
+                        {/* <Text style={styles.rightHeaderText}>
+                        {invoiceDetails?.invoice_text_header_email|| ""}
+                        </Text>    */}
+                      </Text>
+                    </View>
           <HeaderSection customerDetails={{
             company_website: company_settings?.company_url || "",
             company_phone: company_settings?.invoice_text_header_web || "",
@@ -806,7 +879,7 @@ const serviceAddress = addressParts.join(";");
                 </Text>
 
                 {/* Items table (product_id + amount) */}
-                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd", paddingBottom :8,
+                <View style={{ marginTop: 4 ,backgroundColor : "#ffff" ,  borderColor: "#ddd",
     borderRadius: 4}}>
                   {updatedItems.map((item: InvoiceItem, idx: number) => (
                     item?.product_id &&
@@ -826,7 +899,11 @@ const serviceAddress = addressParts.join(";");
                     </View>
                     
                   ))}
-                     <View
+
+
+                    {Array.isArray(extra_params) &&
+          (extra_params as ExtraParam[]).map((it, i) => (
+             <View
                      
                       style={[
                         styles.tableRow,
@@ -834,12 +911,14 @@ const serviceAddress = addressParts.join(";");
                       ]}
                     >
                       <Text style={styles.tableCellLeft}>
-                        Subtotal
+                        PREVIOUS BALANCE
                       </Text>
                       <Text style={styles.tableCellRight}>
-                     {money(subtotal)}
+                     {money(it?.amount)}
                       </Text>
                     </View>
+          ))}
+                   
                 
                 </View>
               </View>
@@ -849,21 +928,36 @@ const serviceAddress = addressParts.join(";");
 
         {/* Previous Balance */}
         <View style={styles.balanceRowWrapper}>
-        {Array.isArray(extra_params) &&
-          (extra_params as ExtraParam[]).map((it, i) => (
-            <View key={i} style={styles.prevBalRow}>
-              <Text style={{ fontWeight: "700", fontSize : 12 ,  color: "#fff" }}>
-                PREVIOUS BALANCE :  {money(it?.amount)}
-              </Text>
-          
-            </View>
-          ))}
+      
 
         {/* Total Due Box */}
-        <View style={styles.totalBox}>
+        {/* <View style={styles.totalBox}>
           <Text style={styles.totalText}>
             Total Due: {money(billing?.amount)}
           </Text>
+        </View> */}
+
+        <View style={summaryStyles.subTotalBox}>
+          <View style={summaryStyles.subTotalRow}>
+            <Text style={summaryStyles.subTotalLabel}>SUB TOTAL:</Text>
+            <Text style={summaryStyles.subTotalValue}>{grandTotal}</Text>
+          </View>
+          <View style={summaryStyles.subTotalRow}>
+            <Text style={summaryStyles.subTotalLabel}>Tax:</Text>
+            <Text style={summaryStyles.subTotalValue}>
+              {/* {Number(invoiceDetails.invoice?.amount) - Number(subtotal)} */}
+                $ {(Number(billing?.amount) - Number(grandTotal)).toFixed(2)}
+        
+              </Text>
+          </View>
+        </View>
+        
+        <View style={summaryStyles.totalBox}>
+          <View style={summaryStyles.totalRow}>
+            <Text style={summaryStyles.totalText}>Total Due:</Text>
+            <Text style={summaryStyles.totalValue}>{money(billing?.amount)}</Text>
+          </View>
+        </View>
         </View>
 </View>
         {/* Autopay do not pay text */}
@@ -883,7 +977,7 @@ const serviceAddress = addressParts.join(";");
             {company_settings?.invoice_footer_column_3 || ""}
           </Text>
         </View>
-        </View>
+
         {/* Divider */}
         <Text style={styles.dashed} >{"- ".repeat(90)}</Text>
 

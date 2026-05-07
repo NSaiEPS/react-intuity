@@ -464,7 +464,7 @@ balanceRowWrapper: {
     marginHorizontal : 4,
     marginBottom : 4,
     borderRadius: 6,
-    borderColor : "#666",
+    borderColor : "#f9f9f9",
     backgroundColor: "#f9f9f9",
   },
   detailRow: {
@@ -700,11 +700,20 @@ export default function InvoicePdfDocument({
 
   console.log("hiii",invoiceDetails)
   const customerDetails=invoiceDetails?.customer;
+const billItemsTotal =
+  invoiceDetails?.bill_items?.reduce(
+    (acc, item) => acc + (item?.amount || 0),
+    0
+  ) || 0;
 
-   const subtotal = invoiceDetails?.bill_items?.reduce(
-              (acc, item) => acc + (item?.amount || 0),
-              0
-            );
+const extraParamsTotal = Array.isArray(extra_params)
+  ? extra_params.reduce(
+      (acc, item) => acc + (Number(item?.amount) || 0),
+      0
+    )
+  : 0;
+
+const subtotal = billItemsTotal + extraParamsTotal;
   return (
     <Document>
       <Page size="A4" style={styles1.page}>
