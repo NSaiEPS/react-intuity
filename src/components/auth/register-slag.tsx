@@ -51,10 +51,10 @@ export default function PaymentInfoSection() {
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
   const hasCompanySlug =
-  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") ;
-  
+    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-");
+
   const { setContextLoading } = useLoading();
-  
+
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
@@ -79,19 +79,19 @@ export default function PaymentInfoSection() {
 
 
 
-if (slug?.startsWith("login-") || slug?.startsWith("register-")|| slug?.startsWith("onetime-payment-")) {
-  const alias = slug.replace("login-", "").replace("register-success-", "").replace("register-", "").replace('onetime-payment-', '')
+    if (slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("onetime-payment-")) {
+      const alias = slug.replace("login-", "").replace("register-success-", "").replace("register-", "").replace('onetime-payment-', '')
 
-  formData.append("alias", alias);
+      formData.append("alias", alias);
 
-  dispatch(
-    getCompanyDetails(formData, undefined, failureCallBack, () => {
+      dispatch(
+        getCompanyDetails(formData, undefined, failureCallBack, () => {
+          setContextLoading(false);
+        })
+      );
+    } else {
       setContextLoading(false);
-    })
-  );
-} else {
-  setContextLoading(false);
-}
+    }
 
   }, []);
   const failureCallBack = () => {
@@ -110,21 +110,21 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")|| slug?.startsWi
   // }, [pathname]);
 
   useEffect(() => {
-  const allowed =
-    pathname === "/login" ||
-    pathname === "/sign-up" ||
-    pathname?.includes("/reset-password") ||
-    pathname?.includes("/forgot-login") ||
-    pathname?.includes("/update-password") ||
-    pathname.includes("login-") ||
-    pathname.includes("register-success-") ||
-    pathname.includes("register-") ||
-    pathname.includes("onetime-payment-");
+    const allowed =
+      pathname === "/login" ||
+      pathname === "/sign-up" ||
+      pathname?.includes("/reset-password") ||
+      pathname?.includes("/forgot-login") ||
+      pathname?.includes("/update-password") ||
+      pathname.includes("login-") ||
+      pathname.includes("register-success-") ||
+      pathname.includes("register-") ||
+      pathname.includes("onetime-payment-");
 
-  if (!allowed) {
-    navigate("/login");
-  }
-}, [pathname]);
+    if (!allowed) {
+      navigate("/login");
+    }
+  }, [pathname]);
 
   // const getRequiredForms = () => {
   //   const pathSplit = pathname?.split("/");
@@ -138,38 +138,38 @@ if (slug?.startsWith("login-") || slug?.startsWith("register-")|| slug?.startsWi
   //     return <SignUpForm />;
   //   }
   // };
- 
+
   const getRequiredForms = () => {
-  const pathSplit = pathname?.split("/");
+    const pathSplit = pathname?.split("/");
 
     if (pathname?.includes("onetime-payment")) {
-    return <OneTimePaymentScreen/>;
-  }
-  if (pathname?.includes("reset-password")) {
-    return <ResetPasswordForm />;
-  }
-   if (pathname?.includes("forgot-login")) {
-    return <ForgotLoginForm />;
-  }
+      return <OneTimePaymentScreen />;
+    }
+    if (pathname?.includes("reset-password")) {
+      return <ResetPasswordForm />;
+    }
+    if (pathname?.includes("forgot-login")) {
+      return <ForgotLoginForm />;
+    }
     if (pathname?.includes("update-password")) {
-    return <UpdatePasswordScreen />;
-  }
+      return <UpdatePasswordScreen />;
+    }
 
-  if (pathname.includes("login-")) {
-    return <SignInForm user={true} />;
-  }
+    if (pathname.includes("login-")) {
+      return <SignInForm user={true} />;
+    }
 
-   if (pathname.includes("login")) {
-    return <SignInForm user={true} />;
-  }
+    if (pathname.includes("login")) {
+      return <SignInForm user={true} />;
+    }
     if (pathname.includes("register-success-")) {
-    return <RegisterSuccess />;
-  }
-if (pathname.includes("register") || pathname === "/sign-up") {
-    return <SignUpForm />;
-  }
+      return <RegisterSuccess />;
+    }
+    if (pathname.includes("register") || pathname === "/sign-up") {
+      return <SignUpForm />;
+    }
 
-};
+  };
 
   const pathSplit = pathname?.split("/");
 
@@ -178,16 +178,16 @@ if (pathname.includes("register") || pathname === "/sign-up") {
     if (pathSplit[1]?.includes("register-success")) {
       return "Register Success";
     }
-        if (pathname?.includes("onetime-payment")) {
-    return 'One Time Payment';
-  }
-     if (pathSplit[1]?.includes("reset-password")) {
+    if (pathname?.includes("onetime-payment")) {
+      return 'One Time Payment';
+    }
+    if (pathSplit[1]?.includes("reset-password")) {
       return "Reset password";
     }
-      if (pathSplit[1]?.includes("forgot-login")) {
+    if (pathSplit[1]?.includes("forgot-login")) {
       return "Forgot Login";
     }
-        if (pathSplit[1]?.includes("update-password")) {
+    if (pathSplit[1]?.includes("update-password")) {
       return "Update password";
     }
     if (pathname?.includes("login")) {
@@ -217,9 +217,9 @@ if (pathname.includes("register") || pathname === "/sign-up") {
   );
 
 
-  const handlePayNow=()=>{
-            navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
-    
+  const handlePayNow = () => {
+    navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
+
   }
   return (
     <SkeletonWrapper>
@@ -228,19 +228,20 @@ if (pathname.includes("register") || pathname === "/sign-up") {
           // backgroundImage: !reset
           //   ? 'url(/assets/depositphotos_527571100-stock-photo-water-splash-isolated-on-white.jpg)'
           //   : 'url(/assets/pngtree-a-drop-of-water-background-material-in-the-ocean-image_140350.jpg)',
+          backgroundColor: "#f9fafb",
           backgroundSize: "cover",
           backgroundPosition: "center",
           color: "#0d1b2a",
           py: 2,
           // px: 2,
-           px: { xs: 0, sm: 2 },  // 0 below 600px, 2 above
+          px: { xs: 0, sm: 2 },  // 0 below 600px, 2 above
           paddingBottom: 0,
         }}
       >
         <Stack sx={{ maxWidth: "100%", mx: "auto" }}>
           <Grid
             container
-            sx={{ maxWidth: "1440px", width: "90%", mx: "auto" }}
+            sx={{ maxWidth: "1440px", width: "90%", mx: "auto", }}
             mt={0}
             columnSpacing={3} // space between columns
             rowSpacing={3} // space between rows (on small screens)
@@ -249,19 +250,21 @@ if (pathname.includes("register") || pathname === "/sign-up") {
             <Box
               sx={{
                 display: "flex",
+                justifyContent:"center",
                 alignItems: "center",
                 width: "100%",
+
                 // marginLeft: 'auto',
               }}
             >
               {/* // pathname?.split("/")[1] !== "login" &&
               //   pathname?.includes("login") ? ( */}
               {hasCompanySlug ? (
-                companyInfo?.company?.logo?
-                <Avatar
-                  src={companyInfo?.company?.logo}
-                  sx={{ width: 80, height: 80, mr: 1.5 }}
-                />:null
+                companyInfo?.company?.logo ?
+                  <Avatar
+                    src={companyInfo?.company?.logo}
+                    sx={{ width: 80, height: 80, mr: 1.5 }}
+                  /> : null
               ) : (
                 <Box
                   // component={RouterLink}
@@ -288,23 +291,23 @@ if (pathname.includes("register") || pathname === "/sign-up") {
               )}
               {/* {pathname?.split("/")[1] !== "login" &&
                 pathname?.includes("login") && ( */}
-                {hasCompanySlug && (
-                  <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
-                    <Typography variant="h5" noWrap>
-                      {companyInfo?.company?.company_name}
-                    </Typography>
-                    {/* <Typography variant="caption" color="text.secondary" noWrap>
+              {hasCompanySlug && (
+                <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
+                  <Typography variant="h5" noWrap>
+                    {companyInfo?.company?.company_name}
+                  </Typography>
+                  {/* <Typography variant="caption" color="text.secondary" noWrap>
                       {companyInfo?.company?.alias}
                     </Typography> */}
-                  </Box>
-                )}
+                </Box>
+              )}
             </Box>
           </Grid>
           <Grid
             container
             // justifyContent="center"
 
-            sx={{ maxWidth: "1440px", width: "90%", mx: "auto" }}
+            sx={{ maxWidth: "1440px", width: "90%",height:"100%", mx: "auto" }}
             py={
               pathname?.split("/")[1] !== "login" && pathname?.includes("login")
                 ? 4
@@ -312,11 +315,12 @@ if (pathname.includes("register") || pathname === "/sign-up") {
             }
 
             pb={5}
+            mb={1}
             // columnSpacing={3} // space between columns
             // rowSpacing={3} // space between rows (on small screens)
             justifyContent={
-              pathname?.split("/")[1] !== "login" && pathname?.includes("login")&&
-              !pathname?.includes("forgot") 
+              pathname?.split("/")[1] !== "login" && pathname?.includes("login") &&
+                !pathname?.includes("forgot")
 
                 ? "space-between"
                 : "center"
@@ -329,46 +333,52 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                   // borderRadius: 3,
                   overflow: "hidden",
                   width: "100%",
+                  height:"100%",
                   marginTop:
                     pathname?.split("/")[1] !== "login" &&
                       pathname?.includes("login") &&
-              !pathname?.includes("forgot") 
+                      !pathname?.includes("forgot")
 
                       ? 0
                       : 5,
                   border: "1px solid #e0e0e0",
+                  borderRadius: "12px",
+                  boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
+                  backgroundColor: "#fff",
                 }}
               >
                 {/* Header */}
                 {
                   !pathSplit[1]?.includes("register-success") &&
-                
-                <Box
-                  sx={{
-                    // backgroundColor: '#f5f5f5',
-                    backgroundColor: "#e0e0e0",
 
-                    px: 3,
-                    py: 2,            
-                    borderBottom: "1px solid #ddd",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
+                  <Box
+                    sx={{
+                      // backgroundColor: '#f5f5f5',
+                      // backgroundColor: "#e0e0e0",
 
-                  <Typography variant="h6" fontWeight="bold">
-                    {getRequiredText()}
-                  </Typography>
-                </Box>}
+                      px: 4,
+                      py: 2,
+                      // borderBottom: "1px solid #ddd",
+                      display: "flex",
+                      // justifyContent:"center",
+                      alignItems: "center",
+
+                    }}
+                  >
+
+                    <Typography variant="h4" fontWeight="bold">
+                      {getRequiredText()}
+                    </Typography>
+                  </Box>}
 
                 {/* Content */}
-<CardContent 
- sx={{
-    p: 1.5,
-    "@media (min-width:500px)": { p: 4 },
-    "@media (min-width:900px)": { p: 4 },
-    "&:last-child": { pb: 4 },
-  }}>
+                <CardContent
+                  sx={{
+                    p: 3,
+                    "@media (min-width:500px)": { p: 3, pt: 1 },
+                    "@media (min-width:900px)": { p: 4 },
+                    "&:last-child": { pb: 1 },
+                  }}>
                   {getRequiredForms()}
 
                   {/* Divider and action row */}
@@ -376,24 +386,25 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                   {pathname?.split("/")[1] !== "login" &&
                     pathname?.includes("login") ||
                     pathSplit[1]?.includes("register-success") ||
-                    pathSplit[1]?.includes("update-password") 
+                    pathSplit[1]?.includes("update-password")
 
                     ? null : (
-                    <Divider sx={{ my: 3 }} />
-                  )}
+                      // <Divider sx={{ my: 3 }} />
+                      ""
+                    )}
                 </CardContent>
               </Grid>
             </Grid>
             {pathname?.split("/")[1] !== "login" &&
               pathname?.includes("login") &&
-              !pathname?.includes("forgot") 
-              
+              !pathname?.includes("forgot")
+
               && (
                 <Grid
                   xs={12}
                   md={6}
                   sx={{
-                        display: { xs: "none", md: "block" },  // 👈 Add this line
+                    display: { md: "block" },  // 👈 Add this line
 
                     // borderRight: '1px solid #e0e0e0',
                     pl: { xs: 0, md: "20px" },
@@ -403,119 +414,129 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                     maxWidth: "1440px",
                     width: "90%",
                     mx: "auto",
+
                   }}
                 >
                   <>
                     <Box
                       sx={{
-                        backgroundColor: "#e0e0e0",
-                        px: 2,
-                        py: 1.7,
-                        // borderTopLeftRadius: 8,
-                        // borderTopRightRadius: 8,
-                      }}
-                    >
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        Make One Time Payment
-                      </Typography>
-                    </Box>
-                    <Divider />
-                    <CardContent
-                      sx={{
+                        overflow: "hidden",
+                        width: "100%",
+                        height:"100%",
                         border: "1px solid #e0e0e0",
-                        borderTop: "0px",
-  minHeight: {
-      xs: "auto",   // 👈 below 900px → no extra space
-      md: "381px",  // 👈 ≥900px → keep layout height
-    },
+                        borderRadius: "12px",
+                        boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
+                        backgroundColor: "#fff",
                       }}
                     >
-                      <Stack>
-                        <Typography variant="body1" marginTop={0}>
-                         
-                          Pay your bill in a few easy steps. All you need is your account number, original billing invoice amount, and email address.
+                      <Box
+                        sx={{
+                          backgroundColor: "#fff",
+                          px: 2.5,
+                          py: 1.7,
+                        }}
+                      >
+                        <Typography variant="h4" fontWeight="bold">
+                          Make One Time Payment
                         </Typography>
-                        <Typography variant="body1" marginTop={3}>
-                          Payments made will be posted to your account during
-                          business hours. For each payment you will receive an email confirmation for your
-records.
-                        </Typography>
-                        <Typography variant="body1" marginTop={3}  marginBottom={3}
-       sx={{
-    visibility: "hidden", // default (≥900px → keep space)
-    [theme.breakpoints.down(900)]: {
-      display: "none", // 👈 below 900px → remove space completely
-    },
-  }}
-                        >
-                          {/* <strong>To view your account details</strong>, use the{" "} */}
-                          <strong>To access your account details</strong>, click {" "}
-                             
-                          <Link
-                            to={
-                              companyInfo?.company?.alias?
-                              `/register-${companyInfo.company.alias}`:
-                              "/sign-up"}
-                            style={{
-                              color: colors.blue,
-                              fontWeight: "bold",
-                              textDecoration: "underline",
+                      </Box>
+                      {/* <Divider /> */}
+                      <CardContent
+                        sx={{
+                          backgroundColor: "#fff",
+                          minHeight: {
+                            xs: "auto",   // 👈 below 900px → no extra space
+                            md: "381px",  // 👈 ≥900px → keep layout height
+                          },
+                        }}
+                      >
+                        <Stack>
+                          <Typography variant="body1" marginTop={0}>
+
+                            Pay your bill in a few easy steps. All you need is your account number, original billing invoice amount, and email address.
+                          </Typography>
+                          <Typography variant="body1" marginTop={3}>
+                            Payments made will be posted to your account during
+                            business hours. For each payment you will receive an email confirmation for your
+                            records.
+                          </Typography>
+                          <Typography variant="body1" marginTop={3} marginBottom={3}
+                            sx={{
+                              visibility: "hidden", // default (≥900px → keep space)
+                              [theme.breakpoints.down(900)]: {
+                                display: "none", // 👈 below 900px → remove space completely
+                              },
                             }}
                           >
-                            Register Now
-                          </Link>{" "}
-                         link. This allows you to view billing
-information, review your payment history, and take advantage of convenient options like
-autopay and paperless billing.
-                        </Typography>
-                        <Box
-                          mt={{
-                            xs: 2, // small devices (phones)
-                            sm: 2, // tablets and small laptops
-                            md: 2, // medium devices (laptops)
-                            lg: 3, // large desktops
-                            xl: 4, // very large desktops
-                          }}
-                        >
-                          {companyInfo?.company?.allow_payments == 0 ? (
-                            <Box
-                              className="instructions-html"
-                              sx={{
-                                "& a": {
-                                  color: "red !important", // this WILL override MUI tabs
-                                  textDecoration: "none",
-                                },
-                              }}
-                              dangerouslySetInnerHTML={{ __html: finalHTML }}
-                            />
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="contained"
-                              // onClick={() => setOneTimePaymentModalOpen(true)}
-                              onClick={handlePayNow}
-                              style={{
-                                borderRadius: "12px",
-                                height: "41px",
-                                width: "125px",
-                                backgroundColor: colors.blue,
+                            {/* <strong>To view your account details</strong>, use the{" "} */}
+                            <strong>To access your account details</strong>, click {" "}
 
+                            <Link
+                              to={
+                                companyInfo?.company?.alias ?
+                                  `/register-${companyInfo.company.alias}` :
+                                  "/sign-up"}
+                              style={{
+                                color: colors.blue,
+                                fontWeight: "bold",
+                                textDecoration: "underline",
                               }}
-                              onMouseOver={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                colors["blue.3"])
-                              }
-                              onMouseOut={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                colors.blue)
-                              }
                             >
-                              Pay Now
-                            </Button>
-                          )}
-                        </Box>
-                      </Stack>
-                    </CardContent>
+                              Register Now
+                            </Link>{" "}
+                            link. This allows you to view billing
+                            information, review your payment history, and take advantage of convenient options like
+                            autopay and paperless billing.
+                          </Typography>
+                          <Box
+                            mt={{
+                              xs: 2, // small devices (phones)
+                              sm: 2, // tablets and small laptops
+                              md: 2, // medium devices (laptops)
+                              lg: 3, // large desktops
+                              xl: 4, // very large desktops
+                            }}
+                          >
+                            {companyInfo?.company?.allow_payments == 0 ? (
+                              <Box
+                                className="instructions-html"
+                                sx={{
+                                  "& a": {
+                                    color: "red !important", // this WILL override MUI tabs
+                                    textDecoration: "none",
+                                  },
+                                }}
+                                dangerouslySetInnerHTML={{ __html: finalHTML }}
+                              />
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="contained"
+                                // onClick={() => setOneTimePaymentModalOpen(true)}
+                                onClick={handlePayNow}
+                                style={{
+                                  borderRadius: "12px",
+                                  height: "41px",
+                                  width: "125px",
+                                  backgroundColor: colors.blue,
+
+                                }}
+                                onMouseOver={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  colors["blue.3"])
+                                }
+                                onMouseOut={(e) =>
+                                (e.currentTarget.style.backgroundColor =
+                                  colors.blue)
+                                }
+                              >
+                                Pay Now
+                              </Button>
+                            )}
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </Box>
                   </>
                 </Grid>
               )}{" "}

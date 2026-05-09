@@ -37,6 +37,7 @@ import secureLocalStorage from "react-secure-storage";
 import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 import { navigateTo } from "@/utils/navigation";
+import { backgroundClip } from "html2canvas/dist/types/css/property-descriptors/background-clip";
 
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
@@ -413,9 +414,11 @@ const handleBackToLogin=()=>{
 
               style={{
                 borderRadius: "12px",
+                
                 height: "41px",
                       color: colors.blue,
                     borderColor: colors.blue,
+                    backgroundColor:"white"
 
 
  
@@ -725,7 +728,7 @@ textTransform={'none'}
 
   return (
     // ── Full-page screen wrapper ──────────────────────────────────────────────
-    <Box sx={{  bgcolor: "background.default", py: 0, px: { xs: 0.5, sm: 4 } }}>
+    <Box sx={{  bgcolor: "background.default",  }}>
 
  
 
@@ -737,7 +740,7 @@ textTransform={'none'}
           // mx: "auto",
           // borderRadius: 2,
           // boxShadow: 3,
-          p: { xs: 0.5, sm: 4 },
+          // p: { xs: 0.5, sm: 4 },
         }}
       >
         <Stepper

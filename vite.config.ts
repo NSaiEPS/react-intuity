@@ -6,6 +6,49 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// export default defineConfig({
+
+//   cacheDir: ".vite-cache",
+
+//   plugins: [react()],
+
+//   resolve: {
+//     alias: {
+//       "@": path.resolve(__dirname, "src"),
+//     },
+//     dedupe: ["react", "react-dom"],  // ← add this
+//   },
+
+//   server: {
+//     allowedHosts: true
+//   },
+
+//   optimizeDeps: {
+//     force: true,
+//     include: ["react", "react-dom"],  // ← add this
+//   },
+
+//   build: {
+//     chunkSizeWarningLimit: 300,
+//     sourcemap: false,
+//     minify: false,
+//     rollupOptions: {
+//       output: {
+//         manualChunks(id) {
+//           if (id.includes("node_modules")) {
+//             if (id.includes("react-apexcharts")) return "charts";
+//             if (id.includes("apexcharts")) return "charts";
+//             if (id.includes("@mui")) return "mui";
+//             return "vendor";
+//           }
+//         },
+//       },
+//     },
+//   },
+
+//   base: "/",
+// });
+
 export default defineConfig({
   cacheDir: ".vite-cache",
 
@@ -15,34 +58,15 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
     },
-    dedupe: ["react", "react-dom"],  // ← add this
   },
 
   server: {
-    allowedHosts: true
-  },
-
-  optimizeDeps: {
-    force: true,
-    include: ["react", "react-dom"],  // ← add this
+    allowedHosts: true,
   },
 
   build: {
-    chunkSizeWarningLimit: 300,
-    sourcemap: false,
-    minify: "esbuild",
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("react-apexcharts")) return "charts";
-            if (id.includes("apexcharts")) return "charts";
-            if (id.includes("@mui")) return "mui";
-            return "vendor";
-          }
-        },
-      },
-    },
+    sourcemap: true,
+    minify: false,
   },
 
   base: "/",

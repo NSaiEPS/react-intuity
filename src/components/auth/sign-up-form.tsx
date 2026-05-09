@@ -847,6 +847,8 @@ title={authTooltips[field.value] || ""}
                 borderColor: colors.blue,
                 borderRadius: "12px",
                 height: "41px",
+                width: "125px",
+                backgroundColor:"white"
               }}
             >
               Back
@@ -861,7 +863,7 @@ title={authTooltips[field.value] || ""}
                 bgColor={colors.blue}
                 hoverBackgroundColor={colors["blue.3"]}
                 hoverColor="white"
-                style={{ borderRadius: "12px", height: "41px" }}
+                style={{ borderRadius: "12px", height: "41px",width: "125px", }}
               >
                 Next
               </Button>
@@ -875,7 +877,7 @@ title={authTooltips[field.value] || ""}
                 bgColor={colors.blue}
                 hoverBackgroundColor={colors["blue.3"]}
                 hoverColor="white"
-                style={{ borderRadius: "12px", height: "41px" }}
+                style={{ borderRadius: "12px", height: "41px",width: "125px", }}
               >
                 Submit
               </Button>

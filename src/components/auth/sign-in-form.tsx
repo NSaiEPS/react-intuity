@@ -61,6 +61,10 @@ export function SignInForm({ user = false }): React.JSX.Element {
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
 
+  const hasLoginAlias =
+  pathname?.split("/")[1] !== "login" &&
+  pathname?.includes("login");
+
   const {
     control,
     handleSubmit,
@@ -327,7 +331,7 @@ const handleRegisterClick = async () => {
               for credit/debit card, e-check or ACH online payments. The fee
               amount will be displayed before you complete your transaction.
             </Typography>
-             {user && (
+             {hasLoginAlias && (
             <Typography variant="body1" 
               mt={1.5}
                sx={{ fontWeight: 700 }}

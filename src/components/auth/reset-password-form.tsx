@@ -21,7 +21,7 @@ import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
 import { paths } from "@/utils/paths";
 import Button from "../CommonComponents/Button";
 import { Link } from "react-router";
-import { Button  as MUIButton} from "@mui/material";
+import { Button as MUIButton } from "@mui/material";
 
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -46,7 +46,7 @@ export function ResetPasswordForm(): React.JSX.Element {
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
   const [open, setOpen] = React.useState(false);
 
-   const {  companyInfo } = useSelector(
+  const { companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
   console.log(companyInfo)
@@ -54,7 +54,7 @@ export function ResetPasswordForm(): React.JSX.Element {
     async (values: Values): Promise<void> => {
       setIsPending(true);
       // @ts-ignore
-      const { error } = await authClient.resetPassword(values,companyInfo?.company?.alias);
+      const { error } = await authClient.resetPassword(values, companyInfo?.company?.alias);
 
       if (error) {
         setError("root", { type: "server", message: error });
@@ -69,20 +69,20 @@ export function ResetPasswordForm(): React.JSX.Element {
     },
     [setError]
   );
- 
+
   return (
     <Stack spacing={4}>
       {/* <Typography variant="h5"></Typography> */}
       <form onSubmit={handleSubmit(onSubmit)}>
-      <Typography 
-      variant="body1" 
+        <Typography
+          variant="body1"
 
-mb={3.5}
+          mb={3.5}
 
-      >
-You will receive an email with a link for resetting your password.
+        >
+          You will receive an email with a link for resetting your password.
 
-      </Typography>
+        </Typography>
 
         <Stack spacing={2}>
           <Controller
@@ -106,34 +106,31 @@ You will receive an email with a link for resetting your password.
             mt={5}
             sx={{
               display: "flex",
-              justifyContent:"space-between"
+              justifyContent: "space-between"
             }}
           >
-          
-         
+
+
 
             <MUIButton
-  component={Link}
-  to={paths.auth.newLogin(companyInfo?.company?.alias)}
-  variant="outlined"
-  sx={{
-    textTransform: "none",
-    // backgroundColor: colors.blue,
-    borderRadius: "12px",
-    height: "41px",
-    // width: "175px",
-      color: colors.blue,
-                    borderColor: colors.blue,
-                    backgroundColor:"#efefef"
+              component={Link}
+              to={paths.auth.newLogin(companyInfo?.company?.alias)}
+              variant="outlined"
+              sx={{
+                textTransform: "none",
+                // backgroundColor: colors.blue,
+                borderRadius: "12px",
+                height: "41px",
+                // width: "175px",
+                color: colors.blue,
+                borderColor: colors.blue,
+                backgroundColor: "#fff"
+              }}
+            >
+              Back to Login
+            </MUIButton>
 
-
- 
-  }}
->
-  Back to Login
-</MUIButton>
-
-  <Button
+            <Button
               disabled={isPending}
               loading={isPending}
               type="submit"
@@ -144,7 +141,7 @@ You will receive an email with a link for resetting your password.
               hoverColor="white"
               style={{
                 borderRadius: "12px",
-marginLeft:"15px",
+                marginLeft: "15px",
                 height: "41px",
                 width: "175px",
               }}
