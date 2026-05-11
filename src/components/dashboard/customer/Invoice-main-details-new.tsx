@@ -753,7 +753,7 @@ export const InvoiceMainDetails = () => {
           const serviceAddress = addressParts.join(";");
           const utilityDetails: UtilityItem =
             items?.[0] ?? ({} as UtilityItem);
-
+           let updatedItems=items?.filter((item)=>item?.product_id)
           // Subtotal = sum of line items only
           const subtotal = items.reduce(
             (acc, item) => acc + (item?.amount || 0),
@@ -939,14 +939,19 @@ export const InvoiceMainDetails = () => {
                   <TableBody>
 
                     {/* Line items — alternating row colors */}
-                    {items.map((item, index) => (
+                    {updatedItems.map((item, index) => (
+                       item?.product_id &&
                       <TableRow
                         key={item.item}
-                        sx={{
-                          bgcolor:
-                            index % 2 !== 0 ? colors["blue.4"] : "white",
-                          "& td": { py: 1 },
-                        }}
+                        // sx={{
+                        //   bgcolor:
+                        //     index % 2 !== 0 ? colors["blue.4"] : "white",
+                        //   "& td": { py: 1 },
+                        // }}
+                         sx={{
+        bgcolor: index % 2 !== 0 ? colors["blue.4"] : "white",
+        "& td": { py: 1 },
+      }}
                       >
                         <TableCell
                           sx={{
