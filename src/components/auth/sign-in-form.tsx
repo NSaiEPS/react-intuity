@@ -101,6 +101,9 @@ export function SignInForm({ user = false }): React.JSX.Element {
 //     console.error("Alias fetch failed", error);
 //   }
 // };
+  const slug = pathname?.split("/")[1];
+
+      const alias = slug?.split('login-');
 
 const handleRegisterClick = async () => {
   const slug = pathname?.split("/")[1];
@@ -327,7 +330,7 @@ const handleRegisterClick = async () => {
               for credit/debit card, e-check or ACH online payments. The fee
               amount will be displayed before you complete your transaction.
             </Typography>
-             {user && (
+             {alias?.[1] && (
             <Typography variant="body1" 
               mt={1.5}
                sx={{ fontWeight: 700 }}
