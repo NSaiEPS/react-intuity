@@ -53,7 +53,10 @@ const styles1 = StyleSheet.create({
     fontWeight: "700",
   },
   page: {
-    padding: 12,
+    // padding: 12,
+     paddingTop: 8,
+  paddingBottom: 8,
+  paddingHorizontal: 10,
     fontSize: 12,
     fontFamily: "Helvetica",
     backgroundColor: "#F7F7F7",
@@ -131,7 +134,7 @@ const styles1 = StyleSheet.create({
 
   /* 🔽 Detachable Stub Section */
   bottomStub: {
-    marginTop: 10,
+    marginTop: 4,
     paddingTop: 5,
     borderTopWidth: 1,
  
@@ -385,7 +388,7 @@ itemDescription:{
     paddingHorizontal : 3
   },
 
-  tableRow: { flexDirection: "row", paddingVertical: 6, alignItems: "center" },
+  tableRow: { flexDirection: "row", paddingVertical: 3, alignItems: "center" },
   tableCellLeft: { width: "70%", fontSize: 12, fontWeight: "700" , padding :4},
   tableCellRight: { width: "30%", fontSize: 10, textAlign: "right" , padding : 4},
   rowStrip: { backgroundColor: "#E9F5FF" },
@@ -393,10 +396,10 @@ itemDescription:{
   // box under items (service address + dates + meter readings etc)
   detailBox: {
     marginTop: 4,
-    padding: 8,
+    padding: 5,
     borderWidth: .5,
     marginHorizontal : 4,
-    marginBottom : 4,
+    marginBottom : 2,
     borderRadius: 6,
     borderColor : "#f9f9f9",
     backgroundColor: "#f9f9f9",
@@ -458,6 +461,7 @@ itemDescription:{
     marginBottom: 8,
     // marginTop : 110,
     marginTop:'auto',
+    //  marginVertical: 6,
     color: "#999",
     fontSize: 10,
     maxWidth: "100%",
@@ -858,7 +862,7 @@ const grandTotal = utilityTotal + extraParamsTotal;;
             return (
               <View
                 key={String(key) + uIdx}
-                wrap={false}
+                // wrap={false}
                 style={{ marginTop: 8 , paddingHorizontal : 3}}
               >
                 {/* <Text style={styles.sectionTitle}>Item Description</Text>
