@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { registerApiRequest } from "@/state/features/accountSlice";
-import { colors } from "@/utils";
+import { colors, dummyCountriesList } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -39,6 +39,7 @@ import {
 } from "@mui/material";
 import { Eye, EyeSlash, Question } from "@phosphor-icons/react";
 import { Helmet } from "react-helmet";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 
 // Schema
 const schema = z
@@ -101,7 +102,8 @@ export const CustomConnector = styled(StepConnector, {
   },
 }));
 
-const steps = ["Account Info", "Portal Registration", "Contact Info"];
+const steps = ["Account Info", "Portal Registration", "Contact Info",'Check your email'
+];
 
 const CustomStepIconRoot = styled("div")<{
   ownerState: { active?: boolean; completed?: boolean };
@@ -331,7 +333,10 @@ console.log(values.authType)
       // navigate(alias ? `/login-${alias}` : `/login`);
 
 
-      navigate(`/register-success-${alias}`);
+      // navigate(`/register-success-${alias}`);
+    setActiveStep((prev) => prev + 1);
+
+
       return;
     }
 
@@ -404,6 +409,16 @@ console.log(companyResponse,'companyResponse')
   const passwordValue = watch("password");
   const strength = getPasswordStrength(passwordValue);
 
+
+    const handleBackToLogin = () => {
+      const alias = companyInfo?.company?.alias;
+
+    if (alias) {
+      navigate(paths.auth.newLogin(alias));
+    } else {
+      navigate(paths.auth.newLogin());
+    }
+  };
   return (
     <Box sx={{ maxWidth: 600, margin: "auto" }}>
       <Helmet key={"Register"}>
@@ -414,17 +429,22 @@ console.log(companyResponse,'companyResponse')
 
       {activeStep !== 2 ? (
         <Typography variant="body1" mb={4}>
-          Please enter your information into the fields below and click NEXT to
-          continue creating your account.
+          
+            {activeStep==3? '':
+          
+          `Please enter your information into the fields below and click NEXT to
+          continue creating your account.`}
         </Typography>
       ):
       <Typography variant="body1" mb={4}>
-       Please enter your email address and mobile phone number. If you do not have a mobile phone then leave it blank.
+Please enter your email address and phone number.
         </Typography>
       }
 
       <Typography variant="h6" sx={{ mb: 2, color: colors.blue }}>
-        {steps[activeStep]}
+        {
+        activeStep!==3  &&
+        steps[activeStep]}
       </Typography>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -540,7 +560,7 @@ title={authTooltips[field.value] || ""}
                 control={control}
                 render={({ field }) => (
                   <TextField
-                    label="User Name *"
+                    label="Username *"
                     fullWidth
                     {...field}
                     error={!!showError(errors.email)}
@@ -785,8 +805,15 @@ title={authTooltips[field.value] || ""}
                     <FormControl error={!!showError(errors.countryCode)} sx={{ minWidth: 160 }}>
                       <InputLabel>Country</InputLabel>
                       <Select label="Country" {...field}>
-                        <MenuItem value="1">1 - United States</MenuItem>
-                        <MenuItem value="91">91 - India</MenuItem>
+                        {
+                          dummyCountriesList.map((country)=>{
+                            return (
+                        <MenuItem value={country.phone_code}>{`${country.phone_code}-${country.name}`}</MenuItem>
+
+                            )
+                          })
+                        }
+                        {/* <MenuItem value="91">91 - India</MenuItem> */}
                       </Select>
                       {showError(errors.countryCode) && (
                         <FormHelperText>{errors.countryCode?.message}</FormHelperText>
@@ -824,8 +851,63 @@ title={authTooltips[field.value] || ""}
               </Stack>
             </>
           )}
+          {
+            activeStep==3&&
+             <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  height="50vh"
+                  textAlign="center"
+                //   gap={2}
+                //   px={3}
+                >
+                  <Helmet key={"Register Success"}>
+                    <title>Registration Successful</title>
+                  </Helmet>
+            
+                  <CheckCircle size={80} weight="fill" color="#2e7d32" />
+            
+                  <Typography variant="h5" fontWeight={600} mt={1}>
+                   Registration Almost Complete
+                  </Typography>
+            
+                <Typography
+              variant="body1"
+              color="text.primary"
+              sx={{ 
+                maxWidth: 460, 
+                lineHeight: 1.7,
+                backgroundColor: '#FFF9C4',
+                color: '#000000',
+                padding: '10px 14px',
+                borderRadius: '6px',
+                my:2
+              }}
+            >
+Please check your email inbox and click activation link to complete your account setup.
+            </Typography>
+            
+                  <Button
+                    onClick={handleBackToLogin}
+                    variant="contained"
+                    textTransform="none"
+                    bgColor={colors.blue}
+                    hoverBackgroundColor={colors["blue.3"]}
+                    hoverColor="white"
+                    style={{ borderRadius: "12px", height: "41px", marginTop: "8px", minWidth: "160px" }}
+                  >
+                    Back to Login
+                  </Button>
+                </Box>
+          }
 
-          <Divider sx={{ my: 2 }} />
+{
+  activeStep !== 3&&
+
+
+          <Divider sx={{ my: 2 }} />}
 
           {activeStep === 2 && (
             <Typography variant="body1" fontWeight="bold" mb={2}>
@@ -835,6 +917,8 @@ title={authTooltips[field.value] || ""}
               After selecting Submit, you will receive an email confirmation with a link to activate your account.
             </Typography>
           )}
+{
+  activeStep !== 3&&
 
           <Stack direction="row" justifyContent="space-between">
             <Button
@@ -880,7 +964,7 @@ title={authTooltips[field.value] || ""}
                 Submit
               </Button>
             )}
-          </Stack>
+          </Stack>}
         </Stack>
       </form>
     </Box>

@@ -51,7 +51,8 @@ export default function PaymentInfoSection() {
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
   const hasCompanySlug =
-  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") ;
+  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-")||
+  slug?.startsWith("forgot-")   ;
   
   const { setContextLoading } = useLoading();
   
@@ -416,7 +417,7 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                       }}
                     >
                       <Typography variant="subtitle1" fontWeight="bold">
-                        Make One Time Payment
+Pay as Guest
                       </Typography>
                     </Box>
                     <Divider />
@@ -432,8 +433,7 @@ if (pathname.includes("register") || pathname === "/sign-up") {
                     >
                       <Stack>
                         <Typography variant="body1" marginTop={0}>
-                         
-                          Pay your bill in a few easy steps. All you need is your account number, original billing invoice amount, and email address.
+                         No registration or login required! Pay your bill in a few easy steps. All you need is your account number, original billing invoice amount, and email address.
                         </Typography>
                         <Typography variant="body1" marginTop={3}>
                           Payments made will be posted to your account during

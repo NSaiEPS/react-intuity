@@ -586,7 +586,7 @@ export const registerApiRequest: any =
       if (res?.status) {
         if(activeStep!==2)
         {
-        simpleToast.success(res?.message ?? "Something went wrong!");
+        // simpleToast.success(res?.message ?? "Something went wrong!");
 
         }
 
