@@ -504,7 +504,7 @@ Back to Login
                 sx={{ textDecoration: "underline", cursor: "pointer", color: colors.blue }}
                 onClick={handlePreviewInvoice}
               >
-                PREVIEW INVOICE
+                PREVIEW INVOICE1
               </Typography>
             </Box>
             <Tooltip
