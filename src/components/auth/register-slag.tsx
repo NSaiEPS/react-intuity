@@ -51,7 +51,7 @@ export default function PaymentInfoSection() {
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
   const hasCompanySlug =
-    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-");
+    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") || slug?.startsWith("forgot-login-") ;
 
   const { setContextLoading } = useLoading();
 
@@ -250,7 +250,7 @@ export default function PaymentInfoSection() {
             <Box
               sx={{
                 display: "flex",
-                justifyContent:"center",
+                justifyContent: "center",
                 alignItems: "center",
                 width: "100%",
 
@@ -307,12 +307,13 @@ export default function PaymentInfoSection() {
             container
             // justifyContent="center"
 
-            sx={{ maxWidth: "1440px", width: "90%",height:"100%", mx: "auto" }}
-            py={
-              pathname?.split("/")[1] !== "login" && pathname?.includes("login")
-                ? 4
-                : 0
-            }
+            sx={{ maxWidth: "1440px", width: "90%", height: "100%", mx: "auto" }}
+            // py={
+            //   pathname?.split("/")[1] !== "login" && pathname?.includes("login")
+            //     ? 4
+            //     : 3
+            // }
+            py={4}
 
             pb={5}
             mb={1}
@@ -333,14 +334,15 @@ export default function PaymentInfoSection() {
                   // borderRadius: 3,
                   overflow: "hidden",
                   width: "100%",
-                  height:"100%",
-                  marginTop:
-                    pathname?.split("/")[1] !== "login" &&
-                      pathname?.includes("login") &&
-                      !pathname?.includes("forgot")
+                  height: "100%",
+                  // marginTop:
+                  //   pathname?.split("/")[1] !== "login" &&
+                  //     pathname?.includes("login") &&
+                  //     !pathname?.includes("forgot")
 
-                      ? 0
-                      : 5,
+                  //     ? 0
+                  //     : 5,
+                  marginTop:0,
                   border: "1px solid #e0e0e0",
                   borderRadius: "12px",
                   boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
@@ -357,7 +359,7 @@ export default function PaymentInfoSection() {
                       // backgroundColor: "#e0e0e0",
 
                       px: 4,
-                      py: 2,
+                      py: 3,
                       // borderBottom: "1px solid #ddd",
                       display: "flex",
                       // justifyContent:"center",
@@ -377,7 +379,9 @@ export default function PaymentInfoSection() {
                     p: 3,
                     "@media (min-width:500px)": { p: 3, pt: 1 },
                     "@media (min-width:900px)": { p: 4 },
-                    "&:last-child": { pb: 1 },
+                    "&:last-child": {
+                      pb: 4,
+                    },
                   }}>
                   {getRequiredForms()}
 
@@ -422,7 +426,7 @@ export default function PaymentInfoSection() {
                       sx={{
                         overflow: "hidden",
                         width: "100%",
-                        height:"100%",
+                        height: "100%",
                         border: "1px solid #e0e0e0",
                         borderRadius: "12px",
                         boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
@@ -433,7 +437,8 @@ export default function PaymentInfoSection() {
                         sx={{
                           backgroundColor: "#fff",
                           px: 2.5,
-                          py: 1.7,
+                          pt: 3,
+                          pb: 1,
                         }}
                       >
                         <Typography variant="h4" fontWeight="bold">
