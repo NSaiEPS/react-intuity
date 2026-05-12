@@ -12,6 +12,9 @@ export default function CompanyDetails({ reset = false }) {
   );
   const location = useLocation();
   const pathname = location.pathname;
+   const slug = pathname?.split("/")[1];
+   const hasCompanySlug =
+    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") || slug?.startsWith("forgot-login-") ;
 
   return (
     <Grid
@@ -66,10 +69,8 @@ export default function CompanyDetails({ reset = false }) {
                 🌐www.intuity.com &nbsp; 
               </Typography>
             )} */}
-            {pathname?.split("/")[1] !== "login" &&
-              (pathname?.includes("login") ||
-                pathname?.includes("register-") ||
-                pathname?.includes("reset-password-")) ? (
+            {
+              (hasCompanySlug ? (
               // <Typography variant="body1">
               //   <strong style={{ color: colors.blue }}>Contact Us: 📞 </strong>
 
@@ -158,7 +159,7 @@ export default function CompanyDetails({ reset = false }) {
                   🌐 www.intuity.com
                 </span>
               </Typography>
-            )}
+            ))}
           </Stack>
         </Box>
 
