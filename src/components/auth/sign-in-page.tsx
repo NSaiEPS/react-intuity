@@ -15,7 +15,7 @@ export function SignInPage({ title }): React.JSX.Element {
         // height: '100vh', // 🔥 important: fills full screen
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#f9fafb",
+        // backgroundColor: "#f9fafb",
         height:"100dvh"
       }}
     >
