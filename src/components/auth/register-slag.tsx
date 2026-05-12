@@ -316,8 +316,8 @@ export default function PaymentInfoSection() {
             // }
             py={4}
 
-            pb={5}
-            mb={1}
+            pb={4}
+            // mb={1}
             // columnSpacing={3} // space between columns
             // rowSpacing={3} // space between rows (on small screens)
             justifyContent={
@@ -343,7 +343,7 @@ export default function PaymentInfoSection() {
 
                   //     ? 0
                   //     : 5,
-                  marginTop:0,
+                  marginTop: 0,
                   border: "1px solid #e0e0e0",
                   borderRadius: "12px",
                   boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
@@ -356,20 +356,20 @@ export default function PaymentInfoSection() {
 
                   <Box
                     sx={{
-                      // backgroundColor: '#f5f5f5',
-                      // backgroundColor: "#e0e0e0",
-
-                      px: 4,
-                      py: 3,
-                      // borderBottom: "1px solid #ddd",
+                      px: {
+                        xs:3,
+                        sm:3,
+                      },
+                      py: {
+                        xs: 1.5,
+                        sm: 3,
+                      },
                       display: "flex",
-                      // justifyContent:"center",
                       alignItems: "center",
-
                     }}
                   >
 
-                    <Typography variant="h4" fontWeight="bold">
+                    <Typography variant="h4" fontWeight="bold" fontSize={"28px"}>
                       {getRequiredText()}
                     </Typography>
                   </Box>}
@@ -377,11 +377,23 @@ export default function PaymentInfoSection() {
                 {/* Content */}
                 <CardContent
                   sx={{
-                    p: 3,
+                    p: {
+                      xs: 3,
+                      sm: 3,
+                    },
+                    pt: {
+                      xs: 1
+                    },
                     "@media (min-width:500px)": { p: 3, pt: 1 },
-                    "@media (min-width:900px)": { p: 4 },
+                    "@media (min-width:900px)": { p: 4, pt: 1 },
                     "&:last-child": {
                       pb: 4,
+
+                    },
+                    
+                    mb: { xs: -2 },
+                    mt: {
+                      xs: pathname?.includes("login") ? 0 : -2 ,
                     },
                   }}>
                   {getRequiredForms()}

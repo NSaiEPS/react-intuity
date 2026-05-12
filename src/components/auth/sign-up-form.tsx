@@ -903,11 +903,7 @@ Please check your email inbox and click the activation link to complete your acc
                 </Box>
           }
 
-{
-  activeStep !== 3&&
-
-
-          <Divider sx={{ my: 2 }} />}
+          {/* <Divider sx={{ my: 2 }} /> */}
 
           {activeStep === 2 && (
             <Typography variant="body1" fontWeight="bold" mb={2}>

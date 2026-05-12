@@ -737,7 +737,8 @@ textTransform={'none'}
           // mx: "auto",
           // borderRadius: 2,
           // boxShadow: 3,
-          p: { xs: 0.5, sm: 4 },
+          p: { xs: 0, sm: 4 },
+          pt:{xs:0.5}
         }}
       >
         <Stepper

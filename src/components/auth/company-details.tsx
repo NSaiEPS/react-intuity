@@ -40,7 +40,7 @@ export default function CompanyDetails({ reset = false }) {
       >
         <Box
           sx={{
-            pt: 2,
+            // pt: 2,
             maxWidth: "100%",
             mx: "auto",
             textAlign: "center",
@@ -144,21 +144,66 @@ export default function CompanyDetails({ reset = false }) {
   )}
 </Typography>
             ) : (
-              <Typography variant="body1">
-                <strong style={{ color: colors.blue }}>Contact Us: </strong>
+              // <Typography variant="body1">
+              //   <strong style={{ color: colors.blue }}>Contact Us: </strong>
 
-                <span style={{ marginRight: "16px" }}>
-                  📞 +1 234 567 8900
-                </span>
+              //   <span style={{ marginRight: "16px" }}>
+              //     📞 +1 234 567 8900
+              //   </span>
 
-                <span style={{ marginRight: "16px" }}>
-                  📧 info@intuity.com
-                </span>
+              //   <span style={{ marginRight: "16px" }}>
+              //     📧 info@intuity.com
+              //   </span>
 
-                <span>
-                  🌐 www.intuity.com
-                </span>
-              </Typography>
+              //   <span>
+              //     🌐 www.intuity.com
+              //   </span>
+              // </Typography>
+              <Typography
+  variant="body1"
+  sx={{
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent:"center",
+    gap: 2,
+    alignItems: "center",
+  }}
+>
+  <strong style={{ color: colors.blue }}>Contact Us:</strong>
+
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "4px",
+      whiteSpace: "nowrap",
+    }}
+  >
+    📞 <span>+1 234 567 8900</span>
+  </span>
+
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "4px",
+      whiteSpace: "nowrap",
+    }}
+  >
+    📧 <span>info@intuity.com</span>
+  </span>
+
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "4px",
+      whiteSpace: "nowrap",
+    }}
+  >
+    🌐 <span>www.intuity.com</span>
+  </span>
+</Typography>
             ))}
           </Stack>
         </Box>
