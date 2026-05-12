@@ -228,7 +228,7 @@ export default function PaymentInfoSection() {
           // backgroundImage: !reset
           //   ? 'url(/assets/depositphotos_527571100-stock-photo-water-splash-isolated-on-white.jpg)'
           //   : 'url(/assets/pngtree-a-drop-of-water-background-material-in-the-ocean-image_140350.jpg)',
-          backgroundColor: "#f9fafb",
+          // backgroundColor: "#f9fafb",
           backgroundSize: "cover",
           backgroundPosition: "center",
           color: "#0d1b2a",
