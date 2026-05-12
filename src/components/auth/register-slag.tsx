@@ -51,7 +51,7 @@ export default function PaymentInfoSection() {
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
   const hasCompanySlug =
-    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") || slug?.startsWith("forgot-login-") ;
+    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") || slug?.startsWith("forgot-login-");
 
   const { setContextLoading } = useLoading();
 
@@ -315,8 +315,8 @@ export default function PaymentInfoSection() {
             // }
             py={4}
 
-            pb={5}
-            mb={1}
+            pb={4}
+            // mb={1}
             // columnSpacing={3} // space between columns
             // rowSpacing={3} // space between rows (on small screens)
             justifyContent={
@@ -342,7 +342,7 @@ export default function PaymentInfoSection() {
 
                   //     ? 0
                   //     : 5,
-                  marginTop:0,
+                  marginTop: 0,
                   border: "1px solid #e0e0e0",
                   borderRadius: "12px",
                   boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
@@ -355,20 +355,20 @@ export default function PaymentInfoSection() {
 
                   <Box
                     sx={{
-                      // backgroundColor: '#f5f5f5',
-                      // backgroundColor: "#e0e0e0",
-
-                      px: 4,
-                      py: 3,
-                      // borderBottom: "1px solid #ddd",
+                      px: {
+                        xs:3,
+                        sm:3,
+                      },
+                      py: {
+                        xs: 1.5,
+                        sm: 3,
+                      },
                       display: "flex",
-                      // justifyContent:"center",
                       alignItems: "center",
-
                     }}
                   >
 
-                    <Typography variant="h4" fontWeight="bold">
+                    <Typography variant="h4" fontWeight="bold" fontSize={"28px"}>
                       {getRequiredText()}
                     </Typography>
                   </Box>}
@@ -376,11 +376,23 @@ export default function PaymentInfoSection() {
                 {/* Content */}
                 <CardContent
                   sx={{
-                    p: 3,
+                    p: {
+                      xs: 3,
+                      sm: 3,
+                    },
+                    pt: {
+                      xs: 1
+                    },
                     "@media (min-width:500px)": { p: 3, pt: 1 },
-                    "@media (min-width:900px)": { p: 4 },
+                    "@media (min-width:900px)": { p: 4, pt: 1 },
                     "&:last-child": {
                       pb: 4,
+
+                    },
+                    
+                    mb: { xs: -2 },
+                    mt: {
+                      xs: pathname?.includes("login") ? 0 : -2 ,
                     },
                   }}>
                   {getRequiredForms()}
@@ -436,9 +448,17 @@ export default function PaymentInfoSection() {
                       <Box
                         sx={{
                           backgroundColor: "#fff",
-                          px: 2.5,
-                          pt: 3,
-                          pb: 1,
+                          pt: { xs: 1.5, sm: 3 },
+                          // pb: 1,
+                          px: {
+                            xs: 3,
+                            sm: 3,
+                          },
+                          py: {
+                            xs: 2,
+                            sm: 3,
+                          },
+                          // mt:1.5,
                         }}
                       >
                         <Typography variant="h4" fontWeight="bold">
@@ -453,6 +473,15 @@ export default function PaymentInfoSection() {
                             xs: "auto",   // 👈 below 900px → no extra space
                             md: "381px",  // 👈 ≥900px → keep layout height
                           },
+                          px: {
+                            xs: 3,
+                            sm: 3,
+                          },
+                          py: {
+                            xs: 1.5,
+                            sm: 3,
+                          },
+                          mb: -1,
                         }}
                       >
                         <Stack>

@@ -368,11 +368,13 @@ const handleRegisterClick = async () => {
               mb={-0.5}
               sx={{
                 display: "flex",
-                // flexDirection:"column"
                   flexDirection: {
-    xs: "column", // 👈 below 600px (includes <450)
-    sm: "row",    // 👈 600px+
-  },
+    xs: "column", 
+    sm: "row",   
+  },  gap: {
+      xs: 1.5, 
+      sm: 0,
+    },
               }}
             >
               <Button

@@ -825,7 +825,7 @@ title={authTooltips[field.value] || ""}
             </>
           )}
 
-          <Divider sx={{ my: 2 }} />
+          {/* <Divider sx={{ my: 2 }} /> */}
 
           {activeStep === 2 && (
             <Typography variant="body1" fontWeight="bold" mb={2}>
