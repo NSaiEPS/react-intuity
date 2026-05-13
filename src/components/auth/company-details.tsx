@@ -129,14 +129,14 @@ export default function CompanyDetails({ reset = false }) {
 
       {/* Powered by Intuity */}
       <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <Typography sx={{ fontSize: "1rem", color: "#555", fontWeight: 400 }}>
+        {/* <Typography sx={{ fontSize: "1rem", color: "#555", fontWeight: 400 }}>
           powered by
-        </Typography>
+        </Typography> */}
         <Box
           alt="logo"
           component="img"
           height={36}
-          width={110}
+          width={160}
           src={"/assets/intuity-footer.png"}
           loading="lazy"
         />

@@ -21,6 +21,7 @@ import { MuiOutlinedInput, MuiInputBase } from "./muiInput";
 
 import { MuiTextField } from "./muiTextField";
 import { MuiInputLabel } from "./muiInputLabel";
+import { MuiCssBaseline } from "./mui-css-baseline";
 
 export const components = {
   MuiAvatar,
@@ -42,4 +43,5 @@ export const components = {
 
   MuiTextField,
   MuiInputLabel,
+  MuiCssBaseline
 } satisfies Components<Theme>;

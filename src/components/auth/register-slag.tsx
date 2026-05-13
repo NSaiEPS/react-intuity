@@ -332,21 +332,16 @@ export default function PaymentInfoSection() {
               <Grid
                 // elevation={3}
                 sx={{
-                  // borderRadius: 3,
+
                   overflow: "hidden",
                   width: "100%",
                   height: "100%",
-                  // marginTop:
-                  //   pathname?.split("/")[1] !== "login" &&
-                  //     pathname?.includes("login") &&
-                  //     !pathname?.includes("forgot")
-
-                  //     ? 0
-                  //     : 5,
+               
                   marginTop: 0,
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "12px",
-                  boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
+                border: "1px solid #eaecf0",
+  borderRadius: "16px",
+boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)",
+
                   backgroundColor: "#fff",
                 }}
               >
