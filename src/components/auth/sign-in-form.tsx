@@ -216,8 +216,8 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
     label="Username"
     type="text"
     onFocus={() => setUsernameFocused(true)}
-    onBlur={(e) => {
-      field.onBlur(e);
+    onBlur={() => {
+      field.onBlur();
       setUsernameFocused(false);
     }}
     startAdornment={
@@ -257,8 +257,8 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
     label="Password"
     type={showPassword ? "text" : "password"}
     onFocus={() => setPasswordFocused(true)}
-    onBlur={(e) => {
-      field.onBlur(e);
+    onBlur={() => {
+      field.onBlur();
       setPasswordFocused(false);
     }}
     startAdornment={

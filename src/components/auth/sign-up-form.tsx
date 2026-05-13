@@ -531,7 +531,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             notched={accountFocused || Boolean(field.value)}
             label="Account Number *"
             onFocus={() => setAccountFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setAccountFocused(false); }}
+            onBlur={() => { field.onBlur(); setAccountFocused(false); }}
             startAdornment={
               <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -619,7 +619,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             notched={answerFocused || Boolean(field.value)}
             label="Answer *"
             onFocus={() => setAnswerFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setAnswerFocused(false); }}
+            onBlur={() => { field.onBlur(); setAnswerFocused(false); }}
             startAdornment={
               <Lock size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -654,7 +654,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             notched={usernameFocused || Boolean(field.value)}
             label="Username *"
             onFocus={() => setUsernameFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setUsernameFocused(false); }}
+            onBlur={() => { field.onBlur(); setUsernameFocused(false); }}
             startAdornment={
               <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -715,7 +715,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             label="Password *"
             type={show.password ? "text" : "password"}
             onFocus={() => setPasswordFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setPasswordFocused(false); }}
+            onBlur={() => { field.onBlur(); setPasswordFocused(false); }}
             startAdornment={
               <Lock size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -923,7 +923,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             notched={confirmNotifEmailFocused || Boolean(field.value)}
             label="Confirm Notification Email *"
             onFocus={() => setConfirmNotifEmailFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setConfirmNotifEmailFocused(false); }}
+            onBlur={() => { field.onBlur(); setConfirmNotifEmailFocused(false); }}
             startAdornment={
               <EnvelopeSimple size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -987,7 +987,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
                 value={formatUS(field.value || "")}
                 onChange={(e) => field.onChange(formatUS(e.target.value))}
                 onFocus={() => setPhoneFocused(true)}
-                onBlur={(e) => { field.onBlur(e); setPhoneFocused(false); }}
+                onBlur={() => { field.onBlur(); setPhoneFocused(false); }}
                 placeholder={phoneFocused ? "(555) 000-0000" : ""}
                 inputProps={{ maxLength: 14 }}
                 startAdornment={

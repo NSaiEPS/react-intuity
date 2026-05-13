@@ -130,7 +130,7 @@ const [emailFocused, setEmailFocused] = React.useState(false);
         label="Enter login username"
         type="text"
         onFocus={() => setEmailFocused(true)}
-        onBlur={(e) => { field.onBlur(e); setEmailFocused(false); }}
+        onBlur={(e) => { field.onBlur(); setEmailFocused(false); }}
         startAdornment={
           <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
         }

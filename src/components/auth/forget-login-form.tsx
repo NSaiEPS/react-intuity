@@ -150,7 +150,7 @@ export function ForgotLoginForm(): React.JSX.Element {
         label="Account Number *"
         type="text"
         onFocus={() => setAccountFocused(true)}
-        onBlur={(e) => { field.onBlur(e); setAccountFocused(false); }}
+        onBlur={(e) => { field.onBlur(); setAccountFocused(false); }}
         startAdornment={
           <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
         }
