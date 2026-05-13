@@ -802,7 +802,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             label="Confirm Password *"
             type={show.confirmPassword ? "text" : "password"}
             onFocus={() => setConfirmPasswordFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setConfirmPasswordFocused(false); }}
+            onBlur={() => { field.onBlur(); setConfirmPasswordFocused(false); }}
             startAdornment={
               <Lock size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -864,7 +864,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             notched={notifEmailFocused || Boolean(field.value)}
             label="Notification Email *"
             onFocus={() => setNotifEmailFocused(true)}
-            onBlur={(e) => { field.onBlur(e); setNotifEmailFocused(false); }}
+            onBlur={() => { field.onBlur(); setNotifEmailFocused(false); }}
             startAdornment={
               <EnvelopeSimple size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
