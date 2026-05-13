@@ -102,7 +102,7 @@ export const CustomConnector = styled(StepConnector, {
   },
 }));
 
-const steps = ["Account Info", "Portal Registration", "Contact Info",'Check your email'
+const steps = ["Account Info", "Portal Registration", "Contact Info",'Check Your Email'
 ];
 
 const CustomStepIconRoot = styled("div")<{
@@ -886,7 +886,7 @@ title={authTooltips[field.value] || ""}
                 my:2
               }}
             >
-Please check your email inbox and click activation link to complete your account setup.
+Please check your email inbox and click the activation link to complete your account setup.
             </Typography>
             
                   <Button
