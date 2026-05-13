@@ -26,7 +26,11 @@ import { Button as MUIButton } from "@mui/material";
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
-
+import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
+import { User } from "@phosphor-icons/react/dist/ssr/User";
+import { Info } from "@phosphor-icons/react/dist/ssr/Info";
+import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 const schema = zod.object({
   email: zod.string().min(1, { message: "Email is required" }).email(),
 });
@@ -69,9 +73,33 @@ export function ResetPasswordForm(): React.JSX.Element {
     },
     [setError]
   );
-
+const [emailFocused, setEmailFocused] = React.useState(false);
   return (
     <Stack spacing={4}>
+       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            backgroundColor: "#e8f0fb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Lock size={30} color={colors.blue} weight="regular" />
+        </Box>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Reset Password
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You will receive an email with a link to reset your password.
+          </Typography>
+        </Box>
+      </Box>
       {/* <Typography variant="h5"></Typography> */}
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography
@@ -85,70 +113,119 @@ export function ResetPasswordForm(): React.JSX.Element {
         </Typography>
 
         <Stack spacing={2}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Enter login username</InputLabel>
-                <OutlinedInput {...field} label="Enter login username" type="email" />
-                {errors.email ? (
-                  <FormHelperText>{errors.email.message}</FormHelperText>
-                ) : null}
-              </FormControl>
-            )}
-          />
+      <Controller
+  control={control}
+  name="email"
+  render={({ field }) => (
+    <FormControl fullWidth error={Boolean(errors.email)}>
+      <InputLabel
+        shrink={emailFocused || Boolean(field.value)}
+        sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+      >
+        Enter login username
+      </InputLabel>
+      <OutlinedInput
+        {...field}
+        notched={emailFocused || Boolean(field.value)}
+        label="Enter login username"
+        type="text"
+        onFocus={() => setEmailFocused(true)}
+        onBlur={(e) => { field.onBlur(e); setEmailFocused(false); }}
+        startAdornment={
+          <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+        }
+      />
+      {errors.email && (
+        <FormHelperText>{errors.email.message}</FormHelperText>
+      )}
+    </FormControl>
+  )}
+/>
           {errors.root ? (
             <Alert color="error">{errors.root.message}</Alert>
           ) : null}
 
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1.5,
+            backgroundColor: "#eff6ff",
+            border: "1px solid #dbeafe",
+            borderRadius: "10px",
+            px: 1.5,
+            py: 1.5,
+          }}
+        >
           <Box
-            mt={5}
             sx={{
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              backgroundColor: colors.blue,
               display: "flex",
-              justifyContent: "space-between"
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
-
-
-
-            <MUIButton
-              component={Link}
-              to={paths.auth.newLogin(companyInfo?.company?.alias)}
-              variant="outlined"
-              sx={{
-                textTransform: "none",
-                // backgroundColor: colors.blue,
-                borderRadius: "12px",
-                height: "41px",
-                // width: "175px",
-                color: colors.blue,
-                borderColor: colors.blue,
-                backgroundColor: "#fff"
-              }}
-            >
-              Back to Login
-            </MUIButton>
-
-            <Button
-              disabled={isPending}
-              loading={isPending}
-              type="submit"
-              variant="contained"
-              textTransform="none"
-              bgColor={colors.blue}
-              hoverBackgroundColor={colors["blue.3"]}
-              hoverColor="white"
-              style={{
-                borderRadius: "12px",
-                marginLeft: "15px",
-                height: "41px",
-                width: "175px",
-              }}
-            >
-              Send recovery link
-            </Button>
+            <Info size={18} color="#fff" weight="fill" />
           </Box>
+          <Box>
+            <Typography variant="body2" color="text.primary">
+              Please enter the username associated with your account.
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              If you don't remember your username, contact our support team.
+            </Typography>
+          </Box>
+        </Box>
+
+      
+
+        {/* Buttons */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1 }}>
+          <MUIButton
+            component={Link}
+            to={paths.auth.newLogin(companyInfo?.company?.alias)}
+            variant="outlined"
+            startIcon={<ArrowLeft size={18} />}
+            sx={{
+              textTransform: "none",
+              borderRadius: "12px",
+              height: "44px",
+              px: 3,
+              color: colors.blue,
+              borderColor: colors.blue,
+              backgroundColor: "#fff",
+              fontWeight: 600,
+            }}
+          >
+            Back to Login
+          </MUIButton>
+
+          <Button
+            disabled={isPending}
+            loading={isPending}
+            type="submit"
+            variant="contained"
+            textTransform="none"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+            hoverColor="white"
+            style={{
+              borderRadius: "12px",
+              height: "44px",
+              paddingLeft: "24px",
+              paddingRight: "24px",
+              fontWeight: 600,
+            }}
+          >
+            <PaperPlaneTilt size={18} style={{ marginRight: 8 }} weight="regular" />
+            Send Recovery Link
+          </Button>
+        </Box>
+
         </Stack>
       </form>
       <UpdatePasswordModal open={open} onClose={() => setOpen(false)} />
