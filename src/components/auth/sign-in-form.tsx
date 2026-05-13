@@ -1,12 +1,14 @@
 import * as React from "react";
-
+import { User } from "@phosphor-icons/react/dist/ssr/User";
+import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
+import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { setUserInfo } from "@/state/features/accountSlice";
-// import api from '@/app/api/axios';
+
 import { colors } from "@/utils";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box } from "@mui/material";
-// import { Button } from '@mui/material';
+
 import Alert from "@mui/material/Alert";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
@@ -18,8 +20,7 @@ import Typography from "@mui/material/Typography";
 
 import { Eye as EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
 import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
-// import Button from '@mui/material/Button';
-// import { Button } from 'nsaicomponents';
+
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z as zod } from "zod";
@@ -28,17 +29,16 @@ import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/hooks/use-user";
 
 import Button from "../CommonComponents/Button";
-import QuickActionsBox from "./register-actions";
+
 import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { Link as RouterLink } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 import { setLocalStorage } from "@/utils/auth";
 import { RootState } from "@/state/store";
-import axios from "axios";
-import { BASE_URL } from "@/api/axios";
 
-// import Button from '../CommonComponents/Button;
+
+
 
 const schema = zod.object({
   // email: zod.string().min(1, { message: 'Email is required' }).email(),
@@ -77,34 +77,6 @@ export function SignInForm({ user = false }): React.JSX.Element {
   password: string;
 }
 
-// const handleRegisterClick = async () => {
-//   try {
-//     const formData = new FormData();
-//     formData.append("alias", "RiverPark-1");
-
-//     const res = await axios.post(
-//       `${BASE_URL}/get-details-by-alias`,
-//       formData,
-//       {
-//         headers: {
-//           Accept: "application/json",
-//         },
-//         withCredentials: false, // important
-//       }
-//     );
-
-//     const alias = res?.data?.body?.company?.alias;
-//     console.log(res?.data?.body?.company?.alias,'resssss')
-
-//     if (alias) {
-//       navigate(paths.auth.registerWithAlias(alias));
-//     }
-//     console.log("Navigating to:", paths.auth.registerWithAlias(alias));
-
-//   } catch (error) {
-//     console.error("Alias fetch failed", error);
-//   }
-// };
   const slug = pathname?.split("/")[1];
 
       const alias = slug?.split('login-');
@@ -124,28 +96,7 @@ const handleRegisterClick = async () => {
   }
 
 
-  // if (slug?.startsWith("login-")) {
-  //   try {
-  //     const aliasFromUrl = slug.replace("login-", "");
 
-  //     const formData = new FormData();
-  //     formData.append("alias", aliasFromUrl);
-
-  //     const res = await axios.post(
-  //       `${BASE_URL}/get-details-by-alias`,
-  //       formData,
-  //       { headers: { Accept: "application/json" } }
-  //     );
-
-  //     const alias = res?.data?.body?.company?.alias;
-
-  //     if (alias) {
-  //       navigate(`/register-${alias}`);
-  //     }
-  //   } catch (error) {
-  //     console.error("Alias fetch failed", error);
-  //   }
-  // }
 };
 
 
@@ -167,9 +118,7 @@ const handleRegisterClick = async () => {
           return;
         }
 
-        // await checkSession?.();
-
-        // router.replace(paths.auth.confirmInfo);
+ 
       } catch (error: unknown) {
   const message =
     error instanceof Error
@@ -213,274 +162,268 @@ const handleRegisterClick = async () => {
       navigate(paths.auth.confirmInfo(companyAlias));
     }
   };
+  const [usernameFocused, setUsernameFocused] = React.useState(false);
+const [passwordFocused, setPasswordFocused] = React.useState(false);
   return (
-    <Stack spacing={4}>
-      {!user && (
-        <Stack spacing={1}>
-          <Typography variant="h4">Sign in</Typography>
-        </Stack>
-      )}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={0}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <FormControl error={Boolean(errors.email)}>
-                {/* <InputLabel>Login ID or Email</InputLabel> */}
-                <InputLabel> Username </InputLabel>
-                <OutlinedInput
-                  {...field}
-                  label=" Username"
-                  type="text"
-                />
 
-                  <FormHelperText
-                  sx={{ minHeight: "20px" }}
-                  >{errors?.email?.message ??''}</FormHelperText>
+  <Stack spacing={3}>
+    {/* Header */}
+    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box
+        sx={{
+          width: 52,
+          height: 52,
+          borderRadius: "50%",
+          backgroundColor: "#e8f0fb",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <User size={26} color={colors.blue} weight="regular" />
+      </Box>
+      <Box>
+        <Typography variant="h5" fontWeight={700}>
+          Welcome Back
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Login to access your account
+        </Typography>
+      </Box>
+    </Box>
 
-              </FormControl>
-            )}
-          />
-          <Controller
-            control={control}
-            name="password"
-            render={({ field }) => (
-              <FormControl error={Boolean(errors.password)}>
-                <InputLabel>Password</InputLabel>
-                <OutlinedInput
-                  {...field}
-                  endAdornment={
-                    showPassword ? (
-                      <EyeIcon
-                        cursor="pointer"
-                        fontSize="var(--icon-fontSize-md)"
-                        onClick={(): void => {
-                          setShowPassword(false);
-                        }}
-                      />
-                    ) : (
-                      <EyeSlashIcon
-                        cursor="pointer"
-                        fontSize="var(--icon-fontSize-md)"
-                        onClick={(): void => {
-                          setShowPassword(true);
-                        }}
-                      />
-                    )
-                  }
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                />
-
-                  <FormHelperText
-                  sx={{ minHeight: "20px" }}
-                  
-                  >{errors?.password?.message??''}</FormHelperText>
-
-              </FormControl>
-            )}
-          />
-          {!user && (
-            <div>
-              <MuiLink
-                component={RouterLink}
-                to={paths.auth.resetPassword()}
-                sx={{
-                  color: colors.blue,
-                  textDecoration: "none",
-                  "&:hover": {
-                    color: colors["blue.1"],
-                    borderBottom: "1px solid",
-                  },
-                }}
-              >
-                Forgot password?
-              </MuiLink>
-            </div>
-          )}
-          {!user && (
-            <div>
-              <MuiLink
-                component={RouterLink}
-                to={user ? paths.auth.signUp() : paths.auth.newLogin()}
-                variant="subtitle2"
-                sx={{
-                  color: colors.blue,
-                  textDecoration: "none",
-                  "&:hover": {
-                    color: colors["blue.1"],
-                    borderBottom: `1px solid ${colors["blue.1"]}`,
-                  },
-                }}
-              >
-                {user ? "Register" : "Company Login"}
-              </MuiLink>
-            </div>
-          )}
-          {errors.root ? (
-            <Alert color="error">{errors.root.message}</Alert>
-          ) : null}
-          {/* <Button></Button> */}
-
-          {/* <Box> {user && <QuickActionsBox />}</Box> */}
-                <Typography
-              variant="body1"
-              // color="text.secondary"
-              sx={{ flex: 1, minWidth: "60%" }}
-            >
-              <strong style={{ color: colors.blue }}>Important:</strong> A
-              convenience or service fee may be charged by the payment processor
-              for credit/debit card, e-check or ACH online payments. The fee
-              amount will be displayed before you complete your transaction.
-            </Typography>
-             {alias?.[1] && (
-            <Typography variant="body1" 
-              mt={1.5}
-               sx={{ fontWeight: 700 }}
-            
-            >
-              Don't have an account {` `}
-              {/* <Link
-                to="/sign-up"
-                style={{
-                  color: colors.blue,
-                  borderColor: "transparent",
-                  textDecoration: "none",
-                }}
-              >
-                Register Now
-              </Link>{" "} */}
-               <span
-      onClick={handleRegisterClick}
-      style={{
-        color: colors.blue,
-        cursor: "pointer",
-        textDecoration: "underline",
-      }}
-    >
-      Register Now 
-    </span>{" "}
-              to view your account details
-            </Typography>
-          )}
-
-          {user ? (
-            <Box
-              mt={1.5}
-              mb={-0.5}
-              sx={{
-                display: "flex",
-                  flexDirection: {
-    xs: "column", 
-    sm: "row",   
-  },  gap: {
-      xs: 1.5, 
-      sm: 0,
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Stack spacing={0}>
+        {/* Username */}
+        <Controller
+          control={control}
+          name="email"
+          render={({ field }) => (
+           <FormControl error={Boolean(errors.email)}>
+  <InputLabel shrink={usernameFocused || Boolean(field.value)}
+   sx={{
+    "&:not(.MuiInputLabel-shrink)": {
+      left: "36px", // push placeholder right when not focused/filled
     },
-              }}
-            >
-              <Button
-                disabled={isPending}
-                loading={isPending}
-                onClick={handleSubmit(onSubmit)}
-                type="submit"
-                variant="contained"
-                textTransform="uppercase"
-                bgColor={colors.blue}
-                // onClick={onSubmit}
-                hoverBackgroundColor={colors["blue.3"]}
-                hoverColor="white"
-                style={{
-                  borderRadius: "12px",
-                  height: "41px",
-                  width: "125px",
-                  // backgroundColor: 'red',
-                }}
-              >
-                {/* Sign In */}
-                Login
-              </Button>
-
-
-
-                {/* <Typography variant="body1" marginTop={2.9}>
-
-                                 Forget your password ? use this link to get it back */}
-  {/* </Typography> */}
-                                       <Link
-                to={paths.auth.resetPassword(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
-                style={{
-                  color: colors.blue,
-                  justifyContent: "center",
-                  marginTop: "auto",
-                  marginBottom: "auto",
-                  marginLeft: window.innerWidth < 600 ? "0px" : "15px",
-                  textDecoration: "underline",
-                  borderColor: "transparent",
-
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = colors["blue.1"];
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = "transparent";
-                }}
-                
-              >
-                Forgot password
-              </Link>
-
-                       <Link
-                to={paths.auth.forgotLogin(pathname?.split("/")[1]==='login'? null:pathname?.split("login-")[1])}
-                style={{
-                  color: colors.blue,
-                  justifyContent: "center",
-                  marginTop: "auto",
-                  marginBottom: "auto",
-                  marginLeft: window.innerWidth < 600 ? "0px" : "15px",
-                  textDecoration: "underline",
-                  borderColor: "transparent",
-
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor = colors["blue.1"];
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor = "transparent";
-                }}
-                
-              >
-                Forgot login username
-              </Link>                    
-                                    
-
-            
-            </Box>
-          ) : (
-            <Button
-              disabled={isPending}
-              loading={isPending}
-              onClick={handleSubmit(onSubmit)}
-              type="button"
-              variant="contained"
-              textTransform="none"
-              bgColor={colors.blue}
-              // onClick={onSubmit}
-              hoverBackgroundColor={colors["blue.3"]}
-              hoverColor="white"
-              style={{
-                borderRadius: "12px",
-                height: "41px",
-                // backgroundColor: 'red',
-              }}
-            >
-              Sign In
-            </Button>
+  }}
+  >
+    Username
+  </InputLabel>
+  <OutlinedInput
+    {...field}
+    notched={usernameFocused || Boolean(field.value)}
+    label="Username"
+    type="text"
+    onFocus={() => setUsernameFocused(true)}
+    onBlur={(e) => {
+      field.onBlur(e);
+      setUsernameFocused(false);
+    }}
+    startAdornment={
+      <User
+        size={18}
+        color="#9aa5b4"
+        weight="regular"
+        style={{ marginRight: 8 }}
+      />
+    }
+  />
+  <FormHelperText sx={{ minHeight: "20px" }}>
+    {errors?.email?.message ?? ""}
+  </FormHelperText>
+</FormControl>
           )}
-         
-        </Stack>
-      </form>
-    </Stack>
-  );
+        />
+
+        {/* Password */}
+        <Controller
+          control={control}
+          name="password"
+          render={({ field }) => (
+            <FormControl error={Boolean(errors.password)}>
+  <InputLabel shrink={passwordFocused || Boolean(field.value)}
+   sx={{
+    "&:not(.MuiInputLabel-shrink)": {
+      left: "36px", // push placeholder right when not focused/filled
+    },
+  }}
+  >
+    Password
+  </InputLabel>
+  <OutlinedInput
+    {...field}
+    notched={passwordFocused || Boolean(field.value)}
+    label="Password"
+    type={showPassword ? "text" : "password"}
+    onFocus={() => setPasswordFocused(true)}
+    onBlur={(e) => {
+      field.onBlur(e);
+      setPasswordFocused(false);
+    }}
+    startAdornment={
+      <Lock
+        size={18}
+        color="#9aa5b4"
+        weight="regular"
+        style={{ marginRight: 8 }}
+      />
+    }
+    endAdornment={
+      showPassword ? (
+        <EyeIcon
+          cursor="pointer"
+          fontSize="var(--icon-fontSize-md)"
+          onClick={() => setShowPassword(false)}
+        />
+      ) : (
+        <EyeSlashIcon
+          cursor="pointer"
+          fontSize="var(--icon-fontSize-md)"
+          onClick={() => setShowPassword(true)}
+        />
+      )
+    }
+  />
+  <FormHelperText sx={{ minHeight: "20px" }}>
+    {errors?.password?.message ?? ""}
+  </FormHelperText>
+</FormControl>
+
+          )}
+        />
+
+        {/* Important Notice Box */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1.5,
+            backgroundColor: "#eff6ff",
+            border: "1px solid #dbeafe",
+            borderRadius: "10px",
+            px: 1.5,
+            py: 1.5,
+            mb: 2,
+          }}
+        >
+          <Info
+            size={20}
+            color={colors.blue}
+            weight="regular"
+            style={{ flexShrink: 0, marginTop: 2 }}
+          />
+          <Typography variant="body2" color="text.primary">
+            <strong>Important:</strong> A convenience or service fee may be
+            charged by the payment processor for credit/debit card, e-check or
+            ACH online payments. The fee amount will be displayed before you
+            complete your transaction.
+          </Typography>
+        </Box>
+
+        {/* Register Now */}
+        {alias?.[1] && (
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            Don't have an account?{" "}
+            <span
+              onClick={handleRegisterClick}
+              style={{
+                color: colors.blue,
+                cursor: "pointer",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              Register Now
+            </span>{" "}
+            to view your account details
+          </Typography>
+        )}
+
+        {errors.root && (
+          <Alert color="error" sx={{ mb: 1 }}>
+            {errors.root.message}
+          </Alert>
+        )}
+
+        {/* Login button + links row */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: { xs: 1.5, sm: 0 },
+          }}
+        >
+          <Button
+            disabled={isPending}
+            loading={isPending}
+            onClick={handleSubmit(onSubmit)}
+            type="submit"
+            variant="contained"
+            textTransform="none"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+            hoverColor="white"
+            style={{
+              borderRadius: "12px",
+              height: "44px",
+              minWidth: "120px",
+              fontWeight: 600,
+              fontSize: "1rem",
+            }}
+          >
+            <Lock size={18} style={{ marginRight: 8 }} weight="regular" />
+            Login
+          </Button>
+
+          {/* Divider + links */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              ml: { xs: 0, sm: 2 },
+              gap: 1,
+            }}
+          >
+            <Link
+              to={paths.auth.resetPassword(
+                pathname?.split("/")[1] === "login"
+                  ? null
+                  : pathname?.split("login-")[1]
+              )}
+              style={{
+                color: colors.blue,
+                textDecoration: "none",
+                fontSize: "0.875rem",
+              }}
+            >
+              Forgot password?
+            </Link>
+
+            <Typography variant="body2" color="text.secondary">
+              |
+            </Typography>
+
+            <Link
+              to={paths.auth.forgotLogin(
+                pathname?.split("/")[1] === "login"
+                  ? null
+                  : pathname?.split("login-")[1]
+              )}
+              style={{
+                color: colors.blue,
+                textDecoration: "none",
+                fontSize: "0.875rem",
+              }}
+            >
+              Forgot login username?
+            </Link>
+          </Box>
+        </Box>
+      </Stack>
+    </form>
+  </Stack>
+);
+
 }
