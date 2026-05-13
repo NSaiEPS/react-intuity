@@ -1051,7 +1051,7 @@ Please check your email inbox and click the activation link to complete your acc
                     hoverColor="white"
                     style={{ borderRadius: "12px", height: "41px", marginTop: "8px", minWidth: "160px" }}
                   >
-                    ← &nbsp;   Back to Login
+                    {`← `}   Back to Login
                   </Button>
                 </Box>
           }
@@ -1106,7 +1106,7 @@ Please check your email inbox and click the activation link to complete your acc
       hoverColor="white"
       style={{ borderRadius: "12px", height: "44px", width: "110px", fontWeight: 600 }}
     >
-      {activeStep === steps.length - 1 ? "Submit" : "Next"} &nbsp; →
+      {activeStep === steps.length - 1 ? "Submit" : "Next"} {` `} {` →`}
     </Button>
   ) : null}
 </Stack>

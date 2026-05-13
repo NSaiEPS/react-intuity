@@ -407,7 +407,7 @@ boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)"
       <CreditCard size={28} color="#2e7d32" weight="regular" />
     </Box>
     <Typography variant="h5" fontWeight={700} color="#0d1b3e">
-      Make One Time Payment
+Pay as Guest
     </Typography>
   </Box>
 
