@@ -483,7 +483,12 @@ Account No *
       </Box>
 
       {/* Buttons */}
-      <Box display="flex" justifyContent="space-between">
+      <Box display="flex" justifyContent="space-between"
+       sx={{
+    flexWrap: { xs: "wrap", sm: "nowrap" },
+    gap: 1.5,
+  }}
+      >
         <MUIButton
           variant="outlined"
           onClick={handleBackToLogin}
@@ -654,7 +659,12 @@ Account No *
       </Box>
 
       {/* Buttons */}
-      <Box display="flex" justifyContent="space-between">
+      <Box display="flex" justifyContent="space-between"
+       sx={{
+    flexWrap: { xs: "wrap", sm: "nowrap" },
+    gap: 1.5,
+  }}
+      >
         <MUIButton
           variant="outlined"
           onClick={handleBack}

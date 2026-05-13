@@ -184,7 +184,14 @@ const [emailFocused, setEmailFocused] = React.useState(false);
       
 
         {/* Buttons */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1 ,
+    flexWrap: { xs: "wrap", sm: "nowrap" },
+    gap: 1.5,
+
+
+        }}
+  
+        >
           <MUIButton
             component={Link}
             to={paths.auth.newLogin(companyInfo?.company?.alias)}
