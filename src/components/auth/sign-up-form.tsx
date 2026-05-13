@@ -457,7 +457,7 @@ const [notifEmailFocused, setNotifEmailFocused] = React.useState(false);
 const [confirmNotifEmailFocused, setConfirmNotifEmailFocused] = React.useState(false);
 const [phoneFocused, setPhoneFocused] = React.useState(false);
   return (
-    <Box sx={{ maxWidth: 600, margin: "auto" }}>
+    <Box >
       <Helmet key={"Register"}>
         <title>{"Register"}</title>
       </Helmet>

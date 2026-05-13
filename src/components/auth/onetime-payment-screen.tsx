@@ -37,7 +37,7 @@ import secureLocalStorage from "react-secure-storage";
 import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 import { navigateTo } from "@/utils/navigation";
-
+import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 
 
 
@@ -525,139 +525,176 @@ Account No *
       </Box>
     </>
   );
-      case 1:
-        return (
-          <>
-            <Typography>
-              Enter your email address to receive a payment confirmation.
-            </Typography>
-            <Box
-              mt={2}
-              mb={4}
-              border={1}
-              padding={2}
-              borderRadius={2}
-              sx={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: 0.5 }}
+   case 1:
+  return (
+    <>
+      {/* Info text */}
+      <Typography variant="body2" color="text.secondary" mb={2}>
+        Enter your email address to receive a payment confirmation.
+      </Typography>
+
+      {/* Account info box */}
+      <Box
+        sx={{
+          backgroundColor: "#f8fafc",
+          border: "1px solid #eaecf0",
+          borderRadius: "10px",
+          px: 2,
+          py: 1.5,
+          mb: 3,
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
+          rowGap: 0.5,
+        }}
+      >
+        <Typography sx={{ pr: 2, fontWeight: 600, whiteSpace: "nowrap" }}>
+          Account No:
+        </Typography>
+        <Typography sx={{ wordBreak: "break-word" }}>
+          {formData.accountNo}
+        </Typography>
+        <Typography sx={{ pr: 2, fontWeight: 600, whiteSpace: "nowrap" }}>
+          Customer:
+        </Typography>
+        <Typography sx={{ wordBreak: "break-word" }}>
+          {formData.name}
+        </Typography>
+      </Box>
+
+      {/* Email */}
+      <Box mb={2}>
+        <FormControl fullWidth error={!!errors.email}>
+          <InputLabel
+            shrink={emailFocused || Boolean(formData.email)}
+            sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+          >
+            Send Payment Confirmation to *
+          </InputLabel>
+          <OutlinedInput
+            notched={emailFocused || Boolean(formData.email)}
+            label="Send Payment Confirmation to *"
+            value={formData.email}
+            onChange={handleChange("email")}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+            startAdornment={
+              <EnvelopeSimple size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+            }
+          />
+          {errors.email && (
+            <FormHelperText>{errors.email}</FormHelperText>
+          )}
+        </FormControl>
+      </Box>
+
+      {/* Due Amount + Preview Invoice */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+        <Typography variant="body2" fontWeight={600}>
+          Due Amount: <span style={{ color: colors.blue }}>${customerDetails.balance}</span>
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ textDecoration: "underline", cursor: "pointer", color: colors.blue }}
+          onClick={handlePreviewInvoice}
+        >
+          PREVIEW INVOICE
+        </Typography>
+      </Box>
+
+      {/* Amount To Pay */}
+      <Box mb={3}>
+        <Tooltip
+          title={
+            companyInfo?.company?.allow_partial_payments == 0 &&
+            companyInfo?.company?.allow_overpayments == 0
+              ? "Over payments are not allowed at this time. And also Partial payments are not allowed"
+              : companyInfo?.customer?.is_payments_blocked == 1
+              ? companyInfo?.block_individual_customer_pay_text ?? "Payments are not allowed at this time."
+              : ""
+          }
+          {...tooltipSx}
+        >
+          <FormControl fullWidth error={!!errors.amountToPay}>
+            <InputLabel
+              shrink={amountFocused || Boolean(formData.amountToPay)}
+              sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
             >
-              <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
-                Account No:
-              </Typography>
-              <Typography sx={{ wordBreak: "break-word" }}>
-                {formData.accountNo}
-              </Typography>
-              <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
-                Customer:
-              </Typography>
-              <Typography sx={{ wordBreak: "break-word" }}>
-                {formData.name}
-              </Typography>
-            </Box>
-            <TextField
-              fullWidth
-              label="Send Payment Confirmation to *"
-              value={formData.email}
-              onChange={handleChange("email")}
-              error={!!errors.email}
-              helperText={errors.email}
-              sx={{ mb: 2 }}
-              placeholder="Enter your email address"
-            />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <Typography mb={0}>Due Amount: ${customerDetails.balance}</Typography>
-              <Typography
-                variant="body2"
-                sx={{ textDecoration: "underline", cursor: "pointer", color: colors.blue }}
-                onClick={handlePreviewInvoice}
-              >
-                PREVIEW INVOICE1
-              </Typography>
-            </Box>
-            <Tooltip
-              title={
-                companyInfo?.company?.allow_partial_payments == 0 &&
+              Amount To Pay *
+            </InputLabel>
+            <OutlinedInput
+              notched={amountFocused || Boolean(formData.amountToPay)}
+              label="Amount To Pay *"
+              value={formData.amountToPay}
+              onFocus={() => setAmountFocused(true)}
+              onBlur={() => setAmountFocused(false)}
+              disabled={
+                companyInfo?.company?.allow_partial_payments == 0 ||
                 companyInfo?.company?.allow_overpayments == 0
-                  ? "Over payments are not allowed at this time. And also Partial payments are not allowed"
-                  : companyInfo?.customer?.is_payments_blocked == 1
-                  ? companyInfo?.block_individual_customer_pay_text ?? "Payments are not allowed at this time."
-                  : ""
               }
-              {...tooltipSx}
-            >
-              <TextField
-                fullWidth
-                label="Amount To Pay *"
-                value={formData.amountToPay}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (Number(value) < 0) {
-                    toast.warn("Amount should be more than 0");
-                    return;
-                  }
-                  if (
-                    companyInfo?.company?.allow_overpayments == 0 &&
-                    Number(value) > customerDetails.balance
-                  ) {
-                    toast.warn("Over payments are not allowed at this time.");
-                    return;
-                  }
-                  if (
-                    companyInfo?.company?.allow_partial_payments == 0 &&
-                    Number(value) < customerDetails.balance
-                  ) {
-                    toast.warn("Partial payments are not allowed at this time.");
-                    return;
-                  }
-                  handleChange("amountToPay")(e);
-                }}
-                error={!!errors.amountToPay}
-                helperText={errors.amountToPay}
-                sx={{ mb: 2 }}
-                disabled={
-                  companyInfo?.company?.allow_partial_payments == 0 ||
-                  companyInfo?.company?.allow_overpayments == 0
+              onChange={(e) => {
+                const value = e.target.value;
+                if (Number(value) < 0) { toast.warn("Amount should be more than 0"); return; }
+                if (companyInfo?.company?.allow_overpayments == 0 && Number(value) > customerDetails.balance) {
+                  toast.warn("Over payments are not allowed at this time."); return;
                 }
-              />
-            </Tooltip>
-            <Box display="flex" justifyContent="space-between">
-              <Button
-                onClick={handleBack}
-                variant="outlined"
-                textTransform="none"
-                style={{
-                  color: colors.blue,
-                  borderColor: colors.blue,
-                  borderRadius: "12px",
-                  height: "41px",
-                }}
-              >
-                Back
-              </Button>
-              <Button
-                type="button"
-                variant="contained"
-                onClick={handleNext}
-                style={{
-                  borderRadius: "12px",
-                  height: "41px",
-                  backgroundColor: colors.blue,
-  // textTransform: window.innerWidth < 500 ? 'lowercase' : 'none'
-
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = colors["blue.3"])
+                if (companyInfo?.company?.allow_partial_payments == 0 && Number(value) < customerDetails.balance) {
+                  toast.warn("Partial payments are not allowed at this time."); return;
                 }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = colors.blue)
-                }
-textTransform={'none'}
+                handleChange("amountToPay")(e);
+              }}
+              startAdornment={
+                <CurrencyDollar size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+              }
+            />
+            {errors.amountToPay && (
+              <FormHelperText>{errors.amountToPay}</FormHelperText>
+            )}
+          </FormControl>
+        </Tooltip>
+      </Box>
 
-              >
-                Enter Payment Method
-              </Button>
-            </Box>
-          </>
-        );
+      {/* Buttons */}
+      <Box display="flex" justifyContent="space-between">
+        <MUIButton
+          variant="outlined"
+          onClick={handleBack}
+          startIcon={<ArrowLeft size={18} />}
+          sx={{
+            textTransform: "none",
+            borderRadius: "12px",
+            height: "44px",
+            px: 3,
+            color: colors.blue,
+            borderColor: colors.blue,
+            backgroundColor: "#fff",
+            fontWeight: 600,
+          }}
+        >
+          Back
+        </MUIButton>
 
+        <Button
+          type="button"
+          variant="contained"
+          onClick={handleNext}
+          textTransform="none"
+          style={{
+            borderRadius: "12px",
+            height: "44px",
+            paddingLeft: "24px",
+            paddingRight: "24px",
+            backgroundColor: colors.blue,
+            fontWeight: 600,
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
+        >
+          <CreditCard size={18} style={{ marginRight: 8 }} weight="regular" />
+          Enter Payment Method
+        </Button>
+      </Box>
+    </>
+  );
       case 2:
         return (
           <>
@@ -742,19 +779,25 @@ textTransform={'none'}
               customerDetails={customerDetails}
             />
             <Box display="flex" justifyContent="space-between" mt={2}>
-              <Button
-                onClick={handleBack}
-                variant="outlined"
-                textTransform="none"
-                style={{
-                  color: colors.blue,
-                  borderColor: colors.blue,
-                  borderRadius: "12px",
-                  height: "41px",
-                }}
-              >
-                Back
-              </Button>
+            
+
+                <MUIButton
+          variant="outlined"
+          onClick={handleBack}
+          startIcon={<ArrowLeft size={18} />}
+          sx={{
+            textTransform: "none",
+            borderRadius: "12px",
+            height: "44px",
+            px: 3,
+            color: colors.blue,
+            borderColor: colors.blue,
+            backgroundColor: "#fff",
+            fontWeight: 600,
+          }}
+        >
+          Back
+        </MUIButton>
             </Box>
           </>
         );
@@ -789,23 +832,18 @@ textTransform={'none'}
   };
 const [accountNoFocused, setAccountNoFocused] = React.useState(false);
 const [invoiceFocused, setInvoiceFocused] = React.useState(false);
+
+const [emailFocused, setEmailFocused] = React.useState(false);
+const [amountFocused, setAmountFocused] = React.useState(false);
   return (
     // ── Full-page screen wrapper ──────────────────────────────────────────────
-    <Box sx={{  bgcolor: "background.default", py: 0, px: { xs: 0.5, sm: 4 } }}>
+    <Box >
 
  
 
       {/* ── Card container (replaces Dialog box) ───────────────────────────── */}
       <Box
-        sx={{
-          // bgcolor: "background.paper",
-          // maxWidth: 600,
-          // mx: "auto",
-          // borderRadius: 2,
-          // boxShadow: 3,
-          p: { xs: 0, sm: 4 },
-          pt:{xs:0.5}
-        }}
+    
       >
 
 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
