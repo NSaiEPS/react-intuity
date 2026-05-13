@@ -26,7 +26,12 @@ import { Button as MUIButton } from "@mui/material";
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
-
+import { User } from "@phosphor-icons/react/dist/ssr/User";
+import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
+import { Info } from "@phosphor-icons/react/dist/ssr/Info";
+import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
+import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
 const schema = zod.object({
   email: zod.string().min(1, { message: "Email is required" }).email(),
 });
@@ -37,6 +42,7 @@ const defaultValues = { email: "" } satisfies Values;
 
 export function ForgotLoginForm(): React.JSX.Element {
   const [isPending, setIsPending] = React.useState<boolean>(false);
+  const [accountFocused, setAccountFocused] = React.useState(false);
 
   const {
     control,
@@ -70,7 +76,50 @@ export function ForgotLoginForm(): React.JSX.Element {
   );
   return (
     <Stack spacing={4}>
-      {/* <Typography variant="h5"></Typography> */}
+
+ <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+  <Box
+    sx={{
+      width: 64,
+      height: 64,
+      borderRadius: "50%",
+      backgroundColor: "#e8f0fb",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      position: "relative",
+    }}
+  >
+    <User size={30} color={colors.blue} weight="regular" />
+    {/* Small lock badge */}
+    <Box
+      sx={{
+        position: "absolute",
+        bottom: 4,
+        right: 4,
+        width: 20,
+        height: 20,
+        borderRadius: "50%",
+        backgroundColor: "#e8f0fb",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Lock size={12} color={colors.blue} weight="fill" />
+    </Box>
+  </Box>
+
+  <Box>
+    <Typography variant="h5" fontWeight={700}>
+      Forgot Your Username?
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      Enter your account number and we'll send your login username to the email associated with your account.
+    </Typography>
+  </Box>
+</Box>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography
           variant="body1"
@@ -78,56 +127,92 @@ export function ForgotLoginForm(): React.JSX.Element {
           mb={3.5}
 
         >
-          Please enter your account number.
-          Your Login will be sent to the email on file for this account.
+          {/* Please enter your account number.
+          Your Login will be sent to the email on file for this account. */}
 
         </Typography>
 
         <Stack spacing={2}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Account#
-                </InputLabel>
-                <OutlinedInput {...field} label="Account#
-" type="email" />
-                {errors.email ? (
-                  <FormHelperText>{errors.email.message}</FormHelperText>
-                ) : null}
-              </FormControl>
-            )}
-          />
-          {errors.root ? (
+        <Controller
+  control={control}
+  name="email"
+  render={({ field }) => (
+    <FormControl fullWidth error={Boolean(errors.email)}>
+      <InputLabel
+        shrink={accountFocused || Boolean(field.value)}
+        sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+      >
+        Account Number *
+      </InputLabel>
+      <OutlinedInput
+        {...field}
+        notched={accountFocused || Boolean(field.value)}
+        label="Account Number *"
+        type="text"
+        onFocus={() => setAccountFocused(true)}
+        onBlur={(e) => { field.onBlur(e); setAccountFocused(false); }}
+        startAdornment={
+          <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+        }
+      />
+      {errors.email && (
+        <FormHelperText>{errors.email.message}</FormHelperText>
+      )}
+    </FormControl>
+  )}
+/>
+         {errors.root && (
             <Alert color="error">{errors.root.message}</Alert>
-          ) : null}
-
-          <Box
-            mt={5}
+          )}
+       <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between"
-
+              alignItems: "flex-start",
+              gap: 1.5,
+              backgroundColor: "#eff6ff",
+              border: "1px solid #dbeafe",
+              borderRadius: "10px",
+              px: 2,
+              py: 1.5,
             }}
           >
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                backgroundColor: colors.blue,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Info size={18} color="#fff" weight="fill" />
+            </Box>
+            <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
+              We'll send your username to the email address linked to your account.
+            </Typography>
+          </Box>
 
+        
 
-
+          {/* Buttons */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1 }}>
             <MUIButton
               component={Link}
               to={paths.auth.newLogin(companyInfo?.company?.alias)}
               variant="outlined"
+              startIcon={<ArrowLeft size={18} />}
               sx={{
                 textTransform: "none",
-                // backgroundColor: colors.blue,
                 borderRadius: "12px",
-                height: "41px",
-                // width: "175px",
+                height: "44px",
+                px: 3,
                 color: colors.blue,
                 borderColor: colors.blue,
-                backgroundColor: "#fff"
-
+                backgroundColor: "#fff",
+                fontWeight: 600,
               }}
             >
               Back to Login
@@ -144,12 +229,14 @@ export function ForgotLoginForm(): React.JSX.Element {
               hoverColor="white"
               style={{
                 borderRadius: "12px",
-                marginLeft: "15px",
-                height: "41px",
-                width: "125px",
+                height: "44px",
+                paddingLeft: "24px",
+                paddingRight: "24px",
+                fontWeight: 600,
               }}
             >
-              Send
+              <PaperPlaneTilt size={18} style={{ marginRight: 8 }} weight="regular" />
+              Send Username
             </Button>
           </Box>
         </Stack>

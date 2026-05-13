@@ -108,7 +108,7 @@ const [emailFocused, setEmailFocused] = React.useState(false);
           mb={3.5}
 
         >
-          You will receive an email with a link for resetting your password.
+          {/* You will receive an email with a link for resetting your password. */}
 
         </Typography>
 
