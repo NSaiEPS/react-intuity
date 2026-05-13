@@ -468,7 +468,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
 {activeStep !== 3 && (
   <>
     {/* Icon + Title header */}
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 3 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 5 }}>
       <Box
         sx={{
           width: 72,
@@ -484,8 +484,14 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
         <User size={36} color={colors.blue} weight="regular" />
       </Box>
       <Box>
-        <Typography variant="h5" fontWeight={700} mb={0.5}>
-          Let's create your account
+        <Typography variant="h5" fontWeight={700} mb={0.5}
+        sx={{
+          color: colors.blue
+        }}
+        >
+          {/* Let's create your account */}
+      {steps[activeStep]}
+
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {activeStep === 2
@@ -495,10 +501,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
       </Box>
     </Box>
 
-    {/* Section label */}
-    <Typography variant="h6" sx={{ mb: 2, color: colors.blue, fontWeight: 700 }}>
-      {steps[activeStep]}
-    </Typography>
+  
   </>
 )}
   
@@ -1073,17 +1076,23 @@ Please check your email inbox and click the activation link to complete your acc
     variant="outlined"
     textTransform="none"
     disabled={loading}
+    
     style={{
       color: colors.blue,
       borderColor: colors.blue,
       borderRadius: "12px",
       height: "44px",
-      width: "130px",
+      width:activeStep==0? "auto":'110px',
       backgroundColor: "white",
       fontWeight: 600,
+      
     }}
   >
-    ← &nbsp; Back
+
+      {activeStep==0?
+      `←  Back to Login `:
+    
+    `← Back`}
   </Button>
 
   {activeStep < steps.length ? (
@@ -1095,7 +1104,7 @@ Please check your email inbox and click the activation link to complete your acc
       bgColor={colors.blue}
       hoverBackgroundColor={colors["blue.3"]}
       hoverColor="white"
-      style={{ borderRadius: "12px", height: "44px", width: "130px", fontWeight: 600 }}
+      style={{ borderRadius: "12px", height: "44px", width: "110px", fontWeight: 600 }}
     >
       {activeStep === steps.length - 1 ? "Submit" : "Next"} &nbsp; →
     </Button>
