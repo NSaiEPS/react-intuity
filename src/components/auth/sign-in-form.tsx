@@ -400,10 +400,13 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
             >
               Forgot password?
             </Link>
+{
+  alias?.[1] &&
 
             <Typography variant="body2" color="text.secondary">
               |
-            </Typography>
+            </Typography>}
+            {alias?.[1]  &&
 
             <Link
               to={paths.auth.forgotLogin(
@@ -418,7 +421,7 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
               }}
             >
               Forgot login username?
-            </Link>
+            </Link>}
           </Box>
         </Box>
       </Stack>

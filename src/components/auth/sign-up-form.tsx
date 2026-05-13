@@ -521,7 +521,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
               "&:not(.MuiInputLabel-shrink)": { left: "36px" },
             }}
           >
-            Account Number <span style={{ color: "red" }}>*</span>
+            Account Number *
           </InputLabel>
           <OutlinedInput
             {...field}
@@ -608,7 +608,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
               "&:not(.MuiInputLabel-shrink)": { left: "36px" },
             }}
           >
-            Answer 
+            Answer *
             {/* <span style={{ color: "red" }}>*</span> */}
           </InputLabel>
           <OutlinedInput

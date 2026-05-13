@@ -53,9 +53,10 @@ export default function PaymentInfoSection() {
   const location = useLocation();
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
+  console.log(slug,'fdeffgfgffg')
   const hasCompanySlug =
   slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-")||
-  slug?.startsWith("forgot-")   ;
+  slug?.startsWith("forgot-") && slug!=='forgot-login'   ;
   
   const { setContextLoading } = useLoading();
 
