@@ -26,7 +26,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Question, ArrowLeft } from "@phosphor-icons/react";
+import { Question } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/lib/custom-toast";
@@ -38,6 +38,18 @@ import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 import { navigateTo } from "@/utils/navigation";
 
+
+
+
+import { OutlinedInput, FormControl, FormHelperText, InputLabel } from "@mui/material";
+import { Button as MUIButton } from "@mui/material";
+import { User } from "@phosphor-icons/react/dist/ssr/User";
+import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
+import { CurrencyDollar } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
+import { Info } from "@phosphor-icons/react/dist/ssr/Info";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
+import { Receipt } from "@phosphor-icons/react/dist/ssr/Receipt";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
 export default function OneTimePaymentScreen() {
@@ -361,105 +373,158 @@ const handleBackToLogin=()=>{
 
   const renderStepContent = (step) => {
     switch (step) {
-      case 0:
-        return (
-          <>
-            <TextField
-              fullWidth
-              label="Account No. *"
-              value={formData.accountNo}
-              onChange={handleChange("accountNo")}
-              error={!!errors.accountNo}
-              helperText={errors.accountNo}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              label="Original Invoice Amount *"
-              value={formData.invoiceAmount}
-              onChange={handleChange("invoiceAmount")}
-              error={!!errors.invoiceAmount}
-              helperText={errors.invoiceAmount}
-              sx={{ mb: 2 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Tooltip
-                      title={
-                        <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
-                          Enter the amount from your original invoice for this
-                          billing period. Do not include any recently added late
-                          fees. Do not reduce the invoice amount due to any
-                          payments made since you received the initial bill.
-                        </span>
-                      }
-                      placement="top"
-                      arrow
-                      {...tooltipSx}
-                    >
-                      <IconButton edge="end" size="small">
-                        <Question size={20} color="#5dade2" weight="fill" />
-                      </IconButton>
-                    </Tooltip>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Box display="flex" justifyContent="space-between">
-  <Button
-              type="button"
-              variant="outlined"
-              onClick={handleBackToLogin}
+    case 0:
+  return (
+    <>
+      {/* Account Number */}
+      <Box mb={2}>
+        
+        <FormControl fullWidth error={!!errors.accountNo}>
+          <InputLabel
+            shrink={accountNoFocused || Boolean(formData.accountNo)}
+            sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+          >
+Account No *
+          </InputLabel>
+          <OutlinedInput
+            notched={accountNoFocused || Boolean(formData.accountNo)}
+            label="Account No *"
+            value={formData.accountNo}
+            onChange={handleChange("accountNo")}
+            onFocus={() => setAccountNoFocused(true)}
+            onBlur={() => setAccountNoFocused(false)}
+            startAdornment={
+              <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+            }
+          />
+          {errors.accountNo && (
+            <FormHelperText>{errors.accountNo}</FormHelperText>
+          )}
+        </FormControl>
+      </Box>
 
-              style={{
-                borderRadius: "12px",
-                height: "41px",
-                      color: colors.blue,
-                    borderColor: colors.blue,
+      {/* Original Invoice Amount */}
+      <Box mb={2}>
+      
+        <FormControl fullWidth error={!!errors.invoiceAmount}>
+          <InputLabel
+            shrink={invoiceFocused || Boolean(formData.invoiceAmount)}
+            sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+          >
+             Original invoice amount *
+          </InputLabel>
+          <OutlinedInput
+            notched={invoiceFocused || Boolean(formData.invoiceAmount)}
+            label="Original invoice amount *"
+            value={formData.invoiceAmount}
+            onChange={handleChange("invoiceAmount")}
+            onFocus={() => setInvoiceFocused(true)}
+            onBlur={() => setInvoiceFocused(false)}
+            startAdornment={
+              <CurrencyDollar size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+            }
+            endAdornment={
+              <InputAdornment position="end">
+                <Tooltip
+                  title={
+                    <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
+                      Enter the amount from your original invoice for this billing
+                      period. Do not include any recently added late fees.
+                    </span>
+                  }
+                  placement="top"
+                  arrow
+                  {...tooltipSx}
+                >
+                  <IconButton edge="end" size="small">
+                    <Question size={20} color="#5dade2" weight="fill" />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            }
+          />
+          {errors.invoiceAmount && (
+            <FormHelperText>{errors.invoiceAmount}</FormHelperText>
+          )}
+        </FormControl>
+      </Box>
 
+      {/* Info box */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 1.5,
+          backgroundColor: "#eff6ff",
+          border: "1px solid #dbeafe",
+          borderRadius: "10px",
+          px: 2,
+          py: 1.5,
+          mb: 3,
+        }}
+      >
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            backgroundColor: colors.blue,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Info size={18} color="#fff" weight="fill" />
+        </Box>
+        <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
+          Please enter the original invoice amount exactly as shown on your bill.
+        </Typography>
+      </Box>
 
- 
-  }}
-              // onMouseOver={(e) =>
-              //   (e.currentTarget.style.backgroundColor = colors["blue.3"])
-              // }
-              // onMouseOut={(e) =>
-              //   (e.currentTarget.style.backgroundColor = colors.blue)
-              // }
-                textTransform="none"
+      {/* Buttons */}
+      <Box display="flex" justifyContent="space-between">
+        <MUIButton
+          variant="outlined"
+          onClick={handleBackToLogin}
+          startIcon={<ArrowLeft size={18} />}
+          sx={{
+            textTransform: "none",
+            borderRadius: "12px",
+            height: "44px",
+            px: 3,
+            color: colors.blue,
+            borderColor: colors.blue,
+            backgroundColor: "#fff",
+            fontWeight: 600,
+          }}
+        >
+          Back to Login
+        </MUIButton>
 
-            >
-Back to Login
-            </Button>
-              <Button
-              type="button"
-              variant="contained"
-              onClick={handleRetrieveBill}
-              loading={accountLoading}
-              style={{
-                borderRadius: "12px",
-                height: "41px",
-                // width: "50%",
-                marginLeft:"4px",
-                backgroundColor: colors.blue,
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = colors["blue.3"])
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = colors.blue)
-              }
-                textTransform="none"
-
-            >
-              Retrieve Bill
-            </Button>
-
-            </Box>
-          
-          </>
-        );
-
+        <Button
+          type="button"
+          variant="contained"
+          onClick={handleRetrieveBill}
+          loading={accountLoading}
+          textTransform="none"
+          style={{
+            borderRadius: "12px",
+            height: "44px",
+            paddingLeft: "24px",
+            paddingRight: "24px",
+            backgroundColor: colors.blue,
+            fontWeight: 600,
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
+        >
+          <Receipt size={18} style={{ marginRight: 8 }} weight="regular" />
+          Retrieve Bill
+        </Button>
+      </Box>
+    </>
+  );
       case 1:
         return (
           <>
@@ -722,7 +787,8 @@ textTransform={'none'}
     }
     setPdfPreviewInvocie(true);
   };
-
+const [accountNoFocused, setAccountNoFocused] = React.useState(false);
+const [invoiceFocused, setInvoiceFocused] = React.useState(false);
   return (
     // ── Full-page screen wrapper ──────────────────────────────────────────────
     <Box sx={{  bgcolor: "background.default", py: 0, px: { xs: 0.5, sm: 4 } }}>
@@ -741,6 +807,48 @@ textTransform={'none'}
           pt:{xs:0.5}
         }}
       >
+
+<Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+  <Box
+    sx={{
+      width: 64,
+      height: 64,
+      borderRadius: "50%",
+      backgroundColor: "#e8f0fb",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      position: "relative",
+    }}
+  >
+    <CreditCard size={30} color={colors.blue} weight="regular" />
+    <Box
+      sx={{
+        position: "absolute",
+        bottom: 4,
+        right: 4,
+        width: 20,
+        height: 20,
+        borderRadius: "50%",
+        backgroundColor: "#e8f0fb",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <CheckCircle size={14} color={colors.blue} weight="fill" />
+    </Box>
+  </Box>
+  <Box>
+    <Typography variant="h5" fontWeight={700}>
+      One-Time Payment
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      Pay your bill securely in just a few simple steps.
+    </Typography>
+  </Box>
+</Box>
         <Stepper
           activeStep={activeStep}
           alternativeLabel
