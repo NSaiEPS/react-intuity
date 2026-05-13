@@ -706,92 +706,148 @@ Account No *
     </>
   );
       case 2:
-        return (
-          <>
-            <Typography paddingLeft={2}>Name: {formData.name}</Typography>
-            <Typography paddingLeft={2}>Email: {formData.email}</Typography>
-            <Box
-              mt={2}
-              border={1}
-              padding={2}
-              borderRadius={2}
-              sx={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: 0.5 }}
-            >
-              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }}>Payment Amount:</Typography>
-              <Typography>${Number(formData.amountToPay).toFixed(2)}</Typography>
-              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }}>Convenience Fee:</Typography>
-              <Typography>${Number(formData.convenienceFee).toFixed(2)}</Typography>
-              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }} fontWeight="bold">
-                Total Payment:
-              </Typography>
-              <Typography fontWeight="bold">
-                ${Number(formData.totalPayment).toFixed(2)}
-              </Typography>
-            </Box>
-            <Typography sx={{ mt: 2 }} paddingLeft={2}>
-              Select Payment Type
-            </Typography>
-            <RadioGroup
-              value={formData.paymentType}
-              onChange={handleChange("paymentType")}
-              sx={{ display: "flex", flexDirection: "row", padding: 2 }}
-            >
-              <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
-              <FormControlLabel
-                value="bank_account"
-                control={<Radio />}
-                label={
-                  <Box display="flex" alignItems="center" gap={1} position="relative">
-                    Bank Account
-                    <Box
-                      onMouseEnter={() => setHovered(true)}
-                      onMouseLeave={() => setHovered(false)}
-                      sx={{ position: "relative", display: "inline-block", top: 3 }}
-                    >
-                      <Question size={20} color="#5dade2" weight="fill" />
-                      {hovered && (
-                        <Box
-                          component="img"
-                          src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
-                          alt="Help"
-                          sx={{
-                            position: "absolute",
-                            top: "30px",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            width: 350,
-                            height: 350,
-                            borderRadius: 2,
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            zIndex: 999,
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </Box>
-                }
-              />
-            </RadioGroup>
-            {errors.paymentType && (
-              <Typography color="error" variant="caption">
-                {errors.paymentType}
-              </Typography>
-            )}
-            <PaymentIframe
-              type={formData.paymentType == "card" ? "card" : "account"}
-              onSuccess={(res) =>
-                handleSaveDetails(res, companyInfo, formData, customerDetails)
-              }
-              oneTimePayment={formData}
-              convenience_fee={String(formData.convenienceFee || 0)}
-              amount={(Number(formData.amountToPay) || 0).toFixed(2)}
-              amountRequired={true}
-              customerDetails={customerDetails}
-            />
-            <Box display="flex" justifyContent="space-between" mt={2}>
-            
+  return (
+    <>
+      {/* Name & Email info row */}
+      <Box
+        sx={{
+          backgroundColor: "#f8fafc",
+          border: "1px solid #eaecf0",
+          borderRadius: "10px",
+          px: 2,
+          py: 1.5,
+          mb: 2,
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
+          rowGap: 0.5,
+        }}
+      >
+        <Typography sx={{ pr: 2, fontWeight: 600, whiteSpace: "nowrap" }}>Name:</Typography>
+        <Typography>{formData.name}</Typography>
+        <Typography sx={{ pr: 2, fontWeight: 600, whiteSpace: "nowrap" }}>Email:</Typography>
+        <Typography>{formData.email}</Typography>
+      </Box>
 
-                <MUIButton
+      {/* Payment Summary */}
+      <Box
+        sx={{
+          backgroundColor: "#eff6ff",
+          border: "1px solid #dbeafe",
+          borderRadius: "10px",
+          px: 2,
+          py: 2,
+          mb: 2,
+        }}
+      >
+        <Typography variant="body2" fontWeight={700} color={colors.blue} mb={1.5}>
+          Payment Summary
+        </Typography>
+
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+          <Typography variant="body2" color="text.secondary">Payment Amount</Typography>
+          <Typography variant="body2" fontWeight={600}>
+            ${Number(formData.amountToPay).toFixed(2)}
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+          <Typography variant="body2" color="text.secondary">Convenience Fee</Typography>
+          <Typography variant="body2" fontWeight={600}>
+            ${Number(formData.convenienceFee).toFixed(2)}
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            borderTop: "1px solid #dbeafe",
+            mt: 1,
+            pt: 1,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography variant="body2" fontWeight={700}>Total Payment</Typography>
+          <Typography variant="body2" fontWeight={700} color={colors.blue}>
+            ${Number(formData.totalPayment).toFixed(2)}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Select Payment Type */}
+      <Box
+        sx={{
+          border: "1px solid #eaecf0",
+          borderRadius: "10px",
+          px: 2,
+          py: 1.5,
+          mb: 2,
+        }}
+      >
+        <Typography variant="body2" fontWeight={700} mb={1}>
+          Select Payment Type
+        </Typography>
+        <RadioGroup
+          value={formData.paymentType}
+          onChange={handleChange("paymentType")}
+          sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+        >
+          <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
+          <FormControlLabel
+            value="bank_account"
+            control={<Radio />}
+            label={
+              <Box display="flex" alignItems="center" gap={1} position="relative">
+                Bank Account
+                <Box
+                  onMouseEnter={() => setHovered(true)}
+                  onMouseLeave={() => setHovered(false)}
+                  sx={{ position: "relative", display: "inline-block", top: 3 }}
+                >
+                  <Question size={20} color="#5dade2" weight="fill" />
+                  {hovered && (
+                    <Box
+                      component="img"
+                      src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
+                      alt="Help"
+                      sx={{
+                        position: "absolute",
+                        top: "30px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: 350,
+                        height: 350,
+                        borderRadius: 2,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        zIndex: 999,
+                      }}
+                    />
+                  )}
+                </Box>
+              </Box>
+            }
+          />
+        </RadioGroup>
+        {errors.paymentType && (
+          <Typography color="error" variant="caption">
+            {errors.paymentType}
+          </Typography>
+        )}
+      </Box>
+
+      {/* Payment Iframe */}
+      <PaymentIframe
+        type={formData.paymentType == "card" ? "card" : "account"}
+        onSuccess={(res) => handleSaveDetails(res, companyInfo, formData, customerDetails)}
+        oneTimePayment={formData}
+        convenience_fee={String(formData.convenienceFee || 0)}
+        amount={(Number(formData.amountToPay) || 0).toFixed(2)}
+        amountRequired={true}
+        customerDetails={customerDetails}
+      />
+
+      {/* Back button */}
+      <Box display="flex" mt={2}>
+        <MUIButton
           variant="outlined"
           onClick={handleBack}
           startIcon={<ArrowLeft size={18} />}
@@ -808,10 +864,9 @@ Account No *
         >
           Back
         </MUIButton>
-            </Box>
-          </>
-        );
-
+      </Box>
+    </>
+  );
       default:
         return null;
     }
