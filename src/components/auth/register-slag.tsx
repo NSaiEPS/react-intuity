@@ -463,7 +463,7 @@ export default function PaymentInfoSection() {
                         }}
                       >
                         <Typography variant="h4" fontWeight="bold">
-                          Make One Time Payment
+Pay as Guest
                         </Typography>
                       </Box>
                       {/* <Divider /> */}
@@ -487,8 +487,8 @@ export default function PaymentInfoSection() {
                       >
                         <Stack>
                           <Typography variant="body1" marginTop={0}>
-
-                            Pay your bill in a few easy steps. All you need is your account number, original billing invoice amount, and email address.
+No registration or login required!
+Pay your bill in just a few easy steps. All you need is your account number, original billing invoice amount, and email address.
                           </Typography>
                           <Typography variant="body1" marginTop={3}>
                             Payments made will be posted to your account during
