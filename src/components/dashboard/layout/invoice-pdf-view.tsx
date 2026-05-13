@@ -643,6 +643,7 @@ export interface BillingInfo {
 }
 
 export interface CompanySettings {
+  company_url: string;
   invoice_subheadline?: string;
   invoice_text_header_email?: string;
   invoice_text_header_open?: string;

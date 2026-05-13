@@ -61,6 +61,10 @@ export function SignInForm({ user = false }): React.JSX.Element {
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
 
+  const hasLoginAlias =
+  pathname?.split("/")[1] !== "login" &&
+  pathname?.includes("login");
+
   const {
     control,
     handleSubmit,

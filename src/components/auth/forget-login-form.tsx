@@ -21,7 +21,7 @@ import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
 import { paths } from "@/utils/paths";
 import Button from "../CommonComponents/Button";
 import { Link } from "react-router";
-import { Button  as MUIButton} from "@mui/material";
+import { Button as MUIButton } from "@mui/material";
 
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -65,23 +65,23 @@ export function ForgotLoginForm(): React.JSX.Element {
     },
     [setError]
   );
-  const {  companyInfo } = useSelector(
+  const { companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
   return (
     <Stack spacing={4}>
       {/* <Typography variant="h5"></Typography> */}
       <form onSubmit={handleSubmit(onSubmit)}>
-      <Typography 
-      variant="body1" 
+        <Typography
+          variant="body1"
 
-mb={3.5}
+          mb={3.5}
 
-      >
-Please enter your account number.
-Your Login will be sent to the email on file for this account.
+        >
+          Please enter your account number.
+          Your Login will be sent to the email on file for this account.
 
-      </Typography>
+        </Typography>
 
         <Stack spacing={2}>
           <Controller
@@ -90,7 +90,7 @@ Your Login will be sent to the email on file for this account.
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
                 <InputLabel>Account#
-</InputLabel>
+                </InputLabel>
                 <OutlinedInput {...field} label="Account#
 " type="email" />
                 {errors.email ? (
@@ -107,33 +107,33 @@ Your Login will be sent to the email on file for this account.
             mt={5}
             sx={{
               display: "flex",
-              justifyContent:"space-between"
+              justifyContent: "space-between"
 
             }}
           >
-          
-           
+
+
 
             <MUIButton
-  component={Link}
-  to={paths.auth.newLogin(companyInfo?.company?.alias)}
-  variant="outlined"
-  sx={{
-    textTransform: "none",
-    // backgroundColor: colors.blue,
-    borderRadius: "12px",
-    height: "41px",
-    // width: "175px",
-      color: colors.blue,
-                    borderColor: colors.blue,
-                    backgroundColor:"#efefef"
- 
-  }}
->
-  Back to Login
-</MUIButton>
+              component={Link}
+              to={paths.auth.newLogin(companyInfo?.company?.alias)}
+              variant="outlined"
+              sx={{
+                textTransform: "none",
+                // backgroundColor: colors.blue,
+                borderRadius: "12px",
+                height: "41px",
+                // width: "175px",
+                color: colors.blue,
+                borderColor: colors.blue,
+                backgroundColor: "#fff"
 
-  <Button
+              }}
+            >
+              Back to Login
+            </MUIButton>
+
+            <Button
               disabled={isPending}
               loading={isPending}
               type="submit"
@@ -144,12 +144,12 @@ Your Login will be sent to the email on file for this account.
               hoverColor="white"
               style={{
                 borderRadius: "12px",
-marginLeft:"15px",
+                marginLeft: "15px",
                 height: "41px",
-                width: "75px",
+                width: "125px",
               }}
             >
-              Send 
+              Send
             </Button>
           </Box>
         </Stack>

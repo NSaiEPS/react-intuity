@@ -931,6 +931,8 @@ Please check your email inbox and click the activation link to complete your acc
                 borderColor: colors.blue,
                 borderRadius: "12px",
                 height: "41px",
+                width: "125px",
+                backgroundColor:"white"
               }}
             >
               Back
@@ -945,7 +947,7 @@ Please check your email inbox and click the activation link to complete your acc
                 bgColor={colors.blue}
                 hoverBackgroundColor={colors["blue.3"]}
                 hoverColor="white"
-                style={{ borderRadius: "12px", height: "41px" }}
+                style={{ borderRadius: "12px", height: "41px",width: "125px", }}
               >
                 Next
               </Button>
@@ -959,7 +961,7 @@ Please check your email inbox and click the activation link to complete your acc
                 bgColor={colors.blue}
                 hoverBackgroundColor={colors["blue.3"]}
                 hoverColor="white"
-                style={{ borderRadius: "12px", height: "41px" }}
+                style={{ borderRadius: "12px", height: "41px",width: "125px", }}
               >
                 Submit
               </Button>

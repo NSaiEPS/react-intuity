@@ -668,6 +668,7 @@ export default function AllInOneInvoicePdfDocument({
   isOneTime=false
 }: {
   invoiceDetails: InvoiceDetails;
+  isOneTime?: boolean;
 }) {
   const {
     company,
