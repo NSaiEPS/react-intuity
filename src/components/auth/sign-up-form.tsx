@@ -1010,12 +1010,12 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
                 shrink={phoneFocused || Boolean(field.value)}
                 sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
               >
-                Mobile Number
+                Mobile No.
               </InputLabel>
               <OutlinedInput
                 {...field}
                 notched={phoneFocused || Boolean(field.value)}
-                label="Mobile Number"
+                label="Mobile No."
                 value={formatUS(field.value || "")}
                 onChange={(e) => field.onChange(formatUS(e.target.value))}
                 onFocus={() => setPhoneFocused(true)}

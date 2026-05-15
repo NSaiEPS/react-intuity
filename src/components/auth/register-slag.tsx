@@ -50,7 +50,7 @@ export default function PaymentInfoSection() {
   const routeChecker = useSelector(
     (state: RootState) => state?.DashBoard?.routeChecker
   );
-
+const [showFullText, setShowFullText] = useState(false);
   const location = useLocation();
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
@@ -337,11 +337,39 @@ export default function PaymentInfoSection() {
                   />
 
                   <Typography variant="body2" color="text.primary">
-                    <strong>Important:</strong> A convenience or service fee may be
-                    charged by the payment
-                     {/* processor for credit/debit card, e-check or
-                    ACH online payments. The fee amount will be displayed before you
-                    complete your transaction. */}
+                    <strong>Important:</strong>{" "}  
+                    <>
+  <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+    A convenience or service fee may be charged by the payment
+    processor for credit/debit card, e-check or ACH online payments.
+    The fee amount will be displayed before you complete your transaction.
+  </Box>
+
+  <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+    {showFullText ? (
+      <>
+        A convenience or service fee may be charged by the payment
+        processor for credit/debit card, e-check or ACH online payments.
+        The fee amount will be displayed before you complete your transaction.
+      </>
+    ) : (
+      <>A convenience or service fee may be charged by the payment...</>
+    )}
+  </Box>
+</>
+  <Box
+    component="span"
+    onClick={() => setShowFullText(!showFullText)}
+    sx={{
+      color: colors.blue,
+      cursor: "pointer",
+      fontWeight: 600,
+      ml: 0.5,
+      display: { xs: "inline", sm: "none" },
+    }}
+  >
+    {showFullText ? "Read less" : "Read more"}
+  </Box>
                   </Typography>
                 </Box>
               </Box>

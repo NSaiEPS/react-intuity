@@ -123,7 +123,13 @@ export default function CompanyDetails({ reset = false }) {
           flexWrap: "wrap",
           justifyContent: "center",
           alignItems: "center",
-          gap: "32px",
+          gap: {xs:"12px",
+            sm:"32px"
+          },
+           flexDirection: {
+      xs: "column", // mobile
+      sm: "row",    // tablet and above
+    },
         }}
       >
         {/* Phone */}
