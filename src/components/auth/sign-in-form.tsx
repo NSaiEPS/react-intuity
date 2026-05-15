@@ -294,7 +294,7 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
         />
 
         {/* Important Notice Box */}
-        <Box
+        {/* <Box
           sx={{
             display: "flex",
             alignItems: "flex-start",
@@ -319,7 +319,7 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
             ACH online payments. The fee amount will be displayed before you
             complete your transaction.
           </Typography>
-        </Box>
+        </Box> */}
 
         {/* Register Now */}
         {alias?.[1] && (
@@ -346,43 +346,13 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
           </Alert>
         )}
 
-        {/* Login button + links row */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            alignItems: { xs: "flex-start", sm: "center" },
-            gap: { xs: 1.5, sm: 0 },
-          }}
-        >
-          <Button
-            disabled={isPending}
-            loading={isPending}
-            onClick={handleSubmit(onSubmit)}
-            type="submit"
-            variant="contained"
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{
-              borderRadius: "12px",
-              height: "44px",
-              minWidth: "120px",
-              fontWeight: 600,
-              fontSize: "1rem",
-            }}
-          >
-            <Lock size={18} style={{ marginRight: 8 }} weight="regular" />
-            Login
-          </Button>
-
           {/* Divider + links */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              ml: { xs: 0, sm: 2 },
+              // ml: { xs: 0, sm: 2 },
+              mb:3,
               gap: 1,
             }}
           >
@@ -423,9 +393,44 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
               Forgot login username?
             </Link>}
           </Box>
+
+        {/* Login button + links row */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: { xs: 1.5, sm: 0 },
+          }}
+        >
+          <Button
+            disabled={isPending}
+            loading={isPending}
+            onClick={handleSubmit(onSubmit)}
+            type="submit"
+            variant="contained"
+            textTransform="none"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+            hoverColor="white"
+            style={{
+              borderRadius: "12px",
+              height: "44px",
+              minWidth: "120px",
+              fontWeight: 600,
+              fontSize: "1rem",
+            }}
+            
+          >
+            <Lock size={18} style={{ marginRight: 8 }} weight="regular" />
+            Login
+          </Button>
+
+        
         </Box>
       </Stack>
     </form>
+    
   </Stack>
 );
 

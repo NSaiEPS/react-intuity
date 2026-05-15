@@ -5,6 +5,7 @@ import { Box, Link, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { Phone, EnvelopeSimple, Globe } from "@phosphor-icons/react/dist/ssr";
+import { Info } from "@phosphor-icons/react";
 
 export default function CompanyDetails({ reset = false }) {
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
@@ -60,6 +61,37 @@ export default function CompanyDetails({ reset = false }) {
         gap: "20px",
       }}
     >
+
+      {/* <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 1.5,
+          backgroundColor: "#eff6ff",
+          border: "1px solid #dbeafe",
+          borderRadius: "10px",
+          px: 2,
+          py: 1.5,
+          mt: 1,
+          maxWidth: "700px",
+          mx: "auto",
+          textAlign: "left",
+        }}
+      >
+        <Info
+          size={20}
+          color={colors.blue}
+          weight="regular"
+          style={{ flexShrink: 0, marginTop: 2 }}
+        />
+
+        <Typography variant="body2" color="text.primary">
+          <strong>Important:</strong> A convenience or service fee may be
+          charged by the payment processor for credit/debit card, e-check or
+          ACH online payments. The fee amount will be displayed before you
+          complete your transaction.
+        </Typography>
+      </Box> */}
       {/* Contact Us with divider lines */}
       <Box
         sx={{
@@ -136,7 +168,7 @@ export default function CompanyDetails({ reset = false }) {
           alt="logo"
           component="img"
           height={36}
-          width={160}
+          // width={160}
           src={"/assets/intuity-footer.png"}
           loading="lazy"
         />

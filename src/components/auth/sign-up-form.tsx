@@ -495,8 +495,10 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
         </Typography>
         <Typography variant="body2" color="text.secondary">
           {activeStep === 2
-            ? "Please enter your email address and phone number."
-            : "Please enter your information into the fields below and click NEXT to continue creating your account."}
+            // ? "Please enter your email address and phone number."
+            ? ""
+            // : "Please enter your information into the fields below and click NEXT to continue creating your account."}
+            : ""}
         </Typography>
       </Box>
     </Box>
@@ -534,6 +536,36 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             onBlur={() => { field.onBlur(); setAccountFocused(false); }}
             startAdornment={
               <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+            }
+             endAdornment={
+              <InputAdornment position="end">
+                <Tooltip
+                  title={authTooltips[field.value] || ""}
+                  placement="top"
+                  arrow
+                  enterTouchDelay={0}
+                  leaveTouchDelay={3000}
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "#E7E6E6",
+                        color: "#000",
+                        border: "1px solid #d0cfcf",
+                        fontSize: "14px",
+                        lineHeight: 1.4,
+                        "& .MuiTooltip-arrow": {
+                          color: "#E7E6E6",
+                          "&::before": { border: "1px solid #d0cfcf" },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <IconButton size="small" sx={{ mr: 1 }}>
+                    <Question size={20} color="#90caf9" weight="fill" />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
             }
           />
           {showError(errors.accountNumber) && (
@@ -978,12 +1010,12 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
                 shrink={phoneFocused || Boolean(field.value)}
                 sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
               >
-                Phone No
+                Mobile Number
               </InputLabel>
               <OutlinedInput
                 {...field}
                 notched={phoneFocused || Boolean(field.value)}
-                label="Phone No"
+                label="Mobile Number"
                 value={formatUS(field.value || "")}
                 onChange={(e) => field.onChange(formatUS(e.target.value))}
                 onFocus={() => setPhoneFocused(true)}
@@ -1058,14 +1090,14 @@ Please check your email inbox and click the activation link to complete your acc
 
           {/* <Divider sx={{ my: 2 }} /> */}
 
-          {activeStep === 2 && (
-            <Typography variant="body1" fontWeight="bold" mb={2}>
+          {/* {activeStep === 2 && (
+            <Typography variant="body1" fontWeight="bold" mb={2}> */}
               {/* Please enter your information into the fields below and click SUBMIT.
               You will receive an email confirmation with a link to finish creating
               your account. */}
-              After selecting Submit, you will receive an email confirmation with a link to activate your account.
+              {/* After selecting Submit, you will receive an email confirmation with a link to activate your account.
             </Typography>
-          )}
+          )} */}
 {
   activeStep !== 3&&
 

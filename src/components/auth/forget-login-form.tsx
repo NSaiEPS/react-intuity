@@ -164,7 +164,7 @@ export function ForgotLoginForm(): React.JSX.Element {
          {errors.root && (
             <Alert color="error">{errors.root.message}</Alert>
           )}
-       <Box
+       {/* <Box
             sx={{
               display: "flex",
               alignItems: "flex-start",
@@ -193,7 +193,7 @@ export function ForgotLoginForm(): React.JSX.Element {
             <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
               We'll send your username to the email address linked to your account.
             </Typography>
-          </Box>
+          </Box> */}
 
         
 

@@ -36,6 +36,7 @@ import OneTimePaymentScreen from "./onetime-payment-screen";
 import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
 import { ClipboardText } from "@phosphor-icons/react/dist/ssr/ClipboardText";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
+import { Info } from "@phosphor-icons/react";
 
 
 export default function PaymentInfoSection() {
@@ -53,11 +54,11 @@ export default function PaymentInfoSection() {
   const location = useLocation();
   const pathname = location.pathname;
   const slug = pathname?.split("/")[1];
-  console.log(slug,'fdeffgfgffg')
+  console.log(slug, 'fdeffgfgffg')
   const hasCompanySlug =
-  slug?.startsWith("login-") || slug?.startsWith("register-")||slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-")||
-  slug?.startsWith("forgot-") && slug!=='forgot-login'   ;
-  
+    slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("reset-password-") || slug?.startsWith("onetime-payment-") ||
+    slug?.startsWith("forgot-") && slug !== 'forgot-login';
+
   const { setContextLoading } = useLoading();
 
   React.useLayoutEffect(() => {
@@ -262,7 +263,7 @@ export default function PaymentInfoSection() {
                 // marginLeft: 'auto',
               }}
             >
-            
+
               {hasCompanySlug ? (
                 companyInfo?.company?.logo ?
                   <Avatar
@@ -271,7 +272,7 @@ export default function PaymentInfoSection() {
                   /> : null
               ) : (
                 <Box
-               
+
 
                   onClick={() => {
                     if (routeChecker) {
@@ -292,27 +293,70 @@ export default function PaymentInfoSection() {
                   <Logo color="dark" height={50} width={140} />
                 </Box>
               )}
-             
+
               {hasCompanySlug && (
                 <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
                   <Typography variant="h5" noWrap>
                     {companyInfo?.company?.company_name}
                   </Typography>
-                 
+
                 </Box>
               )}
             </Box>
           </Grid>
+
+          {(pathname === "/login" || pathname.includes("login-")) &&
+            !pathname.includes("forgot-login") && (
+              <Box
+                sx={{
+                  px: { xs: 2.5, sm: 0 },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 1.5,
+                    backgroundColor: "#FFF9C4",
+                    border: "1px solid #FAEA8F",
+                    borderRadius: "10px",
+                    px: 2,
+                    py: 1.5,
+                    mt: 2,
+                    mb: 1.5,
+                    maxWidth: "700px",
+                    mx: "auto",
+                    textAlign: "left",
+                  }}
+                >
+                  <Info
+                    size={20}
+                    color={colors.blue}
+                    weight="regular"
+                    style={{ flexShrink: 0, marginTop: 2 }}
+                  />
+
+                  <Typography variant="body2" color="text.primary">
+                    <strong>Important:</strong> A convenience or service fee may be
+                    charged by the payment
+                     {/* processor for credit/debit card, e-check or
+                    ACH online payments. The fee amount will be displayed before you
+                    complete your transaction. */}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+
           <Grid
             container
 
 
             sx={{ maxWidth: "1440px", width: "90%", height: "100%", mx: "auto" }}
-    
-            py={4}
 
-            pb={4}
-         
+            py={1.9}
+
+            pb={2.4}
+
             justifyContent={
               pathname?.split("/")[1] !== "login" && pathname?.includes("login") &&
                 !pathname?.includes("forgot")
@@ -329,183 +373,339 @@ export default function PaymentInfoSection() {
                   overflow: "hidden",
                   width: "100%",
                   height: "100%",
-               
+
                   marginTop: 0,
-                border: "1px solid #eaecf0",
-  borderRadius: "16px",
-boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)",
+                  border: "1px solid #eaecf0",
+                  borderRadius: "16px",
+                  boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)",
 
                   backgroundColor: "#fff",
                 }}
               >
-            
+
                 <CardContent
                   sx={{
                     p: {
                       xs: 3,
-   sm: 4, 
+                      sm: 4,
                     },
                   }}>
                   {getRequiredForms()}
 
-               
+
                 </CardContent>
               </Grid>
             </Grid>
-              {pathname?.split("/")[1] !== "login" &&
+            {pathname?.split("/")[1] !== "login" &&
               pathname?.includes("login") &&
               !pathname?.includes("forgot")
 
               && (
-                <Grid
-                  xs={12}
-                  md={6}
-                  sx={{
-                    display: { md: "block" },  // 👈 Add this line
+                <>
 
-                    // borderRight: '1px solid #e0e0e0',
-                    pl: { xs: 0, md: "20px" },
-                    pt: { xs: "20px", md: 0 },
-                    // border: '1px solid #e0e0e0',
-                    // borderTop: '0px',
-                    maxWidth: "1440px",
-                    width: "90%",
-                    mx: "auto",
+                  <Grid
+                    xs={12}
+                    md={6}
+                    sx={{
+                      display: { xs: "none", md: "block" },  // 👈 Add this line
 
-                  }}
-                >
-                 <Box
-  sx={{
-    overflow: "hidden",
-    width: "100%",
-    height: "100%",
-    border: "1px solid #eaecf0",
-    borderRadius: "16px",
-    boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)",
-    backgroundColor: "#fff",
-    px: { xs: 3, sm: 4 },
-    py: { xs: 3, sm: 4 },
-    display: "flex",
-    flexDirection: "column",
-    gap: 3,
-  }}
->
-  {/* Header */}
-  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-    <Box
-      sx={{
-        width: 56,
-        height: 56,
-        borderRadius: "50%",
-        backgroundColor: "#e6f4ea",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}
-    >
-      <CreditCard size={28} color="#2e7d32" weight="regular" />
-    </Box>
-    <Typography variant="h5" fontWeight={700} color="#0d1b3e">
-Pay as Guest
-    </Typography>
-  </Box>
+                      // borderRight: '1px solid #e0e0e0',
+                      pl: { xs: 0, md: "20px" },
+                      pt: { xs: "20px", md: 0 },
+                      // border: '1px solid #e0e0e0',
+                      // borderTop: '0px',
+                      maxWidth: "1440px",
+                      width: "90%",
+                      mx: "auto",
 
-  {/* Feature 1 - Quick & Easy */}
-  <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-    <Box
-      sx={{
-        width: 56,
-        height: 56,
-        borderRadius: "14px",
-        backgroundColor: "#e6f4ea",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}
-    >
-      <ClipboardText size={28} color="#2e7d32" weight="regular" />
-    </Box>
-    <Box>
-      <Typography variant="body1" fontWeight={700} color="#0d1b3e" mb={0.5}>
-        Quick & Easy
-      </Typography>
-      <Typography variant="body1" color="text.secondary">
-        No registration or login required! Pay your bill in just a few easy
-        steps. All you need is your account number, original billing invoice
-        amount, and email address.
-      </Typography>
-    </Box>
-  </Box>
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        overflow: "hidden",
+                        width: "100%",
+                        height: "100%",
+                        border: "1px solid #eaecf0",
+                        borderRadius: "16px",
+                        boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)",
+                        backgroundColor: "#fff",
+                        px: { xs: 3, sm: 4 },
+                        py: { xs: 3, sm: 4 },
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 3,
+                      }}
+                    >
+                      {/* Header */}
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Box
+                          sx={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: "50%",
+                            backgroundColor: "#e6f4ea",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <CreditCard size={28} color="#2e7d32" weight="regular" />
+                        </Box>
+                        <Typography variant="h5" fontWeight={700} color="#0d1b3e">
+                          Pay as Guest
+                        </Typography>
+                      </Box>
 
-  {/* Feature 2 - Instant Confirmation */}
-  <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-    <Box
-      sx={{
-        width: 56,
-        height: 56,
-        borderRadius: "14px",
-        backgroundColor: "#eef2fb",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}
-    >
-      <EnvelopeSimple size={28} color={colors.blue} weight="regular" />
-    </Box>
-    <Box>
-      <Typography variant="body1" fontWeight={700} color="#0d1b3e" mb={0.5}>
-        Instant Confirmation
-      </Typography>
-      <Typography variant="body1" color="text.secondary">
-        Payments made will be posted to your account during business hours.
-        For each payment you will receive an email confirmation for your
-        records.
-      </Typography>
-    </Box>
-  </Box>
+                      <Divider sx={{ borderColor: "#212636", opacity: "30%" }} />
+
+                      {/* Feature 1 - Quick & Easy */}
+                      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+                        <Box
+                          sx={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: "14px",
+                            backgroundColor: "#eef2fb",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <ClipboardText size={28} color={colors.blue} weight="regular" />
+                        </Box>
+                        <Box>
+                          <Typography variant="body1" fontWeight={700} color="#0d1b3e" mb={0.5}>
+                            Quick & Easy
+                          </Typography>
+                          <Typography fontSize={"14px"} variant="body1" color="text.secondary">
+                            No registration or login required! Pay your bill in just a few easy
+                            steps. All you need is your account number, original billing invoice
+                            amount, and email address.
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Feature 2 - Instant Confirmation */}
+                      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+                        <Box
+                          sx={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: "14px",
+                            backgroundColor: "#eef2fb",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <EnvelopeSimple size={28} color={colors.blue} weight="regular" />
+                        </Box>
+                        <Box>
+                          <Typography variant="body1" fontWeight={700} color="#0d1b3e" mb={0.5}>
+                            Instant Confirmation
+                          </Typography>
+                          <Typography fontSize={"14px"} variant="body1" color="text.secondary">
+                            Payments made will be posted to your account during business hours.
+                            For each payment you will receive an email confirmation for your
+                            records.
+                          </Typography>
+                        </Box>
+                      </Box>
 
 
 
-  {/* Pay Now Button */}
-  <Box
-  mt={'auto'}
-  >
-    {companyInfo?.company?.allow_payments == 0 ? (
-      <Box
-        className="instructions-html"
-        sx={{ "& a": { color: "red !important", textDecoration: "none" } }}
-        dangerouslySetInnerHTML={{ __html: finalHTML }}
-      />
-    ) : (
-      <Button
-        type="button"
-        variant="contained"
-        onClick={handlePayNow}
-        style={{
-          borderRadius: "12px",
-          height: "48px",
-          width: "160px",
-          backgroundColor: colors.blue,
-          fontSize: "1rem",
-          fontWeight: 600,
+                      {/* Pay Now Button */}
+                      <Box
+                        mt={'auto'}
+                      >
+                        {companyInfo?.company?.allow_payments == 0 ? (
+                          <Box
+                            className="instructions-html"
+                            sx={{ "& a": { color: "red !important", textDecoration: "none" } }}
+                            dangerouslySetInnerHTML={{ __html: finalHTML }}
+                          />
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="contained"
+                            onClick={handlePayNow}
+                            style={{
+                              borderRadius: "12px",
+                              height: "48px",
+                              width: "160px",
+                              backgroundColor: colors.blue,
+                              fontSize: "1rem",
+                              fontWeight: 600,
 
-        }}
-        textTransform='none'
-        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
-        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
-      >
-        <CreditCard size={20} style={{ marginRight: 8 }} weight="regular" />
-        Pay Now
-      </Button>
-    )}
-  </Box>
-</Box>
-                </Grid>
+                            }}
+                            textTransform='none'
+                            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
+                            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
+                          >
+                            <CreditCard size={20} style={{ marginRight: 8 }} weight="regular" />
+                            Pay Now
+                          </Button>
+                        )}
+                      </Box>
+
+
+                    </Box>
+
+                  </Grid>
+
+                  {/* Mobile View */}
+
+                  <Grid
+                    xs={12}
+                    md={6}
+                    sx={{
+                      display: { xs: "block", md: "none" },  // 👈 Add this line
+
+                      // borderRight: '1px solid #e0e0e0',
+                      pl: { xs: 0, md: "20px" },
+                      pt: { xs: "20px", md: 0 },
+                      // border: '1px solid #e0e0e0',
+                      // borderTop: '0px',
+                      maxWidth: "1440px",
+                      width: "90%",
+                      mx: "auto",
+
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        overflow: "hidden",
+                        width: "100%",
+                        height: "100%",
+                        border: "1px solid #eaecf0",
+                        borderRadius: "16px",
+                        boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)",
+                        backgroundColor: "#fff",
+                        px: { xs: 3, sm: 4 },
+                        py: { xs: 3, sm: 4 },
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 3,
+                      }}
+                    >
+                      {/* Header */}
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <Box
+                          sx={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: "50%",
+                            backgroundColor: "#e6f4ea",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <CreditCard size={28} color="#2e7d32" weight="regular" />
+                        </Box>
+                        <Box>
+
+                        <Typography variant="h5" fontWeight={700} color="#0d1b3e">
+                          Pay as Guest
+                        </Typography>
+                         <Typography variant="body2" color="text.secondary">
+                                   No registration or login required!
+                                </Typography>
+                        </Box>
+
+
+                      </Box>
+                      {/* <Typography fontSize={"14px"} variant="body1" color="text.secondary">
+                        No registration or login required! Pay your bill in just a few easy
+                        steps.
+                      </Typography> */}
+
+                      {/* Pay Now Button */}
+                      <Box
+                        mt={'auto'}
+                      >
+                        {companyInfo?.company?.allow_payments == 0 ? (
+                          <Box
+                            className="instructions-html"
+                            sx={{ "& a": { color: "red !important", textDecoration: "none" } }}
+                            dangerouslySetInnerHTML={{ __html: finalHTML }}
+                          />
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="contained"
+                            onClick={handlePayNow}
+                            style={{
+                              borderRadius: "12px",
+                              height: "48px",
+                              width: "160px",
+                              backgroundColor: colors.blue,
+                              fontSize: "1rem",
+                              fontWeight: 600,
+
+                            }}
+                            textTransform='none'
+                            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
+                            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
+                          >
+                            <CreditCard size={20} style={{ marginRight: 8 }} weight="regular" />
+                            Pay Now
+                          </Button>
+                        )}
+                      </Box>
+
+
+                    </Box>
+
+                  </Grid>
+                </>
               )}{" "}
           </Grid>
+
+          {(pathname === "/login" || pathname.includes("login-")) &&
+            !pathname.includes("forgot-login") && (
+              <Box
+                sx={{
+                  px: { xs: 2.5, sm: 0 },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 1.5,
+                    backgroundColor: "#eff6ff",
+                    border: "1px solid #dbeafe",
+                    borderRadius: "10px",
+                    px: 2,
+                    py: 1.5,
+                    mt: 1,
+                    mb: 1.5,
+                    maxWidth: "700px",
+                    mx: "auto",
+                    textAlign: "left",
+                  }}
+                >
+                  <Info
+                    size={20}
+                    color={colors.blue}
+                    weight="regular"
+                    style={{ flexShrink: 0, marginTop: 2 }}
+                  />
+
+                  <Typography variant="body2" color="text.primary">
+                    <strong>Important:</strong> A convenience or service fee may be
+                    charged by the payment processor for credit/debit card, e-check or
+                    ACH online payments. The fee amount will be displayed before you
+                    complete your transaction.
+                  </Typography>
+                </Box>
+              </Box>
+            )}
         </Stack>
         <Backdrop open={accountLoading} style={{ zIndex: 1300, color: "#fff" }}>
           <CircularProgress color="success" />

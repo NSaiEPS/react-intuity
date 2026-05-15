@@ -32,7 +32,7 @@ export default function Layout({ children }: LayoutProps): React.JSX.Element {
           <Providers>
             {/* <RouteLoader /> */}
             {children}
-            <ScrollNavButtons/>
+            {/* <ScrollNavButtons/> */}
           </Providers>
         </ThemeProvider>
       </LocalizationProvider>

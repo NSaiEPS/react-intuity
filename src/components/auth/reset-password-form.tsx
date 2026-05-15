@@ -145,7 +145,7 @@ const [emailFocused, setEmailFocused] = React.useState(false);
             <Alert color="error">{errors.root.message}</Alert>
           ) : null}
 
-        <Box
+        {/* <Box
           sx={{
             display: "flex",
             alignItems: "flex-start",
@@ -179,7 +179,7 @@ const [emailFocused, setEmailFocused] = React.useState(false);
               If you don't remember your username, contact our support team.
             </Typography>
           </Box>
-        </Box>
+        </Box> */}
 
       
 
