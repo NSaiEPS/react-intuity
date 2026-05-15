@@ -62,8 +62,8 @@ export function SignInForm({ user = false }): React.JSX.Element {
   const [isPending, setIsPending] = React.useState<boolean>(false);
 
   const hasLoginAlias =
-  pathname?.split("/")[1] !== "login" &&
-  pathname?.includes("login");
+    pathname?.split("/")[1] !== "login" &&
+    pathname?.includes("login");
 
   const {
     control,
@@ -73,31 +73,31 @@ export function SignInForm({ user = false }): React.JSX.Element {
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
 
   type Values = {
-  email: string;
-  password: string;
-}
+    email: string;
+    password: string;
+  }
 
   const slug = pathname?.split("/")[1];
 
+  const alias = slug?.split('login-');
+
+  const handleRegisterClick = async () => {
+    const slug = pathname?.split("/")[1];
+
+    if (slug === "login") {
+      navigate("/sign-up");
+      return;
+    }
+    else {
       const alias = slug?.split('login-');
 
-const handleRegisterClick = async () => {
-  const slug = pathname?.split("/")[1];
+      navigate(`/register-${alias[1]}`);
 
-  if (slug === "login") {
-    navigate("/sign-up");
-    return;
-  }
-  else {
-      const alias = slug?.split('login-');
-
-        navigate(`/register-${alias[1]}`);
-
-  }
+    }
 
 
 
-};
+  };
 
 
 
@@ -118,15 +118,15 @@ const handleRegisterClick = async () => {
           return;
         }
 
- 
-      } catch (error: unknown) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : "Something went wrong. Please try again.";
 
-  setError("root", { type: "server", message });
-} finally {
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.";
+
+        setError("root", { type: "server", message });
+      } finally {
         setIsPending(false);
       }
     },
@@ -136,11 +136,11 @@ const handleRegisterClick = async () => {
   const dispatch = useDispatch();
 
   type AuthResponse = {
-  body?: {
-    alias?: string;
-    is_verified?: number;
+    body?: {
+      alias?: string;
+      is_verified?: number;
+    };
   };
-};
 
   const successCallBack = async (res: AuthResponse) => {
     dispatch(setUserInfo(res));
@@ -163,138 +163,138 @@ const handleRegisterClick = async () => {
     }
   };
   const [usernameFocused, setUsernameFocused] = React.useState(false);
-const [passwordFocused, setPasswordFocused] = React.useState(false);
+  const [passwordFocused, setPasswordFocused] = React.useState(false);
   return (
 
-  <Stack spacing={3}>
-    {/* Header */}
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-      <Box
-        sx={{
-          width: 52,
-          height: 52,
-          borderRadius: "50%",
-          backgroundColor: "#e8f0fb",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        <User size={26} color={colors.blue} weight="regular" />
+    <Stack spacing={3}>
+      {/* Header */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            width: 52,
+            height: 52,
+            borderRadius: "50%",
+            backgroundColor: "#e8f0fb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <User size={26} color={colors.blue} weight="regular" />
+        </Box>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Welcome Back
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Login to access your account
+          </Typography>
+        </Box>
       </Box>
-      <Box>
-        <Typography variant="h5" fontWeight={700}>
-          Welcome Back
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Login to access your account
-        </Typography>
-      </Box>
-    </Box>
 
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={0}>
-        {/* Username */}
-        <Controller
-          control={control}
-          name="email"
-          render={({ field }) => (
-           <FormControl error={Boolean(errors.email)}>
-  <InputLabel shrink={usernameFocused || Boolean(field.value)}
-   sx={{
-    "&:not(.MuiInputLabel-shrink)": {
-      left: "36px", // push placeholder right when not focused/filled
-    },
-  }}
-  >
-    Username
-  </InputLabel>
-  <OutlinedInput
-    {...field}
-    notched={usernameFocused || Boolean(field.value)}
-    label="Username"
-    type="text"
-    onFocus={() => setUsernameFocused(true)}
-    onBlur={() => {
-      field.onBlur();
-      setUsernameFocused(false);
-    }}
-    startAdornment={
-      <User
-        size={18}
-        color="#9aa5b4"
-        weight="regular"
-        style={{ marginRight: 8 }}
-      />
-    }
-  />
-  <FormHelperText sx={{ minHeight: "20px" }}>
-    {errors?.email?.message ?? ""}
-  </FormHelperText>
-</FormControl>
-          )}
-        />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={0}>
+          {/* Username */}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.email)}>
+                <InputLabel shrink={usernameFocused || Boolean(field.value)}
+                  sx={{
+                    "&:not(.MuiInputLabel-shrink)": {
+                      left: "36px", // push placeholder right when not focused/filled
+                    },
+                  }}
+                >
+                  Username
+                </InputLabel>
+                <OutlinedInput
+                  {...field}
+                  notched={usernameFocused || Boolean(field.value)}
+                  label="Username"
+                  type="text"
+                  onFocus={() => setUsernameFocused(true)}
+                  onBlur={() => {
+                    field.onBlur();
+                    setUsernameFocused(false);
+                  }}
+                  startAdornment={
+                    <User
+                      size={18}
+                      color="#9aa5b4"
+                      weight="regular"
+                      style={{ marginRight: 8 }}
+                    />
+                  }
+                />
+                <FormHelperText sx={{ minHeight: "20px" }}>
+                  {errors?.email?.message ?? ""}
+                </FormHelperText>
+              </FormControl>
+            )}
+          />
 
-        {/* Password */}
-        <Controller
-          control={control}
-          name="password"
-          render={({ field }) => (
-            <FormControl error={Boolean(errors.password)}>
-  <InputLabel shrink={passwordFocused || Boolean(field.value)}
-   sx={{
-    "&:not(.MuiInputLabel-shrink)": {
-      left: "36px", // push placeholder right when not focused/filled
-    },
-  }}
-  >
-    Password
-  </InputLabel>
-  <OutlinedInput
-    {...field}
-    notched={passwordFocused || Boolean(field.value)}
-    label="Password"
-    type={showPassword ? "text" : "password"}
-    onFocus={() => setPasswordFocused(true)}
-    onBlur={() => {
-      field.onBlur();
-      setPasswordFocused(false);
-    }}
-    startAdornment={
-      <Lock
-        size={18}
-        color="#9aa5b4"
-        weight="regular"
-        style={{ marginRight: 8 }}
-      />
-    }
-    endAdornment={
-      showPassword ? (
-        <EyeIcon
-          cursor="pointer"
-          fontSize="var(--icon-fontSize-md)"
-          onClick={() => setShowPassword(false)}
-        />
-      ) : (
-        <EyeSlashIcon
-          cursor="pointer"
-          fontSize="var(--icon-fontSize-md)"
-          onClick={() => setShowPassword(true)}
-        />
-      )
-    }
-  />
-  <FormHelperText sx={{ minHeight: "20px" }}>
-    {errors?.password?.message ?? ""}
-  </FormHelperText>
-</FormControl>
+          {/* Password */}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.password)}>
+                <InputLabel shrink={passwordFocused || Boolean(field.value)}
+                  sx={{
+                    "&:not(.MuiInputLabel-shrink)": {
+                      left: "36px", // push placeholder right when not focused/filled
+                    },
+                  }}
+                >
+                  Password
+                </InputLabel>
+                <OutlinedInput
+                  {...field}
+                  notched={passwordFocused || Boolean(field.value)}
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => {
+                    field.onBlur();
+                    setPasswordFocused(false);
+                  }}
+                  startAdornment={
+                    <Lock
+                      size={18}
+                      color="#9aa5b4"
+                      weight="regular"
+                      style={{ marginRight: 8 }}
+                    />
+                  }
+                  endAdornment={
+                    showPassword ? (
+                      <EyeIcon
+                        cursor="pointer"
+                        fontSize="var(--icon-fontSize-md)"
+                        onClick={() => setShowPassword(false)}
+                      />
+                    ) : (
+                      <EyeSlashIcon
+                        cursor="pointer"
+                        fontSize="var(--icon-fontSize-md)"
+                        onClick={() => setShowPassword(true)}
+                      />
+                    )
+                  }
+                />
+                <FormHelperText sx={{ minHeight: "20px" }}>
+                  {errors?.password?.message ?? ""}
+                </FormHelperText>
+              </FormControl>
 
-          )}
-        />
+            )}
+          />
 
-        {/* Important Notice Box */}
-        {/* <Box
+          {/* Important Notice Box */}
+          {/* <Box
           sx={{
             display: "flex",
             alignItems: "flex-start",
@@ -321,38 +321,46 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
           </Typography>
         </Box> */}
 
-        {/* Register Now */}
-        {alias?.[1] && (
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            Don't have an account?{" "}
-            <span
-              onClick={handleRegisterClick}
-              style={{
-                color: colors.blue,
-                cursor: "pointer",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
-            >
-              Register Now
-            </span>{" "}
-            to view your account details
-          </Typography>
-        )}
+          {/* Register Now */}
+          {alias?.[1] && (
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              Don't have an account?{" "}
+              <span
+                onClick={handleRegisterClick}
+                style={{
+                  color: colors.blue,
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                Register Now
+              </span>{" "}
+              to view your account details
+            </Typography>
+          )}
 
-        {errors.root && (
-          <Alert color="error" sx={{ mb: 1 }}>
-            {errors.root.message}
-          </Alert>
-        )}
+          {errors.root && (
+            <Alert color="error" sx={{ mb: 1 }}>
+              {errors.root.message}
+            </Alert>
+          )}
 
           {/* Divider + links */}
-          <Box
+          {/* <Box
             sx={{
               display: "flex",
               alignItems: "center",
               // ml: { xs: 0, sm: 2 },
-              mb:3,
+              mb: 3,
+              gap: 1,
+            }}
+          > */}
+          <Box
+            sx={{
+              display: { xs: "none", sm: "flex" },
+              alignItems: "center",
+              mb: 3,
               gap: 1,
             }}
           >
@@ -370,68 +378,119 @@ const [passwordFocused, setPasswordFocused] = React.useState(false);
             >
               Forgot password?
             </Link>
-{
-  alias?.[1] &&
+            {
+              alias?.[1] &&
 
-            <Typography variant="body2" color="text.secondary">
-              |
-            </Typography>}
-            {alias?.[1]  &&
+              <Typography variant="body2" color="text.secondary">
+                |
+              </Typography>}
+            {alias?.[1] &&
 
-            <Link
-              to={paths.auth.forgotLogin(
-                pathname?.split("/")[1] === "login"
-                  ? null
-                  : pathname?.split("login-")[1]
-              )}
-              style={{
-                color: colors.blue,
-                textDecoration: "none",
-                fontSize: "0.875rem",
-              }}
-            >
-              Forgot login username?
-            </Link>}
+              <Link
+                to={paths.auth.forgotLogin(
+                  pathname?.split("/")[1] === "login"
+                    ? null
+                    : pathname?.split("login-")[1]
+                )}
+                style={{
+                  color: colors.blue,
+                  textDecoration: "none",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Forgot login username?
+              </Link>}
           </Box>
 
-        {/* Login button + links row */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            alignItems: { xs: "flex-start", sm: "center" },
-            gap: { xs: 1.5, sm: 0 },
-          }}
-        >
-          <Button
-            disabled={isPending}
-            loading={isPending}
-            onClick={handleSubmit(onSubmit)}
-            type="submit"
-            variant="contained"
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{
-              borderRadius: "12px",
-              height: "44px",
-              minWidth: "120px",
-              fontWeight: 600,
-              fontSize: "1rem",
+          {/* Login button + links row */}
+          {/* <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "flex-start", sm: "center" },
+              gap: { xs: 1.5, sm: 0 },
             }}
-            
+          > */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "row", sm: "row" },
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+              width: "100%",
+            }}
           >
-            <Lock size={18} style={{ marginRight: 8 }} weight="regular" />
-            Login
-          </Button>
+            <Button
+              disabled={isPending}
+              loading={isPending}
+              onClick={handleSubmit(onSubmit)}
+              type="submit"
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{
+                borderRadius: "12px",
+                height: "44px",
+                minWidth: "120px",
+                fontWeight: 600,
+                fontSize: "1rem",
+              }}
 
-        
-        </Box>
-      </Stack>
-    </form>
-    
-  </Stack>
-);
+            >
+              <Lock size={18} style={{ marginRight: 8 }} weight="regular" />
+              Login
+            </Button>
+
+            <Box
+              sx={{
+                display: { xs: "flex", sm: "none" },
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 0.5,
+              }}
+            >
+              <Link
+                to={paths.auth.resetPassword(
+                  pathname?.split("/")[1] === "login"
+                    ? null
+                    : pathname?.split("login-")[1]
+                )}
+                style={{
+                  color: colors.blue,
+                  textDecoration: "none",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Forgot password?
+              </Link>
+
+              {alias?.[1] && (
+                <Link
+                  to={paths.auth.forgotLogin(
+                    pathname?.split("/")[1] === "login"
+                      ? null
+                      : pathname?.split("login-")[1]
+                  )}
+                  style={{
+                    color: colors.blue,
+                    textDecoration: "none",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Forgot login username?
+                </Link>
+              )}
+            </Box>
+
+
+          </Box>
+        </Stack>
+      </form>
+
+    </Stack>
+  );
 
 }

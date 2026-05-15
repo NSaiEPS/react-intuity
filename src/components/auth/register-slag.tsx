@@ -353,7 +353,7 @@ const [showFullText, setShowFullText] = useState(false);
         The fee amount will be displayed before you complete your transaction.
       </>
     ) : (
-      <>A convenience or service fee may be charged by the payment...</>
+      <>A convenience or service fee may be charged by the...</>
     )}
   </Box>
 </>
