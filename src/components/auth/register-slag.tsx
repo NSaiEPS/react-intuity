@@ -85,8 +85,10 @@ const [showFullText, setShowFullText] = useState(false);
 
 
 
-    if (slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("onetime-payment-")) {
-      const alias = slug.replace("login-", "").replace("register-success-", "").replace("register-", "").replace('onetime-payment-', '')
+    if (slug?.startsWith("login-") || slug?.startsWith("register-") || slug?.startsWith("onetime-payment-")||
+  slug?.startsWith("forgot-login-")
+  ) {
+      const alias = slug.replace('forgot-login-', '').replace("login-", "").replace("register-success-", "").replace("register-", "").replace('onetime-payment-', '')
 
       formData.append("alias", alias);
 

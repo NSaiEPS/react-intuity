@@ -33,7 +33,7 @@ import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
 const schema = zod.object({
-  email: zod.string().min(1, { message: "Email is required" }).email(),
+  email: zod.string().min(1, { message: "Account number is required" }),
 });
 
 type Values = zod.infer<typeof schema>;
@@ -55,8 +55,14 @@ export function ForgotLoginForm(): React.JSX.Element {
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
+       const formData = new FormData();
+          formData.append("company", companyInfo?.company?.id);
+          formData.append("account", values.email);
+
+      
+
       // @ts-ignore
-      const { error } = await authClient.resetPassword(values);
+      const { error } = await authClient.resetUserName(formData, companyInfo?.company?.alias);
 
       if (error) {
         setError("root", { type: "server", message: error });
@@ -164,40 +170,7 @@ export function ForgotLoginForm(): React.JSX.Element {
          {errors.root && (
             <Alert color="error">{errors.root.message}</Alert>
           )}
-       {/* <Box
-            sx={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 1.5,
-              backgroundColor: "#eff6ff",
-              border: "1px solid #dbeafe",
-              borderRadius: "10px",
-              px: 2,
-              py: 1.5,
-            }}
-          >
-            <Box
-              sx={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                backgroundColor: colors.blue,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <Info size={18} color="#fff" weight="fill" />
-            </Box>
-            <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
-              We'll send your username to the email address linked to your account.
-            </Typography>
-          </Box> */}
-
-        
-
-          {/* Buttons */}
+       
           <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1,
    flexWrap: { xs: "wrap", sm: "nowrap" },
     gap: 1.5,

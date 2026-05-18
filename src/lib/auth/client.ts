@@ -160,6 +160,38 @@ class AuthClient {
     return {};
   }
 
+   async resetUserName(params: any,alias:string): Promise<{ error?: string }> {
+  
+
+    const res = await fetch(`${BASE_URL}index/recover-login`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+      },
+      body: params,
+    });
+
+    const data = await res.json();
+    if (data?.status) {
+      // toast.success(data?.message ?? "Email sent!");
+      toast.success(data?.message ?? "Email sent!", 
+         "",
+        () => {
+  navigateTo(`/login-${alias}`);          // redirect after OK
+});
+    }
+
+    if (!res.ok || data?.status == false || data?.body?.errors?.[0]) {
+      return {
+        error:
+          data?.message?.[0] ||
+          data?.body?.errors?.[0] ||
+          "Something went wrong !",
+      };
+    }
+    return {};
+  }
+
   async updatePassword(_: ResetPasswordParams): Promise<{ error?: string }> {
     return { error: "Update reset not implemented" };
   }
