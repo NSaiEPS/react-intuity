@@ -305,7 +305,7 @@ export const updateAccountInfo: any =
           toast.error(res?.message);
           return;
         }
-        if (!noRedirect) {
+        if (!noRedirect && profile) {
           navigateTo("/login", { replace: true }, res?.message);
         }
 

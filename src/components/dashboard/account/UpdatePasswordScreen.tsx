@@ -1,43 +1,37 @@
 import * as React from "react";
-
+import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
+import { User } from "@phosphor-icons/react/dist/ssr/User";
+import { Eye as EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
+import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Alert,
   Box,
-  Card,
-  CardContent,
-  Divider,
   FormControl,
   FormHelperText,
-  IconButton,
-  InputAdornment,
   InputLabel,
   OutlinedInput,
   Stack,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { Question } from "@phosphor-icons/react";
-import { Eye as EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
-import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
-import { Button } from "nsaicomponents";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
-import { useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { paths } from "@/utils/paths";
+import Button from "../../CommonComponents/Button";
+import { Button as MUIButton } from "@mui/material";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
-const passwordSchema = z
-  .string()
-  .min(6, "Password must be at least 6 characters");
-const hashSchema = z.string().min(4, "Hash must be at least 4 characters");
 
 const schema = z
   .object({
-    hash: hashSchema,
-    new_password: passwordSchema,
+    new_password: z
+      .string()
+      .min(6, { message: "Enter a password with at least 6 characters" }),
     repassword: z.string(),
   })
   .refine((data) => data.new_password === data.repassword, {
@@ -45,196 +39,265 @@ const schema = z
     path: ["repassword"],
   });
 
-type FormData = z.infer<typeof schema>;
+type FormValues = z.infer<typeof schema>;
 
-export function UpdatePasswordScreen() {
+const defaultValues = {
+  new_password: "",
+  repassword: "",
+};
+
+export function UpdatePasswordScreen(): React.JSX.Element {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { accountLoading } = useSelector((state: RootState) => state.Account);
+  const [searchParams] = useSearchParams();
+  const hash = searchParams.get("hash") || "";
+
+  const { accountLoading } = useSelector(
+    (state: RootState) => state.Account
+  );
+
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [passwordFocused, setPasswordFocused] = React.useState(false);
+  const [confirmPasswordFocused, setConfirmPasswordFocused] =
+    React.useState(false);
+  const [apiError, setApiError] = React.useState("");
 
   const {
-    register,
+    control,
     handleSubmit,
+    setError,
     formState: { errors },
-    reset,
-  } = useForm<FormData>({
+  } = useForm<FormValues>({
+    defaultValues,
     resolver: zodResolver(schema),
-    defaultValues: {
-      hash: "",
-      new_password: "",
-      repassword: "",
-    },
   });
-
-  const handleCancel = () => {
-    reset();
-    navigate(-1);
-  };
-
-  const onSubmit = (data: FormData) => {
-    const formData = new FormData();
-    formData.append("acl_role_id", "4");
-    formData.append("step", "2");
-    formData.append("newpassword", data.new_password);
-    formData.append("newpassword2", data.repassword);
-    formData.append("hash", data.hash);
-    dispatch(updateAccountInfo("", formData, false, successCallBack));
-  };
 
   const successCallBack = () => {
     navigate(paths.auth.newLogin());
   };
 
-  const [show, setShow] = React.useState({
-    new_password: false,
-    repassword: false,
-  });
+  const onSubmit = (values: FormValues) => {
+    if (!hash) {
+      setApiError("Invalid or missing reset password link");
+      return;
+    }
 
-  const toggleVisibility = (key: keyof typeof show) => {
-    setShow((prev) => ({ ...prev, [key]: !prev[key] }));
+    const formData = new FormData();
+    formData.append("acl_role_id", "4");
+    formData.append("step", "2");
+    formData.append("newpassword", values.new_password);
+    formData.append("newpassword2", values.repassword);
+    formData.append("hash", hash);
+
+    dispatch(updateAccountInfo("", formData, false, successCallBack));
   };
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={3}>
+      {/* Header */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            width: 52,
+            height: 52,
+            borderRadius: "50%",
+            backgroundColor: "#e8f0fb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <User size={26} color={colors.blue} weight="regular" />
+        </Box>
 
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Reset Password
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Create your new password
+          </Typography>
+        </Box>
+      </Box>
 
-       
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={0}>
+          {/* New Password */}
+          <Controller
+            control={control}
+            name="new_password"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.new_password)}>
+                <InputLabel
+                  shrink={passwordFocused || Boolean(field.value)}
+                  sx={{
+                    "&:not(.MuiInputLabel-shrink)": {
+                      left: "36px",
+                    },
+                  }}
+                >
+                  New Password
+                </InputLabel>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent sx={{ pt: 3 }}>
-            <Stack spacing={3}>
-              {/* <FormControl fullWidth error={!!errors.hash}>
-                <InputLabel>Email Hash</InputLabel>
                 <OutlinedInput
-                  label="Email Hash"
-                  type="text"
-                  {...register("hash")}
-                />
-                {errors.hash && (
-                  <FormHelperText>{errors.hash.message}</FormHelperText>
-                )}
-              </FormControl> */}
-
-              <FormControl fullWidth error={!!errors.new_password}>
-                <InputLabel>New Password</InputLabel>
-                <OutlinedInput
+                  {...field}
+                  notched={passwordFocused || Boolean(field.value)}
                   label="New Password"
-                  type={show.new_password ? "text" : "password"}
-                  {...register("new_password")}
+                  type={showPassword ? "text" : "password"}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => {
+                    field.onBlur();
+                    setPasswordFocused(false);
+                  }}
+                  startAdornment={
+                    <Lock
+                      size={18}
+                      color="#9aa5b4"
+                      weight="regular"
+                      style={{ marginRight: 8 }}
+                    />
+                  }
                   endAdornment={
-                    <InputAdornment position="end">
-                      <Tooltip
-                        title="At least 6 characters. Numbers & special characters allowed."
-                        arrow
-                        placement="top"
-                        componentsProps={{
-                          tooltip: {
-                            sx: {
-                              backgroundColor: "#E7E6E6",
-                              color: "#000000",
-                              border: "1px solid #d0cfcf",
-                              fontSize: "14px",
-                              lineHeight: 1.4,
-                              "& .MuiTooltip-arrow": {
-                                color: "#E7E6E6",
-                                "&::before": {
-                                  border: "1px solid #d0cfcf",
-                                },
-                              },
-                            },
-                          },
-                        }}
-                      >
-                        <IconButton size="small" edge="end">
-                          <Question size={20} color="#90caf9" weight="fill" />
-                        </IconButton>
-                      </Tooltip>
-                      <IconButton
-                        onClick={() => toggleVisibility("new_password")}
-                        edge="end"
-                      >
-                        {show.new_password ? (
-                          <EyeSlashIcon size={20} />
-                        ) : (
-                          <EyeIcon size={20} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
+                    showPassword ? (
+                      <EyeIcon
+                        cursor="pointer"
+                        onClick={() => setShowPassword(false)}
+                      />
+                    ) : (
+                      <EyeSlashIcon
+                        cursor="pointer"
+                        onClick={() => setShowPassword(true)}
+                      />
+                    )
                   }
                 />
-                {errors.new_password && (
-                  <FormHelperText>{errors.new_password.message}</FormHelperText>
-                )}
-              </FormControl>
 
-              <FormControl fullWidth error={!!errors.repassword}>
-                <InputLabel>Confirm Password</InputLabel>
+                <FormHelperText sx={{ minHeight: "20px" }}>
+                  {errors?.new_password?.message ?? ""}
+                </FormHelperText>
+              </FormControl>
+            )}
+          />
+
+          {/* Confirm Password */}
+          <Controller
+          
+            control={control}
+            name="repassword"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.repassword)}
+                sx={{ mt: 2 }}
+              >
+                <InputLabel
+                  shrink={confirmPasswordFocused || Boolean(field.value)}
+                  sx={{
+                    "&:not(.MuiInputLabel-shrink)": {
+                      left: "36px",
+                    },
+                  }}
+                >
+                  Confirm Password
+                </InputLabel>
+
                 <OutlinedInput
+                  {...field}
+                  notched={confirmPasswordFocused || Boolean(field.value)}
                   label="Confirm Password"
-                  type={show.repassword ? "text" : "password"}
-                  {...register("repassword")}
+                  type={showConfirmPassword ? "text" : "password"}
+                  onFocus={() => setConfirmPasswordFocused(true)}
+                  onBlur={() => {
+                    field.onBlur();
+                    setConfirmPasswordFocused(false);
+                  }}
+                  startAdornment={
+                    <Lock
+                      size={18}
+                      color="#9aa5b4"
+                      weight="regular"
+                      style={{ marginRight: 8 }}
+                    />
+                  }
                   endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => toggleVisibility("repassword")}
-                        edge="end"
-                      >
-                        {show.repassword ? (
-                          <EyeSlashIcon size={20} />
-                        ) : (
-                          <EyeIcon size={20} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
+                    showConfirmPassword ? (
+                      <EyeIcon
+                        cursor="pointer"
+                        onClick={() => setShowConfirmPassword(false)}
+                      />
+                    ) : (
+                      <EyeSlashIcon
+                        cursor="pointer"
+                        onClick={() => setShowConfirmPassword(true)}
+                      />
+                    )
                   }
                 />
-                {errors.repassword && (
-                  <FormHelperText>{errors.repassword.message}</FormHelperText>
-                )}
+
+                <FormHelperText sx={{ minHeight: "20px" }}>
+                  {errors?.repassword?.message ?? ""}
+                </FormHelperText>
               </FormControl>
-            </Stack>
-          </CardContent>
+            )}
+          />
 
-          <Divider />
+          {apiError && (
+            <Alert color="error" sx={{ mb: 2 }}>
+              {apiError}
+            </Alert>
+          )}
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 1,
-              px: 3,
-              py: 2,
-            }}
-          >
-            <Button
-              onClick={handleCancel}
+        <Box
+  sx={{
+    display: "flex",
+
+    gap: 2,
+    mt: 2,
+    justifyContent:"space-between"
+  }}
+>
+     <MUIButton
+              component={Link}
+              to={paths.auth.newLogin()}
               variant="outlined"
-              textTransform="none"
-              style={{
+              startIcon={<ArrowLeft size={18} />}
+              sx={{
+                textTransform: "none",
+                borderRadius: "12px",
+                height: "44px",
+                px: 3,
                 color: colors.blue,
                 borderColor: colors.blue,
-                borderRadius: "12px",
-                height: "41px",
+                backgroundColor: "#fff",
+                fontWeight: 600,
               }}
             >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={accountLoading}
-              loading={accountLoading}
-              textTransform="none"
-              bgColor={colors.blue}
-              hoverBackgroundColor={colors["blue.3"]}
-              hoverColor="white"
-              style={{ borderRadius: "12px", height: "41px" }}
-            >
-              Submit
-            </Button>
-          </Box>
-        </form>
+              Back to Login
+            </MUIButton>
 
+  <Button
+    disabled={accountLoading}
+    loading={accountLoading}
+    type="submit"
+    variant="contained"
+    textTransform="none"
+    bgColor={colors.blue}
+    hoverBackgroundColor={colors["blue.3"]}
+    hoverColor="white"
+    style={{
+      borderRadius: "12px",
+      height: "44px",
+      minWidth: "160px",
+      fontWeight: 600,
+      fontSize: "1rem",
+    }}
+  >
+    <Lock size={18} style={{ marginRight: 8 }} />
+    Update Password
+  </Button>
+</Box>
+        </Stack>
+      </form>
     </Stack>
   );
 }
