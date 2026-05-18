@@ -622,7 +622,7 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             }
           >
             <MenuItem value="last_name">Last Name or Business Name?</MenuItem>
-            <MenuItem value="billingAddress">Billing Street Name?</MenuItem>
+            <MenuItem value="billing_address">Billing Street Name?</MenuItem>
             <MenuItem value="pin">PIN?</MenuItem>
           </Select>
           {showError(errors.authType) && (
