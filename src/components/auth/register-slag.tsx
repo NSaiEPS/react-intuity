@@ -317,8 +317,8 @@ const [showFullText, setShowFullText] = useState(false);
                     display: "flex",
                     alignItems: "flex-start",
                     gap: 1.5,
-                    backgroundColor: "#FFF9C4",
-                    border: "1px solid #FAEA8F",
+                    // backgroundColor: "#FFF9C4",
+                    // border: "1px solid #FAEA8F",
                     borderRadius: "10px",
                     px: 2,
                     py: 1.5,
@@ -327,6 +327,7 @@ const [showFullText, setShowFullText] = useState(false);
                     maxWidth: "700px",
                     mx: "auto",
                     textAlign: "left",
+                    boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
                   }}
                 >
                   <Info
@@ -379,7 +380,7 @@ const [showFullText, setShowFullText] = useState(false);
             container
 
 
-            sx={{ maxWidth: "1440px", width: "90%", height: "100%", mx: "auto" }}
+            sx={{ maxWidth: "1440px", width:{xs:"90%", sm:"95%"}, height: "100%", mx: "auto" }}
 
             py={1.9}
 

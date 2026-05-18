@@ -465,17 +465,23 @@ Account No *
       >
         <Box
           sx={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            backgroundColor: colors.blue,
+          //   width: 32,
+          //   height: 32,
+          //   borderRadius: "50%",
+          //   backgroundColor: colors.blue,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
+          //   justifyContent: "center",
+          //   flexShrink: 0,
           }}
         >
-          <Info size={18} color="#fff" weight="fill" />
+          {/* <Info size={18} color="#fff" weight="fill" /> */}
+          <Info
+                    size={20}
+                    color={colors.blue}
+                    weight="regular"
+                    style={{ flexShrink: 0, marginTop: 4 }}
+                  />
         </Box>
         <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
           Please enter the original invoice amount exactly as shown on your bill.
@@ -945,7 +951,7 @@ const [amountFocused, setAmountFocused] = React.useState(false);
   </Box>
   <Box>
     <Typography variant="h5" fontWeight={700}>
-      One-Time Payment
+      Pay as Guest
     </Typography>
     <Typography variant="body2" color="text.secondary">
       Pay your bill securely in just a few simple steps.
