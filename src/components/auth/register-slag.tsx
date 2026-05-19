@@ -229,6 +229,44 @@ const [showFullText, setShowFullText] = useState(false);
     navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
 
   }
+  const rawMessage = companyInfo?.company?.biller_login_page_message;
+
+  const getImportantAlert=()=>{
+
+
+
+
+  // HTML string: sanitize and render
+  const sanitized = DOMPurify.sanitize(rawMessage);
+
+  return (
+    <>
+      {/* Desktop */}
+      <Box
+        component="span"
+        sx={{ display: { xs: "none", sm: "inline" } }}
+        dangerouslySetInnerHTML={{ __html: sanitized }}
+      />
+
+      {/* Mobile */}
+      <Box
+        component="span"
+        sx={{ display: { xs: "inline", sm: "none" } }}
+      >
+        {showFullText ? (
+          <Box
+            component="span"
+            dangerouslySetInnerHTML={{ __html: sanitized }}
+          />
+        ) : (
+          // Strip tags for truncated preview
+          <>{DOMPurify.sanitize(rawMessage, { ALLOWED_TAGS: [] }).slice(0, 60).trimEnd()}...</>
+        )}
+      </Box>
+    </>
+  );
+
+  }
   return (
     <SkeletonWrapper>
       <Box
@@ -308,7 +346,7 @@ const [showFullText, setShowFullText] = useState(false);
           </Grid>
 
           {(pathname === "/login" || pathname.includes("login-")) &&
-            !pathname.includes("forgot-login") && (
+            !pathname.includes("forgot-login") && rawMessage && (
               <Box
                 sx={{
                   px: { xs: 2.5, sm: 0 },
@@ -342,23 +380,7 @@ const [showFullText, setShowFullText] = useState(false);
                   <Typography variant="body2" color="text.primary">
                     <strong>Important:</strong>{" "}  
                     <>
-  <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
-    A convenience or service fee may be charged by the payment
-    processor for credit/debit card, e-check or ACH online payments.
-    The fee amount will be displayed before you complete your transaction.
-  </Box>
-
-  <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
-    {showFullText ? (
-      <>
-        A convenience or service fee may be charged by the payment
-        processor for credit/debit card, e-check or ACH online payments.
-        The fee amount will be displayed before you complete your transaction.
-      </>
-    ) : (
-      <>A convenience or service fee may be charged by the...</>
-    )}
-  </Box>
+{getImportantAlert()}
 </>
   <Box
     component="span"
