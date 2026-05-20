@@ -308,65 +308,82 @@ const getImportantAlert = () => {
         }}
       >
         <Stack sx={{ maxWidth: "100%", mx: "auto" }}>
-          <Grid
-            container
-            sx={{ maxWidth: "1440px", width: "90%", mx: "auto", }}
-            mt={0}
-            columnSpacing={3} // space between columns
-            rowSpacing={3} // space between rows (on small screens)
-            justifyContent="space-between"
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "100%",
+         <Grid
+  container
+  sx={{
+    maxWidth: "1440px",
+    width: { xs: "95%", sm: "92%", md: "90%" },
+    mx: "auto",
+  }}
+>
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: { xs: "column", sm: "row" },
+      justifyContent: "center",
+      alignItems: "center",
+      textAlign: { xs: "center", sm: "left" },
+      width: "100%",
+      gap: { xs: 1.5, sm: 2 },
+      px: 1,
+    }}
+  >
+    {hasCompanySlug ? (
+      companyInfo?.company?.logo ? (
+        <Avatar
+          src={companyInfo?.company?.logo}
+          sx={{
+            width: { xs: 56, sm: 70, md: 80 },
+            height: { xs: 56, sm: 70, md: 80 },
+            flexShrink: 0,
+          }}
+        />
+      ) : null
+    ) : (
+      <Box
+        onClick={() => {
+          if (routeChecker) {
+            const confirmLeave = window.confirm(
+              "You have unsaved changes. Are you sure you want to leave this page?"
+            );
+            if (confirmLeave) {
+              navigate(paths.auth.newLogin());
+            }
+          } else {
+            navigate(paths.auth.newLogin());
+          }
+        }}
+        sx={{ display: "inline-flex" }}
+      >
+        <Logo color="dark" height={50} width={140} />
+      </Box>
+    )}
 
-                // marginLeft: 'auto',
-              }}
-            >
-
-              {hasCompanySlug ? (
-                companyInfo?.company?.logo ?
-                  <Avatar
-                    src={companyInfo?.company?.logo}
-                    sx={{ width: 80, height: 80, mr: 1.5 }}
-                  /> : null
-              ) : (
-                <Box
-
-
-                  onClick={() => {
-                    if (routeChecker) {
-                      const confirmLeave = window.confirm(
-                        "You have unsaved changes. Are you sure you want to leave this page?"
-                      );
-                      if (confirmLeave) {
-                        return navigate(paths.auth.newLogin())
-                      }
-                    }
-                    else {
-
-                      navigate(paths.auth.newLogin())
-                    }
-                  }}
-                  sx={{ display: "inline-flex" }}
-                >
-                  <Logo color="dark" height={50} width={140} />
-                </Box>
-              )}
-
-              {hasCompanySlug && (
-                <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
-                  <Typography variant="h5" noWrap>
-                    {companyInfo?.company?.company_name}
-                  </Typography>
-
-                </Box>
-              )}
-            </Box>
-          </Grid>
+    {hasCompanySlug && (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0,
+          width: { xs: "100%", sm: "auto" },
+        }}
+      >
+        <Typography
+        variant="h5"
+          sx={{
+            fontSize: { xs: "1.25rem", sm: "1.75rem", md: "2rem" },
+            fontWeight: 700,
+            wordBreak: "break-word",
+            whiteSpace: "normal",
+            lineHeight: 1.2,
+          }}
+        >
+          {companyInfo?.company?.company_name}
+        </Typography>
+      </Box>
+    )}
+  </Box>
+</Grid>
 
           {(pathname === "/login" || pathname.includes("login-")) &&
             !pathname.includes("forgot-login") && rawMessage && (

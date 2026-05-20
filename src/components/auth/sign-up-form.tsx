@@ -540,7 +540,18 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
              endAdornment={
               <InputAdornment position="end">
                 <Tooltip
-                  title={authTooltips[field.value] || ""}
+                  // title={authTooltips[field.value] || ""}
+                    title={
+    <img
+      src="/assets/bankaccount-help.png"
+      alt="Help"
+      style={{
+        width: 1000,
+        maxWidth: "100%",
+        borderRadius: 8,
+      }}
+    />
+  }
                   placement="top"
                   arrow
                   enterTouchDelay={0}
