@@ -153,7 +153,8 @@ export default function OneTimePaymentScreen() {
         newErrors.accountNo = "Account No. is required";
       if (!formData.invoiceAmount)
         newErrors.invoiceAmount = "Invoice Amount is required";
-      else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount))
+      // else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount))
+      else if (!/^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/.test(formData.invoiceAmount))
         newErrors.invoiceAmount = "Only numbers or decimals allowed";
     }
     if (activeStep === 1) {
@@ -187,7 +188,7 @@ export default function OneTimePaymentScreen() {
     if (!formData.invoiceAmount) {
       setErrors({ invoiceAmount: "Invoice Amount is required" });
       return;
-    } else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
+    } else if (!/^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
       setErrors({ invoiceAmount: "Only numbers allowed" });
       return;
     }

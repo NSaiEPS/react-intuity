@@ -378,7 +378,7 @@ const [showFullText, setShowFullText] = useState(false);
                   />
 
                   <Typography variant="body2" color="text.primary">
-                    <strong>Important:</strong>{" "}  
+                    <strong>Announcements:</strong>{" "}  
                     <>
 {getImportantAlert()}
 </>
