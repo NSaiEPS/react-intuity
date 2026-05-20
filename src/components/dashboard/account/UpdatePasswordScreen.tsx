@@ -29,9 +29,15 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
 const schema = z
   .object({
-    new_password: z
-      .string()
-      .min(6, { message: "Enter a password with at least 6 characters" }),
+  
+
+          new_password: z
+            .string()
+            .min(6, "Minimum 6 characters")
+            .regex(
+              /^(?=.*[0-9]).{6,}$/,
+              "Must be at least 6 characters and include 1 number"
+            ),
     repassword: z.string(),
   })
   .refine((data) => data.new_password === data.repassword, {

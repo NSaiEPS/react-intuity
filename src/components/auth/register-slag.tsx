@@ -229,44 +229,67 @@ const [showFullText, setShowFullText] = useState(false);
     navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
 
   }
-  const rawMessage = companyInfo?.company?.biller_login_page_message;
+// const rawMessage = `<h1>No registration or login required!</h1>
 
-  const getImportantAlert=()=>{
+// <h5>
+//   Pay your bill in just a few easy steps. All you need is your account number,
+//   original billing invoice amount, and email address.
+// </h5>
 
+// <h5>
+//   Payments made will be posted to your account during business hours. For each
+//   payment, you will receive an email confirmation for your records.
+// </h5>`
+const rawMessage = companyInfo?.company?.biller_login_page_message;
+const plainText = rawMessage
+  ? DOMPurify.sanitize(rawMessage, { ALLOWED_TAGS: [] }).trim()
+  : "";
 
-
-
-  // HTML string: sanitize and render
-  const sanitized = DOMPurify.sanitize(rawMessage);
+const getImportantAlert = () => {
+  const sanitized = DOMPurify.sanitize(rawMessage ?? "");
+  const isLong = plainText.length > 80;
 
   return (
-    <>
-      {/* Desktop */}
+    <Box component="span" sx={{ display: "block" }}>
+      {/* HTML content with line clamp when collapsed */}
       <Box
         component="span"
-        sx={{ display: { xs: "none", sm: "inline" } }}
+        sx={{
+          "& p": { display: "inline", margin: 0 },
+          "& *": { display: "inline" },
+          ...(isLong && !showFullText
+            ? {
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }
+            : {
+                display: "block",
+              }),
+        }}
         dangerouslySetInnerHTML={{ __html: sanitized }}
       />
 
-      {/* Mobile */}
-      <Box
-        component="span"
-        sx={{ display: { xs: "inline", sm: "none" } }}
-      >
-        {showFullText ? (
-          <Box
-            component="span"
-            dangerouslySetInnerHTML={{ __html: sanitized }}
-          />
-        ) : (
-          // Strip tags for truncated preview
-          <>{DOMPurify.sanitize(rawMessage, { ALLOWED_TAGS: [] }).slice(0, 60).trimEnd()}...</>
-        )}
-      </Box>
-    </>
+      {/* Toggle button — always outside the clamp box so never hidden */}
+      {isLong && (
+        <Box
+          component="span"
+          onClick={() => setShowFullText(!showFullText)}
+          sx={{
+            color: colors.blue,
+            cursor: "pointer",
+            fontWeight: 600,
+            display: "inline-block",
+            mt: 0.5,
+          }}
+        >
+          {showFullText ? "Read less" : "Read more"}
+        </Box>
+      )}
+    </Box>
   );
-
-  }
+};
   return (
     <SkeletonWrapper>
       <Box
@@ -374,28 +397,20 @@ const [showFullText, setShowFullText] = useState(false);
                     size={20}
                     color={colors.blue}
                     weight="regular"
-                    style={{ flexShrink: 0, marginTop: 2 }}
+                    style={{ flexShrink: 0, marginTop: 0 }}
                   />
 
-                  <Typography variant="body2" color="text.primary">
-                    <strong>Announcements:</strong>{" "}  
-                    <>
-{getImportantAlert()}
-</>
-  <Box
-    component="span"
-    onClick={() => setShowFullText(!showFullText)}
-    sx={{
-      color: colors.blue,
-      cursor: "pointer",
-      fontWeight: 600,
-      ml: 0.5,
-      display: { xs: "inline", sm: "none" },
-    }}
-  >
-    {showFullText ? "Read less" : "Read more"}
-  </Box>
-                  </Typography>
+
+
+
+
+<Typography variant="body2" color="text.primary" component="div">
+  <strong>Announcements:</strong>{" "}
+
+  {getImportantAlert()}
+</Typography>
+
+
                 </Box>
               </Box>
             )}
