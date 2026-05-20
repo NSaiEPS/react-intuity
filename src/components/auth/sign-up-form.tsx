@@ -113,18 +113,25 @@ const steps = ["Account Info", "Portal Registration", "Contact Info",'Check Your
 
 const CustomStepIconRoot = styled("div")<{
   ownerState: { active?: boolean; completed?: boolean };
-}>(({ theme, ownerState }) => ({
+}>(({ ownerState }) => ({
   backgroundColor: ownerState.active ? colors.blue : "#ccc",
-  zIndex: 1,
   color: "#fff",
-  width: 32,
-  height: 32,
   display: "flex",
   borderRadius: "50%",
   justifyContent: "center",
   alignItems: "center",
   fontWeight: 500,
-  fontSize: 14,
+
+  width: "32px",
+  height: "32px",
+  fontSize: "14px",
+
+  "@media (max-width:380px)": {
+    width: "26px",
+    height: "26px",
+    fontSize: "12px",
+  },
+
   ...(ownerState.completed && {
     backgroundColor: colors.blue,
   }),
@@ -176,12 +183,38 @@ export const CustomStepper = ({ activeStep }: { activeStep: number }) => {
       <Stepper
         activeStep={activeStep}
         alternativeLabel
-        connector={<CustomConnector />}
-        sx={{ mb: 4, width: "100%" }}
+        connector={<CustomConnector topOffset={14} />}
+        sx={{
+          mb: 4,
+          width: "100%",
+          px: { xs: 0.5, sm: 1 },
+
+          "& .MuiStep-root": {
+            px: { xs: 0.2, sm: 1 },
+          },
+
+          "& .MuiStepLabel-label": {
+            mt: 1,
+            fontSize: {
+              xs: "0.72rem",
+              sm: "0.85rem",
+            },
+            lineHeight: 1.25,
+            whiteSpace: "normal",
+            textAlign: "center",
+            maxWidth: {
+              xs: "70px",
+              sm: "120px",
+            },
+            wordBreak: "break-word",
+          },
+        }}
       >
         {steps.map((label) => (
           <Step key={label}>
-            <StepLabel StepIconComponent={CustomStepIcon}>{label}</StepLabel>
+            <StepLabel StepIconComponent={CustomStepIcon}>
+              {label}
+            </StepLabel>
           </Step>
         ))}
       </Stepper>
