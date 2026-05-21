@@ -371,7 +371,7 @@ const getImportantAlert = () => {
         <Typography
         variant="h5"
           sx={{
-            fontSize: { xs: "1.25rem", sm: "1.75rem", md: "2rem" },
+            // fontSize: { xs: "1.25rem", sm: "1.75rem",  },
             fontWeight: 700,
             wordBreak: "break-word",
             whiteSpace: "normal",
