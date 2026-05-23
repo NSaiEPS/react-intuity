@@ -156,7 +156,7 @@ export const getAccountInfo: any =
       const res = await accountDetailsAPI({ role_id, user_id, token });
 
       if (res?.status) {
-        console.log(res, "accountDetailsAPI");
+        //console.log(res, "accountDetailsAPI");
         dispatch(setAccountInfo(res?.body));
       } else {
         navigateTo("/login", { replace: true }, res?.message);
@@ -182,7 +182,7 @@ export const updateAccountCustomerInfo: any =
       const res = await accountCustomerInfo({ token, formData });
 
       if (res?.status) {
-        console.log(res, "accountDetailsAPI");
+        //console.log(res, "accountDetailsAPI");
         toast.success(res?.message ?? "Email Sent!");
 
         dispatch(setAccountInfo(res?.body));
@@ -269,7 +269,7 @@ export const updateAccountInfo: any =
           toast.success(`Otp is ${res?.body?.otp}`);
         }
         if (!dataRequired) {
-          console.log(res);
+          //console.log(res);
 
           toast.success(
             res?.status == 200
@@ -576,7 +576,7 @@ export const registerApiRequest: any =
     try {
       const res = await registerApi({ formData,alias });
       
-      // console.log(res, 'getPaymentDetails');
+      // //console.log(res, 'getPaymentDetails');
       if (!alias) {
   toast.error("Company alias missing. Please reload the page.");
   dispatch(setAccountLoading(false));
@@ -622,7 +622,7 @@ export const linkAnotherAccount: any =
     try {
       const res = await listAnotherAccountAPI({ token, formData });
 
-      console.log(res, "linkAnotherAccount");
+      //console.log(res, "linkAnotherAccount");
 
       if (res?.status) {
         toast.success(res?.message ?? "Something went wrong!");

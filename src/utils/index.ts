@@ -81,7 +81,7 @@ export const boarderRadius = {
 export function getCurrentCompanySlug(): string | undefined {
   if (typeof window === "undefined") return undefined; // SSR-safe
   const pathParts = window.location.pathname.split("/");
-  // console.log(pathParts, 'pathPartspathParts');
+  // //console.log(pathParts, 'pathPartspathParts');
   if (pathParts.length > 1 && pathParts[1] !== "intuityfe") {
     return pathParts?.includes("register") ? pathParts[2] : pathParts[1];
   }

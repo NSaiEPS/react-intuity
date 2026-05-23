@@ -31,15 +31,15 @@ export function Logo({
   }
 
   return (
-    <Box
+    <img
       alt="logo"
-      component="img"
+
       height={height}
       width={width}
       src={src ?? url}
   loading="eager"           // ✅ load immediately
-  fetchpriority="high" 
-      sx={{ display: "block",
+  fetchPriority="high" 
+      style={{ display: "block",
         cursor: "pointer"
        }}
     />

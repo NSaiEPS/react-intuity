@@ -34,7 +34,7 @@ export function TransferDetailsForm(): React.JSX.Element {
   } = transferInfo?.customer_data?.[0] || {};
 
 
-  console.log(transferInfo,'transferInfo');
+  //console.log(transferInfo,'transferInfo');
   return (
     <>
       <form

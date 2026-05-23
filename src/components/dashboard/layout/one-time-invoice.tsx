@@ -698,7 +698,7 @@ export default function InvoicePdfDocument({
   } = invoiceDetails || {};
   const billing = invoiceDetails.last_bill?.[0];
 
-  console.log("hiii",invoiceDetails)
+  //console.log("hiii",invoiceDetails)
   const customerDetails=invoiceDetails?.customer;
 const billItemsTotal =
   invoiceDetails?.bill_items?.reduce(

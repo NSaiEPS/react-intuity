@@ -22,7 +22,7 @@ import { RootState } from "@/state/store";
 
 export function SideNav(): React.JSX.Element {
   // const pathname = usePathname();
-  // console.log(pathname.split('/'), 'pathnamepathname');
+  // //console.log(pathname.split('/'), 'pathnamepathname');
   const location = useLocation();
   const pathname = location.pathname;
   const dashBoardInfo = useSelector(
@@ -184,14 +184,14 @@ function NavItem({
     }
     return "intuityfe";
   }, [pathnames]);
-  // console.log(slug, pathnames.split('/'), 'slugslug');
+  // //console.log(slug, pathnames.split('/'), 'slugslug');
   // const hrefs = pathFun(slug);
   // const hrefs = typeof pathFun === 'function' ? pathFun(slug) : undefined;
   const hrefs = `/${slug}/dashboard${href?.split("/dashboard")[1]}`;
 
   const navigate = useNavigate();
 
-  // console.log(hrefs, href, pathFun, 'hrefshrefs', href?.split('/dashboard'));
+  // //console.log(hrefs, href, pathFun, 'hrefshrefs', href?.split('/dashboard'));
   const handleClick = () => {
     if (hrefs && !external) {
       if (routeChecker) {

@@ -109,8 +109,8 @@ const CardRow = React.memo(function CardRow({
     [onDelete, row]
   );
   // const cardNumber = decryptFunction(row.number)
-  //   .then((res) => console.log(res))
-  //   .catch((res) => console.log(res));
+  //   .then((res) => //console.log(res))
+  //   .catch((res) => //console.log(res));
   return (
     <TableRow hover key={row.id} selected={isSelected}>
       <TableCell>
@@ -233,7 +233,7 @@ export const PaymentMethods = ({
       //   (item) => item.card_token === selectedId
       // )[0];
 
-      // console.log(
+      // //console.log(
       //   "Selected Card Details:",
       //   paymentMethodInfoCards[selectedCardDetails]
       // );

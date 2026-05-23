@@ -121,7 +121,7 @@ export function Sales({
   // const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.usageGraph);
 
   // const barData = monthlyUsageGraph?.length monthlyUsageGraph?.slice(1);
-  // console.log(barData, 'barData');
+  // //console.log(barData, 'barData');
   const getBarChartData = (barData) => {
     const gallons: string[] = [];
     const dollars: string[] = [];
@@ -197,7 +197,7 @@ export function Sales({
           show: true,
           useHTML: true,
           formatter: function (val, index) {
-            // console.log('barGraphDatabarGraphData', val, index);
+            // //console.log('barGraphDatabarGraphData', val, index);
             const Dateindex = barGraphData.dates.indexOf(val);
             const dollar = barGraphData.dollars[Dateindex];
             const dollarVal = barGraphData.dollars[index];

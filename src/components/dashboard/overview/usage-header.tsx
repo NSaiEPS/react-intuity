@@ -65,7 +65,7 @@ function UsageHeader() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
 
-  console.log(CustomerInfo, "dhyh");
+  //console.log(CustomerInfo, "dhyh");
 
   return (
     <Grid container spacing={2} direction="column">

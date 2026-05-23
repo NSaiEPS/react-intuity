@@ -66,7 +66,7 @@ const HeaderSectionReact: React.FC<HeaderSectionProps> = ({
     customerDetails,
 
 }) => {
-    {console.log("customerDetails" , customerDetails);
+    {//console.log("customerDetails" , customerDetails);
 }
   return (
     <Grid

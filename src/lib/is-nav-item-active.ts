@@ -15,7 +15,7 @@ export function isNavItemActive({
 
   const normalizedPathname = normalize(pathname);
   const normalizedHref = normalize(href);
-  //console.log(matcher, normalizedPathname, normalizedHref, 'normalizedPathnamenormalizedPathname');
+  ////console.log(matcher, normalizedPathname, normalizedHref, 'normalizedPathnamenormalizedPathname');
   if (matcher) {
     if (matcher.type === 'startsWith') {
       return normalizedPathname.startsWith(normalize(matcher.href));

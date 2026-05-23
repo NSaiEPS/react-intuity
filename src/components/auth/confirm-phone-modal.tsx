@@ -52,7 +52,7 @@ export default function PhoneModal({
   );
   const [isPending, setIsPending] = useState(false);
   const [isOtpModal, setIsOtp] = useState(false);
-  // console.log(isOtpModal, notificationNumber, "isOtpModal");
+  // //console.log(isOtpModal, notificationNumber, "isOtpModal");
   useEffect(() => {
     if (notificationNumber) {
       setIsOtp(true);

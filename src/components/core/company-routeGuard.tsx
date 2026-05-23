@@ -33,7 +33,7 @@ export default function CompanyRouteGuard() {
   if (search.includes("token=")) {
     const token = () => {
       const match = search.match(/[?&]token=([^&]*)/);
-      console.log(search, match);
+      //console.log(search, match);
       if (!match) return null;
       // Preserve '+' (used in AES base64)
       const raw = match[1].replace(/\+/g, "%2B");
@@ -66,7 +66,7 @@ export default function CompanyRouteGuard() {
       dispatch(getConfirmInfo(token, formData, undefined, setContextLoading));
     };
     if (search) {
-      console.log(search, "fromsearch");
+      //console.log(search, "fromsearch");
       const formData = new FormData();
       const params = new URLSearchParams(search);
 

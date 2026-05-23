@@ -37,7 +37,7 @@ const CardSuccess = ({ isOneTimePayment = false ,successPage=false}) => {
   const convenienceFee = sanitize(searchParams.get("convenience_fee"));
   let stored: { body?: { token?: string } } | null = getLocalStorage("intuity-user") as { body?: { token?: string } } | null;
   const worldPlayDetails = getLocalStorage("worldplay-details");
-  console.log("worldPlayDetails", worldPlayDetails);
+  //console.log("worldPlayDetails", worldPlayDetails);
   useEffect(() => {
     const id = sanitize(searchParams.get("id"));
     const amount = sanitize(searchParams.get("amount"));
@@ -94,7 +94,7 @@ const CardSuccess = ({ isOneTimePayment = false ,successPage=false}) => {
       });
       const paymentData = new FormData();
       const worldPlayDetails: WorldPlayDetails = getLocalStorage("worldplay-details") as WorldPlayDetails;
-      console.log("worldPlayDetails", worldPlayDetails);
+      //console.log("worldPlayDetails", worldPlayDetails);
       paymentData.append("account_number", String(worldPlayDetails.account_number));
       paymentData.append("invoice_amount", String(worldPlayDetails.invoice_amount));
       paymentData.append("company_id", String(worldPlayDetails.company_id));
@@ -120,7 +120,7 @@ const CardSuccess = ({ isOneTimePayment = false ,successPage=false}) => {
 if(!successPage){
       dispatch(
         oneTimePayment(paymentData, () => {
-          console.log("One time payment success callback");
+          //console.log("One time payment success callback");
           removeLocalStorage("worldplay-details");
           handleCallBack();
         }),
@@ -141,7 +141,7 @@ if(!successPage){
 
 
 
-console.log(location.state);
+//console.log(location.state);
   const handleBackToLogin = () => {
    const alias = location.state?.email;
       navigate(paths.auth.newLogin(alias));

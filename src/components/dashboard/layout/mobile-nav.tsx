@@ -229,14 +229,14 @@ function NavItem({
     return "intuityfe";
   }, [pathnames]);
 
-  // console.log(slug, pathnames.split('/'), 'slugslug');
+  // //console.log(slug, pathnames.split('/'), 'slugslug');
 
   // const hrefs = pathFun(slug);
   // const hrefs = typeof pathFun === 'function' ? pathFun(slug) : undefined;
   const hrefs = `/${slug}/dashboard${href?.split("/dashboard")[1]}`;
   const navigate = useNavigate();
 
-  // console.log(hrefs, href, 'hrefshrefs', href?.split('/dashboard'));
+  // //console.log(hrefs, href, 'hrefshrefs', href?.split('/dashboard'));
   const handleClick = () => {
     if (hrefs && !external) {
       navigate(hrefs);

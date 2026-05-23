@@ -302,7 +302,7 @@ const authTooltips = {
   pin: "Your personal identification number (PIN) was sent with your new bill email notice. If you cannot find your PIN, select one of the other verification questions.",
 };
   const values = getValues();
-console.log(values.authType)
+//console.log(values.authType)
   const getFieldsForStep = (step: number) => {
     switch (step) {
       case 0:
@@ -407,7 +407,7 @@ console.log(values.authType)
     setCompanyResponse({ ...companyResponse, ...data });
     seLoading(false);
   };
-console.log(companyResponse,'companyResponse')
+//console.log(companyResponse,'companyResponse')
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -441,7 +441,7 @@ console.log(companyResponse,'companyResponse')
   React.useEffect(() => {
     const handleMessage = (event) => {
       if (event.origin.includes("hostedpayments.com")) {
-        console.log("Payment Result:", event.data);
+        //console.log("Payment Result:", event.data);
       }
     };
     window.addEventListener("message", handleMessage);

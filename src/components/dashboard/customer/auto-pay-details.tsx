@@ -88,7 +88,7 @@ export default function AutoPayDetails(): React.JSX.Element {
   const [selectedCardDetails, setSelectedCardDetails] =
     React.useState<CardDetails>(null);
 
-  console.log(autoPayDetails, selectedCardDetails, "autoPayDetails");
+  //console.log(autoPayDetails, selectedCardDetails, "autoPayDetails");
 
   React.useEffect(() => {
     setisAutoPay(CustomerInfo?.autopay === 1 ? true : false);
@@ -152,7 +152,7 @@ export default function AutoPayDetails(): React.JSX.Element {
       isAutoPay ? 1 : 0
     );
   };
-  console.log(selectedCardDetails, "selectedCardDetails");
+  //console.log(selectedCardDetails, "selectedCardDetails");
   return (
     <Card
       sx={{

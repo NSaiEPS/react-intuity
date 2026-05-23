@@ -14,7 +14,7 @@
 
 //   // mimic body onload="onLoad()"
 //   useEffect(() => {
-//     console.log("onLoad() called");
+//     //console.log("onLoad() called");
 //     // if you had custom script logic inside onLoad in PHP,
 //     // move it here
 //   }, []);
@@ -40,7 +40,7 @@
 //     }
 
 //     // mimic form POST
-//     console.log({
+//     //console.log({
 //       actualLink,
 //       routingNumber,
 //       accountNumber,
@@ -356,7 +356,7 @@ type FormErrors = Record<string, string>;
         token: generateToken(),
       };
       onSuccess(data);
-      console.log("✅ Data:", data);
+      //console.log("✅ Data:", data);
       // alert("Form submitted! Check console for data.");
     }
   };

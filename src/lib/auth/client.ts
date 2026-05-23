@@ -67,7 +67,7 @@ class AuthClient {
 
   //   // Make API request
   //   const res = await api.post('/login', formData);
-  //   console.log(res, 'errorerror');
+  //   //console.log(res, 'errorerror');
   //   const token = res.data?.body.token;
 
   //   if (token) {
@@ -129,7 +129,7 @@ class AuthClient {
   async resetPassword(params: { email: string },alias:string): Promise<{ error?: string }> {
     const { email } = params;
     const formData = new FormData();
-// console.log(alias)
+// //console.log(alias)
     formData.append("email", email);
 
     const res = await fetch(`${BASE_URL}index/recover-password`, {
@@ -229,7 +229,7 @@ class AuthClient {
       if (data?.message === "You are not authorised to use this api") {
         navigateTo("/login", { replace: true });
       }
-      console.log(data?.message, "logout error");
+      //console.log(data?.message, "logout error");
       // navigateTo("/login", { replace: true }, data?.message);
     }
     return {};

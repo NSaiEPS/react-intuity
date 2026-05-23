@@ -7,7 +7,7 @@ import { useLocation } from "react-router";
 import { Phone, EnvelopeSimple, Globe } from "@phosphor-icons/react/dist/ssr";
 
 // ✅ memo — prevents re-render when parent re-renders
-const CompanyDetails = memo(function CompanyDetails({ reset = false }) {
+const CompanyDetails = memo(function CompanyDetails() {
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
   const location = useLocation();
   const pathname = location.pathname;
@@ -110,14 +110,14 @@ const CompanyDetails = memo(function CompanyDetails({ reset = false }) {
 
       {/* ✅ Logo — eager + high priority = fixes LCP */}
       <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <Box
+        <img
           alt="Intuity"
-          component="img"
+
           height={36}
           width={231}
           src="/assets/intuity-footer.png"
           loading="eager"
-          fetchpriority="high"    // ✅ LCP fix
+          fetchPriority="high"    // ✅ LCP fix
         />
       </Box>
 

@@ -99,11 +99,11 @@ export function UserPopover({
     setLinkedAccounts(linkedAccountsInfo);
   }, [dashBoardInfo]);
   const dispatch = useDispatch();
-  // console.log(linkedAccounts, 'linkedAccounts');
+  // //console.log(linkedAccounts, 'linkedAccounts');
 
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [switchConfirm, setSwitchConfirm] = React.useState(false);
-  // console.log(switchConfirm, 'switchConfirm');
+  // //console.log(switchConfirm, 'switchConfirm');
   const [accountDetails, setAccountDetails] = React.useState<any>({});
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
@@ -119,7 +119,7 @@ export function UserPopover({
       formData.append("acl_role_id", roleId);
       formData.append("customer_id", userId);
 
-      console.log(routeChecker, "route");
+      //console.log(routeChecker, "route");
 
 
       if (routeChecker) {
@@ -181,7 +181,7 @@ export function UserPopover({
     dispatch(getNotificationList(token, formData));
   };
 
-  // console.log(linkedAccounts, 'linkedAccounts');
+  // //console.log(linkedAccounts, 'linkedAccounts');
 
   React.useEffect(() => {
     if (openType == "email") {
@@ -191,7 +191,7 @@ export function UserPopover({
 
 
   React.useEffect(() => {
-    console.log(notificationList)
+    //console.log(notificationList)
     if (notificationList?.count) {
       const pages = Math.ceil(
         notificationList.count / 10
@@ -276,7 +276,7 @@ export function UserPopover({
   };
 
   const handleCancelLink = () => {
-    // console.log(account, 'account');
+    // //console.log(account, 'account');
     // return;
     const formData = new FormData();
 

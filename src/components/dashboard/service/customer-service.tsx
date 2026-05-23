@@ -116,7 +116,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     //   toast.warning('Please upload file');
     //   return;
     // }
-    // console.log('Form Submitted:', data);
+    // //console.log('Form Submitted:', data);
 
     const formData = new FormData();
     formData.append("acl_role_id", roleId);

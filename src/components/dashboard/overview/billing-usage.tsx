@@ -322,7 +322,7 @@ const BarChart = () => {
   //     dataLabels: {
   //       enabled: true,
   //       formatter: function (val, { dataPointIndex }) {
-  //         console.log(barGraphData.gallons[dataPointIndex], dataPointIndex, barGraphData, 'dataPointIndex');
+  //         //console.log(barGraphData.gallons[dataPointIndex], dataPointIndex, barGraphData, 'dataPointIndex');
   //         return `${barGraphData.gallons[dataPointIndex]} ${uamType}`;
   //       },
   //       offsetY: -25,
@@ -338,7 +338,7 @@ const BarChart = () => {
   //         show: true,
   //         useHTML: true,
   //         formatter: function (val, index) {
-  //           // console.log('barGraphDatabarGraphData', val, index);
+  //           // //console.log('barGraphDatabarGraphData', val, index);
   //           let Dateindex = barGraphData.dates.indexOf(val);
   //           let dollar = barGraphData.dollars[Dateindex];
   //           const dollarVal = barGraphData.dollars[index];
@@ -445,7 +445,7 @@ type BarChartData = Record<string, [number, number]>;
             show: true,
             useHTML: true,
             formatter: function (val, index) {
-              // console.log('barGraphDatabarGraphData', val, index);
+              // //console.log('barGraphDatabarGraphData', val, index);
               let Dateindex = barGraphData.dates.indexOf(val);
               let dollar = barGraphData.dollars[Dateindex];
               const dollarVal = barGraphData.dollars[index];

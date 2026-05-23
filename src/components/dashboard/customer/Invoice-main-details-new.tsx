@@ -43,7 +43,7 @@
 // //    serviceAddress = addressParts.join(";");
 
 // //   // First item (safe access)
-// //   console.log(items)
+// //   //console.log(items)
 // //   itemsData =items
 // //    utilityDetails = items?.[0] ?? {};
 // //    utilityNameData = utilityName
@@ -58,7 +58,7 @@
 // //   );
 // // });
 
-// // console.log(utilityNameData)
+// // //console.log(utilityNameData)
 
 // //   return (
 // //    <Box

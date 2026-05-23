@@ -680,7 +680,7 @@ export default function AllInOneInvoicePdfDocument({
   } = invoiceDetails || {};
   const billing = invoiceDetails.last_bill?.[0];
 
-  console.log("hiii",invoiceDetails)
+  //console.log("hiii",invoiceDetails)
   const customerDetails=invoiceDetails?.customer;
 
    const subtotal = invoiceDetails?.bill_items?.reduce(

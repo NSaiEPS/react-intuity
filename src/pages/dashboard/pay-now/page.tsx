@@ -36,7 +36,7 @@ export default function PayNowPage(): React.JSX.Element {
 
     dispatch(
       getLastBillInfo(formData, token, undefined, false, (res) => {
-        console.log(res);
+        //console.log(res);
         if (res?.last_bill?.id) {
           const formData = new FormData();
 

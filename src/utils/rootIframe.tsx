@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 let iframeRoot: ReactDOM.Root | null = null;
 
 export const renderIframeRoot = (node: React.ReactNode) => {
-  console.log("rendered", "renderIframeRoot");
+  //console.log("rendered", "renderIframeRoot");
   const container = document.getElementById("iframe-root");
   if (!container) return;
 

@@ -70,7 +70,7 @@ interface DecryptedDetails {
   const [processorDetails, setProcessorDetails] = useState<ProcessorDetails>({});
   const [decryptedDetails, setDecryptedDetails] = useState<DecryptedDetails>({});
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
-  console.log(processorDetails, "processorDetails",iframeDynamicUrl,'iframeDynamicUrl');
+  //console.log(processorDetails, "processorDetails",iframeDynamicUrl,'iframeDynamicUrl');
   const CustomerInfo: CustomerInfo = dashBoardInfo?.body?.customer
     ? dashBoardInfo?.body?.customer
     : getLocalStorage("intuity-customerInfo");
@@ -156,7 +156,7 @@ interface DecryptedDetails {
   // Listen for iframe postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // console.log("Received message from iframe:", event.data);
+      // //console.log("Received message from iframe:", event.data);
       if (event?.data?.custId || event?.data?.token) {
         onSuccess(event.data); // parent callback
       }
@@ -238,7 +238,7 @@ interface DecryptedDetails {
       if (shouldDecrypt) {
         try {
           result[key] = await decryptPass(value);
-          console.log(result[key], "Decrypted Config1:");
+          //console.log(result[key], "Decrypted Config1:");
         } catch (e) {
           console.warn("Failed decrypt, keeping original:", key, value);
           result[key] = value;
@@ -255,7 +255,7 @@ interface DecryptedDetails {
     if (processorDetails) {
       (async () => {
         const decryptedConfig = await processConfig(processorDetails);
-        console.log("Final Config:", decryptedConfig);
+        //console.log("Final Config:", decryptedConfig);
 
         setDecryptedDetails(decryptedConfig);
       })();
@@ -276,7 +276,7 @@ interface DecryptedDetails {
   [key: string]: unknown; // allow backend extensions safely
 }
   const [worldpayDetails, setWorldpayDetails] = useState<WorldpayDetails | null>(null);
-  console.log(worldpayDetails, "worldpayDetails");
+  //console.log(worldpayDetails, "worldpayDetails");
   const companyInfo = useSelector(
     (state: RootState) => state.Account.companyInfo
   );
@@ -325,7 +325,7 @@ interface DecryptedDetails {
       curentProcessor?.includes("worldpay") &&
       worldpayDetails?.transaction_setup_id
     ) {
-      console.log("rendered", "renderIframeRoot");
+      //console.log("rendered", "renderIframeRoot");
 
       // Render iframe in its own root
       renderIframeRoot(
@@ -372,7 +372,7 @@ interface DecryptedDetails {
   
 
 //     script.onload = () => {
-//     console.log("✅ Forte JS loaded");
+//     //console.log("✅ Forte JS loaded");
 //     setForteReady(true);
 //   };
 

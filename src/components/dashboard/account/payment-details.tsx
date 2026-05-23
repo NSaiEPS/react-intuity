@@ -109,7 +109,7 @@ const PaymentForm = () => {
     dueDate,
     customer_acknowledgement_text = "",
   } = location.state || {};
-  // console.log(isSchedule, dueDate, customer_acknowledgement_text);
+  // //console.log(isSchedule, dueDate, customer_acknowledgement_text);
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState("1");
   const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
@@ -130,7 +130,7 @@ const PaymentForm = () => {
     );
   };
   const onSubmit = (data: FormData) => {
-    // console.log({ ...data, paymentType });
+    // //console.log({ ...data, paymentType });
   };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const accountLoading = useSelector(
@@ -220,7 +220,7 @@ const PaymentForm = () => {
 
   const id = searchParams.get("id");
   const transId = searchParams.get("transId");
-  // console.log(transId, id, "transId");
+  // //console.log(transId, id, "transId");
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
 
@@ -370,7 +370,7 @@ const PaymentForm = () => {
         setOpenPaymentModal(false);
         setOpenConfirm(false);
         paymentDetails();
-        console.log("Payment details saved successfully!"); // Handle success
+        //console.log("Payment details saved successfully!"); // Handle success
         // navigate(paths.dashboard.payNow());
       })
     );
@@ -444,7 +444,7 @@ const PaymentForm = () => {
   const card_no = searchParams.get("card_no");
   const card_type = searchParams.get("card_type");
   const expiration = searchParams.get("expiration");
-  // console.log(cardAmount, "cardAmount");
+  // //console.log(cardAmount, "cardAmount");
   useEffect(() => {
     if (cardAmount && cardConvenienceFee && cardTransId) {
       setShowPaymentSummary(true);

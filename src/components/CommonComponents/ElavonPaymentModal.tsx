@@ -48,7 +48,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
   const loadElavonSDK = async (): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       if (window.PayWithConverge) {
-        console.log("✅ Elavon SDK already loaded");
+        //console.log("✅ Elavon SDK already loaded");
         setSdkLoaded(true);
         resolve();
         return;
@@ -61,7 +61,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
         `script[src="${scriptUrl}"]`
       );
       if (existingScript) {
-        console.log("⚠️ Script already in DOM");
+        //console.log("⚠️ Script already in DOM");
         setSdkLoaded(true);
         resolve();
         return;
@@ -71,7 +71,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       script.src = scriptUrl;
       script.async = true;
       script.onload = () => {
-        console.log("✅ Elavon SDK loaded successfully");
+        //console.log("✅ Elavon SDK loaded successfully");
         setSdkLoaded(true);
         resolve();
       };
@@ -106,7 +106,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       });
 
       const data = await response.json();
-      console.log("🔑 Token response data:", data);
+      //console.log("🔑 Token response data:", data);
 
       if (!data?.body?.elavon_token)
         throw new Error("Elavon token not found in response");
@@ -119,8 +119,8 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       setLoading(false);
     }
   };
-  console.log("Elavon SDK:", window.PayWithConverge);
-  console.log("window.PayWithConverge:", window.PayWithConverge);
+  //console.log("Elavon SDK:", window.PayWithConverge);
+  //console.log("window.PayWithConverge:", window.PayWithConverge);
 
   // 🧩 STEP 2: Open Elavon Lightbox
   const openLightboxAddCard = async (sessionToken: string) => {
@@ -128,7 +128,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       alert("Elavon SDK not loaded yet");
       return;
     }
-    console.log("🚀 Opening Elavon Lightbox with token:", sessionToken);
+    //console.log("🚀 Opening Elavon Lightbox with token:", sessionToken);
     const frameEl = document.getElementById("id_payment_add_card");
     if (!frameEl) {
       console.error("❌ Frame element not found in DOM!");
@@ -147,11 +147,11 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       ssl_amount: "1.00",
     };
 
-    console.log("📤 Opening Elavon Lightbox with data:", paymentData);
+    //console.log("📤 Opening Elavon Lightbox with data:", paymentData);
 
     const callbacks = {
       onReady: () => {
-        console.log("✅ Lightbox ready");
+        //console.log("✅ Lightbox ready");
         setIframeVisible(true);
       },
       onError: (error: unknown) => {
@@ -167,7 +167,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
         showResultAddCard("declined", JSON.stringify(response, null, 2));
       },
       onApproval: (response: unknown) => {
-        console.log("✅ Payment approved:", response);
+        //console.log("✅ Payment approved:", response);
         showResultAddCard("approval", response);
       },
     };
@@ -182,7 +182,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
     // };
 
     try {
-      console.log("Opening Elavon Lightbox...", sessionToken);
+      //console.log("Opening Elavon Lightbox...", sessionToken);
 
       (window).PayWithConverge?.open(
         {
@@ -224,8 +224,8 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
 
   // 🧩 STEP 3: Handle Elavon callback results
   const showResultAddCard = async (status: string, msg: unknown) => {
-    console.log("txn_status_add_card:", status);
-    console.log("txn_response_add_card:", msg);
+    //console.log("txn_status_add_card:", status);
+    //console.log("txn_response_add_card:", msg);
 
     if (status === "approval") {
       const elavonResData = msg;
@@ -235,7 +235,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       alert("This payment was not approved or cancelled.");
       clearElavonFrame();
 
-      console.log("🔁 Elavon SDK reset — ready for next open()");
+      //console.log("🔁 Elavon SDK reset — ready for next open()");
     }
   };
 
@@ -264,7 +264,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
       (window).PayWithConverge.close();
     }
 
-    console.log("🔁 Elavon SDK reset — ready for next open()");
+    //console.log("🔁 Elavon SDK reset — ready for next open()");
   };
   useEffect(() => {
     if (type == "card") {

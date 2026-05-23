@@ -20,7 +20,7 @@ export default function ConfirmInformation() {
   // ✅ Extract token safely
   const token = React.useMemo(() => {
     const match = search.match(/[?&]token=([^&]*)/);
-    console.log(search, match);
+    //console.log(search, match);
     if (!match) return null;
     // Preserve '+' (used in AES base64)
     const raw = match[1].replace(/\+/g, "%2B");
@@ -30,7 +30,7 @@ export default function ConfirmInformation() {
       return raw;
     }
   }, [search]);
-  console.log(token);
+  //console.log(token);
   // ✅ Decrypt token using your PHP-compatible function
   const decrypted = React.useMemo(() => {
     if (!token) return null;
@@ -82,7 +82,7 @@ export default function ConfirmInformation() {
     //   );
 
     if (search) {
-      console.log(search, "fromsearch");
+      //console.log(search, "fromsearch");
       const formData = new FormData();
       const params = new URLSearchParams(search);
 

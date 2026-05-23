@@ -131,7 +131,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     let roleId = stored?.body?.acl_role_id;
     let customer_id = stored?.body?.customer_id;
     let token = stored?.body?.token;
-    // console.log(data, 'hhhhhhh');
+    // //console.log(data, 'hhhhhhh');
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", customer_id);

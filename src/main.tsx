@@ -19,7 +19,7 @@ isLoggedIn
   ? import("./pages/dashboard/page")
   : import("./components/auth/sign-in-page");
 window.addEventListener("error", (e) => {
-  console.log(e.message);
+  //console.log(e.message);
   if (e.message?.includes("Failed to fetch dynamically imported module")) {
     console.warn("Chunk load failed. Reloading app...");
     window.location.reload();

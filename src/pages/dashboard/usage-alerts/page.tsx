@@ -135,7 +135,7 @@ export default function AlertsScreen() {
       })
     );
 
-    console.log("Delete row:", id);
+    //console.log("Delete row:", id);
   };
 
   const handleBulkDelete = () => {

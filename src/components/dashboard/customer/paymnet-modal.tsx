@@ -80,7 +80,7 @@ export function PaymentModal({
       setDeleteType(type);
       return;
     }
-    console.log(type);
+    //console.log(type);
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
     const token = stored?.body?.token;

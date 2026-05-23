@@ -157,7 +157,7 @@ function NotificationsSettings() {
 
   // contact actions
   const handleConfirm = () => {
-    // console.log(value);
+    // //console.log(value);
 
     const formData = new FormData();
 
@@ -192,7 +192,7 @@ function NotificationsSettings() {
 
     dispatch(updateAccountInfo(token, formData, true, null));
 
-    console.log("Resend verification for:", value);
+    //console.log("Resend verification for:", value);
     // API call here
   };
 
@@ -217,7 +217,7 @@ function NotificationsSettings() {
   }
 
   const handleSave = () => {
-    console.log("Saved preferences:", preferences);
+    //console.log("Saved preferences:", preferences);
 
     const formData = new FormData();
 

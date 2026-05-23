@@ -298,7 +298,7 @@ const MainSection = memo(function MainSection() {
 export default MainSection;
 
 // ✅ extracted — prevents re-render of whole page
-const PayAsGuestCard = memo(function PayAsGuestCard({ companyInfo, finalHTML, handlePayNow, showFull }) {
+const PayAsGuestCard = memo(function PayAsGuestCard({ companyInfo, finalHTML, handlePayNow, showFull }:any) {
   return (
     <Box sx={{ overflow: "hidden", width: "100%", height: "100%", border: "1px solid #eaecf0", borderRadius: "16px", boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)", backgroundColor: "#fff", px: { xs: 3, sm: 4 }, py: { xs: 3, sm: 4 }, display: "flex", flexDirection: "column", gap: 3 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

@@ -145,7 +145,7 @@ export default function AddAccountPage() {
     }, [isDirty]);
 
   const handleStepOne = (step) => {
-    console.log("Step:", step);
+    //console.log("Step:", step);
     setLoading(true);
     type IntuityUser = {
       body?: {

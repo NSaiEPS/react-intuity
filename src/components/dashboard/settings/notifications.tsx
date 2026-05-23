@@ -135,7 +135,7 @@ export function Notifications(): React.JSX.Element {
   );
   const [userUpdating, setUserUpdating] = React.useState("");
   const { contextLoading } = useLoading();
-  console.log(notificationPreferenceDetails, "notificationPreferenceDetails");
+  //console.log(notificationPreferenceDetails, "notificationPreferenceDetails");
   const {
     control,
     handleSubmit,
@@ -155,7 +155,7 @@ export function Notifications(): React.JSX.Element {
 
   const watchEmail = watch("email");
   const watchPhone = watch("phone");
-  console.log(watchPhone, "watchPhone");
+  //console.log(watchPhone, "watchPhone");
   React.useEffect(() => {
     setEmailUpdated(true);
   }, [watchEmail]);
@@ -209,7 +209,7 @@ export function Notifications(): React.JSX.Element {
   const handleEmailUpdate = async () => {
     const valid = await trigger("email");
     if (valid) {
-      console.log("Updated email:", getValues("email"));
+      //console.log("Updated email:", getValues("email"));
       setUserUpdating("email");
 
       const formData = new FormData();
@@ -237,7 +237,7 @@ export function Notifications(): React.JSX.Element {
         clickedState ? 1 : 0
       );
     }
-    console.log("Email updated successfully");
+    //console.log("Email updated successfully");
   };
 
   const getPrefDetails = () => {
@@ -257,7 +257,7 @@ export function Notifications(): React.JSX.Element {
       return;
     }
 
-    // console.log("Updated email:", getValues("email"));
+    // //console.log("Updated email:", getValues("email"));
     setUserUpdating("phone");
 
     const formData = new FormData();
@@ -281,7 +281,7 @@ export function Notifications(): React.JSX.Element {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log("Saved All:", data);
+    //console.log("Saved All:", data);
     reset(data);
     setEmailUpdated(false);
     setPhoneUpdated(false);

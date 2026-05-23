@@ -78,7 +78,7 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose,onSuccess }) => {
   const dispatch = useDispatch();
 
   const handleSaveDetails = (data) => {
-    console.log(data);
+    //console.log(data);
     if (data?.error) {
       toast.error(
         data?.error ? data?.error : "Try again something went wrong!"

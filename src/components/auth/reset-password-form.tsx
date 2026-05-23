@@ -53,7 +53,7 @@ export function ResetPasswordForm(): React.JSX.Element {
   const { companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
-  console.log(companyInfo)
+  //console.log(companyInfo)
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);

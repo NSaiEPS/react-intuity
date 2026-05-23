@@ -41,7 +41,7 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
     script.setAttribute("forte-api-login-id", FORTE_LOGIN_ID);
 
     script.onload = () => {
-      console.log("✅ Forte Loaded");
+      //console.log("✅ Forte Loaded");
       setReady(true);
     };
 
@@ -59,7 +59,7 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
   // 2️⃣ Register Callbacks
   useEffect(() => {
     window.onTokenCreated = (response: any) => {
-      console.log("Forte token success:", response);
+      //console.log("Forte token success:", response);
 
       onSuccess({
         token: response.onetime_token,

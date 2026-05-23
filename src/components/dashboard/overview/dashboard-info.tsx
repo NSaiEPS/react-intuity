@@ -289,7 +289,7 @@ export function DashboardInfo({
   });
   const notificationResponse = (res) => {
     let value = res?.reminders?.selected;
-    // console.log(res, 'successCallBack');
+    // //console.log(res, 'successCallBack');
     setNotificationPrefrences({
       new_bill: TextToValueFormat[res?.new_bill?.selected] || "1",
       payment_confirmation:
