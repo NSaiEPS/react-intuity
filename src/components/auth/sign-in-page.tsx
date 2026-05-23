@@ -1,39 +1,25 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 
-import CompanyDetails from "./company-details";
-import OneTimePaymentCard from "./register-slag";
-import { Helmet } from "react-helmet";
+// ✅ removed react-helmet (causes extra render cycle)
+// use plain document.title instead
 
-// import OneTimePaymentCard from '@/components/auth/register-slag';
-// import { SignInForm } from '@/components/auth/sign-in-form';
+import CompanyDetails from "./company-details";
+import MainSection from "./register-slag";
+
 
 export function SignInPage({ title }): React.JSX.Element {
+  // ✅ set title without react-helmet overhead
+  React.useEffect(() => {
+    document.title = title;
+  }, [title]);
+
   return (
-    <Box
-      sx={{
-        // height: '100vh', // 🔥 important: fills full screen
-        display: "flex",
-        flexDirection: "column",
-        // backgroundColor: "#f9fafb",
-        height:"100dvh"
-      }}
-    >
-      <Helmet key={title}>
-        <title>{title}</title>
-      </Helmet>
-      <Box
-        sx={{
-          marginTop: 1,
-        }}
-      >
-        <OneTimePaymentCard />
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
+      <Box sx={{ marginTop: 1 }}>
+        <MainSection />
       </Box>
-      <Box
-        sx={{
-          // marginTop: 5,
-        }}
-      >
+      <Box>
         <CompanyDetails />
       </Box>
     </Box>

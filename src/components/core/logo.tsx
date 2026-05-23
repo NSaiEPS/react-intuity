@@ -37,7 +37,8 @@ export function Logo({
       height={height}
       width={width}
       src={src ?? url}
-      loading="lazy" // Browser-native lazy image load
+  loading="eager"           // ✅ load immediately
+  fetchpriority="high" 
       sx={{ display: "block",
         cursor: "pointer"
        }}
