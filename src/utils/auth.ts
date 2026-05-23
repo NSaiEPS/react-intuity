@@ -19,6 +19,8 @@ export const removeLocalStorage = (key: string) => {
 export const clearLocalStorage = () => {
   removeLocalStorage("custom-auth-token");
   removeLocalStorage("intuity-user");
+localStorage.removeItem("intuity-is-logged-in");
+
   removeLocalStorage("intuity-meterDetails");
   removeLocalStorage("linked-customerInfo");
   removeLocalStorage("intuity-companyId");

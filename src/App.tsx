@@ -63,11 +63,13 @@ const PaymentDetailsPage = React.lazy(
 );
 const NotFound = React.lazy(() => import("./pages/not-found"));
 
-const LoaderFallback = React.lazy(() =>
-  import("@/components/core/protectedRoute").then((module) => ({
-    default: module.LoaderFallback,
-  }))
-);
+// const LoaderFallback = React.lazy(() =>
+//   import("@/components/core/protectedRoute").then((module) => ({
+//     default: module.LoaderFallback,
+//   }))
+// );
+import { LoaderFallback } from "@/components/core/protectedRoute";
+
 // Suspense wrapper to avoid repeating
 // const withSuspense = (element: React.ReactNode) => (
 //   <React.Suspense fallback={<LoaderFallback />}>{element}</React.Suspense>
@@ -158,7 +160,7 @@ export const router = createBrowserRouter([
      {
     path: "/register-success-:alias",
     element:
-        <RegisterSuccess  />,
+        withSuspense(<RegisterSuccess />),
 
 
     errorElement: <RouteErrorBoundary />,

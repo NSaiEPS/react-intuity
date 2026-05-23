@@ -30,7 +30,9 @@ export default function CompanyDetails({ reset = false }) {
   const website = hasCompanySlug
     ? companyInfo?.company?.company_website ?? ""
     : "www.intuity.com";
-
+const companyUrl=hasCompanySlug
+    ? companyInfo?.company?.company_website_URL ?? ""
+    : "www.intuity.com";
   const iconBoxStyle = {
     width: 40,
     height: 40,
@@ -47,6 +49,7 @@ export default function CompanyDetails({ reset = false }) {
     alignItems: "center",
     gap: "10px",
     whiteSpace: "nowrap",
+
   };
 
   return (
@@ -133,7 +136,9 @@ export default function CompanyDetails({ reset = false }) {
         }}
       >
         {/* Phone */}
-        <Box sx={contactItemStyle}>
+        <Box sx={contactItemStyle}
+      
+        >
           <Box sx={iconBoxStyle}>
             <Phone size={18} color={colors.blue} weight="regular" />
           </Box>
@@ -154,7 +159,12 @@ export default function CompanyDetails({ reset = false }) {
 
         {/* Website */}
         {website && (
-          <Box sx={contactItemStyle}>
+          <Box sx={contactItemStyle}
+          onClick={() => window.open(companyUrl, "_blank")}
+            style={{
+          cursor:"pointer"
+        }}
+          >
             <Box sx={iconBoxStyle}>
               <Globe size={18} color={colors.blue} weight="regular" />
             </Box>
@@ -174,7 +184,7 @@ export default function CompanyDetails({ reset = false }) {
           alt="logo"
           component="img"
           height={36}
-          // width={160}
+          width={231}
           src={"/assets/intuity-footer.png"}
           loading="lazy"
         />

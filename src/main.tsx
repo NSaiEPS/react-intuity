@@ -12,6 +12,12 @@ import { setRouter } from "./utils/navigation";
 
 setRouter(router);
 
+
+const isLoggedIn = localStorage.getItem("intuity-is-logged-in");
+
+isLoggedIn
+  ? import("./pages/dashboard/page")
+  : import("./components/auth/sign-in-page");
 window.addEventListener("error", (e) => {
   console.log(e.message);
   if (e.message?.includes("Failed to fetch dynamically imported module")) {
@@ -19,6 +25,8 @@ window.addEventListener("error", (e) => {
     window.location.reload();
   }
 });
+
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

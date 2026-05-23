@@ -109,6 +109,7 @@ class AuthClient {
     // localStorage.setItem('custom-auth-token', data?.body?.token);
     secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
     secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
+    localStorage.setItem("intuity-is-logged-in", "true")
     secureLocalStorage.setItem(
       "intuity-companyId",
       data?.body?.alias || "intuityfe"
