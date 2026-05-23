@@ -2,10 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="preload" href="/logo.png" as="image" />
-<style>
+    <meta name="description" content="Manage your utility account online with Intuity" />
+
+    <!-- ✅ Preload logo before JS runs -->
+    <link rel="preload" href="/assets/intuity-footer.png" as="image" />
+
+    <!-- ✅ Preload critical font only -->
+    <link rel="preload" href="/assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
+
+    <title>Intuity</title>
+
+    <!-- ✅ Inline critical CSS — paints spinner instantly -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Inter, sans-serif; background: #fff; }
       #init-loader {
         display: flex;
         align-items: center;
@@ -18,22 +29,19 @@
         height: 36px;
         border-radius: 50%;
         border: 3px solid #e5e7eb;
-        border-top-color: #6366f1;
+        border-top-color: #1976d2;
         animation: spin 0.8s linear infinite;
       }
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
-    <title>Intuity</title>
   </head>
   <body>
     <div id="root">
-       <div id="init-loader">
+      <!-- ✅ Visible instantly — zero JS needed -->
+      <div id="init-loader">
         <div class="spinner"></div>
       </div>
     </div>
-
-    <!-- <div id="iframe-root"></div> -->
-
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

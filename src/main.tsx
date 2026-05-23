@@ -14,6 +14,7 @@ setRouter(router);
 
 
 const isLoggedIn = localStorage.getItem("intuity-is-logged-in");
+document.getElementById("init-loader")?.remove();
 
 isLoggedIn
   ? import("./pages/dashboard/page")
