@@ -39,7 +39,12 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // ✅ no manualChunks — Vite auto splits safely
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-mui': ['@mui/material', '@mui/system', '@mui/utils', '@emotion/react', '@emotion/styled'],
+          'vendor-charts': ['apexcharts', 'react-apexcharts'],
+          'vendor-redux': ['@reduxjs/toolkit', 'react-redux'],
+        },
       },
     },
   },

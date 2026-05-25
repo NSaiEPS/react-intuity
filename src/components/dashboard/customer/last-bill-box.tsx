@@ -19,9 +19,8 @@ import { useNavigate } from "react-router-dom";
 
 import UtilityList from "./last-bill-itemInfo";
 import { PaymentModal } from "./paymnet-modal";
-import CustomModal from "../layout/invoice-pdf-modal";
-import { pdf } from "@react-pdf/renderer";
-import InvoicePdfDocument from "../layout/invoice-pdf-view";
+
+const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
 
 
 interface BillingItem {
@@ -78,33 +77,31 @@ const handlePreviewInvoice = async () => {
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  // 📱 MOBILE → DOWNLOAD PDF
   if (isMobile) {
     try {
+      const [{ pdf }, { default: InvoicePdfDocument }] = await Promise.all([
+        import("@react-pdf/renderer"),
+        import("../layout/invoice-pdf-view"),
+      ]);
+
       const blob = await pdf(
         <InvoicePdfDocument invoiceDetails={invoiceDetails} />
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
-      link.download = `invoice-${
-        lastBillInfo?.last_bill?.invoice_number || "file"
-      }.pdf`;
+      link.download = `invoice-${lastBillInfo?.last_bill?.invoice_number || "file"}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("PDF Download Error:", error);
     }
-
-    return; // ⛔ EXIT: do not continue
+    return;
   }
 
-  // 💻 DESKTOP → OPEN PDF VIEWER MODAL
   setPdfPreviewInvocie(true);
 };
 
@@ -297,14 +294,14 @@ const handlePreviewInvoice = async () => {
       </Grid>
 
       <PaymentModal open={open} onClose={() => setOpen(false)} />
-         {previewInvoicePdf && (
-        <CustomModal
-          open={previewInvoicePdf}
-          onClose={() => {
-            setPdfPreviewInvocie(false);
-          }}
-          id={lastBillInfo?.last_bill?.id}
-        />
+      {previewInvoicePdf && (
+        <React.Suspense fallback={null}>
+          <CustomModal
+            open={previewInvoicePdf}
+            onClose={() => setPdfPreviewInvocie(false)}
+            id={lastBillInfo?.last_bill?.id}
+          />
+        </React.Suspense>
       )}
       <CustomBackdrop open={paymentLoader} style={{ zIndex: 1300, color: "#fff" }}>
         <Loader />

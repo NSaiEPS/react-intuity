@@ -25,10 +25,31 @@ const CardSkeleton = () => (
   <Box sx={{ height: '100%', minHeight: 120, borderRadius: 2, backgroundColor: '#f5f5f5', animation: 'pulse 1.5s ease-in-out infinite', '@keyframes pulse': { '0%': { opacity: 1 }, '50%': { opacity: 0.4 }, '100%': { opacity: 1 } } }} />
 );
 
+// Preload all lazy chunks so they're ready before the user scrolls
+function usePreloadDashboardChunks() {
+  React.useEffect(() => {
+    const t = requestAnimationFrame(() => {
+      import('@/components/dashboard/overview/dashboard-info');
+      import('@/components/dashboard/overview/schedule-recurring-box');
+      import('@/components/dashboard/overview/sales');
+    });
+    return () => cancelAnimationFrame(t);
+  }, []);
+}
+
 export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
   const isLargeUp = useMediaQuery(theme.breakpoints.up('lg'));
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+
+  // Defer chart rendering until after the first paint so cards render first
+  const [chartReady, setChartReady] = React.useState(false);
+  React.useEffect(() => {
+    const t = requestAnimationFrame(() => setChartReady(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
+
+  usePreloadDashboardChunks();
 
   interface CompanyDetails { allow_auto_payment?: number | string; }
   const companyDetails: CompanyDetails = getLocalStorage('intuity-company') as CompanyDetails | null;
@@ -80,14 +101,16 @@ export default function DashBoardPage(): React.JSX.Element {
               <Box sx={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #e5e7eb', borderTopColor: '#1976d2', animation: 'spin 0.8s linear infinite', '@keyframes spin': { to: { transform: 'rotate(360deg)' } } }} />
             </Box>
           }>
-            <Sales
-              chartSeries={[
-                { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
-                { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
-              ]}
-              sx={{ flexGrow: 1 }}
-              dashboard
-            />
+            {chartReady && (
+              <Sales
+                chartSeries={[
+                  { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
+                  { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
+                ]}
+                sx={{ flexGrow: 1 }}
+                dashboard
+              />
+            )}
           </React.Suspense>
         </Box>
       </Grid>

@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Grid, Typography } from "@mui/material";
-import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 
 interface HeaderSectionProps {
   customerDetails?: {

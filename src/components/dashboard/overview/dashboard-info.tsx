@@ -218,10 +218,6 @@ const { roleId, userId, token } = React.useMemo(() => {
     } else {
       const formData = new FormData();
 
-      let roleId = stored?.body?.acl_role_id;
-      let userId = stored?.body?.customer_id;
-      let token = stored?.body?.token;
-
       formData.append("acl_role_id", roleId);
       formData.append("customer_id", userId);
       formData.append("id", userId);

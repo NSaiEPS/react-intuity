@@ -28,6 +28,11 @@ const ResetPasswordForm = React.lazy(() => import("./reset-password-form").then(
 const ForgotLoginForm = React.lazy(() => import("./forget-login-form").then(m => ({ default: m.ForgotLoginForm })));
 const UpdatePasswordScreen = React.lazy(() => import("../dashboard/account/UpdatePasswordScreen").then(m => ({ default: m.UpdatePasswordScreen })));
 const RegisterSuccess = React.lazy(() => import("./RegisterSuccess"));
+
+// Reserves the form card height while lazy chunks load — prevents CLS jump from 0px → full form
+const FormFallback = () => (
+  <Box sx={{ minHeight: 340 }} />
+);
 const OneTimePaymentScreen = React.lazy(() => import("./onetime-payment-screen"));
 
 // ✅ memo — stops re-renders from parent
@@ -57,8 +62,12 @@ const MainSection = memo(function MainSection() {
 
   const { setContextLoading } = useLoading();
 
+  // Only show skeleton when we actually need to fetch company data.
+  // For plain /login (no slug) there's no API call → no skeleton → no CLS.
   React.useLayoutEffect(() => {
-    setContextLoading(true);
+    if (hasCompanySlug) {
+      setContextLoading(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -126,25 +135,25 @@ const MainSection = memo(function MainSection() {
 
   const getRequiredForms = () => {
     if (pathname?.includes("onetime-payment")) return (
-      <React.Suspense fallback={null}><OneTimePaymentScreen /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><OneTimePaymentScreen /></React.Suspense>
     );
     if (pathname?.includes("reset-password")) return (
-      <React.Suspense fallback={null}><ResetPasswordForm /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><ResetPasswordForm /></React.Suspense>
     );
     if (pathname?.includes("forgot-login")) return (
-      <React.Suspense fallback={null}><ForgotLoginForm /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><ForgotLoginForm /></React.Suspense>
     );
     if (pathname?.includes("update-password")) return (
-      <React.Suspense fallback={null}><UpdatePasswordScreen /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><UpdatePasswordScreen /></React.Suspense>
     );
     if (pathname.includes("login")) return (
-      <React.Suspense fallback={null}><SignInForm user={true} /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><SignInForm user={true} /></React.Suspense>
     );
     if (pathname.includes("register-success-")) return (
-      <React.Suspense fallback={null}><RegisterSuccess /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><RegisterSuccess /></React.Suspense>
     );
     if (pathname.includes("register") || pathname === "/sign-up") return (
-      <React.Suspense fallback={null}><SignUpForm /></React.Suspense>
+      <React.Suspense fallback={<FormFallback />}><SignUpForm /></React.Suspense>
     );
   };
 
@@ -189,12 +198,16 @@ const MainSection = memo(function MainSection() {
           <Grid container sx={{ maxWidth: "1440px", width: { xs: "95%", sm: "92%", md: "90%" }, mx: "auto" }}>
             <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "center", alignItems: "center", textAlign: { xs: "center", sm: "left" }, width: "100%", gap: { xs: 1.5, sm: 2 }, px: 1 }}>
               {hasCompanySlug ? (
-                companyInfo?.company?.logo ? (
-                  <Avatar
-                    src={companyInfo?.company?.logo}
-                    sx={{ width: { xs: 56, sm: 70, md: 80 }, height: { xs: 56, sm: 70, md: 80 }, flexShrink: 0 }}
-                  />
-                ) : null
+                // Always reserve the avatar slot — avoids layout shift when logo loads from API
+                <Avatar
+                  src={companyInfo?.company?.logo || undefined}
+                  sx={{
+                    width: { xs: 56, sm: 70, md: 80 },
+                    height: { xs: 56, sm: 70, md: 80 },
+                    flexShrink: 0,
+                    visibility: companyInfo?.company?.logo ? "visible" : "hidden",
+                  }}
+                />
               ) : (
                 <Box
                   onClick={() => {
