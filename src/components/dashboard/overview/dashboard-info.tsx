@@ -157,14 +157,20 @@ export function DashboardInfo({
       token?: string;
     };
   };
+
+
+// ✅ Fix — move inside useMemo
+const { roleId, userId, token } = React.useMemo(() => {
   const raw = getLocalStorage("intuity-user");
+  const stored = typeof raw === "object" && raw !== null ? raw as any : null;
+  return {
+    roleId: stored?.body?.acl_role_id,
+    userId: stored?.body?.customer_id,
+    token: stored?.body?.token,
+  };
+}, []); // ← only reads localStorage once
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
 
   const getPrefDetails = () => {
     const formData = new FormData();

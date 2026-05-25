@@ -1,53 +1,44 @@
 import * as React from 'react';
 import { RootState } from '@/state/store';
 import { getLocalStorage } from '@/utils/auth';
-// import Grid from "@mui/material/Unstable_Grid2";
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useSelector } from 'react-redux';
 
-import { usePreloadDashboardRoutes } from '@/hooks/usePreloadDashboardRoutes';
+// ✅ eager — above fold, user sees these first
 import { Budget } from '@/components/dashboard/overview/budget';
-import { DashboardInfo } from '@/components/dashboard/overview/dashboard-info';
-import { ScheduleRecurringBox } from '@/components/dashboard/overview/schedule-recurring-box';
-// import { Sales } from "@/components/dashboard/overview/sales";
-
 import { TotalProfit } from '@/components/dashboard/overview/total-profit';
 
+// ✅ lazy — below fold or heavy
 const Sales = React.lazy(() =>
-  import('@/components/dashboard/overview/sales').then((module) => ({
-    default: module.Sales,
-  }))
+  import('@/components/dashboard/overview/sales').then((m) => ({ default: m.Sales }))
+);
+const DashboardInfo = React.lazy(() =>
+  import('@/components/dashboard/overview/dashboard-info').then((m) => ({ default: m.DashboardInfo }))
+);
+const ScheduleRecurringBox = React.lazy(() =>
+  import('@/components/dashboard/overview/schedule-recurring-box').then((m) => ({ default: m.ScheduleRecurringBox }))
+);
+
+// ✅ simple fallback — no heavy spinner library
+const CardSkeleton = () => (
+  <Box sx={{ height: '100%', minHeight: 120, borderRadius: 2, backgroundColor: '#f5f5f5', animation: 'pulse 1.5s ease-in-out infinite', '@keyframes pulse': { '0%': { opacity: 1 }, '50%': { opacity: 0.4 }, '100%': { opacity: 1 } } }} />
 );
 
 export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
   const isLargeUp = useMediaQuery(theme.breakpoints.up('lg'));
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
- interface CompanyDetails {
-   allow_auto_payment?: number | string;
- }
- 
-   const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
 
+  interface CompanyDetails { allow_auto_payment?: number | string; }
+  const companyDetails: CompanyDetails = getLocalStorage('intuity-company') as CompanyDetails | null;
   const { allow_auto_payment } = dashBoardInfo?.body?.company || companyDetails || {};
-
-  const {
-    recurring_payment_msg1,
-
-    schedule_payment_msg,
-  } = dashBoardInfo?.body || {};
+  const { recurring_payment_msg1, schedule_payment_msg } = dashBoardInfo?.body || {};
 
   return (
-    <Grid
-      container
-      spacing={2}
-      sx={{
-        maxWidth: '1600px',
-        // margin: "0 auto",
-      }}
-    >
-      {/* First Row (Budget + BillDue + AutoPay) */}
+    <Grid container spacing={2} sx={{ maxWidth: '1600px' }}>
+
+      {/* ✅ First Row — eager, above fold, loads instantly */}
       <Grid item xs={12} lg={allow_auto_payment === 1 ? 9 : 12}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -58,54 +49,41 @@ export default function DashBoardPage(): React.JSX.Element {
           </Grid>
         </Grid>
       </Grid>
+
+      {/* ✅ lazy — not visible until scroll on mobile */}
       {allow_auto_payment === 1 && (
         <Grid item xs={12} sm={6} md={6} lg={3}>
-          <DashboardInfo sx={{ height: '100%' }} type="autoPay" typeofUser="customer" value="autopay" isActive />
+          <React.Suspense fallback={<CardSkeleton />}>
+            <DashboardInfo sx={{ height: '100%' }} type="autoPay" typeofUser="customer" value="autopay" isActive />
+          </React.Suspense>
         </Grid>
       )}
-
-      {/* Paperless card for small screens */}
 
       {!isLargeUp && allow_auto_payment === 1 && (
         <Grid item xs={12} sm={6} md={6}>
-          <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+          <React.Suspense fallback={<CardSkeleton />}>
+            <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+          </React.Suspense>
         </Grid>
       )}
 
-      {/* Sales Chart with optional ScheduleRecurringBox */}
+      {/* ✅ Sales chart — heaviest component, lazy */}
       <Grid item xs={12} lg={9} order={{ xs: 3, lg: 1 }}>
         <Box display="flex" flexDirection="column" height="100%">
           {(isLargeUp || allow_auto_payment == 1) && (
-            <Box>
+            <React.Suspense fallback={<CardSkeleton />}>
               <ScheduleRecurringBox />
-            </Box>
+            </React.Suspense>
           )}
-
-          <React.Suspense
-            fallback={
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  width: '100%',
-                  height: '100%',
-                }}
-              >
-                Loading...
-              </div>
-            }
-          >
+          <React.Suspense fallback={
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 300, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+              <Box sx={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #e5e7eb', borderTopColor: '#1976d2', animation: 'spin 0.8s linear infinite', '@keyframes spin': { to: { transform: 'rotate(360deg)' } } }} />
+            </Box>
+          }>
             <Sales
               chartSeries={[
-                {
-                  name: 'This year',
-                  data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-                },
-                {
-                  name: 'Last year',
-                  data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
-                },
+                { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
+                { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
               ]}
               sx={{ flexGrow: 1 }}
               dashboard
@@ -114,145 +92,40 @@ export default function DashBoardPage(): React.JSX.Element {
         </Box>
       </Grid>
 
-      {/* Right Column */}
+      {/* ✅ Right column — lazy */}
       <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
         <Grid container spacing={2} height="-webkit-fill-available">
           {!isLargeUp && allow_auto_payment !== 1 && (
             <Grid item xs={12} sm={6} md={6}>
-              <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+              <React.Suspense fallback={<CardSkeleton />}>
+                <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+              </React.Suspense>
             </Grid>
           )}
           {isLargeUp && (
             <Grid item xs={12}>
-              <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+              <React.Suspense fallback={<CardSkeleton />}>
+                <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+              </React.Suspense>
             </Grid>
           )}
-
           <Grid item xs={12} sm={6} md={6} lg={12}>
-            <DashboardInfo
-              sx={{ height: '100%' }}
-              typeofUser="customer"
-              value="notification_reminder"
-              type="notification"
-              apiCall
-            />
+            <React.Suspense fallback={<CardSkeleton />}>
+              <DashboardInfo sx={{ height: '100%' }} typeofUser="customer" value="notification_reminder" type="notification" apiCall />
+            </React.Suspense>
           </Grid>
-
-          <Grid
-            item
-            xs={12}
-            sm={!schedule_payment_msg && !recurring_payment_msg1 && !allow_auto_payment ? 12 : 6}
-            md={!schedule_payment_msg && !recurring_payment_msg1 && !allow_auto_payment ? 12 : 6}
-            // md={!schedule_payment_msg && !recurring_payment_msg1 ? 12 : 6}
-            lg={12}
-          >
+          <Grid item xs={12} sm={!schedule_payment_msg && !recurring_payment_msg1 && !allow_auto_payment ? 12 : 6} md={!schedule_payment_msg && !recurring_payment_msg1 && !allow_auto_payment ? 12 : 6} lg={12}>
             <TotalProfit value="CustomerService" sx={{ height: '100%' }} />
           </Grid>
           {!isLargeUp && allow_auto_payment !== 1 && (
             <Grid item xs={12} sm={6} md={6} lg={12}>
-              <ScheduleRecurringBox isSmallScreen={true} />
+              <React.Suspense fallback={<CardSkeleton />}>
+                <ScheduleRecurringBox isSmallScreen={true} />
+              </React.Suspense>
             </Grid>
           )}
         </Grid>
       </Grid>
     </Grid>
-
-    //  <Grid container spacing={2}>
-    //       {/* Left Column (75%) */}
-    //       <Grid container spacing={2} xs={12} lg={8} xl={8}>
-    //         <Grid xs={12} sm={6} lg={6} xl={6}>
-    //           <Budget diff={12} trend="up" sx={{ height: "100%" }} />
-    //         </Grid>
-    //         <Grid xs={12} sm={6} lg={6} xl={6}>
-    //           <TotalProfit value="BillDue" sx={{ height: "100%" }} />
-    //         </Grid>
-    //       </Grid>
-
-    //       {/* Right Column (25%) */}
-    //       {/* <Grid
-    //         sm={6}
-    //         xs={6}
-    //         md={6}
-    //         lg={3}
-    //         sx={{ backgroundColor: "red", width: "100%" }}
-    //       > */}
-
-    //       {/* <Grid lg={3} sm={6} xs={12}> */}
-    //       <Grid xs={12} sm={6} md={6} lg={3}>
-    //         <DashboardInfo
-    //           sx={{ height: "100%" }}
-    //           type="autoPay"
-    //           typeofUser="customer"
-    //           value="autopay"
-    //           isActive={true}
-    //         />
-    //       </Grid>
-
-    //       {/* Paperless card for small screens */}
-    //       {!isLargeUp && (
-    //         <Grid xs={12} sm={6} md={6} lg={12} xl={12}>
-    //           <DashboardInfo
-    //             sx={{ height: "100%" }}
-    //             value="paperless"
-    //             typeofUser="customer"
-    //             type="paperLess"
-    //           />
-    //         </Grid>
-    //       )}
-
-    //       {/* Sales Chart */}
-    //       <Grid xs={12} lg={8} xl={8} order={{ xs: 3, lg: 1 }}>
-    //         <React.Suspense fallback={<>Loading...</>}>
-    //           <Sales
-    //             chartSeries={[
-    //               {
-    //                 name: "This year",
-    //                 data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-    //               },
-    //               {
-    //                 name: "Last year",
-    //                 data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13],
-    //               },
-    //             ]}
-    //             sx={{ height: "100%" }}
-    //             dashboard
-    //           />
-    //         </React.Suspense>
-    //       </Grid>
-
-    //       {/* Right Side Column Extra Content */}
-    //       <Grid
-    //         container
-    //         spacing={2}
-    //         xs={12}
-    //         md={12}
-    //         lg={4}
-    //         xl={4}
-    //         order={{ xs: 2, lg: 2 }}
-    //       >
-    //         {isLargeUp && (
-    //           <Grid xs={12} sm={6} md={6} lg={12} xl={12}>
-    //             <DashboardInfo
-    //               sx={{ height: "100%" }}
-    //               value="paperless"
-    //               typeofUser="customer"
-    //               type="paperLess"
-    //             />
-    //           </Grid>
-    //         )}
-    //         <Grid xs={12} sm={6} md={6} lg={12} xl={12}>
-    //           <DashboardInfo
-    //             sx={{ height: "100%" }}
-    //             typeofUser="customer"
-    //             value="notification_reminder"
-    //             type="notification"
-    //             apiCall
-    //           />
-    //         </Grid>
-    //         <Grid xs={12} sm={6} md={6} lg={12} xl={12}>
-    //           <TotalProfit value="CustomerService" sx={{ height: "100%" }} />
-    //         </Grid>
-    //       </Grid>
-    //     </Grid>
   );
 }
