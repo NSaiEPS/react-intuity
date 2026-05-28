@@ -570,47 +570,47 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
             startAdornment={
               <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
-  //            endAdornment={
-  //             <InputAdornment position="end">
-  //               <Tooltip
-  //                 // title={authTooltips[field.value] || ""}
-  //                   title={
-  //   <img
-  //     src="/assets/bankaccount-help.png"
-  //     alt="Help"
-  //     style={{
-  //       width: 1000,
-  //       maxWidth: "100%",
-  //       borderRadius: 8,
-  //     }}
-  //   />
-  // }
-  //                 placement="top"
-  //                 arrow
-  //                 enterTouchDelay={0}
-  //                 leaveTouchDelay={3000}
-  //                 componentsProps={{
-  //                   tooltip: {
-  //                     sx: {
-  //                       backgroundColor: "#E7E6E6",
-  //                       color: "#000",
-  //                       border: "1px solid #d0cfcf",
-  //                       fontSize: "14px",
-  //                       lineHeight: 1.4,
-  //                       "& .MuiTooltip-arrow": {
-  //                         color: "#E7E6E6",
-  //                         "&::before": { border: "1px solid #d0cfcf" },
-  //                       },
-  //                     },
-  //                   },
-  //                 }}
-  //               >
-  //                 <IconButton size="small" sx={{ mr: 1 }}>
-  //                   <Question size={20} color="#90caf9" weight="fill" />
-  //                 </IconButton>
-  //               </Tooltip>
-  //             </InputAdornment>
-  //           }
+             endAdornment={
+              <InputAdornment position="end">
+                <Tooltip
+                  // title={authTooltips[field.value] || ""}
+                    title={
+    <img
+      src="/assets/bankaccount-help.png"
+      alt="Help"
+      style={{
+        width: 1000,
+        maxWidth: "100%",
+        borderRadius: 8,
+      }}
+    />
+  }
+                  placement="top"
+                  arrow
+                  enterTouchDelay={0}
+                  leaveTouchDelay={3000}
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "#E7E6E6",
+                        color: "#000",
+                        border: "1px solid #d0cfcf",
+                        fontSize: "14px",
+                        lineHeight: 1.4,
+                        "& .MuiTooltip-arrow": {
+                          color: "#E7E6E6",
+                          "&::before": { border: "1px solid #d0cfcf" },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <IconButton size="small" sx={{ mr: 1 }}>
+                    <Question size={20} color="#90caf9" weight="fill" />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            }
           />
           {showError(errors.accountNumber) && (
             <FormHelperText>{errors.accountNumber?.message}</FormHelperText>

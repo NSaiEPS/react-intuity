@@ -42,7 +42,7 @@ import { RootState } from "@/state/store";
 
 const schema = zod.object({
   // email: zod.string().min(1, { message: 'Email is required' }).email(),
-  email: zod.string().min(1, { message: "Login ID or Email is required" }),
+  email: zod.string().min(1, { message: "Username is required" }),
   password: zod.string().min(6, { message: "Enter a password with at least 6 characters " }),
 });
 
