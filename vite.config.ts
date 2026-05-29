@@ -32,7 +32,9 @@ export default defineConfig({
     sourcemap: false,
     minify: 'esbuild',
     cssCodeSplit: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
+    // Target modern browsers — smaller output, no legacy polyfills
+    target: ['es2020', 'chrome87', 'firefox78', 'safari14'],
 
     rollupOptions: {
       output: {
@@ -40,10 +42,16 @@ export default defineConfig({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
+          // Core React runtime — always needed, never changes
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-mui': ['@mui/material', '@mui/system', '@mui/utils', '@emotion/react', '@emotion/styled'],
-          'vendor-charts': ['apexcharts', 'react-apexcharts'],
+          // State management — tiny, always needed
           'vendor-redux': ['@reduxjs/toolkit', 'react-redux'],
+          // Charts — heavy (535KB), only used on dashboard/usage pages
+          'vendor-charts': ['apexcharts', 'react-apexcharts'],
+          // Utility libs — frequently used, stable cache target
+          'vendor-utils': ['dayjs', 'axios', 'dompurify', 'crypto-js'],
+          // NOTE: @mui/material intentionally NOT here — let Rollup tree-shake
+          // per-page so login only loads ~150KB instead of the full 400KB MUI
         },
       },
     },

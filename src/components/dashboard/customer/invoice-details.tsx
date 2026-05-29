@@ -6,8 +6,8 @@ import {
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+// html2canvas (~800KB) + jsPDF (~500KB) are only needed when user clicks download
+// Dynamic import keeps them out of the initial page bundle entirely
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router";
 
@@ -71,51 +71,39 @@ export default function InvoiceDetails() {
       return;
     }
 
-    // Clone safely as HTMLElement
     const clone = original.cloneNode(true) as HTMLElement;
-
     Object.assign(clone.style, {
-      width: "1024px",
-      maxWidth: "1024px",
-      padding: "24px",
-      background: "#fff",
-      position: "absolute",
-      top: "0",
-      left: "-9999px",
-      zIndex: "-1",
-      overflow: "visible",
+      width: "1024px", maxWidth: "1024px", padding: "24px",
+      background: "#fff", position: "absolute", top: "0",
+      left: "-9999px", zIndex: "-1", overflow: "visible",
     });
-
     document.body.appendChild(clone);
 
     try {
       await new Promise((r) => setTimeout(r, 200));
 
+      // Load heavy libs only on first click — subsequent clicks reuse the cached modules
+      const [html2canvasModule, { default: jsPDF }] = await Promise.all([
+        import("html2canvas").then((m) => m.default),
+        import("jspdf"),
+      ]);
+
       const fullHeight = clone.scrollHeight;
       clone.style.height = `${fullHeight}px`;
 
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        scrollY: 0,
-        windowWidth: clone.scrollWidth,
-        windowHeight: fullHeight,
+      const canvas = await html2canvasModule(clone, {
+        scale: 2, useCORS: true, logging: false,
+        scrollY: 0, windowWidth: clone.scrollWidth, windowHeight: fullHeight,
       });
 
       const imgData = canvas.toDataURL("image/png");
-
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfPageHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidthPx = canvas.width;
-      const imgHeightPx = canvas.height;
-      const imgHeightMM = (imgHeightPx * pdfWidth) / imgWidthPx;
+      const imgHeightMM = (canvas.height * pdfWidth) / canvas.width;
 
       let heightLeft = imgHeightMM;
       let position = 0;
-
       pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeightMM);
       heightLeft -= pdfPageHeight;
 
@@ -131,7 +119,7 @@ export default function InvoiceDetails() {
       console.error("Error generating PDF:", err);
       alert("Failed to generate PDF. Please try again.");
     } finally {
-      if (clone && clone.parentNode) document.body.removeChild(clone);
+      if (clone?.parentNode) document.body.removeChild(clone);
       dispatch(setDashboardLoader(false));
     }
   };

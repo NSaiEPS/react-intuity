@@ -20,36 +20,37 @@ const ScheduleRecurringBox = React.lazy(() =>
   import('@/components/dashboard/overview/schedule-recurring-box').then((m) => ({ default: m.ScheduleRecurringBox }))
 );
 
-// ✅ simple fallback — no heavy spinner library
+// Pulse skeleton — used for every lazy card AND the chart placeholder
 const CardSkeleton = () => (
-  <Box sx={{ height: '100%', minHeight: 120, borderRadius: 2, backgroundColor: '#f5f5f5', animation: 'pulse 1.5s ease-in-out infinite', '@keyframes pulse': { '0%': { opacity: 1 }, '50%': { opacity: 0.4 }, '100%': { opacity: 1 } } }} />
+  <Box sx={{ height: '100%', minHeight: 120, borderRadius: 2, backgroundColor: '#f0f4f8',
+    animation: 'pulse 1.5s ease-in-out infinite',
+    '@keyframes pulse': { '0%': { opacity: 1 }, '50%': { opacity: 0.5 }, '100%': { opacity: 1 } }
+  }} />
 );
 
-// Preload all lazy chunks so they're ready before the user scrolls
-function usePreloadDashboardChunks() {
-  React.useEffect(() => {
-    const t = requestAnimationFrame(() => {
-      import('@/components/dashboard/overview/dashboard-info');
-      import('@/components/dashboard/overview/schedule-recurring-box');
-      import('@/components/dashboard/overview/sales');
-    });
-    return () => cancelAnimationFrame(t);
-  }, []);
-}
+// Chart placeholder — same height as real chart, painted immediately at FCP
+// Speed Index improves because the viewport is "filled" even before the chart loads
+const ChartSkeleton = () => (
+  <Box sx={{ width: '100%', minHeight: 300, borderRadius: 2, backgroundColor: '#f0f4f8', flexGrow: 1,
+    animation: 'pulse 1.5s ease-in-out infinite',
+    '@keyframes pulse': { '0%': { opacity: 1 }, '50%': { opacity: 0.5 }, '100%': { opacity: 1 } }
+  }} />
+);
 
 export default function DashBoardPage(): React.JSX.Element {
   const theme = useTheme();
   const isLargeUp = useMediaQuery(theme.breakpoints.up('lg'));
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
 
-  // Defer chart rendering until after the first paint so cards render first
-  const [chartReady, setChartReady] = React.useState(false);
+  // Start downloading lazy chunks immediately after first paint
   React.useEffect(() => {
-    const t = requestAnimationFrame(() => setChartReady(true));
+    const t = requestAnimationFrame(() => {
+      import('@/components/dashboard/overview/sales');
+      import('@/components/dashboard/overview/dashboard-info');
+      import('@/components/dashboard/overview/schedule-recurring-box');
+    });
     return () => cancelAnimationFrame(t);
   }, []);
-
-  usePreloadDashboardChunks();
 
   interface CompanyDetails { allow_auto_payment?: number | string; }
   const companyDetails: CompanyDetails = getLocalStorage('intuity-company') as CompanyDetails | null;
@@ -96,22 +97,16 @@ export default function DashBoardPage(): React.JSX.Element {
               <ScheduleRecurringBox />
             </React.Suspense>
           )}
-          <React.Suspense fallback={
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 300, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
-              <Box sx={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #e5e7eb', borderTopColor: '#1976d2', animation: 'spin 0.8s linear infinite', '@keyframes spin': { to: { transform: 'rotate(360deg)' } } }} />
-            </Box>
-          }>
-            {chartReady && (
-              <Sales
-                chartSeries={[
-                  { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
-                  { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
-                ]}
-                sx={{ flexGrow: 1 }}
-                dashboard
-              />
-            )}
-          </React.Suspense>
+          {/* ChartSkeleton shows at FCP — viewport is fully "painted" immediately → better Speed Index */}
+          <React.Suspense fallback={<ChartSkeleton />}>
+            <Sales
+              chartSeries={[
+                { name: 'This year', data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20] },
+                { name: 'Last year', data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
+              ]}
+              sx={{ flexGrow: 1 }}
+              dashboard
+            /></React.Suspense>
         </Box>
       </Grid>
 

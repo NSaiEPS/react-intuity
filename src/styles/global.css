@@ -22,20 +22,14 @@
 /* @import "@fontsource/inter/800.css"; */
 /* @import "@fontsource/inter/900.css"; */
 
-/* ✅ KEEP — actually used in your codebase */
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
-
-/* ✅ KEEP — used */
-@import "@fontsource/roboto-mono/400.css";
-/* ❌ REMOVE — 300 weight not found anywhere */
-/* @import "@fontsource/roboto-mono/300.css"; */
-
-/* ✅ KEEP — used */
-@import "@fontsource/plus-jakarta-sans/600.css";
-@import "@fontsource/plus-jakarta-sans/700.css";
+/* Latin-only subsets: 7 font files instead of 50+ (no Greek/Cyrillic/Vietnamese variants) */
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/inter/latin-700.css";
+@import "@fontsource/roboto-mono/latin-400.css";
+@import "@fontsource/plus-jakarta-sans/latin-600.css";
+@import "@fontsource/plus-jakarta-sans/latin-700.css";
 
 /* Variables */
 :root {

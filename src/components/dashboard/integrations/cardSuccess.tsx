@@ -1,8 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { getLocalStorage, removeLocalStorage } from "@/utils/auth";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import { Helmet } from "react-helmet";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { oneTimePayment } from "@/state/features/accountSlice";
 import { useDispatch } from "react-redux";
@@ -10,7 +9,10 @@ import { colors, WorldPlayDetails } from "@/utils";
 import { Button } from "nsaicomponents";
 import { paths } from "@/utils/paths";
 
-const CardSuccess = ({ isOneTimePayment = false ,successPage=false}) => {
+const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
+  useLayoutEffect(() => {
+    document.title = successPage ? "Payment Confirmation - Intuity" : "Card Redirect - Intuity";
+  }, [successPage]);
   //   useEffect(() => {
   //     const timer = setTimeout(() => {
 
@@ -157,15 +159,6 @@ if(!successPage){
       textAlign="center"
       gap={2}
     >
-      <Helmet key={"Card Redirect"}>
-        <title>
-          
-          {
-            successPage ?
-            'Payment confirmation'
-          :
-          "Card Redirect"}</title>
-      </Helmet>
       <CheckCircle size={80} weight="fill" color="#2e7d32" />
       {/* Phosphor success icon (filled green) */}
 

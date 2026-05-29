@@ -1,6 +1,6 @@
+import * as React from "react";
 import { Box, Typography } from "@mui/material";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import { Helmet } from "react-helmet";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
@@ -9,6 +9,8 @@ import { paths } from "@/utils/paths";
 const RegisterSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  
   const pathname = location.pathname;
 
   const slugMatch = pathname.startsWith("/register-success-")
@@ -34,10 +36,6 @@ const RegisterSuccess = () => {
     //   gap={2}
     //   px={3}
     >
-      <Helmet key={"Register Success"}>
-        <title>Registration Successful</title>
-      </Helmet>
-
       <CheckCircle size={80} weight="fill" color="#2e7d32" />
 
       <Typography variant="h5" fontWeight={600} mt={1}>

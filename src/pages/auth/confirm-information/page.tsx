@@ -6,7 +6,6 @@ import {
 import { getLocalStorage } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
 import { Box, Typography } from "@mui/material";
-import { Helmet } from "react-helmet";
 import { useDispatch } from "react-redux";
 import { useLocation, useParams } from "react-router";
 
@@ -53,6 +52,7 @@ export default function ConfirmInformation() {
   };
   const dispatch = useDispatch();
   React.useLayoutEffect(() => {
+    document.title = "Confirm Info - Intuity";
     setContextLoading(true);
   }, []);
   const raw = getLocalStorage("intuity-user");
@@ -128,9 +128,6 @@ export default function ConfirmInformation() {
         px: { xs: 2, sm: 4, md: 8, lg: 20 },
       }}
     >
-      <Helmet>
-        <title>{`Confirm Info - Intuity`}</title>
-      </Helmet>
       <SkeletonWrapper>
         <ConfirmInfoDetails />
       </SkeletonWrapper>

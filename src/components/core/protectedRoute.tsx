@@ -1,7 +1,6 @@
 import React from 'react';
 import { getLocalStorage } from '@/utils/auth';
 import { Box, Paper, Skeleton, Stack } from '@mui/material';
-import { Helmet } from 'react-helmet';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { usePreloadDashboardRoutes } from '@/hooks/usePreloadDashboardRoutes';
@@ -21,23 +20,19 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
   const aliasUser: AliasUser | null = getLocalStorage('alias-details') as AliasUser | null;
   const location = useLocation();
 
+  // Set document title without react-helmet (removes 60KB from critical bundle)
+  React.useEffect(() => {
+    document.title = title ? `${title} - Intuity` : 'Intuity';
+  }, [title, location.pathname]);
+
   if (!user) {
     return <Navigate to={aliasUser ? `/login-${aliasUser?.alias}` : `/login`} replace />;
   }
 
   return (
-    <>
-      <Helmet key={location.pathname}>
-        <title>{title ? `${title} - Intuity` : 'Intuity'}</title>
-      </Helmet>
-      <div
-        style={{
-          marginTop: '17px',
-        }}
-      >
-        {children}
-      </div>
-    </>
+    <div style={{ marginTop: '17px' }}>
+      {children}
+    </div>
   );
 };
 

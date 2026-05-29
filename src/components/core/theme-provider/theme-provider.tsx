@@ -12,15 +12,16 @@ export interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
+// Created once at module load — never recreated on re-renders
+const _theme = createTheme();
+const _emotionCache = createCache({ key: "mui", prepend: true });
+
 export function ThemeProvider({
   children,
 }: ThemeProviderProps): React.JSX.Element {
-  const theme = createTheme();
-  const emotionCache = createCache({ key: "mui", prepend: true });
-
   return (
-    <CacheProvider value={emotionCache}>
-      <CssVarsProvider theme={theme}>
+    <CacheProvider value={_emotionCache}>
+      <CssVarsProvider theme={_theme}>
         <CssBaseline />
         {children}
       </CssVarsProvider>

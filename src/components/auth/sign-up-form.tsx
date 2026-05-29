@@ -41,7 +41,6 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import { Phone } from "@phosphor-icons/react/dist/ssr/Phone";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { Eye, EyeSlash, Question } from "@phosphor-icons/react";
-import { Helmet } from "react-helmet";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
@@ -241,6 +240,9 @@ function getPasswordStrength(password = "") {
 
 export function SignUpForm() {
   const [activeStep, setActiveStep] = React.useState(0);
+
+  // Update tab title whenever step changes — replaces react-helmet (broken in React 18)
+
 
   // ─── KEY FIX: only show errors after user clicks Next / Submit ────────────
   const [stepSubmitAttempted, setStepSubmitAttempted] = React.useState(false);
@@ -491,10 +493,6 @@ const [confirmNotifEmailFocused, setConfirmNotifEmailFocused] = React.useState(f
 const [phoneFocused, setPhoneFocused] = React.useState(false);
   return (
     <Box >
-      <Helmet key={"Register"}>
-        <title>{"Register"}</title>
-      </Helmet>
-
       <CustomStepper activeStep={activeStep} />
 
     
@@ -1092,10 +1090,6 @@ const [phoneFocused, setPhoneFocused] = React.useState(false);
                 //   gap={2}
                 //   px={3}
                 >
-                  <Helmet key={"Register Success"}>
-                    <title>Registration Successful</title>
-                  </Helmet>
-            
                   <CheckCircle size={80} weight="fill" color="#2e7d32" />
             
                   <Typography variant="h5" fontWeight={600} mt={1}>
