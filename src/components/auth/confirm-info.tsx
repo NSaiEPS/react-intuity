@@ -116,16 +116,16 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   };
 
   const refreshData = () => {
-  const role_id = stored?.body?.acl_role_id;
-  const token = stored?.body?.token;
-  const formData = new FormData();
+    const role_id = stored?.body?.acl_role_id;
+    const token = stored?.body?.token;
+    const formData = new FormData();
 
-  formData.append("acl_role_id", role_id);
-  formData.append("customer_id", user_id);
-  formData.append("company_login", "cape-royale1");
+    formData.append("acl_role_id", role_id);
+    formData.append("customer_id", user_id);
+    formData.append("company_login", "cape-royale1");
 
-  dispatch(getConfirmInfo(token, formData));
-};
+    dispatch(getConfirmInfo(token, formData));
+  };
 
   const { checkSession } = useUser();
 
@@ -146,7 +146,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
   return (
     <Box>
-      <Typography variant="subtitle1" mb={3}>
+      {/* <Typography variant="subtitle1" mb={3}>
         Hi, {confirmInfo?.user?.name}
       </Typography>
 
@@ -154,6 +154,11 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         For <strong>additional security</strong> on your{" "}
         {confirmInfo?.company?.company_name} utility account profile, please
         review and confirm your contact information.
+      </Typography> */}
+
+      <Typography variant="h5" fontWeight={700} mb={3}>
+        Please confirm your account information
+
       </Typography>
 
       <Grid container spacing={3}>
@@ -274,7 +279,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
       <Grid container spacing={2} mt={2} alignItems="center">
         <Grid item xs={6}>
-          <MUILink
+          {/* <MUILink
             to={paths.dashboard.overview()}
             component={RouterLink}
             onClick={successCallBack}
@@ -287,7 +292,25 @@ export function ConfirmInfoDetails(): React.JSX.Element {
             }}
           >
             SKIP
-          </MUILink>
+          </MUILink> */}
+          <Button
+            variant="outlined"
+            fullWidth={isMobile}
+            onClick={successCallBack}
+            sx={{
+              px: 4,
+              borderColor: colors.blue,
+              color: colors.blue,
+              fontWeight: "bold",
+              fontSize: { xs: "0.8rem", sm: "1rem" },
+              "&:hover": {
+                borderColor: colors["blue.3"],
+                backgroundColor: "transparent",
+              },
+            }}
+          >
+            SKIP
+          </Button>
         </Grid>
         <Grid item xs={6} textAlign="right">
           <Button
@@ -313,13 +336,13 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         open={phoneModalOpen}
         clickedDetails={clickedDetails}
         onClose={() => localDispatch({ type: "PHONE_MODAL", payload: false })}
-        onSuccess={refreshData} 
+        onSuccess={refreshData}
       />
       <EmailDialog
         open={emailModalOpen}
         clickedDetails={clickedDetails}
         onClose={() => localDispatch({ type: "EMAIL_MODAL", payload: false })}
-        onSuccess={refreshData} 
+        onSuccess={refreshData}
       />
       <TwoFAModal
         open={twoFAModalVisible}

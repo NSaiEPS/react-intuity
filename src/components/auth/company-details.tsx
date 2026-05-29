@@ -1,35 +1,69 @@
+
+
 import React, { memo } from "react";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { Box, Link, Typography } from "@mui/material";
-import { useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { Phone, EnvelopeSimple, Globe } from "@phosphor-icons/react/dist/ssr";
 
+
+// ✅ import your api action
+// import { getCompanyDetailsApi } from "@/state/Account/actions";
+
 // ✅ memo — prevents re-render when parent re-renders
 const CompanyDetails = memo(function CompanyDetails() {
-  const { companyInfo } = useSelector((state: RootState) => state?.Account);
+
+
+  const { companyInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
+console.log(companyInfo,'companyInfo')
   const location = useLocation();
   const pathname = location.pathname;
 
-  // ✅ useMemo — slug computed once, not every render
-  const slug = React.useMemo(() => pathname?.split("/")[1], [pathname]);
 
-  const hasCompanySlug = React.useMemo(() =>
-    slug?.startsWith("login-") ||
-    slug?.startsWith("register-") ||
-    slug?.startsWith("reset-password-") ||
-    slug?.startsWith("onetime-payment-") ||
-    slug?.startsWith("forgot-login-"),
-    [slug]
-  );
 
-  const phone = hasCompanySlug
-    ? `${companyInfo?.company?.country ?? ""}${companyInfo?.company?.phone ?? ""}`
-    : "+1 234 567 8900";
-  const email = hasCompanySlug ? companyInfo?.company?.email ?? "" : "info@intuity.com";
-  const website = hasCompanySlug ? companyInfo?.company?.company_website ?? "" : "www.intuity.com";
-  const companyUrl = hasCompanySlug ? companyInfo?.company?.company_website_URL ?? "" : "www.intuity.com";
+
+
+  const rawSlug = React.useMemo(
+  () => pathname?.split("/")[1],
+  [pathname]
+);
+
+
+const hasCompanySlug = React.useMemo(
+  () =>
+    rawSlug?.startsWith("login-") ||
+    rawSlug?.startsWith("register-") ||
+    rawSlug?.startsWith("reset-password-") ||
+    rawSlug?.startsWith("onetime-payment-") ||
+    rawSlug?.startsWith("forgot-login-"),
+  [rawSlug]
+);
+
+ 
+
+const company =  companyInfo?.company;
+
+
+
+const phone = hasCompanySlug
+  ? `${company?.country ?? ""}${company?.phone ?? ""}`
+  : "+1 234 567 8900";
+
+const email = hasCompanySlug
+  ? company?.email ?? ""
+  : "info@intuity.com";
+
+const website = hasCompanySlug
+  ? company?.company_website ?? ""
+  : "www.intuity.com";
+
+const companyUrl = hasCompanySlug
+  ? company?.company_website_URL ?? ""
+  : "https://www.intuity.com";
 
   const iconBoxStyle = {
     width: 40,
@@ -62,12 +96,39 @@ const CompanyDetails = memo(function CompanyDetails() {
       }}
     >
       {/* Contact Us divider */}
-      <Box sx={{ display: "flex", alignItems: "center", width: "80%", maxWidth: "700px", gap: 2 }}>
-        <Box sx={{ flex: 1, height: "1px", backgroundColor: "#d0d8e8" }} />
-        <Typography sx={{ fontWeight: 700, fontSize: "1rem", color: colors.blue, whiteSpace: "nowrap" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          width: "80%",
+          maxWidth: "700px",
+          gap: 2,
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
+            height: "1px",
+            backgroundColor: "#d0d8e8",
+          }}
+        />
+        <Typography
+          sx={{
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: colors.blue,
+            whiteSpace: "nowrap",
+          }}
+        >
           Contact Us
         </Typography>
-        <Box sx={{ flex: 1, height: "1px", backgroundColor: "#d0d8e8" }} />
+        <Box
+          sx={{
+            flex: 1,
+            height: "1px",
+            backgroundColor: "#d0d8e8",
+          }}
+        />
       </Box>
 
       {/* Contact icons row */}
@@ -85,14 +146,30 @@ const CompanyDetails = memo(function CompanyDetails() {
           <Box sx={iconBoxStyle}>
             <Phone size={18} color={colors.blue} weight="regular" />
           </Box>
-          <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>{phone}</Typography>
+
+          <Typography
+            variant="body2"
+            sx={{ color: "#333", fontWeight: 500 }}
+          >
+            {phone}
+          </Typography>
         </Box>
 
         <Box sx={contactItemStyle}>
           <Box sx={iconBoxStyle}>
-            <EnvelopeSimple size={18} color={colors.blue} weight="regular" />
+            <EnvelopeSimple
+              size={18}
+              color={colors.blue}
+              weight="regular"
+            />
           </Box>
-          <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>{email}</Typography>
+
+          <Typography
+            variant="body2"
+            sx={{ color: "#333", fontWeight: 500 }}
+          >
+            {email}
+          </Typography>
         </Box>
 
         {website && (
@@ -103,7 +180,13 @@ const CompanyDetails = memo(function CompanyDetails() {
             <Box sx={iconBoxStyle}>
               <Globe size={18} color={colors.blue} weight="regular" />
             </Box>
-            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>{website}</Typography>
+
+            <Typography
+              variant="body2"
+              sx={{ color: "#333", fontWeight: 500 }}
+            >
+              {website}
+            </Typography>
           </Box>
         )}
       </Box>
@@ -112,12 +195,11 @@ const CompanyDetails = memo(function CompanyDetails() {
       <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
         <img
           alt="Intuity"
-
           height={36}
           width={231}
           src="/assets/intuity-footer.png"
           loading="eager"
-          fetchPriority="high"    // ✅ LCP fix
+          fetchPriority="high"
         />
       </Box>
 
@@ -125,7 +207,11 @@ const CompanyDetails = memo(function CompanyDetails() {
         href="https://pay.waterbill.com/terms-of-use"
         target="_blank"
         underline="always"
-        sx={{ color: colors.blue, fontSize: "0.875rem", mt: "-10px" }}
+        sx={{
+          color: colors.blue,
+          fontSize: "0.875rem",
+          mt: "-10px",
+        }}
       >
         Terms of use
       </Link>

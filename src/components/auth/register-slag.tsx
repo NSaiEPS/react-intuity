@@ -44,9 +44,29 @@ const MainSection = memo(function MainSection() {
 
   const { accountLoading, companyInfo } = useSelector((state: RootState) => state?.Account);
   const routeChecker = useSelector((state: RootState) => state?.DashBoard?.routeChecker);
-
+console.log(companyInfo,'companyInfo')
   const location = useLocation();
   const pathname = location.pathname;
+
+  useEffect(() => {
+  let title = "Login";
+
+  if (pathname.includes("register")) {
+    title = "Register Now";
+  } else if (pathname.includes("forgot-login")) {
+    title = "Forgot Login Username";
+  } else if (pathname.includes("reset-password")) {
+    title = "Reset Password";
+  } else if (pathname.includes("update-password")) {
+    title = "Update Password";
+  } else if (pathname.includes("onetime-payment")) {
+    title = "One Time Payment";
+  } else if (pathname.includes("login")) {
+    title = "Login";
+  }
+
+  document.title = title;
+}, [pathname]);
 
   // ✅ useMemo — not recomputed every render
   const slug = useMemo(() => pathname?.split("/")[1], [pathname]);
@@ -76,14 +96,16 @@ const MainSection = memo(function MainSection() {
       slug?.startsWith("login-") ||
       slug?.startsWith("register-") ||
       slug?.startsWith("onetime-payment-") ||
-      slug?.startsWith("forgot-login-")
+      slug?.startsWith("forgot-login-")||
+      slug?.startsWith("reset-password-")
     ) {
       const alias = slug
         .replace("forgot-login-", "")
         .replace("login-", "")
         .replace("register-success-", "")
         .replace("register-", "")
-        .replace("onetime-payment-", "");
+        .replace("onetime-payment-", "")
+        .replace("reset-password-", "");
       formData.append("alias", alias);
       dispatch(getCompanyDetails(formData, undefined, failureCallBack, () => {
         setContextLoading(false);

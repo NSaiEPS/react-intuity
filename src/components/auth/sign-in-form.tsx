@@ -77,9 +77,18 @@ export function SignInForm({ user = false }): React.JSX.Element {
     password: string;
   }
 
-  const slug = pathname?.split("/")[1];
+  // const slug = pathname?.split("/")[1];
 
-  const alias = slug?.split('login-');
+  // const alias = slug?.split('login-');
+
+  const rawSlug = pathname?.split("/")[1];
+const alias = rawSlug
+  ?.replace("login-", "")
+  ?.replace("register-", "")
+  ?.replace("reset-password-", "")
+  ?.replace("onetime-payment-", "")
+  ?.replace("forgot-login-", "");
+console.log(alias,rawSlug,rawSlug?.split('login-'),'rawSlug')
 
   const handleRegisterClick = async () => {
     const slug = pathname?.split("/")[1];
@@ -143,11 +152,14 @@ export function SignInForm({ user = false }): React.JSX.Element {
   };
 
   const successCallBack = async (res: AuthResponse) => {
+    
     dispatch(setUserInfo(res));
     if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
       setLocalStorage("alias-details", companyInfo?.company);
+      
     } else {
       setLocalStorage("alias-details", null);
+
     }
     const companyAlias = res?.body?.alias || "intuityfe";
     if (res?.body?.is_verified == 1) {
@@ -159,6 +171,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
         navigate(`/${companyAlias}/dashboard`);
       }
     } else {
+      
       navigate(paths.auth.confirmInfo(companyAlias));
     }
   };
@@ -322,7 +335,8 @@ export function SignInForm({ user = false }): React.JSX.Element {
         </Box> */}
 
           {/* Register Now */}
-          {alias?.[1] && (
+          {/* {alias?.[1] && ( */}
+          {alias && alias!=='login' && (
             <Typography variant="body2" sx={{ mb: 2 }}>
               Don't have an account?{" "}
               <span
@@ -368,7 +382,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
               to={paths.auth.resetPassword(
                 pathname?.split("/")[1] === "login"
                   ? null
-                  : pathname?.split("login-")[1]
+                  : alias
               )}
               style={{
                 color: colors.blue,
@@ -379,12 +393,12 @@ export function SignInForm({ user = false }): React.JSX.Element {
               Forgot password?
             </Link>
             {
-              alias?.[1] &&
+              alias && alias!=='login' &&
 
               <Typography variant="body2" color="text.secondary">
                 |
               </Typography>}
-            {alias?.[1] &&
+            {alias && alias!=='login' &&
 
               <Link
                 to={paths.auth.forgotLogin(
@@ -467,7 +481,7 @@ export function SignInForm({ user = false }): React.JSX.Element {
                 Forgot password?
               </Link>
 
-              {alias?.[1] && (
+              {alias && (
                 <Link
                   to={paths.auth.forgotLogin(
                     pathname?.split("/")[1] === "login"

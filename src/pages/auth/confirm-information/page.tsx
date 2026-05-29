@@ -132,7 +132,7 @@ export default function ConfirmInformation() {
         <ConfirmInfoDetails />
       </SkeletonWrapper>
 
-      <Typography
+      {/* <Typography
         variant="body2"
         color="text.secondary"
         mt={6}
@@ -141,7 +141,7 @@ export default function ConfirmInformation() {
       >
         This is a fee-based service. A convenience fee will be applied to all
         credit card and electronic check transactions.
-      </Typography>
+      </Typography> */}
     </Box>
   );
 }
