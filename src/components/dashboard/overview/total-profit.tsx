@@ -13,7 +13,8 @@ import { IconCards } from "@/components/dashboard/overview/Icon-cards";
 
 import { paths } from "@/utils/paths";
 import { Button } from "@mui/material";
-import { getCompanyDetailsApi } from "@/api/dashboard";
+
+import { getLocalStorage } from "@/utils/auth";
 
 export interface TotalProfitProps {
   sx?: SxProps;
@@ -24,6 +25,14 @@ export function TotalProfit({
   value,
   sx,
 }: TotalProfitProps): React.JSX.Element {
+    interface AliasUser {
+
+  phone: string;
+  email: string;
+  company_website_URL: string;
+}
+    const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
+  
   const navigate = useNavigate(); // Use the hook from next/navigation
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
@@ -36,37 +45,16 @@ export function TotalProfit({
     website: "",
   });
 
-  React.useEffect(() => {
-    const pathParts = location.pathname.split("/");
 
-    // cape-royale1 from /cape-royale1/dashboard
-    const slug = pathParts?.[1];
+  React.useEffect(()=>{
 
-    if (!slug) return;
-
-    const fetchCompanyDetails = async () => {
-      try {
-        const formData = new FormData();
-        formData.append("alias", slug);
-
-        const response = await getCompanyDetailsApi({ formData });
-
-        if (response?.status) {
-          const company = response?.body?.company;
-
-          setCompanyDetails({
-            phone: company?.phone || "+12345678900",
-            email: company?.email || "info@intuity.com",
-            website: company?.company_website_URL || "",
+    setCompanyDetails({
+            phone: aliasUser?.phone || "+12345678900",
+            email: aliasUser?.email || "info@intuity.com",
+            website: aliasUser?.company_website_URL || "",
           });
-        }
-      } catch (error) {
-        console.log("Company details error", error);
-      }
-    };
+  },[aliasUser])
 
-    fetchCompanyDetails();
-  }, [location.pathname]);
 
   return (
     <Card
