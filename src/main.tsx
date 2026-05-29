@@ -9,6 +9,7 @@ import Layout from "./components/core/layout";
 import { LoadingProvider } from "./components/core/skeletion-context";
 import { UserProvider } from "./contexts/user-context";
 import { setRouter } from "./utils/navigation";
+import { HelmetProvider } from "react-helmet-async";
 
 setRouter(router);
 
@@ -31,6 +32,8 @@ window.addEventListener("error", (e) => {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+     <HelmetProvider>
+
     <UserProvider>
       <LoadingProvider>
         <Layout>
@@ -38,5 +41,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </Layout>
       </LoadingProvider>
     </UserProvider>
+     </HelmetProvider>
   </React.StrictMode>
 );

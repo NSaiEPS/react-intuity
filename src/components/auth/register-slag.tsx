@@ -48,6 +48,26 @@ const MainSection = memo(function MainSection() {
   const location = useLocation();
   const pathname = location.pathname;
 
+  useEffect(() => {
+  let title = "Login";
+
+  if (pathname.includes("register")) {
+    title = "Register Now";
+  } else if (pathname.includes("forgot-login")) {
+    title = "Forgot Login Username";
+  } else if (pathname.includes("reset-password")) {
+    title = "Reset Password";
+  } else if (pathname.includes("update-password")) {
+    title = "Update Password";
+  } else if (pathname.includes("onetime-payment")) {
+    title = "One Time Payment";
+  } else if (pathname.includes("login")) {
+    title = "Login";
+  }
+
+  document.title = title;
+}, [pathname]);
+
   // ✅ useMemo — not recomputed every render
   const slug = useMemo(() => pathname?.split("/")[1], [pathname]);
 

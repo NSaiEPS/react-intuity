@@ -47,6 +47,7 @@
     "react-datepicker": "^8.9.0",
     "react-dom": "18.3.1",
     "react-helmet": "^6.1.0",
+    "react-helmet-async": "^3.0.0",
     "react-hook-form": "7.52.0",
     "react-pdf": "^7.7.3",
     "react-redux": "^9.2.0",

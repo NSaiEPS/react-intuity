@@ -1,6 +1,6 @@
 import { boarderRadius } from '@/utils';
 import { Card, Link as MuiLink, Stack } from '@mui/material';
-import { Envelope, Headphones } from '@phosphor-icons/react/dist/ssr';
+import { Envelope, Headphones, Globe } from '@phosphor-icons/react/dist/ssr';
 
 export function IconCards({ type }) {
   return (
@@ -31,7 +31,18 @@ export function IconCards({ type }) {
           >
             <Headphones size={24} weight="regular" />
           </MuiLink>
-        ) : (
+        ) : type === 'Website' ? (
+          <MuiLink
+            href={'www.intuity.com'}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="none"
+            color="inherit"
+            sx={{ display: 'inline-flex', alignItems: 'center' }}
+          >
+            <Globe size={24} weight="regular" />
+          </MuiLink>
+        ) :(
           <MuiLink
             href="mailto:info@intuity.com"
             underline="none"

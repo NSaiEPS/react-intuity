@@ -13,6 +13,7 @@ import { IconCards } from "@/components/dashboard/overview/Icon-cards";
 
 import { paths } from "@/utils/paths";
 import { Button } from "@mui/material";
+import { getCompanyDetailsApi } from "@/api/dashboard";
 
 export interface TotalProfitProps {
   sx?: SxProps;
@@ -28,6 +29,44 @@ export function TotalProfit({
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
   const { next_bill_days, next_bill } = dashBoardInfo?.body?.customer || {};
+
+   const [companyDetails, setCompanyDetails] = React.useState({
+    phone: "+12345678900",
+    email: "info@intuity.com",
+    website: "",
+  });
+
+  React.useEffect(() => {
+    const pathParts = location.pathname.split("/");
+
+    // cape-royale1 from /cape-royale1/dashboard
+    const slug = pathParts?.[1];
+
+    if (!slug) return;
+
+    const fetchCompanyDetails = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("alias", slug);
+
+        const response = await getCompanyDetailsApi({ formData });
+
+        if (response?.status) {
+          const company = response?.body?.company;
+
+          setCompanyDetails({
+            phone: company?.phone || "+12345678900",
+            email: company?.email || "info@intuity.com",
+            website: company?.company_website_URL || "",
+          });
+        }
+      } catch (error) {
+        console.log("Company details error", error);
+      }
+    };
+
+    fetchCompanyDetails();
+  }, [location.pathname]);
 
   return (
     <Card
@@ -62,41 +101,61 @@ export function TotalProfit({
               ? "Customer Service"
               : "Remaining days until late fees or penalties may be assessed"}
           </Typography>
-          {value === "CustomerService" ? (
-            <Stack direction="row" spacing={2}>
-              <Button
-                startIcon={<IconCards type={"Headphones"} />}
-                // variant="outlined"
-                // color="primary"
-                component="a"
-                href="tel:+12345678900"
-                sx={{
-                  textTransform: "none",
 
-                  color: "black",
-                }}
-              >
-                Call
-              </Button>
+         {value === "CustomerService" ? (
+  <Stack spacing={2} alignItems="center">
+    
+    {/* PHONE + EMAIL SAME LINE */}
+    <Stack direction="row" spacing={2}>
+      <Button
+        startIcon={<IconCards type={"Headphones"} />}
+        component="a"
+        href={`tel:${companyDetails.phone}`}
+        sx={{
+          textTransform: "none",
+          color: "black",
+        }}
+      >
+        Call
+      </Button>
 
-              <Button
-                startIcon={<IconCards type={"Envelope"} />}
-                component="a"
-                href="mailto:info@intuity.com"
-                // variant="outlined"
-                // color="primary"
-                sx={{ textTransform: "none", color: "black" }}
-              >
-                Email
-              </Button>
-            </Stack>
-          ) : (
-            <Typography variant="h3" fontWeight={700} mt={"auto"}>
-              {value === "BillDue"
-                ? formatToMMDDYYYY(next_bill)
-                : next_bill_days}
-            </Typography>
-          )}
+      <Button
+        startIcon={<IconCards type={"Envelope"} />}
+        component="a"
+        href={`mailto:${companyDetails.email}`}
+        sx={{
+          textTransform: "none",
+          color: "black",
+        }}
+      >
+        Email
+      </Button>
+    </Stack>
+
+    {/* WEBSITE CENTER BELOW */}
+    {companyDetails.website && (
+      <Button
+        startIcon={<IconCards type={"Website"} />}
+        component="a"
+        href={companyDetails.website}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          textTransform: "none",
+          color: "black",
+        }}
+      >
+        Website
+      </Button>
+    )}
+  </Stack>
+) : (
+  <Typography variant="h3" fontWeight={700} mt={"auto"}>
+    {value === "BillDue"
+      ? formatToMMDDYYYY(next_bill)
+      : next_bill_days}
+  </Typography>
+)}
         </Stack>
       </CardContent>
     </Card>

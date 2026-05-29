@@ -105,7 +105,7 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
           alignItems: "center",
         }}
       >
-        Change Notification Email (Account No. 1146)
+        Change Notification Email (Account No. {clickedDetails?.acctnum})
         <IconButton onClick={onClose} edge="end">
           <X size={24} color={colors.blue} />
         </IconButton>
