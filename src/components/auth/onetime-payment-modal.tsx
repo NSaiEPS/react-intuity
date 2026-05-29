@@ -35,7 +35,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "@/lib/custom-toast";
 import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
-import { CustomConnector, CustomStepIcon } from "./sign-up-form";
+import { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
 import secureLocalStorage from "react-secure-storage";
 import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";

@@ -48,25 +48,23 @@ console.log(companyInfo,'companyInfo')
   const location = useLocation();
   const pathname = location.pathname;
 
-  useEffect(() => {
-  let title = "Login";
+  React.useLayoutEffect(() => {
+    let title = "Login - Intuity";
 
-  if (pathname.includes("register")) {
-    title = "Register Now";
-  } else if (pathname.includes("forgot-login")) {
-    title = "Forgot Login Username";
-  } else if (pathname.includes("reset-password")) {
-    title = "Reset Password";
-  } else if (pathname.includes("update-password")) {
-    title = "Update Password";
-  } else if (pathname.includes("onetime-payment")) {
-    title = "One Time Payment";
-  } else if (pathname.includes("login")) {
-    title = "Login";
-  }
+    if (pathname.includes("register")) {
+      title = "Register Now - Intuity";
+    } else if (pathname.includes("forgot-login")) {
+      title = "Forgot Login Username - Intuity";
+    } else if (pathname.includes("reset-password")) {
+      title = "Reset Password - Intuity";
+    } else if (pathname.includes("update-password")) {
+      title = "Update Password - Intuity";
+    } else if (pathname.includes("onetime-payment")) {
+      title = "One Time Payment - Intuity";
+    }
 
-  document.title = title;
-}, [pathname]);
+    document.title = title;
+  }, [pathname]);
 
   // ✅ useMemo — not recomputed every render
   const slug = useMemo(() => pathname?.split("/")[1], [pathname]);

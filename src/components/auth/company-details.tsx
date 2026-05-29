@@ -142,49 +142,51 @@ const companyUrl = hasCompanySlug
           flexDirection: { xs: "column", sm: "row" },
         }}
       >
-        <Box sx={contactItemStyle}>
-          <Box sx={iconBoxStyle}>
-            <Phone size={18} color={colors.blue} weight="regular" />
-          </Box>
-
-          <Typography
-            variant="body2"
-            sx={{ color: "#333", fontWeight: 500 }}
+        {/* Phone — opens native dialer */}
+        {phone && (
+          <Box
+            component="a"
+            href={`tel:${phone}`}
+            sx={{ ...contactItemStyle, textDecoration: "none" }}
           >
-            {phone}
-          </Typography>
-        </Box>
-
-        <Box sx={contactItemStyle}>
-          <Box sx={iconBoxStyle}>
-            <EnvelopeSimple
-              size={18}
-              color={colors.blue}
-              weight="regular"
-            />
+            <Box sx={iconBoxStyle}>
+              <Phone size={18} color={colors.blue} weight="regular" />
+            </Box>
+            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
+              {phone}
+            </Typography>
           </Box>
+        )}
 
-          <Typography
-            variant="body2"
-            sx={{ color: "#333", fontWeight: 500 }}
+        {/* Email — opens mail client */}
+        {email && (
+          <Box
+            component="a"
+            href={`mailto:${email}`}
+            sx={{ ...contactItemStyle, textDecoration: "none" }}
           >
-            {email}
-          </Typography>
-        </Box>
+            <Box sx={iconBoxStyle}>
+              <EnvelopeSimple size={18} color={colors.blue} weight="regular" />
+            </Box>
+            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
+              {email}
+            </Typography>
+          </Box>
+        )}
 
+        {/* Website — opens in new tab */}
         {website && (
           <Box
-            sx={{ ...contactItemStyle, cursor: "pointer" }}
-            onClick={() => window.open(companyUrl, "_blank")}
+            component="a"
+            href={companyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ ...contactItemStyle, textDecoration: "none" }}
           >
             <Box sx={iconBoxStyle}>
               <Globe size={18} color={colors.blue} weight="regular" />
             </Box>
-
-            <Typography
-              variant="body2"
-              sx={{ color: "#333", fontWeight: 500 }}
-            >
+            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
               {website}
             </Typography>
           </Box>
