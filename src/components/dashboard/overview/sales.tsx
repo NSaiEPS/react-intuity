@@ -21,7 +21,7 @@ import { ArrowClockwise as ArrowClockwiseIcon } from "@phosphor-icons/react/dist
 import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import type { ApexOptions } from "apexcharts";
 import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
 import { Chart } from "@/components/core/chart";

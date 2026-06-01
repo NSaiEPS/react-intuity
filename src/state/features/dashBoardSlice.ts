@@ -12,39 +12,44 @@ import {
 
 import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
-import { set } from "react-hook-form";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "@/lib/custom-toast";
+import type { AppDispatch } from "@/state/store";
+import type {
+  DashboardResponse,
+  InvoiceDetailsBody,
+  NotificationPreferencesBody,
+  SetLoadingFn,
+  UsageGraphBody,
+} from "@/types/domain";
 
-type Users = {};
 interface DahBoardState {
-  dashBoardInfo: any;
+  dashBoardInfo: DashboardResponse & Record<string, any>;
   dashboardLoader: boolean;
   notificationLoader: boolean;
   dashboardError: string | null;
-  notificationList: any;
-  usageGraph: any;
-  invoiceDetails: any;
-  monthlyUsageGraph: any;
-  usageUtilityFilters: any;
+  notificationList: NotificationPreferencesBody | Record<string, any>;
+  usageGraph: UsageGraphBody;
+  invoiceDetails: InvoiceDetailsBody;
+  monthlyUsageGraph: Record<string, any>;
+  usageUtilityFilters: Record<string, any>;
   monthlyUsageUam: string;
-  routeChecker: any;
+  routeChecker: boolean;
 }
 
-const initialState = {
-  dashBoardInfo: {},
+const initialState: DahBoardState = {
+  dashBoardInfo: {} as DashboardResponse & Record<string, any>,
   dashboardLoader: false,
   notificationLoader: false,
   dashboardError: null,
-  notificationList: [],
+  notificationList: {},
   usageGraph: {},
   invoiceDetails: {},
   monthlyUsageGraph: {},
   usageUtilityFilters: {},
   monthlyUsageUam: "",
-  routeChecker: false
-} as DahBoardState;
+  routeChecker: false,
+};
 
 const DashBoardSlice = createSlice({
   name: "dashBoard",
@@ -98,8 +103,11 @@ export const {
 
 export default DashBoardSlice.reducer;
 
-export const getDashboardInfo: any =
-  (role_id, user_id, token) => async (dispatch) => {
+export const getDashboardInfo = (
+  role_id: string,
+  user_id: string,
+  token: string
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setDashboardLoader(true));
 
     try {
@@ -135,8 +143,11 @@ export const getDashboardInfo: any =
     }
   };
 
-export const getAccountInfo: any =
-  (role_id, user_id, token) => async (dispatch) => {
+export const getAccountInfo = (
+  role_id: string,
+  user_id: string,
+  token: string
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setDashboardLoader(true));
 
     // formData.append('customer_id', '5968');
@@ -168,7 +179,7 @@ export const getAccountInfo: any =
     }
   };
 
-export const setPaperLessSettings: any = (data) => async (dispatch) => {
+export const setPaperLessSettings = (data: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
   try {
     const res = await api.post("settings/front/paperless-setting", data, {
@@ -196,7 +207,7 @@ export const setPaperLessSettings: any = (data) => async (dispatch) => {
   }
 };
 
-export const setAutoPaySettings: any = (data) => async (dispatch) => {
+export const setAutoPaySettings = (data: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
 
   try {
@@ -225,9 +236,13 @@ export const setAutoPaySettings: any = (data) => async (dispatch) => {
   }
 };
 
-export const getNotificationList: any =
-  (token, formData, successCallBack, setData = true, failureCallBack) =>
-  async (dispatch) => {
+export const getNotificationList = (
+  token: string,
+  formData: FormData,
+  successCallBack?: () => void,
+  setData = true,
+  failureCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     // dispatch(setDashboardLoader(true));
     dispatch(setNotificationLoader(true));
 
@@ -275,7 +290,7 @@ export const getNotificationList: any =
     }
   };
 
-export const getUsageGraph: any = (formData, token) => async (dispatch) => {
+export const getUsageGraph = (formData: FormData, token: string) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
 
   try {
@@ -299,8 +314,11 @@ export const getUsageGraph: any = (formData, token) => async (dispatch) => {
   }
 };
 
-export const getInvoiceDetails: any =
-  (formData, token, setContextLoading) => async (dispatch) => {
+export const getInvoiceDetails = (
+  formData: FormData,
+  token: string,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setDashboardLoader(true));
     try {
       // const res = await api.post('/billing/front/invoice', data, {
@@ -330,7 +348,7 @@ export const getInvoiceDetails: any =
     }
   };
 
-export const usageMonthlyGraph: any = (formData, token) => async (dispatch) => {
+export const usageMonthlyGraph = (formData: FormData, token: string) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
 
   try {
@@ -354,8 +372,11 @@ export const usageMonthlyGraph: any = (formData, token) => async (dispatch) => {
   }
 };
 
-export const usageUtilityFilters: any =
-  (formData, token, successCallBack) => async (dispatch) => {
+export const usageUtilityFilters = (
+  formData: FormData,
+  token: string,
+  successCallBack?: (body: any) => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setDashboardLoader(true));
 
     try {

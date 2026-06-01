@@ -25,7 +25,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import { Button } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
 import { z } from "zod";
 

@@ -11,7 +11,7 @@ import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import { useLoading } from "@/components/core/skeletion-context";
 import { getLocalStorage } from "@/utils/auth";
 import { stopTransferService } from "@/state/features/accountSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 
 import { boarderRadius, CustomerInfo } from "@/utils";

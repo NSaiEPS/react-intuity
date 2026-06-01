@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { AppDispatch, RootState } from "@/state/store";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { getDashboardInfo } from "@/state/features/dashBoardSlice";
@@ -16,7 +16,7 @@ import {
 
 export function ScheduleRecurringBox({ isSmallScreen = false }) {
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
   const paymentLoader = useSelector(
     (state: RootState) => state?.Payment?.paymentLoader

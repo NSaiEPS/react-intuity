@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { CustomerInfo } from "@/utils";

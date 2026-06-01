@@ -18,7 +18,7 @@ import {
   Chip,
 } from "@mui/material";
 import { Question, Trash, ArrowClockwise, Plus } from "@phosphor-icons/react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
 import PhoneModal from "@/components/auth/confirm-phone-modal";

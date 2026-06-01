@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Stack, Typography } from "@mui/material";
 import { Button } from "nsaicomponents";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";

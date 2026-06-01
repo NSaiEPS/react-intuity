@@ -18,7 +18,7 @@ import {
 import { ChartLineUp } from "@phosphor-icons/react";
 const Chart = React.lazy(() => import("react-apexcharts"));
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import secureLocalStorage from "react-secure-storage";
 
 const HeaderSection = ({ setUamType }) => {

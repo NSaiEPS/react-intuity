@@ -30,7 +30,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 

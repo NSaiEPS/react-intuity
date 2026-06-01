@@ -351,7 +351,7 @@ export async function getConfirmInfoApi({
   return data;
 }
 
-export async function getCompanyDetailsApi({ formData }) {
+export async function getCompanyDetailsApi({ formData }: { formData: FormData }) {
   const res = await fetch(`${BASE_URL}get-details-by-alias`, {
     method: "POST",
 
@@ -371,8 +371,8 @@ export async function getCompanyDetailsApi({ formData }) {
 }
 
 export async function registerApi({ formData, alias }: {
-  formData: any;
-  alias:any;
+  formData: FormData;
+  alias: string;
 }) {
  //new url
   // const api = `${BASE_URL}register-${alias}`;
@@ -701,7 +701,7 @@ export async function schedulePaymentAPI({
   return data;
 }
 
-export async function guestPaymentRequestApi({ formData, alias }) {
+export async function guestPaymentRequestApi({ formData, alias }: { formData: FormData; alias: string }) {
   const res = await fetch(`${BASE_URL}pay-as-guest-${alias}`, {
     method: "POST",
 
@@ -773,6 +773,9 @@ export async function saveAcknowledgeForRecurringPaymentApi({
 export async function oneTimePaymentApi({
   formData,
   companyAlias = "cape-royale1",
+}: {
+  formData: FormData;
+  companyAlias?: string;
 }) {
   const res = await fetch(`${BASE_URL}pay-as-guest-${companyAlias}`, {
     method: "POST",

@@ -6,7 +6,7 @@ import {
 import { getLocalStorage } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
 import { Box, Typography } from "@mui/material";
-import { useDispatch } from "react-redux";
+import { useDispatch } from "@/hooks/redux";
 import { useLocation, useParams } from "react-router";
 
 import { ConfirmInfoDetails } from "@/components/auth/confirm-info";

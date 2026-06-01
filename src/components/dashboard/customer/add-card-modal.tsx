@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
 import { colors } from "@/utils";
 import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";

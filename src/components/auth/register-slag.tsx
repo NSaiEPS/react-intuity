@@ -7,7 +7,7 @@ import {
   Divider, Grid, Stack, Typography,
 } from "@mui/material";
 import DOMPurify from "dompurify";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
 import { SkeletonWrapper } from "../core/withSkeleton";

@@ -4,7 +4,7 @@ import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
 import OneTimePdf from "./one-time-invoice";
 import { useLoading } from "@/components/core/skeletion-context";
@@ -139,7 +139,7 @@ export default function CustomModal({
           <div style={{ height: "600px", marginTop: "20px" }}>
             <PDFViewer width="1000px" height="600">
               {oneTime ? (
-                <OneTimePdf invoiceDetails={oneTimeData} />
+                <OneTimePdf invoiceDetails={oneTimeData as any} />
               ) : (
                 <InvoicePdfDocument invoiceDetails={invoiceDetails} />
               )}

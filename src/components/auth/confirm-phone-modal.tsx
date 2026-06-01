@@ -26,7 +26,7 @@ import {
 import { X } from "@phosphor-icons/react";
 // import { Button } from 'nsaicomponents';
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { z as zod } from "zod";
 
 import Button from "../CommonComponents/Button";

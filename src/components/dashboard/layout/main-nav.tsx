@@ -41,7 +41,7 @@ export function MainNav(): React.JSX.Element {
 }
 
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
-  const CustomerInfo = getLocalStorage("intuity-customerInfo");
+  const CustomerInfo = getLocalStorage("intuity-customerInfo") as Record<string, any> | null;
   let aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};

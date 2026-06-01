@@ -6,7 +6,7 @@ import {
 } from "@/state/features/accountSlice";
 import { getLocalStorage } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
-import { useDispatch } from "react-redux";
+import { useDispatch } from "@/hooks/redux";
 import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
 

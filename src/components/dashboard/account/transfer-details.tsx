@@ -12,7 +12,7 @@ import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Grid from "@mui/material/Unstable_Grid2";
 import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 export function TransferDetailsForm(): React.JSX.Element {
   const { transferInfo, accountLoading } = useSelector(

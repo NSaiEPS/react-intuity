@@ -49,7 +49,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 // const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
 
 import { useLocation, useNavigate, useSearchParams } from "react-router";
@@ -191,8 +191,8 @@ const PaymentForm = () => {
 
  
   const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
-    ? dashBoardInfo?.body?.customer
-    : getLocalStorage("intuity-customerInfo");
+    ? dashBoardInfo?.body?.customer as unknown as CustomerInfo
+    : getLocalStorage("intuity-customerInfo") as CustomerInfo | null;
 
   useEffect(() => {
     if (CustomerInfo?.acctnum) {

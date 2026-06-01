@@ -211,7 +211,7 @@ class AuthClient {
     return { data: token };
   }
 
-  async signOut(token, formData): Promise<{ error?: string }> {
+  async signOut(token: string, formData: FormData): Promise<{ error?: string }> {
     // Optimistic logout — clear everything locally and navigate immediately.
     // The user sees the login page with zero delay.
     clearLocalStorage();

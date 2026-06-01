@@ -1,14 +1,26 @@
 import { clearLocalStorage } from "./auth";
 
-let routerInstance: any;
+/** Minimal interface matching the router object returned by createBrowserRouter. */
+interface RouterInstance {
+  navigate: (
+    to: string | number,
+    options?: { replace?: boolean; state?: unknown }
+  ) => void | Promise<void>;
+}
 
-export const setRouter = (router: any) => {
+let routerInstance: RouterInstance | null = null;
+
+export const setRouter = (router: RouterInstance) => {
   routerInstance = router;
 };
 
-export const navigateTo = (path: string | number, options?: any, message?: string) => {
+export const navigateTo = (
+  path: string | number,
+  options?: { replace?: boolean; state?: unknown },
+  message?: string
+) => {
   if (
-    path == "/login" &&
+    path === "/login" &&
     message === "You are not authorised to use this api"
   ) {
     clearLocalStorage();

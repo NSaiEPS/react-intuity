@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography";
 import { CurrencyDollar as CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
 // import { HandCoins } from '@phosphor-icons/react';
 import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
 import { IconCards } from "@/components/dashboard/overview/Icon-cards";

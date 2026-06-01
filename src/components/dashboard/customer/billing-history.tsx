@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 import PdfViewer from "../layout/invoice-pdf-view";
 import InvoiceTransactionTabs from "./billing-history-tabs";
@@ -85,7 +85,7 @@ export function BillingHistory({
   const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   type IntuityUser = {
     body?: {
       acl_role_id?: string;

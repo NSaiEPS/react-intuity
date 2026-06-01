@@ -4,7 +4,7 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { oneTimePayment } from "@/state/features/accountSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch } from "@/hooks/redux";
 import { colors, WorldPlayDetails } from "@/utils";
 import { Button } from "nsaicomponents";
 import { paths } from "@/utils/paths";
@@ -125,10 +125,9 @@ if(!successPage){
           //console.log("One time payment success callback");
           removeLocalStorage("worldplay-details");
           handleCallBack();
-        }),
-        () => {
+        }, () => {
           handleCallBack();
-        }
+        })
       );}
     }
   }, [navigate, location, searchParams]);

@@ -13,7 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { updateAccountInfo } from "@/state/features/accountSlice";

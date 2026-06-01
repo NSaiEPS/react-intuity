@@ -19,7 +19,7 @@ import Typography from "@mui/material/Typography";
 import { Bell as BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
 import { ListBullets as ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
 import { Users as UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";

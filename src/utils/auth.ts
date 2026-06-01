@@ -1,7 +1,7 @@
 import secureLocalStorage from "react-secure-storage";
 
-export const setLocalStorage = (key: string, value: any) => {
-  secureLocalStorage.setItem(key, value);
+export const setLocalStorage = (key: string, value: unknown) => {
+  secureLocalStorage.setItem(key, value as Parameters<typeof secureLocalStorage.setItem>[1]);
 };
 
 export const getLocalStorage = (key: string) => {
@@ -31,7 +31,7 @@ localStorage.removeItem("intuity-is-logged-in");
 export const updateLocalStorageValue = (
   storageKey: string,
   targetKey: string,
-  newValue: any
+  newValue: unknown
 ) => {
   try {
     const storedData = secureLocalStorage.getItem(storageKey);

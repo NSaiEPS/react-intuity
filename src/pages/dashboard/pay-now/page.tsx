@@ -4,7 +4,7 @@ import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { AppDispatch, RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import Stack from "@mui/material/Stack";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 import { useLoading } from "@/components/core/skeletion-context";
 import { SkeletonWrapper } from "@/components/core/withSkeleton";
@@ -23,7 +23,7 @@ export default function PayNowPage(): React.JSX.Element {
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);

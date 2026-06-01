@@ -39,7 +39,7 @@ import { SignOut as SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { User as UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import dayjs from "dayjs";
 import { Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 // import { getLocalStorage } from '@/utils/auth';
 import secureLocalStorage from "react-secure-storage";
 
@@ -83,7 +83,7 @@ export function UserPopover({
   );
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
-  const linkedCustomerInfo = getLocalStorage("linked-customerInfo");
+  const linkedCustomerInfo = getLocalStorage("linked-customerInfo") as any[] | null;
 
   const [onlyUnread, setOnlyUnread] = React.useState(true);
   const [pageNo, setPageNo] = React.useState(1);

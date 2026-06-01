@@ -44,7 +44,7 @@ import { Stack } from "@mui/system";
 import { PencilSimple as EditIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 

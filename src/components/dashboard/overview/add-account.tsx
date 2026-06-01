@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
 
 import { paths } from "@/utils/paths";
@@ -216,7 +216,7 @@ export default function AddAccountPage() {
           token,
           formData,
 
-          navigate(paths.dashboard.overview()),
+          () => navigate(paths.dashboard.overview()),
 
           setLoading
         )

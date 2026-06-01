@@ -33,28 +33,44 @@ import secureLocalStorage from "react-secure-storage";
 
 import { toast } from "@/lib/custom-toast";
 import {toast as simpleToast   } from "react-toastify";
+import type { AppDispatch } from "@/state/store";
+import type {
+  AccountInfoBody,
+  CompanyInfoBody,
+  ConfirmInfoBody,
+  ConvenienceFeeBody,
+  NotificationPreferencesBody,
+  OneTimePaymentBody,
+  PaymentCard,
+  PaymentDetailsBody,
+  PaymentProcessorBody,
+  RegisterResponseBody,
+  SetLoadingFn,
+  TransferInfoBody,
+  UsageAlertsBody,
+} from "@/types/domain";
 
 interface DahBoardState {
-  userInfo: any;
-  accountInfo: any;
+  userInfo: Record<string, unknown>;
+  accountInfo: AccountInfoBody;
   accountLoading: boolean;
   accountError: string | null;
-  transferInfo: any;
-  paymentMethodInfo: any;
-  paymentMethodInfoCards: any;
-  confirmInfo: any;
-  companyInfo: any;
-  usageAlerts: any;
-  paymentProcessorDetails: any;
-  selectedCardInfo: any;
-  convenienceFee: any;
-  oneTimePaymentInfo: any;
-  paymentRequiredKeyDetails: any;
-  notificationPreferenceDetails: any;
-  paymentDetailsInfo: any;
+  transferInfo: TransferInfoBody;
+  paymentMethodInfo: PaymentDetailsBody;
+  paymentMethodInfoCards: PaymentCard[];
+  confirmInfo: ConfirmInfoBody;
+  companyInfo: CompanyInfoBody | null;
+  usageAlerts: UsageAlertsBody;
+  paymentProcessorDetails: PaymentProcessorBody;
+  selectedCardInfo: PaymentCard | null;
+  convenienceFee: ConvenienceFeeBody;
+  oneTimePaymentInfo: OneTimePaymentBody;
+  paymentRequiredKeyDetails: Record<string, unknown>;
+  notificationPreferenceDetails: NotificationPreferencesBody;
+  paymentDetailsInfo: PaymentDetailsBody;
 }
 
-const initialState = {
+const initialState: DahBoardState = {
   accountInfo: {},
   accountLoading: false,
   accountError: null,
@@ -64,14 +80,15 @@ const initialState = {
   confirmInfo: {},
   usageAlerts: {},
   userInfo: {},
+  companyInfo: null,
   paymentProcessorDetails: {},
-  selectedCardInfo: {},
+  selectedCardInfo: null,
   convenienceFee: {},
   oneTimePaymentInfo: {},
   paymentRequiredKeyDetails: {},
   notificationPreferenceDetails: {},
   paymentDetailsInfo: {},
-} as DahBoardState;
+};
 
 const AccountSlice = createSlice({
   name: "account",
@@ -148,8 +165,12 @@ export const {
 
 export default AccountSlice.reducer;
 
-export const getAccountInfo: any =
-  (role_id, user_id, token, setContextLoading) => async (dispatch) => {
+export const getAccountInfo = (
+  role_id: string,
+  user_id: string,
+  token: string,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -174,8 +195,11 @@ export const getAccountInfo: any =
     }
   };
 
-export const updateAccountCustomerInfo: any =
-  (token, formData, successCallback) => async (dispatch) => {
+export const updateAccountCustomerInfo = (
+  token: string,
+  formData: FormData,
+  successCallback?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -203,9 +227,14 @@ export const updateAccountCustomerInfo: any =
     }
   };
 
-export const stopTransferService: any =
-  (token, formData, isGetApi = false, successCallBack, setContextLoading,nodataSaving=false) =>
-  async (dispatch) => {
+export const stopTransferService = (
+  token: string,
+  formData: FormData,
+  isGetApi = false,
+  successCallBack?: () => void,
+  setContextLoading?: SetLoadingFn,
+  nodataSaving = false
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await transferService({ token, formData });
@@ -240,18 +269,16 @@ export const stopTransferService: any =
     }
   };
 
-export const updateAccountInfo: any =
-  (
-    token,
-    formData,
-    profile = false,
-    successCallBack,
-    dataRequired = false,
-    setContextLoading,
-    reduxNeeded = false,
-    noRedirect = false
-  ) =>
-  async (dispatch) => {
+export const updateAccountInfo = (
+  token: string,
+  formData: FormData,
+  profile = false,
+  successCallBack?: (data?: any) => void,
+  dataRequired = false,
+  setContextLoading?: SetLoadingFn,
+  reduxNeeded = false,
+  noRedirect = false
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       let res;
@@ -323,16 +350,14 @@ export const updateAccountInfo: any =
     }
   };
 
-export const updatePaperLessInfo: any =
-  (
-    token,
-    formData,
-    type,
-    successCallBack,
-    saveResponse = false,
-    setAutoPaySettings
-  ) =>
-  async (dispatch) => {
+export const updatePaperLessInfo = (
+  token: string,
+  formData: FormData,
+  type: string,
+  successCallBack?: ((data?: PaymentCard) => void) | (() => void),
+  saveResponse = false,
+  setAutoPaySettings?: (settings: Record<string, unknown>) => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await paperLessUpdate({ token, formData, type });
@@ -371,9 +396,13 @@ export const updatePaperLessInfo: any =
     }
   };
 
-export const getPaymentDetails: any =
-  (token, formData, isPost = false, successCallBack, setContextLoading) =>
-  async (dispatch) => {
+export const getPaymentDetails = (
+  token: string,
+  formData: FormData,
+  isPost = false,
+  successCallBack?: (customer: any) => void,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -414,8 +443,12 @@ export const getPaymentDetails: any =
     }
   };
 
-export const deleteCardAndBankAccount: any =
-  (token, formData, type, successCallBack) => async (dispatch) => {
+export const deleteCardAndBankAccount = (
+  token: string,
+  formData: FormData,
+  type: 'card' | 'bank_account',
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await deleteCardAndBankAccountApi({ token, formData, type });
@@ -446,8 +479,11 @@ export const deleteCardAndBankAccount: any =
     }
   };
 
-export const updateVoicePreference: any =
-  (token, formData, successCallBack) => async (dispatch) => {
+export const updateVoicePreference = (
+  token: string,
+  formData: FormData,
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await updateVoicePreferenceAPi({ token, formData });
@@ -472,9 +508,13 @@ export const updateVoicePreference: any =
     }
   };
 
-export const contactCustomerService: any =
-  (token, formData, successCallBack, showMessage = true, setContextLoading) =>
-  async (dispatch) => {
+export const contactCustomerService = (
+  token: string,
+  formData: FormData,
+  successCallBack?: (body: any) => void,
+  showMessage = true,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await contactCustomerServiceApi({ token, formData });
@@ -503,8 +543,12 @@ export const contactCustomerService: any =
     }
   };
 
-export const getConfirmInfo: any =
-  (token, formData, successCallBack, setContextLoading) => async (dispatch) => {
+export const getConfirmInfo = (
+  token: string,
+  formData: FormData,
+  successCallBack?: () => void,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await getConfirmInfoApi({ token, formData });
@@ -532,9 +576,12 @@ export const getConfirmInfo: any =
     }
   };
 
-export const getCompanyDetails: any =
-  (formData, successCallBack, failureCallBack, setContextLoading) =>
-  async (dispatch) => {
+export const getCompanyDetails = (
+  formData: FormData,
+  successCallBack?: () => void,
+  failureCallBack?: () => void,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await getCompanyDetailsApi({ formData });
@@ -569,8 +616,13 @@ export const getCompanyDetails: any =
     }
   };
 
-export const registerApiRequest: any =
-  (formData, successCallBack, seLoading,alias,activeStep) => async (dispatch) => {
+export const registerApiRequest = (
+  formData: FormData,
+  successCallBack?: (body: RegisterResponseBody) => void,
+  seLoading?: SetLoadingFn,
+  alias?: string,
+  activeStep?: number
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -615,8 +667,12 @@ export const registerApiRequest: any =
     }
   };
 
-export const linkAnotherAccount: any =
-  (token, formData, successCallBack, seLoading) => async (dispatch) => {
+export const linkAnotherAccount = (
+  token: string,
+  formData: FormData,
+  successCallBack?: (body: any) => void,
+  seLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -651,8 +707,11 @@ export const linkAnotherAccount: any =
     }
   };
 
-export const getUsageAlerts: any =
-  (token, formData, successCallback) => async (dispatch) => {
+export const getUsageAlerts = (
+  token: string,
+  formData: FormData,
+  successCallback?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -677,9 +736,12 @@ export const getUsageAlerts: any =
     }
   };
 
-export const paymentWithoutSavingDetails: any =
-  (token, formData, isPost = false, successCallBack) =>
-  async (dispatch) => {
+export const paymentWithoutSavingDetails = (
+  token: string,
+  formData: FormData,
+  isPost = false,
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -707,9 +769,13 @@ export const paymentWithoutSavingDetails: any =
     }
   };
 
-export const getPaymentProcessorDetails: any =
-  (token, formData, isPost = false, successCallBack, setContextLoading) =>
-  async (dispatch) => {
+export const getPaymentProcessorDetails = (
+  token: string,
+  formData: FormData,
+  isPost = false,
+  successCallBack?: () => void,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -740,9 +806,12 @@ export const getPaymentProcessorDetails: any =
     }
   };
 
-export const saveDefaultPaymentMethod: any =
-  (token, formData, isPost = false, successCallBack) =>
-  async (dispatch) => {
+export const saveDefaultPaymentMethod = (
+  token: string,
+  formData: FormData,
+  isPost = false,
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -772,8 +841,11 @@ export const saveDefaultPaymentMethod: any =
     }
   };
 
-export const getConvenienceFee: any =
-  (token, formData, successCallBack) => async (dispatch) => {
+export const getConvenienceFee = (
+  token: string,
+  formData: FormData,
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -799,8 +871,11 @@ export const getConvenienceFee: any =
     }
   };
 
-export const schedulePayment: any =
-  (token, formData, successCallBack) => async (dispatch) => {
+export const schedulePayment = (
+  token: string,
+  formData: FormData,
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -828,8 +903,12 @@ export const schedulePayment: any =
     }
   };
 
-export const guestPaymentRequest: any =
-  (formData, alias, successCallBack, failureCallBack) => async (dispatch) => {
+export const guestPaymentRequest = (
+  formData: FormData,
+  alias: string,
+  successCallBack?: (customer: any) => void,
+  failureCallBack?: (isBlocked?: boolean, hasError?: true) => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await guestPaymentRequestApi({ formData, alias });
@@ -868,8 +947,11 @@ export const guestPaymentRequest: any =
     }
   };
 
-export const saveAcknowledgeForRecurringPayment: any =
-  (token, formData, successCallBack) => async (dispatch) => {
+export const saveAcknowledgeForRecurringPayment = (
+  token: string,
+  formData: FormData,
+  successCallBack?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await saveAcknowledgeForRecurringPaymentApi({
@@ -899,9 +981,12 @@ export const saveAcknowledgeForRecurringPayment: any =
     }
   };
 
-export const oneTimePayment: any =
-  (formData, successCallBack, failureCallBack, companyAlias) =>
-  async (dispatch) => {
+export const oneTimePayment = (
+  formData: FormData,
+  successCallBack?: (customer: any) => void,
+  failureCallBack?: () => void,
+  companyAlias?: string
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await oneTimePaymentApi({ formData, companyAlias });
@@ -933,8 +1018,11 @@ export const oneTimePayment: any =
     }
   };
 
-export const deleteUsageAlerts: any =
-  (token, formData, successCallback) => async (dispatch) => {
+export const deleteUsageAlerts = (
+  token: string,
+  formData: FormData,
+  successCallback?: () => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -958,8 +1046,11 @@ export const deleteUsageAlerts: any =
     }
   };
 
-export const getWorldPlayPaymentDetails: any =
-  (token, formData, successCallback) => async (dispatch) => {
+export const getWorldPlayPaymentDetails = (
+  token: string,
+  formData: FormData,
+  successCallback?: (body: Record<string, unknown>) => void
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
 
     try {
@@ -983,8 +1074,12 @@ export const getWorldPlayPaymentDetails: any =
     }
   };
 
-export const getUserInfoByToken: any =
-  (token, formData, successCallBack, setContextLoading) => async (dispatch) => {
+export const getUserInfoByToken = (
+  token: string,
+  formData: FormData,
+  successCallBack?: (body: any) => void,
+  setContextLoading?: SetLoadingFn
+) => async (dispatch: AppDispatch): Promise<void> => {
     dispatch(setAccountLoading(true));
     try {
       const res = await getUserDetailsByToken({ token, formData });

@@ -4,39 +4,10 @@ import { createSlice } from '@reduxjs/toolkit';
 import { toast } from '@/lib/custom-toast';
 import { AppDispatch } from '../store';
 import { AxiosError } from 'axios';
-import { ReactNode } from 'react';
+import type { ApiResponse, LastBillBody, SetLoadingFn } from '@/types/domain';
 
-
-interface ApiResponse<T> {
-  status: boolean;
-  message?: string;
-  body?: T;
-}
-
-interface LastBillInfo {
-  billing_list: {};
-  block_individual_customer_payment_text: string;
-  payment_pending: ReactNode;
-  recurring_payment_msg1: any;
-  autopay_text: ReactNode;
-  schedule_payment_text: string;
-  pay_now_text: any;
-  schedule_payment_msg: ReactNode;
-  achworks_pay_now_text: any;
-  nacha_pay_now_text: any;
-  last_bill: any;
-  customer_acknowledgement_text: any;
-  get_recurring_payments: any;
-  customer: any;
-  text_autopay_billing: string;
-  pending_payment: any;
-  pending_payment_text: boolean;
-  company: any;
-  id?: string;
-  amount?: number;
-  dueDate?: string;
-  // add more fields as needed
-}
+/** Alias kept for backward-compat inside this file */
+type LastBillInfo = LastBillBody;
 
 interface DashBoardState {
   lastBillInfo: LastBillInfo | null;
@@ -46,7 +17,7 @@ interface DashBoardState {
 type GetLastBillInfoThunk = (
   formData: FormData,
   token: string,
-  setContextLoading?: (loading: boolean) => void,
+  setContextLoading?: SetLoadingFn,
   isPost?: boolean,
   successCallBack?: (data: LastBillInfo) => void
 ) => (dispatch: AppDispatch) => Promise<void>;

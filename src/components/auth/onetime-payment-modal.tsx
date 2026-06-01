@@ -31,7 +31,7 @@ import {
 } from "@mui/material";
 import { Question, X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
 import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
@@ -905,7 +905,7 @@ successModalClose()
     if (isMobile) {
       try {
         const blob = await pdf(
-          <OneTimePdf invoiceDetails={oneTimeData} />
+          <OneTimePdf invoiceDetails={oneTimeData as any} />
         ).toBlob();
 
         const url = URL.createObjectURL(blob);

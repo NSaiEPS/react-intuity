@@ -8,7 +8,7 @@ import { colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 // html2canvas (~800KB) + jsPDF (~500KB) are only needed when user clicks download
 // Dynamic import keeps them out of the initial page bundle entirely
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { useSearchParams } from "react-router";
 
 import Button from "@/components/CommonComponents/Button";

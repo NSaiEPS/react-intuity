@@ -3,6 +3,7 @@ import { getConfirmInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
+import type { CustomerAccount } from "@/types/domain";
 import {
   Box,
   Button,
@@ -18,7 +19,7 @@ import {
 import { Link as MUILink } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { useUser } from "@/hooks/use-user";
 import EmailDialog from "./confirm-email-modal";
 import PhoneModal from "./confirm-phone-modal";
@@ -94,14 +95,14 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
   const user_id = stored?.body?.customer_id;
 
-  const reqCustomer = () => {
+  const reqCustomer = (): CustomerAccount | undefined => {
     if (Array.isArray(confirmInfo?.customers)) {
       const customer = confirmInfo?.customers?.filter(
-        (item) => item?.id == user_id
+        (item: CustomerAccount) => item?.id == user_id
       );
       return customer?.[0];
     }
-    return [];
+    return undefined;
   };
 
   const hanldeConfirm = () => {
@@ -357,7 +358,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         onClose={() => {
           localDispatch({ type: "TWO_FA_MODAL", payload: false });
         }}
-        customerData={reqCustomer()}
+        customerData={reqCustomer() as any}
       />
 
       {accountLoading && (

@@ -28,7 +28,7 @@ import {
 } from "@mui/material";
 import { Question } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
 import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
@@ -887,7 +887,7 @@ Account No *
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       try {
-        const blob = await pdf(<OneTimePdf invoiceDetails={oneTimeData} />).toBlob();
+        const blob = await pdf(<OneTimePdf invoiceDetails={oneTimeData as any} />).toBlob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;

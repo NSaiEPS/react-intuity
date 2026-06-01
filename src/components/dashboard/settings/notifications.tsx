@@ -26,7 +26,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { Button, CustomBackdrop, Loader } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import * as z from "zod";
 
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";

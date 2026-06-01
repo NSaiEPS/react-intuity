@@ -15,7 +15,7 @@ import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
 // import { X } from "@phosphor-icons/react";
 import VerifyModal from "../CommonComponents/VerifyModal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { updateAccountInfo } from "@/state/features/accountSlice";

@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import secureLocalStorage from "react-secure-storage";
 
 import DateRangeSelector from "./custom-date-picker";

@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { RootState } from "@/state/store";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import NachaIframe from "./NachaIframe";
@@ -72,8 +72,8 @@ interface DecryptedDetails {
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
   //console.log(processorDetails, "processorDetails",iframeDynamicUrl,'iframeDynamicUrl');
   const CustomerInfo: CustomerInfo = dashBoardInfo?.body?.customer
-    ? dashBoardInfo?.body?.customer
-    : getLocalStorage("intuity-customerInfo");
+    ? dashBoardInfo?.body?.customer as CustomerInfo
+    : getLocalStorage("intuity-customerInfo") as CustomerInfo;
 
   // Extract processor details
   const [curentProcessor, setCurentProcessor] = useState("");

@@ -4,7 +4,7 @@ import { RootState } from "@/state/store";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "@/hooks/redux";
 
 //import { companySlugs, config } from "@/config";
 import { AccountDetailsForm } from "@/components/dashboard/account/account-details-form";
