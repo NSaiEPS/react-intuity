@@ -1,10 +1,11 @@
 import React from 'react';
 import { getLocalStorage } from '@/utils/auth';
 import { Box, Paper, Skeleton, Stack } from '@mui/material';
-import { Navigate, useLocation, useParams  } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams  } from 'react-router-dom';
 
 import { usePreloadDashboardRoutes } from '@/hooks/usePreloadDashboardRoutes';
 import { BASE_URL } from '@/api/axios';
+import { toast } from 'react-toastify';
 
 const DashboardLayout = React.lazy(() => import('@/pages/dashboard/layout'));
 
@@ -20,11 +21,11 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
 }
   const aliasUser: AliasUser | null = getLocalStorage('alias-details') as AliasUser | null;
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { company } = useParams();
 
 const [checking2FA, setChecking2FA] = React.useState(true);
-const [redirectToConfirm, setRedirectToConfirm] = React.useState(false);
 
   // Set document title without react-helmet (removes 60KB from critical bundle)
   React.useEffect(() => {
@@ -63,7 +64,10 @@ const [redirectToConfirm, setRedirectToConfirm] = React.useState(false);
         two_fa_status === false &&
         confirm_information_status === false
       ) {
-        setRedirectToConfirm(true);
+        toast.info("Please complete 2FA first.")
+         navigate(`/${company}/confirm-information`, {
+          replace: true,
+        });
       }
     } catch (error) {
       console.error('2FA check failed:', error);
@@ -83,14 +87,7 @@ const [redirectToConfirm, setRedirectToConfirm] = React.useState(false);
   return <LoaderFallback />;
 }
 
-if (redirectToConfirm) {
-  return (
-    <Navigate
-      to={`/${company}/confirm-information`}
-      replace
-    />
-  );
-}
+
 
   return (
     <div style={{ marginTop: '17px' }}>
