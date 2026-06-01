@@ -19,7 +19,6 @@ const CompanyDetails = memo(function CompanyDetails() {
   const { companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
-console.log(companyInfo,'companyInfo')
   const location = useLocation();
   const pathname = location.pathname;
 

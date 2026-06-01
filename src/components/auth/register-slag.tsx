@@ -44,23 +44,24 @@ const MainSection = memo(function MainSection() {
 
   const { accountLoading, companyInfo } = useSelector((state: RootState) => state?.Account);
   const routeChecker = useSelector((state: RootState) => state?.DashBoard?.routeChecker);
-console.log(companyInfo,'companyInfo')
   const location = useLocation();
   const pathname = location.pathname;
 
   React.useLayoutEffect(() => {
-    let title = "Login - Intuity";
+    let title = "Login";
 
-    if (pathname.includes("register")) {
-      title = "Register Now - Intuity";
+    if (pathname.includes("register-success")) {
+      title = "Registration Successful";
+    } else if (pathname.includes("register")) {
+      title = "Register Now";
     } else if (pathname.includes("forgot-login")) {
-      title = "Forgot Login Username - Intuity";
+      title = "Forgot Login Username";
     } else if (pathname.includes("reset-password")) {
-      title = "Reset Password - Intuity";
+      title = "Reset Password";
     } else if (pathname.includes("update-password")) {
-      title = "Update Password - Intuity";
+      title = "Update Password";
     } else if (pathname.includes("onetime-payment")) {
-      title = "One Time Payment - Intuity";
+      title = "One Time Payment";
     }
 
     document.title = title;
@@ -79,6 +80,27 @@ console.log(companyInfo,'companyInfo')
   );
 
   const { setContextLoading } = useLoading();
+
+  // Preload the form chunk for the current path immediately on mount
+  // so the Suspense boundary resolves faster (no blank box wait)
+  React.useEffect(() => {
+    const t = requestAnimationFrame(() => {
+      if (pathname.includes("register")) {
+        import("./sign-up-form");
+      } else if (pathname.includes("onetime-payment")) {
+        import("./onetime-payment-screen");
+      } else if (pathname.includes("reset-password")) {
+        import("./reset-password-form");
+      } else if (pathname.includes("forgot-login")) {
+        import("./forget-login-form");
+      } else if (pathname.includes("update-password")) {
+        import("../dashboard/account/UpdatePasswordScreen");
+      } else {
+        import("./sign-in-form");
+      }
+    });
+    return () => cancelAnimationFrame(t);
+  }, []);
 
   // Only show skeleton when we actually need to fetch company data.
   // For plain /login (no slug) there's no API call → no skeleton → no CLS.
@@ -375,6 +397,7 @@ const PayAsGuestCard = memo(function PayAsGuestCard({ companyInfo, finalHTML, ha
           <Button type="button" variant="contained" onClick={handlePayNow}
             style={{ borderRadius: "12px", height: "48px", width: "160px", backgroundColor: colors.blue, fontSize: "1rem", fontWeight: 600 }}
             textTransform="none"
+            onMouseEnter={() => import("./onetime-payment-screen")}
             onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
             onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
           >

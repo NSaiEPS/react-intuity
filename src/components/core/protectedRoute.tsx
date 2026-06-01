@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
 
   // Set document title without react-helmet (removes 60KB from critical bundle)
   React.useEffect(() => {
-    document.title = title ? `${title} - Intuity` : 'Intuity';
+    document.title = title || 'Intuity';
   }, [title, location.pathname]);
 
   if (!user) {

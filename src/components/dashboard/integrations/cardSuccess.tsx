@@ -11,7 +11,7 @@ import { paths } from "@/utils/paths";
 
 const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
   useLayoutEffect(() => {
-    document.title = successPage ? "Payment Confirmation - Intuity" : "Card Redirect - Intuity";
+    document.title = successPage ? "Payment Confirmation" : "Card Redirect";
   }, [successPage]);
   //   useEffect(() => {
   //     const timer = setTimeout(() => {

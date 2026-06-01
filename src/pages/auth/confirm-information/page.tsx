@@ -52,7 +52,7 @@ export default function ConfirmInformation() {
   };
   const dispatch = useDispatch();
   React.useLayoutEffect(() => {
-    document.title = "Confirm Info - Intuity";
+    document.title = "Confirm Info";
     setContextLoading(true);
   }, []);
   const raw = getLocalStorage("intuity-user");

@@ -212,26 +212,22 @@ class AuthClient {
   }
 
   async signOut(token, formData): Promise<{ error?: string }> {
-    const res = await fetch(`${BASE_URL}logout`, {
+    // Optimistic logout — clear everything locally and navigate immediately.
+    // The user sees the login page with zero delay.
+    clearLocalStorage();
+    navigateTo("/login", { replace: true });
+
+    // Fire the server-side token invalidation in the background.
+    // Even if this fails the user is already logged out locally.
+    fetch(`${BASE_URL}logout`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: formData,
-    });
+    }).catch(() => {/* silent — user is already logged out locally */});
 
-    const data = await res.json();
-    if (data?.status) {
-      clearLocalStorage();
-      navigateTo("/login", { replace: true });
-    } else {
-      if (data?.message === "You are not authorised to use this api") {
-        navigateTo("/login", { replace: true });
-      }
-      //console.log(data?.message, "logout error");
-      // navigateTo("/login", { replace: true }, data?.message);
-    }
     return {};
   }
 }

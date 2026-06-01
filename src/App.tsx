@@ -82,14 +82,14 @@ const withSuspense = (element: React.ReactNode) => {
     </React.Suspense>
   );
 };
-//console.log("1.1.10", "version");
+console.log("1.1.24", "version");
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: LoginSuspense(
       <Authorization>
-        <SignInPage title={"Login"} />
+        <SignInPage />
       </Authorization>
     ),
   },
@@ -105,7 +105,7 @@ export const router = createBrowserRouter([
     path: "/sign-up",
     element: LoginSuspense(
       <Authorization>
-        <SignInPage title={"Sign Up"} />
+        <SignInPage />
       </Authorization>
     ),
   },
@@ -113,7 +113,7 @@ export const router = createBrowserRouter([
   path: "/register-:alias",
   element: LoginSuspense(
     <Authorization>
-      <SignInPage title={"Sign Up"} />
+      <SignInPage />
     </Authorization>
   ),
 },
@@ -121,7 +121,7 @@ export const router = createBrowserRouter([
   path: "/onetime-payment-:alias",
   element: LoginSuspense(
     <Authorization>
-      <SignInPage title={"One Time Payment"} />
+      <SignInPage />
     </Authorization>
   ),
 },
@@ -129,7 +129,7 @@ export const router = createBrowserRouter([
     path: "/reset-password",
     element: LoginSuspense(
       <Authorization>
-        <SignInPage title={"Recover Password"} />
+        <SignInPage />
       </Authorization>
     ),
   },
@@ -137,7 +137,7 @@ export const router = createBrowserRouter([
     path: "/update-password",
     element: LoginSuspense(
       <Authorization>
-        <SignInPage title={"Update Password"} />
+        <SignInPage />
       </Authorization>
     ),
   },
@@ -145,7 +145,7 @@ export const router = createBrowserRouter([
     path: "/forgot-login",
     element: LoginSuspense(
       <Authorization>
-        <SignInPage title={"Recover Password"} />
+        <SignInPage />
       </Authorization>
     ),
   },
@@ -169,7 +169,7 @@ export const router = createBrowserRouter([
     path: "/:logincompany/",
     element: LoginSuspense(
       <Authorization>
-        <SignInPage title={"Login"} />
+        <SignInPage />
       </Authorization>
     ),
     errorElement: <RouteErrorBoundary />,

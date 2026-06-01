@@ -88,7 +88,6 @@ const alias = rawSlug
   ?.replace("reset-password-", "")
   ?.replace("onetime-payment-", "")
   ?.replace("forgot-login-", "");
-console.log(alias,rawSlug,rawSlug?.split('login-'),'rawSlug')
 
   const handleRegisterClick = async () => {
     const slug = pathname?.split("/")[1];
