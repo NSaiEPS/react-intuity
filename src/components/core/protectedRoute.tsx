@@ -1,9 +1,10 @@
 import React from 'react';
 import { getLocalStorage } from '@/utils/auth';
 import { Box, Paper, Skeleton, Stack } from '@mui/material';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useParams  } from 'react-router-dom';
 
 import { usePreloadDashboardRoutes } from '@/hooks/usePreloadDashboardRoutes';
+import { BASE_URL } from '@/api/axios';
 
 const DashboardLayout = React.lazy(() => import('@/pages/dashboard/layout'));
 
@@ -20,14 +21,76 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
   const aliasUser: AliasUser | null = getLocalStorage('alias-details') as AliasUser | null;
   const location = useLocation();
 
+  const { company } = useParams();
+
+const [checking2FA, setChecking2FA] = React.useState(true);
+const [redirectToConfirm, setRedirectToConfirm] = React.useState(false);
+
   // Set document title without react-helmet (removes 60KB from critical bundle)
   React.useEffect(() => {
     document.title = title || 'Intuity';
   }, [title, location.pathname]);
 
+  React.useEffect(() => {
+  const check2FAStatus = async () => {
+    if (!user) {
+      setChecking2FA(false);
+      return;
+    }
+
+    try {
+      const token = getLocalStorage('custom-auth-token');
+
+      const res = await fetch(
+        `${BASE_URL}index/check-two-fa-confirm-status`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      const {
+        two_fa_status,
+        confirm_information_status,
+      } = data?.body || {};
+
+      if (
+        two_fa_status === false &&
+        confirm_information_status === false
+      ) {
+        setRedirectToConfirm(true);
+      }
+    } catch (error) {
+      console.error('2FA check failed:', error);
+    } finally {
+      setChecking2FA(false);
+    }
+  };
+
+  check2FAStatus();
+}, []);
+
   if (!user) {
     return <Navigate to={aliasUser ? `/login-${aliasUser?.alias}` : `/login`} replace />;
   }
+
+  if (checking2FA) {
+  return <LoaderFallback />;
+}
+
+if (redirectToConfirm) {
+  return (
+    <Navigate
+      to={`/${company}/confirm-information`}
+      replace
+    />
+  );
+}
 
   return (
     <div style={{ marginTop: '17px' }}>

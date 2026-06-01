@@ -25,6 +25,7 @@ import PhoneModal from "./confirm-phone-modal";
 import { paths } from "@/utils/paths";
 import { useNavigate } from "react-router";
 import TwoFAModal from "./2fa-login";
+import { maxWidth } from "@mui/system";
 
 type State = {
   phoneModalOpen: boolean;
@@ -144,6 +145,8 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     }
   }, [confirmInfo]);
 
+  const isSingleCard = confirmInfo?.customers?.length === 1;
+
   return (
     <Box>
       {/* <Typography variant="subtitle1" mb={3}>
@@ -223,7 +226,6 @@ export function ConfirmInfoDetails(): React.JSX.Element {
                     </Stack>
                   </Stack>
 
-                  {/* Email Info */}
                   <Stack spacing={1}>
                     <Box
                       bgcolor="grey.300"
@@ -277,7 +279,13 @@ export function ConfirmInfoDetails(): React.JSX.Element {
         ))}
       </Grid>
 
-      <Grid container spacing={2} mt={2} alignItems="center">
+      <Grid container spacing={2} mt={2} alignItems="center" 
+      sx={
+          isSingleCard
+            ? { maxWidth: { md: "50%" } } 
+            : {}
+        }
+        >
         <Grid item xs={6}>
           {/* <MUILink
             to={paths.dashboard.overview()}
