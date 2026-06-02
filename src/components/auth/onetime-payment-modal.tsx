@@ -40,6 +40,7 @@ import secureLocalStorage from "react-secure-storage";
 import OneTimePdf from "../dashboard/layout/one-time-invoice";
 import CustomModal from "../dashboard/layout/invoice-pdf-modal";
 import { navigateTo } from "@/utils/navigation";
+import { BASE_URL } from "@/api/axios";
 
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
@@ -776,7 +777,7 @@ successModalClose()
                         <Box
                           component="img"
                           // src="/public/assets/bankaccount-help.png"
-                          src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
+                          src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
                           alt="Help"
                           sx={{
                             position: "absolute",

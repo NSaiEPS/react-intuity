@@ -314,7 +314,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
           // class="responsive-iframe"
           // style="margin-top:20px;"
           name="iFrameBA"
-          src="https://test-intuity-backend.pay.waterbill.com/elavon_bank_frame.php?companyName=South &amp; Center Chautauqua Lake Sewer District"
+          src={`${BASE_URL}/elavon_bank_frame.php?companyName=South &amp; Center Chautauqua Lake Sewer District`}
           // frameborder="0"
           scrolling="no"
           width="500"

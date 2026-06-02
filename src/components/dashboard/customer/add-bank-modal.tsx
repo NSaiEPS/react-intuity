@@ -29,6 +29,7 @@ import { toast } from '@/lib/custom-toast';
 
 import PaymentIframeModal from '@/components/CommonComponents/PaymentIframeModal';
 import PaymentIframe from '@/components/CommonComponents/PaymentIframeModal';
+import { BASE_URL } from '@/api/axios';
 
 interface AddBankAccountModalProps {
   open: boolean;
@@ -165,7 +166,9 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
             <Box
               component="img"
               // src="/public/assets/bankaccount-help.png"
-              src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
+
+                                        src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+              
               alt="Help"
               sx={{
                 position: 'absolute',
