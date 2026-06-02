@@ -49,7 +49,6 @@ function UsageHeader() {
   useEffect(() => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -59,7 +58,7 @@ function UsageHeader() {
     // customer_id:810
     // formData.append('is_form', '0');
 
-    dispatch(getUsageAlerts(token, formData));
+    dispatch(getUsageAlerts(formData));
   }, [userInfo]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));

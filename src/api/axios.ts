@@ -6,26 +6,27 @@ export const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://test-intuit
 export const api = axios.create({
   baseURL: BASE_URL,
   headers: {
-    // Ismobile: '1',
     Accept: 'application/json',
-    // Authorization: `Bearer ${UserDetails?.token}`,
-    // Authorization: `Bearer ${UserDetails?.token}`,
-    // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NjksImV4cCI6MTc0ODUyNzcwMn0=.ge9PhZ55G/9rF6oR6jwa98WcKpgWHR5P74KK/ZK7hQU=
-    // Authorization: `${UserDetails?.token}`,
   },
 });
+
+// Attach the auth token to every request automatically.
+// Individual calls can still override the header (e.g. getUserDetailsByToken).
+api.interceptors.request.use((config) => {
+  const token = secureLocalStorage.getItem('custom-auth-token') as string | null;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response.status === 401 && error.config.url !== 'users/login') {
-      // Redirect to login page
-      // message.info("Session Expired");
-      // localStorage.clear();
+    if (error.response?.status === 401 && error.config?.url !== 'users/login') {
       secureLocalStorage.clear();
-
       window.location.reload();
     }
-
     return Promise.reject(error);
   }
 );

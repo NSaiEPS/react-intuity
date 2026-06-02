@@ -53,7 +53,7 @@ export default function InvoiceDetails() {
     formData.append("customer_id", userId);
     formData.append("id", id ?? "");
 
-    dispatch(getInvoiceDetails(formData, token, setContextLoading));
+    dispatch(getInvoiceDetails(formData, setContextLoading));
   }, [id]);
 
   const pdfRef = React.useRef<HTMLDivElement>(null);

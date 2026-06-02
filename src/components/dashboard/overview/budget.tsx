@@ -69,7 +69,7 @@ export function Budget({
     let userId = stored?.body?.customer_id;
     let token = stored?.body?.token;
     if (!userInfo) {
-      dispatch(getDashboardInfo(roleId, userId, token));
+      dispatch(getDashboardInfo(roleId, userId));
     }
   }, []);
 

@@ -140,7 +140,7 @@ const HeaderSection = ({ setUamType }) => {
 
       formData.append("utility_type", utilityType);
 
-      dispatch(usageUtilityFilters(formData, token, successCallBack));
+      dispatch(usageUtilityFilters(formData, successCallBack));
     }
   }, [utilityType]);
 
@@ -200,7 +200,7 @@ const HeaderSection = ({ setUamType }) => {
     formData.append("billed_usage", "1");
     formData.append("usage_history", "1");
 
-    dispatch(getUsageGraph(formData, token));
+    dispatch(getUsageGraph(formData));
   };
   return (
     <Box sx={{ p: 2, mt: 2 }}>

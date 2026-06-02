@@ -65,6 +65,7 @@ import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { PaymentMethods } from "../customer/payment-methods";
 import PaymentSummaryModal from "../overview/payment-summary-modal";
 import DOMPurify from "dompurify";
+import { BASE_URL } from "@/api/axios";
 
 // Register plugins
 dayjs.extend(utc);
@@ -123,7 +124,7 @@ const PaymentForm = () => {
     formdata.append("recurring_acknowledge", "1");
 
     dispatch(
-      saveAcknowledgeForRecurringPayment(stored?.body?.token, formdata, () => {
+      saveAcknowledgeForRecurringPayment(formdata, () => {
         setRecurringPaymentEnabled(true);
         setRecurringAckownledgeModal(false);
       })
@@ -176,7 +177,6 @@ const PaymentForm = () => {
 
     dispatch(
       getPaymentDetails(
-        stored?.body?.token,
         formdata,
         undefined,
         setCustomerDetails,
@@ -205,13 +205,13 @@ const PaymentForm = () => {
       formdata.append("acl_role_id", stored?.body?.acl_role_id);
       formdata.append("company_id", CustomerInfo?.company_id);
       dispatch(
-        getPaymentProcessorDetails(stored?.body?.token, formdata, false)
+        getPaymentProcessorDetails(formdata, false)
       );
       const convenienceFeeFormdata = new FormData();
       convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
       convenienceFeeFormdata.append("customer_id", stored?.body?.customer_id);
 
-      dispatch(getConvenienceFee(stored?.body?.token, convenienceFeeFormdata));
+      dispatch(getConvenienceFee(convenienceFeeFormdata));
     }
   }, [CustomerInfo]);
 
@@ -351,7 +351,7 @@ const PaymentForm = () => {
     // price:3.00"
 
     dispatch(
-      paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
+      paymentWithoutSavingDetails(formdata, true, () => {
         navigate(paths.dashboard.payNow());
       })
     );
@@ -366,7 +366,7 @@ const PaymentForm = () => {
     formdata.append("default_payment", "1");
     formdata.append("payment_method_id", cardNum);
     dispatch(
-      saveDefaultPaymentMethod(stored?.body?.token, formdata, true, () => {
+      saveDefaultPaymentMethod(formdata, true, () => {
         setOpenPaymentModal(false);
         setOpenConfirm(false);
         paymentDetails();
@@ -513,7 +513,7 @@ const PaymentForm = () => {
       // repeat_an_additional_times:2"
 
       dispatch(
-        schedulePayment(stored?.body?.token, formdata, () => {
+        schedulePayment(formdata, () => {
           navigate(paths.dashboard.payNow());
         })
       );
@@ -603,7 +603,6 @@ const PaymentForm = () => {
 
         dispatch(
           paymentWithoutSavingDetails(
-            stored?.body?.token,
             formdata,
             true,
             () => {
@@ -614,7 +613,7 @@ const PaymentForm = () => {
         return;
       }
       dispatch(
-        paymentWithoutSavingDetails(stored?.body?.token, formdata, true, () => {
+        paymentWithoutSavingDetails(formdata, true, () => {
           navigate(paths.dashboard.payNow());
         })
       );
@@ -1189,7 +1188,8 @@ const PaymentForm = () => {
                           <Box
                             component="img"
                             // src="/public/assets/bankaccount-help.png"
-                            src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
+                          src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+
                             alt="Help"
                             sx={{
                               position: "absolute",

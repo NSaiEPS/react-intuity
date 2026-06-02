@@ -62,8 +62,7 @@ export default function CompanyRouteGuard() {
       const customerId = params.get("customer_id");
       formData.append("acl_role_id", aclRoleId);
       formData.append("customer_id", customerId);
-      const token = decrypted();
-      dispatch(getConfirmInfo(token, formData, undefined, setContextLoading));
+      dispatch(getConfirmInfo(formData, undefined, setContextLoading));
     };
     if (search) {
       //console.log(search, "fromsearch");

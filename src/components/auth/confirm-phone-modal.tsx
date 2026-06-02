@@ -133,11 +133,10 @@ export default function PhoneModal({
 
       dispatch(
         updateAccountInfo(
-          token,
           formData,
           true,
           () => {
-            onSuccess?.(); 
+            onSuccess?.();
             onClose();
           },
           true,
@@ -164,7 +163,7 @@ export default function PhoneModal({
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", user_id);
     return;
-    dispatch(getConfirmInfo(token, formData));
+    dispatch(getConfirmInfo(formData));
   };
 
   function toUSPhoneFormat(number) {
@@ -207,7 +206,6 @@ export default function PhoneModal({
 
       dispatch(
         updateAccountInfo(
-          token,
           formData,
           true,
           () => {
@@ -222,7 +220,6 @@ export default function PhoneModal({
           },
           false,
           setIsPending,
-       
         )
       );
 
@@ -249,7 +246,6 @@ export default function PhoneModal({
 
     dispatch(
       getNotificationList(
-        token,
         formData,
         successCallBack,
         false,

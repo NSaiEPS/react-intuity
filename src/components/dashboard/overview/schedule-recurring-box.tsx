@@ -67,9 +67,9 @@ export function ScheduleRecurringBox({ isSmallScreen = false }) {
     }
 
     dispatch(
-      getLastBillInfo(formData, token, undefined, true, () => {
+      getLastBillInfo(formData, undefined, true, () => {
         setDeleteType("");
-        dispatch(getDashboardInfo(roleId, userId, token));
+        dispatch(getDashboardInfo(roleId, userId));
       })
     );
   };

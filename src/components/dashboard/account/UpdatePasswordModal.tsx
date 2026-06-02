@@ -93,7 +93,7 @@ export function UpdatePasswordModal({
     formData.append("newpassword2", data?.repassword);
     formData.append("hash", data?.hash);
 
-    dispatch(updateAccountInfo("", formData, false, successCallBack));
+    dispatch(updateAccountInfo(formData, false, successCallBack));
   };
   const successCallBack = () => {
     navigate(paths.auth.newLogin());

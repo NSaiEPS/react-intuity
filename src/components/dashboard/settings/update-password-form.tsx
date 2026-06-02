@@ -92,7 +92,6 @@ export function UpdatePasswordForm(): React.JSX.Element {
   const onSubmit = (data: FormData) => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -101,7 +100,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
     formData.append("repassword", data?.repassword);
     formData.append("password", data?.password);
 
-    dispatch(updateAccountInfo(token, formData, true));
+    dispatch(updateAccountInfo(formData, true));
   };
 
   React.useEffect(() => {

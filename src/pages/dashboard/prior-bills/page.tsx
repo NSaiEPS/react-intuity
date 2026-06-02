@@ -49,7 +49,7 @@ export default function PriorBillsPage(): React.JSX.Element {
     formData.append("id", userId);
     formData.append("year", String(years[0]));
 
-    dispatch(getLastBillInfo(formData, token, setContextLoading));
+    dispatch(getLastBillInfo(formData, setContextLoading));
   }, [userInfo]);
 
   return (

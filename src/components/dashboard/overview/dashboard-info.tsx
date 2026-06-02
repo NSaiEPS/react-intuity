@@ -160,13 +160,12 @@ export function DashboardInfo({
 
 
 // ✅ Fix — move inside useMemo
-const { roleId, userId, token } = React.useMemo(() => {
+const { roleId, userId } = React.useMemo(() => {
   const raw = getLocalStorage("intuity-user");
   const stored = typeof raw === "object" && raw !== null ? raw as any : null;
   return {
     roleId: stored?.body?.acl_role_id,
     userId: stored?.body?.customer_id,
-    token: stored?.body?.token,
   };
 }, []); // ← only reads localStorage once
 
@@ -181,7 +180,7 @@ const { roleId, userId, token } = React.useMemo(() => {
     formData.append("model_open", "15");
 
     dispatch(
-      updateAccountInfo(token, formData, true, notificationResponse, true)
+      updateAccountInfo(formData, true, notificationResponse, true)
     );
   };
   const handleConfirm = () => {
@@ -196,7 +195,7 @@ const { roleId, userId, token } = React.useMemo(() => {
       formData.append("paperless", clickedState ? "on" : "off");
 
       dispatch(
-        updatePaperLessInfo(token, formData, "paperless", () =>
+        updatePaperLessInfo(formData, "paperless", () =>
           successCallBack("paperless", clickedState)
         )
       );
@@ -211,7 +210,7 @@ const { roleId, userId, token } = React.useMemo(() => {
       // formData.append("is_form", "1");
 
       dispatch(
-        updatePaperLessInfo(token, formData, "autopay", () =>
+        updatePaperLessInfo(formData, "autopay", () =>
           successCallBack("autopay", clickedState)
         )
       );
@@ -235,7 +234,7 @@ const { roleId, userId, token } = React.useMemo(() => {
         notificationPrefrences.biller_announcements
       );
 
-      dispatch(updateAccountInfo(token, formData, true, getPrefDetails));
+      dispatch(updateAccountInfo(formData, true, getPrefDetails));
 
       setChecked(clickedState ? true : false);
     }
@@ -262,7 +261,7 @@ const { roleId, userId, token } = React.useMemo(() => {
     formData.append("model_open", "9");
     // formData.append('is_form', '0');
 
-    dispatch(getNotificationList(token, formData));
+    dispatch(getNotificationList(formData));
     updateLocalStorageValue("intuity-customerInfo", type, clickedState ? 1 : 0);
     setChecked(clickedState);
   };

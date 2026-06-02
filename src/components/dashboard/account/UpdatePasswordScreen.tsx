@@ -96,7 +96,7 @@ export function UpdatePasswordScreen(): React.JSX.Element {
     formData.append("newpassword2", values.repassword);
     formData.append("hash", hash);
 
-    dispatch(updateAccountInfo("", formData, false, successCallBack));
+    dispatch(updateAccountInfo(formData, false, successCallBack));
   };
 
   return (

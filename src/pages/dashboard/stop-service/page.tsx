@@ -51,8 +51,6 @@ export default function StopTransferServicePage(): React.JSX.Element {
 
     const roleId = stored?.body?.acl_role_id;
     const customer_id = stored?.body?.customer_id;
-    // let userId = stored?.body?.id;
-    const token = stored?.body?.token;
 
     const formData = new FormData();
 
@@ -60,7 +58,7 @@ export default function StopTransferServicePage(): React.JSX.Element {
     formData.append("customer_id", customer_id);
     formData.append("is_form", "0");
     dispatch(
-      stopTransferService(token, formData, true, undefined, setContextLoading)
+      stopTransferService(formData, true, undefined, setContextLoading)
     );
   };
   React.useEffect(() => {

@@ -171,7 +171,7 @@ export function AccountDetailsForm(): React.JSX.Element {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
     const token = stored?.body?.token;
-    dispatch(getAccountInfo(roleId, userId, token));
+    dispatch(getAccountInfo(roleId, userId));
   };
 
   const onSubmit = (data: FormSchema) => {
@@ -189,7 +189,7 @@ export function AccountDetailsForm(): React.JSX.Element {
     userData.append("altPhone", data.alt_phone || "");
     userData.append("amthe", data.role);
 
-    dispatch(updateAccountCustomerInfo(token, userData, successCallback));
+    dispatch(updateAccountCustomerInfo(userData, successCallback));
   };
 
   const successCallback = () => {

@@ -109,7 +109,7 @@ export function BillingHistory({
     formData.append("id", userId);
     formData.append("year", String(year));
 
-    dispatch(getLastBillInfo(formData, token));
+    dispatch(getLastBillInfo(formData));
   };
   return (
     <Card

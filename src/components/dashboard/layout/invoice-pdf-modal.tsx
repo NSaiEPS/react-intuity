@@ -77,7 +77,7 @@ export default function CustomModal({
       formData.append("customer_id", userId);
       formData.append("id", id ?? "");
       if (!oneTime) {
-        dispatch(getInvoiceDetails(formData, token, setContextLoading));
+        dispatch(getInvoiceDetails(formData, setContextLoading));
       }
     }
   }, [id]);

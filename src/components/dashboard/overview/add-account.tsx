@@ -161,7 +161,6 @@ export default function AddAccountPage() {
 
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
 
     const formData = new FormData();
 
@@ -177,7 +176,6 @@ export default function AddAccountPage() {
 
       dispatch(
         linkAnotherAccount(
-          token,
           formData,
           (res) => {
             setAccountDetails({
@@ -213,11 +211,8 @@ export default function AddAccountPage() {
 
       dispatch(
         linkAnotherAccount(
-          token,
           formData,
-
           () => navigate(paths.dashboard.overview()),
-
           setLoading
         )
       );

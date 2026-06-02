@@ -102,12 +102,11 @@ export default function ConfirmInformation() {
     } else {
       const role_id = stored?.body?.acl_role_id;
       const user_id = stored?.body?.customer_id;
-      const token = stored?.body?.token;
       const formData = new FormData();
 
       formData.append("acl_role_id", role_id);
       formData.append("customer_id", user_id);
-      dispatch(getConfirmInfo(token, formData, undefined, setContextLoading));
+      dispatch(getConfirmInfo(formData, undefined, setContextLoading));
     }
   }, [search]);
   const getUserDetailsSuccess = () => {
@@ -118,8 +117,7 @@ export default function ConfirmInformation() {
     const customerId = params.get("customer_id");
     formData.append("acl_role_id", aclRoleId);
     formData.append("customer_id", customerId);
-    const token = decrypted;
-    dispatch(getConfirmInfo(token, formData, undefined, setContextLoading));
+    dispatch(getConfirmInfo(formData, undefined, setContextLoading));
   };
   return (
     <Box

@@ -129,7 +129,7 @@ export default function AlertsScreen() {
     formData.append("Ids[]", id.toString());
 
     dispatch(
-      deleteUsageAlerts(token, formData, () => {
+      deleteUsageAlerts(formData, () => {
         // setSelected((prev) => prev.filter((i) => i !== id));
         usageApiCall();
       })
@@ -149,7 +149,7 @@ export default function AlertsScreen() {
       formData.append("Ids[]", id.toString());
     });
     dispatch(
-      deleteUsageAlerts(token, formData, () => {
+      deleteUsageAlerts(formData, () => {
         setSelected([]);
         usageApiCall();
       })
@@ -181,7 +181,6 @@ export default function AlertsScreen() {
   const dispatch = useDispatch();
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
   // React.useEffect(() => {
   //   const formData = new FormData();
 
@@ -209,7 +208,7 @@ export default function AlertsScreen() {
       clearTimeout(timeRef.current);
     }
     timeRef.current = setTimeout(() => {
-      dispatch(getUsageAlerts(token, formData));
+      dispatch(getUsageAlerts(formData));
     }, 300);
   }, [SearchedValue, stored]);
 
@@ -233,7 +232,7 @@ export default function AlertsScreen() {
       formData.append("perpage", perpageNum.toString());
       formData.append("page", "1");
     }
-    dispatch(getUsageAlerts(token, formData));
+    dispatch(getUsageAlerts(formData));
   };
 
   return (

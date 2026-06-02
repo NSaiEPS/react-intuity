@@ -50,6 +50,7 @@ import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { Receipt } from "@phosphor-icons/react/dist/ssr/Receipt";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { BASE_URL } from "@/api/axios";
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
 export default function OneTimePaymentScreen() {
@@ -347,10 +348,10 @@ const handleBackToLogin=()=>{
     formdata.append("alias", companyInfo?.company?.alias);
     if (activeStep == 2) {
       dispatch(
-        getPaymentProcessorDetails(undefined, formdata, false, undefined, () => {})
+        getPaymentProcessorDetails(formdata, false, undefined, () => {})
       );
       formdata.append("customer_id", customerDetails?.id);
-      dispatch(getConvenienceFee(undefined, formdata));
+      dispatch(getConvenienceFee(formdata));
     }
   }, [activeStep]);
 
@@ -815,7 +816,9 @@ Account No *
                   {hovered && (
                     <Box
                       component="img"
-                      src="https://test-intuity-backend.pay.waterbill.com/resources/front/images/bankaccount-help.png"
+
+                                                src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+                      
                       alt="Help"
                       sx={{
                         position: "absolute",

@@ -72,7 +72,6 @@ export function AccountSettingsForm(): React.JSX.Element {
   const onSubmit = (data: FormData) => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -81,14 +80,13 @@ export function AccountSettingsForm(): React.JSX.Element {
     formData.append("email", data?.email ? data?.email : userInfo?.loginID);
     formData.append("is_form", "1");
 
-    dispatch(updateAccountInfo(token, formData, true, successCallBack));
+    dispatch(updateAccountInfo(formData, true, successCallBack));
   };
 
   const successCallBack = () => {
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-    dispatch(getDashboardInfo(roleId, userId, token));
+    dispatch(getDashboardInfo(roleId, userId));
   };
 
   const handleReset = () => {

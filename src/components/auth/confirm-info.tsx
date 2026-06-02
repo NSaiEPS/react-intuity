@@ -107,26 +107,24 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
   const hanldeConfirm = () => {
     const role_id = stored?.body?.acl_role_id;
-    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", user_id);
     formData.append("is_post", "1");
     formData.append("company_login", "cape-royale1");
-    dispatch(getConfirmInfo(token, formData, successCallBack));
+    dispatch(getConfirmInfo(formData, successCallBack));
   };
 
   const refreshData = () => {
     const role_id = stored?.body?.acl_role_id;
-    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", user_id);
     formData.append("company_login", "cape-royale1");
 
-    dispatch(getConfirmInfo(token, formData));
+    dispatch(getConfirmInfo(formData));
   };
 
   const { checkSession } = useUser();

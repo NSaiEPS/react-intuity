@@ -141,7 +141,7 @@ function UsageFilter() {
     formData.append("start_date", filterDates.startDate);
     formData.append("end_date", filterDates.endDate);
 
-    dispatch(usageMonthlyGraph(formData, token));
+    dispatch(usageMonthlyGraph(formData));
 
     setUtilityType("");
     setUtiltyType();
@@ -172,7 +172,7 @@ function UsageFilter() {
       // get_meter_no:1
       // utility_um:gallons
 
-      dispatch(usageUtilityFilters(formData, token, successCallBack));
+      dispatch(usageUtilityFilters(formData, successCallBack));
     }
   }, [utilityType]);
 
@@ -194,7 +194,7 @@ function UsageFilter() {
       // utility_um:gallons
 
       dispatch(
-        usageUtilityFilters(formData, token, (data) =>
+        usageUtilityFilters(formData, (data) =>
           successCallBack(data, true)
         )
       );
@@ -277,7 +277,7 @@ function UsageFilter() {
     if (meterNo) {
       formData.append("meter_no", meterNo);
     }
-    dispatch(usageMonthlyGraph(formData, token));
+    dispatch(usageMonthlyGraph(formData));
   };
   return (
     <Box sx={{ p: 2 }}>

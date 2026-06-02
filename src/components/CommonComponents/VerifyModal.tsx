@@ -95,7 +95,6 @@ export default function AuthCodeModal({
 
     let roleId = stored?.body?.acl_role_id;
     let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
 
     const formData = new FormData();
 
@@ -121,7 +120,6 @@ export default function AuthCodeModal({
 
     dispatch(
       updateAccountInfo(
-        token,
         formData,
         true,
         onSubmit,

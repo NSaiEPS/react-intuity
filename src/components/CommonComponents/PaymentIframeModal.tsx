@@ -304,7 +304,7 @@ interface DecryptedDetails {
       }
 
       dispatch(
-        getWorldPlayPaymentDetails(stored?.body?.token, formdata, (res) => {
+        getWorldPlayPaymentDetails(formdata, (res) => {
           setWorldpayDetails(res);
         })
       );

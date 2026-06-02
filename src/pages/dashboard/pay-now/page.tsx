@@ -35,7 +35,7 @@ export default function PayNowPage(): React.JSX.Element {
     formData.append("id", userId);
 
     dispatch(
-      getLastBillInfo(formData, token, undefined, false, (res) => {
+      getLastBillInfo(formData, undefined, false, (res) => {
         //console.log(res);
         if (res?.last_bill?.id) {
           const formData = new FormData();
@@ -44,7 +44,7 @@ export default function PayNowPage(): React.JSX.Element {
           formData.append("customer_id", userId);
           formData.append("id", res?.last_bill?.id ?? "");
 
-          dispatch(getInvoiceDetails(formData, token, setContextLoading));
+          dispatch(getInvoiceDetails(formData, setContextLoading));
         } else {
           setContextLoading(false);
         }

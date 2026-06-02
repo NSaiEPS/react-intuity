@@ -178,7 +178,7 @@ export function UserPopover({
     formData.append("model_open", "9");
 
     // Dispatch and handle pagination from response if available
-    dispatch(getNotificationList(token, formData));
+    dispatch(getNotificationList(formData));
   };
 
   // //console.log(linkedAccounts, 'linkedAccounts');
@@ -226,7 +226,7 @@ export function UserPopover({
           navigate(paths.dashboard.overview());
         }
 
-        dispatch(getNotificationList(token, formData, successCallBack));
+        dispatch(getNotificationList(formData, successCallBack));
 
       }
     }
@@ -238,7 +238,7 @@ export function UserPopover({
       } else {
         navigate(paths.dashboard.overview());
       }
-      dispatch(getNotificationList(token, formData, successCallBack));
+      dispatch(getNotificationList(formData, successCallBack));
 
     }
 
@@ -257,7 +257,7 @@ export function UserPopover({
 
     formData.append("id", id ? id : "-2");
 
-    dispatch(getNotificationList(token, formData, successCallBack));
+    dispatch(getNotificationList(formData, successCallBack));
   };
 
   const handleMarkAllRead = (id?: string) => {
@@ -272,7 +272,7 @@ export function UserPopover({
     formData.append("markRead", "1");
     formData.append("page_no", "1");
 
-    dispatch(getNotificationList(token, formData, successCallBack));
+    dispatch(getNotificationList(formData, successCallBack));
   };
 
   const handleCancelLink = () => {
@@ -285,7 +285,7 @@ export function UserPopover({
     formData.append("customer_id", accountDetails?.link_customer_id);
 
     dispatch(
-      updateAccountInfo(token, formData, true, () =>
+      updateAccountInfo(formData, true, () =>
         successCallBack(accountDetails?.id)
       )
     );
@@ -300,18 +300,14 @@ export function UserPopover({
     onClose();
     let roleId = stored?.body?.acl_role_id;
 
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("login", data?.link_customer_id);
 
-    // dispatch(updateAccountInfo(token, formData, true, successCallBackLinkedAccount, true));
     dispatch(
       linkAnotherAccount(
-        token,
         formData,
-
         successCallBackLinkedAccount
       )
     );
@@ -325,8 +321,7 @@ export function UserPopover({
 
     let roleId = storeddata?.body?.acl_role_id;
     let userId = storeddata?.body?.customer_id;
-    let token = storeddata?.body?.token;
-    dispatch(getDashboardInfo(roleId, userId, token));
+    dispatch(getDashboardInfo(roleId, userId));
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -335,9 +330,8 @@ export function UserPopover({
     formData.append("page_no", "0");
     formData.append("markRead", "0");
     formData.append("model_open", "9");
-    // formData.append('is_form', '0');
 
-    dispatch(getNotificationList(token, formData));
+    dispatch(getNotificationList(formData));
   };
 
 

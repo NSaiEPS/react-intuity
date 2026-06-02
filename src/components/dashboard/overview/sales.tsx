@@ -107,7 +107,7 @@ export function Sales({
     formData.append("billed_usage", "1");
     formData.append("usage_history", "1");
 
-    dispatch(getUsageGraph(formData, token));
+    dispatch(getUsageGraph(formData));
   }, [userInfo]);
 
   const [barGraphData, setBarGraphData] = React.useState({

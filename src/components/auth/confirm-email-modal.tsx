@@ -67,12 +67,11 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
 
     let role_id = stored?.body?.acl_role_id;
     let user_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", user_id);
-    dispatch(getConfirmInfo(token, formData));
+    dispatch(getConfirmInfo(formData));
   };
 
   const onSubmit = (data) => {
@@ -80,15 +79,13 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
 
     let role_id = stored?.body?.acl_role_id;
     let user_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-
     const formData = new FormData();
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", clickedDetails?.id);
     formData.append("model_open", "8");
     formData.append("notification_email", data.email);
 
-    dispatch(getNotificationList(token, formData, successCallBack, false));
+    dispatch(getNotificationList(formData, successCallBack, false));
   };
 
   return (

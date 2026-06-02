@@ -215,7 +215,6 @@ export const PaymentMethods = ({
     if (!paymentDetailsPage) {
       dispatch(
         getPaymentDetails(
-          stored?.body?.token,
           formdata,
           undefined,
           undefined,
@@ -254,7 +253,7 @@ export const PaymentMethods = ({
     formdata.append("payment_method", String(selectedId?.card_token));
 
     dispatch(
-      getPaymentDetails(stored?.body?.token, formdata, true, () => {
+      getPaymentDetails(formdata, true, () => {
         setSelectedId(null);
       })
     );
@@ -300,7 +299,6 @@ export const PaymentMethods = ({
 
     dispatch(
       deleteCardAndBankAccount(
-        stored?.body?.token,
         formData,
         deleCardDetails?.card_type ? "card" : "bank_account",
         () => {
@@ -309,7 +307,7 @@ export const PaymentMethods = ({
           const refreshForm = new FormData();
           refreshForm.append("acl_role_id", stored?.body?.acl_role_id);
           refreshForm.append("customer_id", stored?.body?.customer_id);
-          dispatch(getPaymentDetails(stored?.body?.token, refreshForm));
+          dispatch(getPaymentDetails(refreshForm));
         }
       )
     );
@@ -330,7 +328,6 @@ export const PaymentMethods = ({
       formdata.append("company_id", CustomerInfo?.company_id);
       dispatch(
         getPaymentProcessorDetails(
-          stored?.body?.token,
           formdata,
           false,
           undefined,

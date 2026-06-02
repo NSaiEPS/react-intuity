@@ -60,14 +60,13 @@ const PayerTermsConditionsModal = () => {
   // let userId = stored?.user?.body?.id;
   let roleId = stored?.body?.acl_role_id;
   let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
   const handleSave = () => {
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("paperless", isPaperLessOn ? "on" : "off");
-    dispatch(updatePaperLessInfo(token, formData, "", successCallBack));
+    dispatch(updatePaperLessInfo(formData, "", successCallBack));
   };
   const successCallBack = () => {
     const formData = new FormData();
@@ -80,7 +79,7 @@ const PayerTermsConditionsModal = () => {
     formData.append("model_open", "9");
     // formData.append('is_form', '0');
 
-    dispatch(getNotificationList(token, formData));
+    dispatch(getNotificationList(formData));
     updateLocalStorageValue(
       "intuity-customerInfo",
       "paperless",

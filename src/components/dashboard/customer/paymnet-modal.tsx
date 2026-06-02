@@ -83,7 +83,6 @@ export function PaymentModal({
     //console.log(type);
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -105,7 +104,7 @@ export function PaymentModal({
     // next_payment:1
 
     dispatch(
-      getLastBillInfo(formData, token, undefined, true, () => {
+      getLastBillInfo(formData, undefined, true, () => {
         setDeleteType("");
         onClose();
         const getData = new FormData();
@@ -114,7 +113,7 @@ export function PaymentModal({
         getData.append("customer_id", userId);
         getData.append("id", userId);
 
-        dispatch(getLastBillInfo(getData, token));
+        dispatch(getLastBillInfo(getData));
       })
     );
   };

@@ -1,850 +1,195 @@
-// 'use server';
-
 import { navigateTo } from "@/utils/navigation";
 import secureLocalStorage from "react-secure-storage";
+import api from "./axios";
 
-import { BASE_URL } from "./axios";
+// ─── Authenticated endpoints ─────────────────────────────────────────────────
+// Token is injected automatically by the axios request interceptor in axios.ts.
+// No function here needs to accept or forward a token.
 
-// import { cookies } from 'next/headers';
-
-// import { SignInWithPasswordParams } from '@/lib/auth/client';
-
-export interface DashBoardAPIParams {
-  role_id: string;
-  user_id: string;
-  token: string;
-}
-export interface AccountUpdateForm {
-  token: string;
-  formData: FormData;
-  type?: string;
-}
-// export async function homeApi(params: DashBoardAPIParams) {
-export async function homeApi({ role_id, user_id, token }: DashBoardAPIParams) {
-  // const token = cookies().get('auth-token')?.value;
-
+export async function homeApi({ role_id, user_id }: { role_id: string; user_id: string }) {
   const formData = new FormData();
-
   formData.append("acl_role_id", role_id);
   formData.append("customer_id", user_id);
-  //   const body = new URLSearchParams({ email, password }).toString();
-
-  const res = await fetch(`${BASE_URL}home`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+  const res = await api.post("home", formData);
+  return res.data;
 }
 
-export async function accountDetailsAPI({
-  role_id,
-  user_id,
-  token,
-}: DashBoardAPIParams) {
-  // const token = cookies().get('auth-token')?.value;
-
+export async function accountDetailsAPI({ role_id, user_id }: { role_id: string; user_id: string }) {
   const formData = new FormData();
-
   formData.append("acl_role_id", role_id);
   formData.append("customer_id", user_id);
   formData.append("is_form", "0");
-  //   const body = new URLSearchParams({ email, password }).toString();
-
-  const res = await fetch(`${BASE_URL}request/front/account-info`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+  const res = await api.post("request/front/account-info", formData);
+  return res.data;
 }
 
-export async function accountCustomerInfo({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}request/front/account-info`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+export async function accountCustomerInfo({ formData }: { formData: FormData }) {
+  const res = await api.post("request/front/account-info", formData);
+  return res.data;
 }
 
-export async function transferService({ token, formData }: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}request/front/transfer-service`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+export async function transferService({ formData }: { formData: FormData }) {
+  const res = await api.post("request/front/transfer-service", formData);
+  return res.data;
 }
 
-export async function paperLessUpdate({
-  token,
-  formData,
-  type,
-}: AccountUpdateForm) {
-  const api =
+export async function paperLessUpdate({ formData, type }: { formData: FormData; type?: string }) {
+  const endpoint =
     type === "autopay"
-      ? `${BASE_URL}settings/front/autopay-setting`
-      : `${BASE_URL}settings/front/paperless-setting`;
-  const res = await fetch(api, {
-    method: "POST",
+      ? "settings/front/autopay-setting"
+      : "settings/front/paperless-setting";
+  const res = await api.post(endpoint, formData);
+  return res.data;
+}
 
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
+export async function updatePassword({ formData }: { formData: FormData }) {
+  const res = await api.post("index/change-password", formData);
+  return res.data;
+}
+
+export async function updateUserInfo({ formData }: { formData: FormData }) {
+  const res = await api.post("my-account", formData);
+  return res.data;
+}
+
+export async function getPaymentDetailsApi({ formData }: { formData: FormData }) {
+  const res = await api.post("settings/front/payment-method", formData);
+  return res.data;
+}
+
+export async function deleteCardAndBankAccountApi({ formData, type }: { formData: FormData; type?: string }) {
+  const endpoint =
+    type === "bank_account"
+      ? "billing/front/delete-bank-account/"
+      : "billing/front/delete-card/";
+  const res = await api.post(endpoint, formData);
+  return res.data;
+}
+
+export async function updateVoicePreferenceAPi({ formData }: { formData: FormData }) {
+  const res = await api.post("settings/front/update-customer-column", formData);
+  return res.data;
+}
+
+export async function contactCustomerServiceApi({ formData }: { formData: FormData }) {
+  const res = await api.post("request/front/contact-service", formData);
+  return res.data;
+}
+
+export async function getConfirmInfoApi({ formData }: { formData: FormData }) {
+  const res = await api.post("confirm-information", formData);
+  return res.data;
+}
+
+export async function listAnotherAccountAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("add-account", formData);
+  return res.data;
+}
+
+export async function usageAlertsAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("usage/front/list-alerts", formData);
+  return res.data;
+}
+
+export async function deleteAlertsAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("usage/front/delete-alerts", formData);
+  return res.data;
+}
+
+export async function usageGraphAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("usage-bar-chart", formData);
+  return res.data;
+}
+
+export async function getInvoiceDetailsAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("billing/front/invoice", formData);
+  return res.data;
+}
+
+export async function usageMonthlyGraphAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("usage/front/usage-meters-data", formData);
+  return res.data;
+}
+
+export async function usageUtilityFiltersAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("get-utilityum-list", formData);
+  return res.data;
+}
+
+export async function getLastBillInfoAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("billing/front/billing-details", formData);
+  return res.data;
+}
+
+export async function paymentWithoutSavingDetailsAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("billing/front/payment", formData);
+  return res.data;
+}
+
+export async function getPaymentProcessorDetailsAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("get-payment-processors", formData);
+  return res.data;
+}
+
+export async function saveDefaultPaymentMethodAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("save-default-payment-method", formData);
+  return res.data;
+}
+
+export async function getConvenienceFeeAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("get-convenience-fee", formData);
+  return res.data;
+}
+
+export async function schedulePaymentAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("billing/front/payment", formData);
+  return res.data;
+}
+
+export async function saveAcknowledgeForRecurringPaymentApi({ formData }: { formData: FormData }) {
+  const res = await api.post("billing/front/recurring-pay-customer-acknowledge", formData);
+  return res.data;
+}
+
+export async function getWorldPlayPaymentDetailsAPI({ formData }: { formData: FormData }) {
+  const res = await api.post("get-worldpay-iframe-mobile", formData);
+  return res.data;
+}
+
+// ─── Special: login-with-token ────────────────────────────────────────────────
+// The `token` here is a one-time URL-based login token (NOT the stored auth
+// token).  The user is not yet logged in, so the interceptor has nothing to
+// inject — we must set the Authorization header explicitly here.
+export async function getUserDetailsByToken({ token, formData }: { token: string; formData: FormData }) {
+  const res = await api.post("login-with-token", formData, {
+    headers: { Authorization: `Bearer ${token}` },
   });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
+  const data = res.data;
+  secureLocalStorage.setItem("intuity-user", data);
+  secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
+  secureLocalStorage.setItem("intuity-companyId", data?.body?.alias || "intuityfe");
+  navigateTo(`/${data?.body?.alias}/dashboard`, { replace: true });
   return data;
 }
 
-export async function updatePassword({
-  token,
-  formData,
-  type,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}index/change-password`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function updateUserInfo({
-  token,
-  formData,
-  type,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}my-account`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getPaymentDetailsApi({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}settings/front/payment-method`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function deleteCardAndBankAccountApi({
-  token,
-  formData,
-  type,
-}: AccountUpdateForm) {
-  let api = `${BASE_URL}billing/front/delete-card/`;
-  if (type == "card") {
-    api = `${BASE_URL}billing/front/delete-card/`;
-  } else if (type === "bank_account") {
-    api = `${BASE_URL}billing/front/delete-bank-account/`;
-  }
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-// export async function getNotificationListApi({ token, formData }: AccountUpdateForm) {
-//   const api = 'https://test-intuity-backend.pay.waterbill.com/my-account';
-
-//   const res = await fetch(api, {
-//     method: 'POST',
-
-//     headers: {
-//       Accept: 'application/json',
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: formData,
-//   });
-
-//   const data = await res.json();
-
-//   if (!res.ok) {
-//     return { error: data?.body?.errors?.[0] || 'Details failed' };
-//   }
-
-//   return data;
-// }
-
-export async function updateVoicePreferenceAPi({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}settings/front/update-customer-column`;
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function contactCustomerServiceApi({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}request/front/contact-service`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getConfirmInfoApi({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}confirm-information`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
+// ─── Public endpoints (no auth token needed) ─────────────────────────────────
 
 export async function getCompanyDetailsApi({ formData }: { formData: FormData }) {
-  const res = await fetch(`${BASE_URL}get-details-by-alias`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+  const res = await api.post("get-details-by-alias", formData);
+  return res.data;
 }
 
-export async function registerApi({ formData, alias }: {
-  formData: FormData;
-  alias: string;
-}) {
- //new url
-  // const api = `${BASE_URL}register-${alias}`;
-  const api = `${BASE_URL}registerfe-${alias}`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function listAnotherAccountAPI({ token, formData }: {
-  token: string;
-  formData: FormData;
-}) {
-  const api = `${BASE_URL}add-account`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function usageAlertsAPI({ token, formData }: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}usage/front/list-alerts`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function deleteAlertsAPI({ token, formData }: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}usage/front/delete-alerts`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function usageGraphAPI({ token, formData }: AccountUpdateForm) {
-  // const res = await fetch('https://test-intuity-backend.pay.waterbill.com/usage', {
-  const res = await fetch(`${BASE_URL}usage-bar-chart`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getInvoiceDetailsAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}billing/front/invoice`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function usageMonthlyGraphAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}usage/front/usage-meters-data`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function usageUtilityFiltersAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}get-utilityum-list`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getLastBillInfoAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}billing/front/billing-details`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function paymentWithoutSavingDetailsAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}billing/front/payment`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getPaymentProcessorDetailsAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}get-payment-processors`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function saveDefaultPaymentMethodAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}save-default-payment-method`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getConvenienceFeeAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}get-convenience-fee`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function schedulePaymentAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}billing/front/payment`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+export async function registerApi({ formData, alias }: { formData: FormData; alias: string }) {
+  const res = await api.post(`registerfe-${alias}`, formData);
+  return res.data;
 }
 
 export async function guestPaymentRequestApi({ formData, alias }: { formData: FormData; alias: string }) {
-  const res = await fetch(`${BASE_URL}pay-as-guest-${alias}`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+  const res = await api.post(`pay-as-guest-${alias}`, formData);
+  return res.data;
 }
 
-export async function saveAcknowledgeForRecurringPaymentApi({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const api = `${BASE_URL}billing/front/recurring-pay-customer-acknowledge`;
-
-  const res = await fetch(api, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-// export async function deleteScheduleOrRecurringPaymentApi({
-//   token,
-//   formData,
-// }: AccountUpdateForm) {
-//   const api = `${BASE_URL}billing/front/recurring-pay-customer-acknowledge`;
-
-//   const res = await fetch(api, {
-//     method: "POST",
-
-//     headers: {
-//       Accept: "application/json",
-//       Authorization: `Bearer ${token}`,
-//     },
-//     body: formData,
-//   });
-
-//   const data = await res.json();
-
-//   if (!res.ok) {
-//     return { error: data?.body?.errors?.[0] || "Details failed" };
-//   }
-
-//   return data;
-// }
-
-export async function oneTimePaymentApi({
-  formData,
-  companyAlias = "cape-royale1",
-}: {
-  formData: FormData;
-  companyAlias?: string;
-}) {
-  const res = await fetch(`${BASE_URL}pay-as-guest-${companyAlias}`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getWorldPlayPaymentDetailsAPI({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}get-worldpay-iframe-mobile`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
-}
-
-export async function getUserDetailsByToken({
-  token,
-  formData,
-}: AccountUpdateForm) {
-  const res = await fetch(`${BASE_URL}login-with-token`, {
-    method: "POST",
-
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-  secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
-  secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
-  secureLocalStorage.setItem(
-    "intuity-companyId",
-    data?.body?.alias || "intuityfe"
-  );
-
-  navigateTo(`/${data?.body?.alias}/dashboard`, { replace: true });
-
-  if (!res.ok) {
-    return { error: data?.body?.errors?.[0] || "Details failed" };
-  }
-
-  return data;
+export async function oneTimePaymentApi({ formData, companyAlias = "cape-royale1" }: { formData: FormData; companyAlias?: string }) {
+  const res = await api.post(`pay-as-guest-${companyAlias}`, formData);
+  return res.data;
 }

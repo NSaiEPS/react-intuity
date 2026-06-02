@@ -41,7 +41,6 @@ export default function AutoPayDetails(): React.JSX.Element {
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
 //   interface CustomerInfo {
 //   acctnum: React.ReactNode;
 //   customer_name: React.ReactNode;
@@ -100,7 +99,6 @@ export default function AutoPayDetails(): React.JSX.Element {
 
     dispatch(
       updatePaperLessInfo(
-        token,
         formData,
         "autopay",
         setAutoPayDetails,
@@ -134,7 +132,7 @@ export default function AutoPayDetails(): React.JSX.Element {
       formData.append("id_select_card", autoPaySettings?.id ?? "");
       formData.append("auto_pay_model_save_card", "0");
       dispatch(
-        updatePaperLessInfo(token, formData, "autopay", successCallBack)
+        updatePaperLessInfo(formData, "autopay", successCallBack)
       );
       return;
     }
@@ -143,7 +141,7 @@ export default function AutoPayDetails(): React.JSX.Element {
     // formData.append("id", userInfo?.autopay_setting_id);
     // formData.append('payment_method_id', dashBoardInfo?.body?.payment_method_id);
     formData.append("payment_method_id", userInfo?.payment_method_id);
-    dispatch(updatePaperLessInfo(token, formData, "autopay", successCallBack));
+    dispatch(updatePaperLessInfo(formData, "autopay", successCallBack));
   };
   const successCallBack = () => {
     updateLocalStorageValue(

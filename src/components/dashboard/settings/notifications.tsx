@@ -204,7 +204,6 @@ export function Notifications(): React.JSX.Element {
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
 
   const handleEmailUpdate = async () => {
     const valid = await trigger("email");
@@ -219,7 +218,7 @@ export function Notifications(): React.JSX.Element {
       formData.append("notification_email", getValues("email"));
 
       dispatch(
-        updateAccountInfo(token, formData, true, (res) => {
+        updateAccountInfo(formData, true, (res) => {
           successCallBack(res);
           getPrefDetails();
         })
@@ -248,7 +247,7 @@ export function Notifications(): React.JSX.Element {
     formData.append("id", userId);
     formData.append("model_open", "15");
 
-    dispatch(updateAccountInfo(token, formData, true, null, true, null, true));
+    dispatch(updateAccountInfo(formData, true, null, true, null, true));
   };
 
   const handlePhoneUpdate = async () => {
@@ -271,7 +270,7 @@ export function Notifications(): React.JSX.Element {
     formData.append("phone_no", getValues("phone"));
 
     dispatch(
-      updateAccountInfo(token, formData, true, (res) => {
+      updateAccountInfo(formData, true, (res) => {
         successCallBack(res);
         setPhoneModalOpen(true);
       })
@@ -300,7 +299,7 @@ export function Notifications(): React.JSX.Element {
     formData.append("is_voice_optout", clickedState ? "1" : "0");
 
     dispatch(
-      updateVoicePreference(token, formData, () => successCallBack("voice"))
+      updateVoicePreference(formData, () => successCallBack("voice"))
     );
 
     setOpenConfirm(false);

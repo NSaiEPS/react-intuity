@@ -49,7 +49,7 @@ export default function AccountPage(): React.JSX.Element {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
     const token = stored?.body?.token;
-    dispatch(getAccountInfo(roleId, userId, token, setContextLoading));
+    dispatch(getAccountInfo(roleId, userId, setContextLoading));
   };
 
   React.useEffect(() => {

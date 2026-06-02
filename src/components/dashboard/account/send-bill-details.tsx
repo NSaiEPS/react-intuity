@@ -130,7 +130,6 @@ export function SendBillDetailsForm(): React.JSX.Element {
       typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
     let roleId = stored?.body?.acl_role_id;
     let customer_id = stored?.body?.customer_id;
-    let token = stored?.body?.token;
     // //console.log(data, 'hhhhhhh');
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
@@ -156,7 +155,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     //   formData.append('upload_file', '');
     // }
 
-    dispatch(stopTransferService(token, formData, false, successCallBack,null,true));
+    dispatch(stopTransferService(formData, false, successCallBack,null,true));
   };
   const successCallBack = () => {
     reset();

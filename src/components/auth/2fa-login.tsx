@@ -113,7 +113,7 @@ export default function TwoFAModal({
     }
 
     dispatch(
-      updateAccountInfo(token, formData, true, () =>
+      updateAccountInfo(formData, true, () =>
         dispatchLocal({ type: "OPEN_VERIFY_MODAL" })
       )
     );

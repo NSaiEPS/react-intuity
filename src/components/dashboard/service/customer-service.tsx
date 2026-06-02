@@ -106,7 +106,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   let roleId = stored?.body?.acl_role_id;
   let customer_id = stored?.body?.customer_id;
-  let token = stored?.body?.token;
 
   
   const onSubmit = (data: FormValues) => {
@@ -134,7 +133,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     // }
     // formData.append('upload_file', data?.files);
 
-    dispatch(contactCustomerService(token, formData, handleReset));
+    dispatch(contactCustomerService(formData, handleReset));
   };
   const handleReset = () => {
     setValue("files", []);
@@ -163,7 +162,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
 
     dispatch(
       contactCustomerService(
-        token,
         formData,
         successCallBack,
         false,

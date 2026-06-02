@@ -169,7 +169,7 @@ function NotificationsSettings() {
     formData.append("remove_phone", "1");
 
     dispatch(
-      updateAccountInfo(token, formData, true, () => {
+      updateAccountInfo(formData, true, () => {
         getPrefDetails();
         setOpenConfirm(false);
       })
@@ -190,7 +190,7 @@ function NotificationsSettings() {
     formData.append("customer_id", userId);
     formData.append("notification_email", value);
 
-    dispatch(updateAccountInfo(token, formData, true, null));
+    dispatch(updateAccountInfo(formData, true, null));
 
     //console.log("Resend verification for:", value);
     // API call here
@@ -208,13 +208,6 @@ function NotificationsSettings() {
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
-
-    const userData = {
-    roleId,
-    userId,
-    token,
-  }
 
   const handleSave = () => {
     //console.log("Saved preferences:", preferences);
@@ -230,7 +223,7 @@ function NotificationsSettings() {
     formData.append("notification_reminder", preferences.reminders);
     formData.append("notification_biller", preferences.biller_announcements);
 
-    dispatch(updateAccountInfo(token, formData, true, getPrefDetails));
+    dispatch(updateAccountInfo(formData, true, getPrefDetails));
   };
 
   useEffect(() => {
@@ -247,7 +240,6 @@ function NotificationsSettings() {
 
     dispatch(
       updateAccountInfo(
-        token,
         formData,
         true,
         successCallBack,

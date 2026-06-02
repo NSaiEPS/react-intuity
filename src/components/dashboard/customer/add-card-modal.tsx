@@ -103,13 +103,13 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose,onSuccess }) => {
       formdata.append("expiration", data?.cardExpDate);
     }
     dispatch(
-      getPaymentDetails(stored?.body?.token, formdata, true, () => {
+      getPaymentDetails(formdata, true, () => {
         const formdata = new FormData();
         formdata.append("acl_role_id", stored?.body?.acl_role_id);
         formdata.append("customer_id", stored?.body?.customer_id);
 
         dispatch(
-          getPaymentDetails(stored?.body?.token, formdata)
+          getPaymentDetails(formdata)
         );
         onSuccess?.();
       onClose();

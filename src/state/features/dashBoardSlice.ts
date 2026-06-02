@@ -1,4 +1,3 @@
-// import api from '@/app/api/axios';
 import api from "@/api/axios";
 import {
   accountDetailsAPI,
@@ -84,7 +83,7 @@ const DashBoardSlice = createSlice({
     },
     setRouteChecker(state, action) {
       state.routeChecker = action.payload;
-    }
+    },
   },
 });
 
@@ -103,94 +102,64 @@ export const {
 
 export default DashBoardSlice.reducer;
 
+// ─── Thunks ───────────────────────────────────────────────────────────────────
+// Token is no longer accepted as a parameter — the axios interceptor injects it.
+
 export const getDashboardInfo = (
   role_id: string,
-  user_id: string,
-  token: string
+  user_id: string
 ) => async (dispatch: AppDispatch): Promise<void> => {
-    dispatch(setDashboardLoader(true));
-
-    try {
-      const res = await homeApi({ role_id, user_id, token });
-
-      if (res?.status) {
-        // localStorage.setItem('intuity-customerInfo', JSON.stringify(res?.body?.customer));
-        // localStorage.setItem('linked-customerInfo', JSON.stringify(res?.body?.linked_customers));
-
-        secureLocalStorage.setItem("intuity-customerInfo", res?.body?.customer);
-        secureLocalStorage.setItem("intuity-company", res?.body?.company);
-        secureLocalStorage.setItem(
-          "linked-customerInfo",
-          res?.body?.linked_customers
-        );
-
-        secureLocalStorage.setItem(
-          "intuity-meterDetails",
-          res?.body?.meterDetails
-        );
-
-        dispatch(setDashboardInfo(res));
-      } else {
-        navigateTo("/login", { replace: true }, res?.message);
-        if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
-        }
+  dispatch(setDashboardLoader(true));
+  try {
+    const res = await homeApi({ role_id, user_id });
+    if (res?.status) {
+      secureLocalStorage.setItem("intuity-customerInfo", res?.body?.customer);
+      secureLocalStorage.setItem("intuity-company", res?.body?.company);
+      secureLocalStorage.setItem("linked-customerInfo", res?.body?.linked_customers);
+      secureLocalStorage.setItem("intuity-meterDetails", res?.body?.meterDetails);
+      dispatch(setDashboardInfo(res));
+    } else {
+      navigateTo("/login", { replace: true }, res?.message);
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
       }
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
-    } finally {
-      dispatch(setDashboardLoader(false));
     }
-  };
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message ?? "Error Try again!!");
+  } finally {
+    dispatch(setDashboardLoader(false));
+  }
+};
 
 export const getAccountInfo = (
   role_id: string,
-  user_id: string,
-  token: string
+  user_id: string
 ) => async (dispatch: AppDispatch): Promise<void> => {
-    dispatch(setDashboardLoader(true));
-
-    // formData.append('customer_id', '5968');
-
-    // formData.append('question', 'What is this?');
-    // formData.append('preferMethod', 'email');
-    // formData.append('amthe', 'owner');
-    // formData.append('acl_role_Id', '4');
-    // formData.append('customer_id', '5968');
-    // formData.append('is_form', '1');
-
-    try {
-      const res = await accountDetailsAPI({ role_id, user_id, token });
-
-      if (res?.status) {
-        //toast(res?.data?.message);
-        // message.success(res?.data?.message);
-        // dispatch(setDashboardInfo(res));
-      } else {
-        navigateTo("/login", { replace: true }, res?.message);
-        if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
-        }
+  dispatch(setDashboardLoader(true));
+  try {
+    const res = await accountDetailsAPI({ role_id, user_id });
+    if (res?.status) {
+      // no-op: data stored externally by caller if needed
+    } else {
+      navigateTo("/login", { replace: true }, res?.message);
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
       }
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
-    } finally {
-      dispatch(setDashboardLoader(false));
     }
-  };
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message ?? "Error Try again!!");
+  } finally {
+    dispatch(setDashboardLoader(false));
+  }
+};
 
+// Previously used localStorage.getItem("token") which was always empty.
+// The axios interceptor now reads the correct token from secureLocalStorage.
 export const setPaperLessSettings = (data: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
   try {
-    const res = await api.post("settings/front/paperless-setting", data, {
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-    });
-
+    const res = await api.post("settings/front/paperless-setting", data);
     if (res.data?.success) {
-      //toast(res?.data?.message);
-      // message.success(res?.data?.message);
       dispatch(setDashboardInfo(res?.data?.data?.data));
     } else {
       if (res?.data?.message !== "You are not authorised to use this api") {
@@ -199,9 +168,6 @@ export const setPaperLessSettings = (data: FormData) => async (dispatch: AppDisp
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-    // toast(e?.response?.data?.message);
-    // message.error(e?.response?.data?.message);
   } finally {
     dispatch(setDashboardLoader(false));
   }
@@ -209,17 +175,9 @@ export const setPaperLessSettings = (data: FormData) => async (dispatch: AppDisp
 
 export const setAutoPaySettings = (data: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
-
   try {
-    const res = await api.post("settings/front/autopay-setting", data, {
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-    });
-
+    const res = await api.post("settings/front/autopay-setting", data);
     if (res.data?.success) {
-      //toast(res?.data?.message);
-      // message.success(res?.data?.message);
       dispatch(setDashboardInfo(res?.data?.data?.data));
     } else {
       if (res?.data?.message !== "You are not authorised to use this api") {
@@ -228,74 +186,51 @@ export const setAutoPaySettings = (data: FormData) => async (dispatch: AppDispat
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-    // toast(e?.response?.data?.message);
-    // message.error(e?.response?.data?.message);
   } finally {
     dispatch(setDashboardLoader(false));
   }
 };
 
 export const getNotificationList = (
-  token: string,
   formData: FormData,
   successCallBack?: () => void,
   setData = true,
   failureCallBack?: () => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
-    // dispatch(setDashboardLoader(true));
-    dispatch(setNotificationLoader(true));
-
-    try {
-      // const res = await getNotificationListApi({ role_id, user_id, token });
-      const res = await updateUserInfo({ token, formData });
-
-      if (res?.status) {
-        if (setData) {
-          dispatch(setNotificationList(res?.body));
-        }
-        if (res?.body?.otp) {
-          toast.success(`Otp is ${res?.body?.otp}`);
-        }
-        if (!setData) {
-          if (res?.message?.includes("Otp is invalid")) {
-            toast.error(res?.message);
-          } else {
-            toast.success(
-              res?.message ?? "Notification Email changed successfully."
-            );
-          }
-        }
-        if (successCallBack) {
-          successCallBack();
-        }
-      } else {
-        if (failureCallBack) {
-          failureCallBack();
-        }
-        if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
-        }
-
-        navigateTo("/login", { replace: true }, res?.message);
-      }
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
-      if (failureCallBack) {
-        failureCallBack();
-      }
-    } finally {
-      dispatch(setDashboardLoader(false));
-      dispatch(setNotificationLoader(false));
-    }
-  };
-
-export const getUsageGraph = (formData: FormData, token: string) => async (dispatch: AppDispatch): Promise<void> => {
-  dispatch(setDashboardLoader(true));
-
+  dispatch(setNotificationLoader(true));
   try {
-    const res = await usageGraphAPI({ formData, token });
+    const res = await updateUserInfo({ formData });
+    if (res?.status) {
+      if (setData) dispatch(setNotificationList(res?.body));
+      if (res?.body?.otp) toast.success(`Otp is ${res?.body?.otp}`);
+      if (!setData) {
+        if (res?.message?.includes("Otp is invalid")) {
+          toast.error(res?.message);
+        } else {
+          toast.success(res?.message ?? "Notification Email changed successfully.");
+        }
+      }
+      if (successCallBack) successCallBack();
+    } else {
+      if (failureCallBack) failureCallBack();
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
+      }
+      navigateTo("/login", { replace: true }, res?.message);
+    }
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message ?? "Error Try again!!");
+    if (failureCallBack) failureCallBack();
+  } finally {
+    dispatch(setDashboardLoader(false));
+    dispatch(setNotificationLoader(false));
+  }
+};
 
+export const getUsageGraph = (formData: FormData) => async (dispatch: AppDispatch): Promise<void> => {
+  dispatch(setDashboardLoader(true));
+  try {
+    const res = await usageGraphAPI({ formData });
     if (res?.status) {
       dispatch(setusageGraph(res?.body));
     } else {
@@ -306,9 +241,6 @@ export const getUsageGraph = (formData: FormData, token: string) => async (dispa
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-    // toast(e?.response?.data?.message);
-    // message.error(e?.response?.data?.message);
   } finally {
     dispatch(setDashboardLoader(false));
   }
@@ -316,44 +248,31 @@ export const getUsageGraph = (formData: FormData, token: string) => async (dispa
 
 export const getInvoiceDetails = (
   formData: FormData,
-  token: string,
   setContextLoading?: SetLoadingFn
 ) => async (dispatch: AppDispatch): Promise<void> => {
-    dispatch(setDashboardLoader(true));
-    try {
-      // const res = await api.post('/billing/front/invoice', data, {
-      //   headers: {
-      //     Authorization: token,
-      //   },
-      // });
-
-      const res = await getInvoiceDetailsAPI({ token, formData });
-
-      if (res?.status) {
-        dispatch(setInvoiceDetails(res?.body));
-      } else {
-        navigateTo("/login", { replace: true }, res?.message);
-
-        if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
-        }
-      }
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
-    } finally {
-      dispatch(setDashboardLoader(false));
-      if (setContextLoading) {
-        setContextLoading(false);
+  dispatch(setDashboardLoader(true));
+  try {
+    const res = await getInvoiceDetailsAPI({ formData });
+    if (res?.status) {
+      dispatch(setInvoiceDetails(res?.body));
+    } else {
+      navigateTo("/login", { replace: true }, res?.message);
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
       }
     }
-  };
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message ?? "Error Try again!!");
+  } finally {
+    dispatch(setDashboardLoader(false));
+    if (setContextLoading) setContextLoading(false);
+  }
+};
 
-export const usageMonthlyGraph = (formData: FormData, token: string) => async (dispatch: AppDispatch): Promise<void> => {
+export const usageMonthlyGraph = (formData: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
-
   try {
-    const res = await usageMonthlyGraphAPI({ formData, token });
-
+    const res = await usageMonthlyGraphAPI({ formData });
     if (res?.status) {
       dispatch(setMonthlyUsageGraph(res?.body?.data));
     } else {
@@ -364,9 +283,6 @@ export const usageMonthlyGraph = (formData: FormData, token: string) => async (d
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
-
-    // toast(e?.response?.data?.message);
-    // message.error(e?.response?.data?.message);
   } finally {
     dispatch(setDashboardLoader(false));
   }
@@ -374,26 +290,23 @@ export const usageMonthlyGraph = (formData: FormData, token: string) => async (d
 
 export const usageUtilityFilters = (
   formData: FormData,
-  token: string,
   successCallBack?: (body: any) => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
-    dispatch(setDashboardLoader(true));
-
-    try {
-      const res = await usageUtilityFiltersAPI({ formData, token });
-
-      if (res?.status) {
-        dispatch(setUsageUtilityFilters(res?.body));
-        successCallBack(res?.body);
-      } else {
-        navigateTo("/login", { replace: true }, res?.message);
-        if (res?.message !== "You are not authorised to use this api") {
-          toast.error(res?.message ?? "Something went wrong!");
-        }
+  dispatch(setDashboardLoader(true));
+  try {
+    const res = await usageUtilityFiltersAPI({ formData });
+    if (res?.status) {
+      dispatch(setUsageUtilityFilters(res?.body));
+      if (successCallBack) successCallBack(res?.body);
+    } else {
+      navigateTo("/login", { replace: true }, res?.message);
+      if (res?.message !== "You are not authorised to use this api") {
+        toast.error(res?.message ?? "Something went wrong!");
       }
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message ?? "Error Try again!!");
-    } finally {
-      dispatch(setDashboardLoader(false));
     }
-  };
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message ?? "Error Try again!!");
+  } finally {
+    dispatch(setDashboardLoader(false));
+  }
+};
