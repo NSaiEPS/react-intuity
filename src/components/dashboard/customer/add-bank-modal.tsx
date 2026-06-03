@@ -166,8 +166,9 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
             <Box
               component="img"
               // src="/public/assets/bankaccount-help.png"
-                          src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
 
+                                        src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+              
               alt="Help"
               sx={{
                 position: 'absolute',
