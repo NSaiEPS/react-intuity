@@ -1,4 +1,4 @@
-import React, { Key, ReactNode, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Collapse,
@@ -14,132 +14,156 @@ import {
 } from '@mui/material';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 
-// Your data object with multiple utility keys
-
-
 interface BillingItem {
-   id: string | number;
+  id: string | number;
   product_id: string;
   amount: string | number;
   consumption?: number;
 }
 
 export default function UtilityList({ data }) {
-  const [expandedKey, setExpandedKey] = useState(null);
+  // Set so multiple sections can be open at the same time
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
-  // Handle expand/collapse toggle
-  const toggleExpand = (key) => {
-    setExpandedKey((prev) => (prev === key ? null : key));
+  const toggleExpand = (key: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
   };
+
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // or manually check screen width
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const entries = Object.entries(data as Record<string, BillingItem[]>);
+
   return (
-    <Grid container spacing={2} style={{}}>
-      {Object?.entries(data as Record<string, BillingItem[]>).map(([key, items]) => {
-        // Parse key parts: "WATER;1;48699537;40 PECAN COVE CT"
+    <Box>
+      {/* ── Column header row ── */}
+      <Grid
+        container
+        sx={{
+          px: 1,
+          pb: 1,
+          borderBottom: '2px solid #d0d5dd',
+        }}
+      >
+        <Grid item xs={6}>
+          <Typography variant="subtitle2" fontWeight="bold" color="text.secondary">
+            Utility
+          </Typography>
+        </Grid>
+        <Grid item xs={3} sx={{ textAlign: 'right' }}>
+          <Typography variant="subtitle2" fontWeight="bold" color="text.secondary">
+            Units
+          </Typography>
+        </Grid>
+        <Grid item xs={3} sx={{ textAlign: 'right' }}>
+          <Typography variant="subtitle2" fontWeight="bold" color="text.secondary">
+            Amount
+          </Typography>
+        </Grid>
+      </Grid>
+
+      {/* ── One row per utility group ── */}
+      {entries.map(([key, items]) => {
         const [utilityName, , meterNumber, ...addressParts] = key.split(';');
-        const serviceAddress = addressParts.join(';'); // in case address has ';'
+        const serviceAddress = addressParts.join(';');
 
-        // Calculate total amount and consumption (assuming all same)
-        const totalAmount = items?.reduce((sum, item) => sum + Number(item.amount), 0);
+        // Suppression: skip items with null/blank description or null amount
+        const visibleItems = items?.filter(
+          (item) =>
+            item?.product_id != null &&
+            String(item.product_id).trim() !== '' &&
+            item?.amount != null
+        );
+
+        const totalAmount = visibleItems?.reduce(
+          (sum, item) => sum + Number(item.amount),
+          0
+        );
         const totalUnits = items[0]?.consumption || 0;
-
-        // Determine if expanded
-        const isExpanded = expandedKey === key;
+        const isExpanded = expandedKeys.has(key);
 
         return (
-          <Box
-            key={key}
-            mb={3}
-            p={3}
-            pr={0}
-            bgcolor="#f9fafb"
-            borderRadius={2}
-            boxShadow={1}
-            style={{
-              width: '100%',
-            }}
-          >
-            {/* Header */}
-            <Box
-              display="flex"
-              flexDirection={{ xs: 'column', sm: 'row' }}
-              justifyContent="space-between"
-              alignItems={{ xs: 'flex-start', sm: 'center' }}
-              flexWrap="wrap"
-              gap={1}
-              mb={2}
+          <React.Fragment key={key}>
+            {/* Utility summary row */}
+            <Grid
+              container
+              alignItems="center"
+              sx={{
+                px: 1,
+                py: 1.5,
+                borderBottom: '1px solid #e4e7ec',
+                cursor: 'pointer',
+                '&:hover': { bgcolor: '#f5f5f5' },
+              }}
+              onClick={() => toggleExpand(key)}
             >
-              <Box
-                onClick={() => toggleExpand(key)}
-                sx={{ cursor: 'pointer', flex: { xs: '1 1 100%', sm: '1 1 60%' } }}
-              >
-                <Typography variant="subtitle2" fontWeight="bold">
-                  Utility
-                </Typography>
-                <Typography variant="body1" whiteSpace="normal">
-                  <strong>{utilityName}</strong> - {meterNumber} - {serviceAddress}
-                </Typography>
-              </Box>
+              {/* Utility name */}
+              <Grid item xs={6}>
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); toggleExpand(key); }}
+                    sx={{ p: 0.25, flexShrink: 0 }}
+                  >
+                    {isExpanded ? <CaretUp size={18} /> : <CaretDown size={18} />}
+                  </IconButton>
+                  <Typography variant="body2">
+                    <strong style={{ textDecoration: 'underline' }}>{utilityName}</strong>
+                    {' '}- {meterNumber} - {serviceAddress}
+                  </Typography>
+                </Box>
+              </Grid>
 
-              <Box
-                onClick={() => toggleExpand(key)}
-                sx={{ cursor: 'pointer', textAlign: { xs: 'left', sm: 'right' }, minWidth: 100 }}
-              >
-                <Typography variant="subtitle2" fontWeight="bold">
-                  Units
+              {/* Units */}
+              <Grid item xs={3} sx={{ textAlign: 'right' }}>
+                <Typography variant="body2">
+                  {Number(totalUnits) ? totalUnits.toLocaleString() : '-'}
                 </Typography>
-                <Typography>{Number(totalUnits) ? totalUnits.toLocaleString() : '-'}</Typography>
-              </Box>
+              </Grid>
 
-              <Box
-                onClick={() => toggleExpand(key)}
-                sx={{ cursor: 'pointer', textAlign: { xs: 'left', sm: 'right' }, minWidth: 100 }}
-              >
-                <Typography variant="subtitle2" fontWeight="bold">
-                  Amount
+              {/* Amount — rightmost, aligns with summary rows below */}
+              <Grid item xs={3} sx={{ textAlign: 'right' }}>
+                <Typography variant="body2" fontWeight="bold">
+                  ${totalAmount.toFixed(2)}
                 </Typography>
-                <Typography fontWeight="bold">${totalAmount.toFixed(2)}</Typography>
-              </Box>
+              </Grid>
+            </Grid>
 
-              <Box alignSelf={{ xs: 'flex-start', sm: 'center' }}>
-                <IconButton aria-label="expand" onClick={() => toggleExpand(key)} size="small" sx={{ mt: -1 }}>
-                  {isExpanded ? <CaretUp size={22} /> : <CaretDown size={22} />}
-                </IconButton>
-              </Box>
-            </Box>
-
-            {/* Expandable Content */}
+            {/* Expandable line items */}
             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-              <Box bgcolor="white" borderRadius={1} mt={1} p={2} pr={5} boxShadow={0}>
-                <List disablePadding>
-                  {items.map((item) => (
-                    <React.Fragment key={item.id}>
-                      <ListItem
-                        disableGutters
-                        sx={{ py: 1 }}
-                        secondaryAction={<Typography fontWeight="medium">${Number(item.amount).toFixed(2)}</Typography>}
-                      >
-                        <ListItemText primary={item.product_id} primaryTypographyProps={{ fontWeight: 'medium' }} />
-                      </ListItem>
-                      <Divider component="li" />
-                    </React.Fragment>
-                  ))}
-
-                  {/* Total Row */}
-                  <ListItem disableGutters sx={{ mt: 1, fontWeight: 600 }}>
-                    <ListItemText primary="Total" />
-                    {/* <Typography fontWeight="bold">{Number(totalUnits) ? totalUnits.toLocaleString() : '-'}</Typography> */}
-                    <Typography fontWeight="bold" sx={{ ml: 4 }}>
-                      ${totalAmount.toFixed(2)}
-                    </Typography>
-                  </ListItem>
-                </List>
-              </Box>
+              <List disablePadding sx={{ bgcolor: '#fafbfc' }}>
+                {visibleItems.map((item) => (
+                  <React.Fragment key={item.id}>
+                    <ListItem
+                      disableGutters
+                      sx={{ px: 5, py: 0.75 }}
+                      secondaryAction={
+                        <Typography variant="body2" fontWeight="medium" sx={{ pr: 1 }}>
+                          ${Number(item.amount).toFixed(2)}
+                        </Typography>
+                      }
+                    >
+                      <ListItemText
+                        primary={item.product_id}
+                        primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                      />
+                    </ListItem>
+                    <Divider component="li" />
+                  </React.Fragment>
+                ))}
+              </List>
             </Collapse>
-          </Box>
+          </React.Fragment>
         );
       })}
-    </Grid>
+    </Box>
   );
 }
