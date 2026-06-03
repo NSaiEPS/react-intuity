@@ -74,6 +74,8 @@ out
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
 # Ignore the unused nginx folder
 nginx/
 
