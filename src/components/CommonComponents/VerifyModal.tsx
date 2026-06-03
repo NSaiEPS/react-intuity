@@ -49,6 +49,7 @@ type AuthCodeModalProps = {
   onClose: () => void;
   onVerify: (code: string) => void;
   customerData: CustomerInfo | null;
+  onClose2Fa:()=>void;
 };
 
 export default function AuthCodeModal({
@@ -57,6 +58,7 @@ export default function AuthCodeModal({
   onClose,
   onVerify,
   customerData,
+  onClose2Fa
 }: AuthCodeModalProps) {
   const {
     register,
@@ -134,11 +136,12 @@ export default function AuthCodeModal({
   };
 
   const onSubmit = async (data: FormValues) => {
-    await checkSession?.();
+    // await checkSession?.();
 
-    navigate(paths.dashboard.overview());
+    // navigate(paths.dashboard.overview());
     reset();
     onClose();
+    onClose2Fa()
   };
   return (
     <Dialog

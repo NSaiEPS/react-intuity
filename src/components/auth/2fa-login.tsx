@@ -25,6 +25,8 @@ import { toast } from "@/lib/custom-toast";
 interface CustomerData {
   acctnum: number;
   phone_no?: string;
+  phone?: string;
+  is_phone_verified?: number;
   email?: string;
   customer_name: string;
 }
@@ -50,6 +52,10 @@ const maskPhone = (phone?: string) =>
 
 const maskEmail = (email?: string) =>
   email ? `Email (xxxxxxx${email.slice(-6)})` : "Email (xxxxxxx";
+
+/** Returns true if the value contains exactly 10 digits (ignoring formatting). */
+const isValidPhone = (phone?: string) =>
+  /^\d{10}$/.test((phone ?? "").replace(/\D/g, ""));
 
 const initialState: State = {
   method: "",
@@ -91,6 +97,9 @@ export default function TwoFAModal({
 
   const dispatch = useDispatch();
 
+  // phone_no takes priority; fall back to phone
+  const effectivePhone = customerData?.phone_no || customerData?.phone;
+
   const handleSendCode = () => {
     if (!state.method) {
       toast.warning("Please select the method");
@@ -106,14 +115,14 @@ export default function TwoFAModal({
     formData.append("selected_value", state.method);
 
     if (state.method === "text_message") {
-      formData.append("phone_no", customerData?.phone_no ?? "");
+      formData.append("phone_no", effectivePhone ?? "");
       formData.append("country_code", "1");
     } else if (state.method === "email") {
       formData.append("email", customerData?.email ?? "");
     }
 
     dispatch(
-      updateAccountInfo(token, formData, true, () =>
+      updateAccountInfo(token,formData, true, () =>
         dispatchLocal({ type: "OPEN_VERIFY_MODAL" })
       )
     );
@@ -123,21 +132,18 @@ export default function TwoFAModal({
     // TODO: handle verification
   };
 
-  // const methods = [
-  //   { value: "text_message", label: "Text message" },
-  //   { value: "phone_call", label: "Phone call" },
-  //   { value: "email", label: maskEmail(customerData?.email) },
-  // ];
-
+  // Text message: valid 10-digit phone AND is_phone_verified === 1
+  // Phone call:   valid 10-digit phone (no verification required)
+  // Email:        always shown
   const methods = [
-  ...(customerData?.phone_no
-    ? [
-        { value: "text_message", label: "Text message" },
-        { value: "phone_call", label: "Phone call" },
-      ]
-    : []),
-  { value: "email", label: maskEmail(customerData?.email) },
-];
+    ...(isValidPhone(effectivePhone) && customerData?.is_phone_verified === 1
+      ? [{ value: "text_message", label: `Text message (${maskPhone(effectivePhone)})` }]
+      : []),
+    ...(isValidPhone(effectivePhone)
+      ? [{ value: "phone_call", label: `Phone call (${maskPhone(effectivePhone)})` }]
+      : []),
+    { value: "email", label: maskEmail(customerData?.email) },
+  ];
 
   return (
     <Dialog
@@ -226,6 +232,7 @@ export default function TwoFAModal({
         onVerify={onVerifyText}
         customerData={customerData}
         selectedVal={state.method}
+        onClose2Fa={onClose}
       />
     </Dialog>
   );
