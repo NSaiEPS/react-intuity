@@ -151,9 +151,9 @@ export default function CustomAlertModal() {
     };
   }, []);
 
-  // progress bar rAF loop
+  // progress bar rAF loop — skipped for errors (must close manually)
   React.useEffect(() => {
-    if (!payload) {
+    if (!payload || payload.type === "error") {
       elapsedRef.current = 0;
       startRef.current = null;
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -206,8 +206,8 @@ export default function CustomAlertModal() {
         }
       `}</style>
 
-      {/* Backdrop */}
-      <div style={S.backdrop} onClick={() => setPayload(null)}>
+      {/* Backdrop — errors only close via OK button */}
+      <div style={S.backdrop} onClick={() => payload.type !== "error" && setPayload(null)}>
         <div
           style={S.modal}
           onClick={(e) => e.stopPropagation()}
@@ -254,10 +254,12 @@ export default function CustomAlertModal() {
             OK
           </button>
 
-          {/* Progress bar */}
-          <div style={S.progressTrack}>
-            <div style={{ ...S.progressBar, width: `${progress}%` }} />
-          </div>
+          {/* Progress bar — hidden for errors (no auto-close) */}
+          {payload.type !== "error" && (
+            <div style={S.progressTrack}>
+              <div style={{ ...S.progressBar, width: `${progress}%` }} />
+            </div>
+          )}
 
           {/* Countdown label */}
           {/* <p style={S.countdown}>

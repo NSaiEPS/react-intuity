@@ -128,7 +128,7 @@ export function StepAccountInfo({ control, errors, showError }: StepAccountInfoP
                                  <Tooltip
    title={
                                   <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
-                                    Please locate your account number on your statement. If you received a ‘Utility Bill Ready’ email notification, your account number can be found at the top of the email content.
+                                    Please locate your account number on your statement. If you received a “Utility Bill Ready” email notification, your account number can be found at the top of the email content.
                                   </span>
                                 }
                     placement="top"

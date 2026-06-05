@@ -25,7 +25,32 @@ const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
 
 interface BillingItem {
   amount: string | number;
+  product_id?: string;
 }
+
+// These line-item charges must be excluded from the Previous Balance total.
+const EXCLUDED_FROM_PREV_BALANCE = new Set([
+  "Charge A",
+  "Charge B",
+  "Charge C",
+  "Charge D",
+  "Charge E",
+  "Taxes",
+  "MiscOther1",
+  "MiscOther2",
+  "Late Fee Charge",
+]);
+
+/**
+ * Returns true if the product_id should be excluded from Previous Balance.
+ * Handles both plain ids ("Charge A") and utility-prefixed ids ("WATER-1 Charge A").
+ */
+const isExcludedFromPrevBalance = (productId: string = ""): boolean => {
+  if (EXCLUDED_FROM_PREV_BALANCE.has(productId)) return true;
+  // Strip any "UTILITY-N " prefix (e.g. "WATER-1 Charge A" → "Charge A")
+  const withoutPrefix = productId.replace(/^[\w-]+\s+/, "");
+  return EXCLUDED_FROM_PREV_BALANCE.has(withoutPrefix);
+};
 
 export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -59,10 +84,11 @@ export function LastBill(): React.JSX.Element {
     if (lastBillInfo?.billing_list) {
       Object.entries(lastBillInfo.billing_list as Record<string, BillingItem[]>).forEach(
         ([_, items]) => {
-          totalAmount = items.reduce(
-            (sum, item) => sum + Number(item.amount),
-            0
-          );
+          // += accumulates across all utility groups (was = before — bug)
+          // Exclude the specified charge types from the Previous Balance total
+          totalAmount += items
+            .filter((item) => !isExcludedFromPrevBalance(item.product_id))
+            .reduce((sum, item) => sum + Number(item.amount), 0);
         }
       );
     }
@@ -157,6 +183,80 @@ const handlePreviewInvoice = async () => {
 
             <UtilityList data={lastBillInfo?.billing_list ?? {}} />
 
+            {
+              invoiceDetails?.extra_params?.map((item)=>{
+                return(
+ <Box
+              sx={{
+                backgroundColor: "#e7f0f7",
+                px: 2,
+                py: 1,
+                borderRadius: 1,
+
+              }}
+            >
+              <Grid container justifyContent="space-between">
+                <Typography fontWeight="bold">{item?.product_id}</Typography>
+                <Typography fontWeight="medium">${item?.amount}</Typography>
+              </Grid>
+            </Box>
+                )
+              })
+            }
+
+           
+           
+
+            <Grid container mt={2} spacing={2} alignItems="stretch">
+              <Grid item xs={6} sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography variant="subtitle2" fontWeight="bold" color="text.secondary">
+                  Due date
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: "#e7f0f7",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 1,
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold">
+                    {lastBillInfo?.last_bill?.due_date
+                      ? formatToMMDDYYYY(lastBillInfo.last_bill.due_date, false, true)
+                      : ""}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={6} sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" textAlign="right">
+                  Invoice Amount
+                </Typography>
+                <Box
+                  sx={{
+                    backgroundColor: "#e7f0f7",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 1,
+                    textAlign: "right",
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold">
+                    {Number(lastBillInfo?.last_bill?.amount) < 0
+                      ? `-$${Math.abs(Number(lastBillInfo?.last_bill?.amount))}`
+                      : `$${lastBillInfo?.last_bill?.amount}`}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+
+            {/* Late fee row */}
             <Box
               sx={{
                 backgroundColor: "#e7f0f7",
@@ -167,49 +267,40 @@ const handlePreviewInvoice = async () => {
               }}
             >
               <Grid container justifyContent="space-between">
-                <Typography fontWeight="bold">PREVIOUS BALANCE</Typography>
-                <Typography fontWeight="medium">${balanceCount}</Typography>
+                <Typography fontWeight="bold">
+                  Late fee assessed on{" "}
+                  {lastBillInfo?.last_bill?.late_date
+                    ? formatToMMDDYYYY(lastBillInfo?.last_bill?.late_date, false, true)
+                    : ""}
+                </Typography>
+                <Typography fontWeight="bold" color="red">
+                  ${lastBillInfo?.last_bill?.late_date_amount}
+                </Typography>
               </Grid>
             </Box>
 
-            <Grid container mt={2} spacing={2}>
-              <Grid item xs={6}>
-                <Typography gutterBottom>Due date</Typography>
-                <Box
-                  sx={{
-                    backgroundColor: "#e7f0f7",
-                    px: 2,
-                    py: 1,
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="bold">
-                    {lastBillInfo?.last_bill?.due_date
-                      ? formatToMMDDYYYY(
-                          lastBillInfo.last_bill.due_date,
-                          false,
-                          true
-                        )
-                      : ""}
-                  </Typography>
-                </Box>
+            {/* Total invoice amount plus new late fee */}
+            <Box
+              sx={{
+                backgroundColor: "#e7f0f7",
+                px: 2,
+                py: 1,
+                borderRadius: 1,
+                mt: 2,
+              }}
+            >
+              <Grid container justifyContent="space-between">
+                <Typography fontWeight="bold">
+                  Total invoice amount plus new late fee
+                </Typography>
+                <Typography fontWeight="bold">
+                  ${(
+                    Number(lastBillInfo?.last_bill?.amount ?? 0) +
+                    Number(lastBillInfo?.last_bill?.late_date_amount ?? 0)
+                  ).toFixed(2)}
+                </Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography gutterBottom>Invoice Amount</Typography>
-                <Box
-                  sx={{
-                    backgroundColor: "#e7f0f7",
-                    px: 2,
-                    py: 1,
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="h6" fontWeight="bold">
-                    ${lastBillInfo?.last_bill?.amount}
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
+            </Box>
           </Stack>
         </Grid>
 
