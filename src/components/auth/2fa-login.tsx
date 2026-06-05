@@ -136,7 +136,7 @@ export default function TwoFAModal({
   // Phone call:   valid 10-digit phone (no verification required)
   // Email:        always shown
   const methods = [
-    ...(isValidPhone(effectivePhone) && customerData?.is_phone_verified === 1
+    ...(customerData?.phone_no && customerData?.is_phone_verified === 1
       ? [{ value: "text_message", label: `Text message (${maskPhone(effectivePhone)})` }]
       : []),
     ...(isValidPhone(effectivePhone)

@@ -183,7 +183,10 @@ const handlePreviewInvoice = async () => {
 
             <UtilityList data={lastBillInfo?.billing_list ?? {}} />
 
-            <Box
+            {
+              invoiceDetails?.extra_params?.map((item)=>{
+                return(
+ <Box
               sx={{
                 backgroundColor: "#e7f0f7",
                 px: 2,
@@ -193,46 +196,44 @@ const handlePreviewInvoice = async () => {
               }}
             >
               <Grid container justifyContent="space-between">
-                <Typography fontWeight="bold">PREVIOUS BALANCE</Typography>
-                <Typography fontWeight="medium">${balanceCount}</Typography>
+                <Typography fontWeight="bold">{item?.product_id}</Typography>
+                <Typography fontWeight="medium">${item?.amount}</Typography>
               </Grid>
             </Box>
+                )
+              })
+            }
+
+           
            
 
-            <Grid container mt={2} spacing={2}>
-              <Grid item xs={6}>
-                <Typography  
-                
-                variant="subtitle2" fontWeight="bold" color="text.secondary"
-                >
-                  Due date</Typography>
+            <Grid container mt={2} spacing={2} alignItems="stretch">
+              <Grid item xs={6} sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography variant="subtitle2" fontWeight="bold" color="text.secondary">
+                  Due date
+                </Typography>
                 <Box
                   sx={{
                     backgroundColor: "#e7f0f7",
                     px: 2,
                     py: 1,
                     borderRadius: 1,
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   <Typography variant="h6" fontWeight="bold">
                     {lastBillInfo?.last_bill?.due_date
-                      ? formatToMMDDYYYY(
-                          lastBillInfo.last_bill.due_date,
-                          false,
-                          true
-                        )
+                      ? formatToMMDDYYYY(lastBillInfo.last_bill.due_date, false, true)
                       : ""}
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={6}>
-
-                            <Typography variant="subtitle2" fontWeight="bold" color="text.secondary"
-                             textAlign="right"
-                            >
-                              
-                  
-                  Invoice Amount</Typography>
+              <Grid item xs={6} sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography variant="subtitle2" fontWeight="bold" color="text.secondary" textAlign="right">
+                  Invoice Amount
+                </Typography>
                 <Box
                   sx={{
                     backgroundColor: "#e7f0f7",
@@ -240,10 +241,16 @@ const handlePreviewInvoice = async () => {
                     py: 1,
                     borderRadius: 1,
                     textAlign: "right",
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
                   }}
                 >
                   <Typography variant="h6" fontWeight="bold">
-                    ${lastBillInfo?.last_bill?.amount}
+                    {Number(lastBillInfo?.last_bill?.amount) < 0
+                      ? `-$${Math.abs(Number(lastBillInfo?.last_bill?.amount))}`
+                      : `$${lastBillInfo?.last_bill?.amount}`}
                   </Typography>
                 </Box>
               </Grid>
