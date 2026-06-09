@@ -139,6 +139,9 @@ const AccountSlice = createSlice({
     setPaymentDetailsInfo(state, action) {
       state.paymentDetailsInfo = action.payload;
     },
+    resetStore() {
+      return initialState;
+    },
   },
 });
 
@@ -158,6 +161,7 @@ export const {
   setPaymentRequiredKeyDetails,
   setNotificationPreferenceDetails,
   setPaymentDetailsInfo,
+  resetStore: resetAccountStore,
 } = AccountSlice.actions;
 
 export default AccountSlice.reducer;

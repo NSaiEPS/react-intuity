@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { Link as MUILink } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { useUser } from "@/hooks/use-user";
@@ -27,6 +28,7 @@ import { paths } from "@/utils/paths";
 import { useNavigate } from "react-router";
 import TwoFAModal from "./2fa-login";
 import { maxWidth } from "@mui/system";
+import secureLocalStorage from "react-secure-storage";
 
 type State = {
   phoneModalOpen: boolean;
@@ -71,7 +73,9 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     { phoneModalOpen, emailModalOpen, clickedDetails, twoFAModalVisible },
     localDispatch,
   ] = useReducer(reducer, initialState);
+    const location = useLocation();
 
+const two_fa_status = location.state?.two_fa_status ?? false;
   const { accountLoading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
@@ -129,7 +133,10 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
   const { checkSession } = useUser();
 
-  const successCallBack = async () => {
+  const successCallBack = async (action?: string) => {
+    if(action){
+      secureLocalStorage.setItem("is_skipped", action);
+    }
     await checkSession?.();
     navigate(paths.dashboard.overview());
   };
@@ -137,12 +144,12 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   useEffect(() => {
     if (
       confirmInfo?.company?.require_2fa == 1 &&
-      reqCustomer()?.is_phone_verified == 1
+      reqCustomer()?.is_phone_verified == 1 && !two_fa_status
     ) {
       // setTwoFAModalVisible(true);
       localDispatch({ type: "TWO_FA_MODAL", payload: true });
     }
-  }, [confirmInfo]);
+  }, [confirmInfo,two_fa_status]);
 
   const isSingleCard = confirmInfo?.customers?.length === 1;
 
@@ -303,7 +310,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
           <Button
             variant="outlined"
             fullWidth={isMobile}
-            onClick={successCallBack}
+            onClick={()=>successCallBack('skip')}
             sx={{
               px: 4,
               borderColor: colors.blue,

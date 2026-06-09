@@ -26,6 +26,8 @@ export const clearLocalStorage = () => {
   removeLocalStorage("intuity-companyId");
   removeLocalStorage("intuity-company");
   removeLocalStorage("intuity-customerInfo");
+  removeLocalStorage("intuity-customerInfo");
+  removeLocalStorage("is_skipped");
 };
 
 export const updateLocalStorageValue = (

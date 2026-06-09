@@ -31,7 +31,8 @@ const [checking2FA, setChecking2FA] = React.useState(true);
   React.useEffect(() => {
     document.title = title || 'Intuity';
   }, [title, location.pathname]);
-
+      const is_skipped = getLocalStorage('is_skipped');
+console.log(is_skipped,'is_skipped')
   React.useEffect(() => {
   const check2FAStatus = async () => {
     if (!user) {
@@ -59,14 +60,21 @@ const [checking2FA, setChecking2FA] = React.useState(true);
         two_fa_status,
         confirm_information_status,
       } = data?.body || {};
-
+// if(is_skipped === 'skip' && two_fa_status === true){
+//   return
+// }
       if (
         two_fa_status === false ||
-        confirm_information_status === false
+        (confirm_information_status === false && !is_skipped)
       ) {
-        toast.info("Please complete 2FA first.")
+        toast.info(
+          two_fa_status==true && confirm_information_status === false ? 'Please complete Confirm Information.':
+          "Please complete 2FA first.")
          navigate(`/${company}/confirm-information`, {
           replace: true,
+            state: {
+    two_fa_status: two_fa_status,
+  },
         });
       }
     } catch (error) {

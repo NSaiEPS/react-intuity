@@ -99,7 +99,7 @@ export function Sales({
   const token = stored?.body?.token;
   React.useEffect(() => {
     const formData = new FormData();
-
+if(roleId && userId) {
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("utility_type", "WATER");
@@ -107,7 +107,7 @@ export function Sales({
     formData.append("billed_usage", "1");
     formData.append("usage_history", "1");
 
-    dispatch(getUsageGraph(formData));
+    dispatch(getUsageGraph(formData));}
   }, [userInfo]);
 
   const [barGraphData, setBarGraphData] = React.useState({

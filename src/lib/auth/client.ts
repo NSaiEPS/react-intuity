@@ -6,7 +6,11 @@ import { toast } from "@/lib/custom-toast";
 
 import type { User } from "@/types/user";
 
-import { clearLocalStorage, removeLocalStorage } from "../../utils/auth";
+import { clearLocalStorage, getLocalStorage, removeLocalStorage, setLocalStorage } from "../../utils/auth";
+import { store } from "@/state/store";
+import { resetAccountStore } from "@/state/features/accountSlice";
+import { resetDashboardStore } from "@/state/features/dashBoardSlice";
+import { resetPaymentStore } from "@/state/features/paymentSlice";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
@@ -212,10 +216,26 @@ class AuthClient {
   }
 
   async signOut(token: string, formData: FormData): Promise<{ error?: string }> {
-    // Optimistic logout — clear everything locally and navigate immediately.
-    // The user sees the login page with zero delay.
+    // Preserve alias details before clearing storage
+    const aliasDetails = getLocalStorage("alias-details") as { alias?: string } | null;
+    const companyAlias = aliasDetails?.alias ?? "";
+
+    // Clear all local storage
     clearLocalStorage();
-    navigateTo("/login", { replace: true });
+
+    // Restore alias if it existed
+    if (aliasDetails) {
+      setLocalStorage("alias-details", aliasDetails);
+    }
+
+    // Reset all Redux slices to their initial state
+    store.dispatch(resetAccountStore());
+    store.dispatch(resetDashboardStore());
+    store.dispatch(resetPaymentStore());
+
+    // Redirect to alias login if available, otherwise generic login
+    const loginPath = companyAlias ? `/login-${companyAlias}` : "/login";
+    navigateTo(loginPath, { replace: true });
 
     // Fire the server-side token invalidation in the background.
     // Even if this fails the user is already logged out locally.

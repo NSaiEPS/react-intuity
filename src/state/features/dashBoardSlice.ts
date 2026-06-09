@@ -84,6 +84,9 @@ const DashBoardSlice = createSlice({
     setRouteChecker(state, action) {
       state.routeChecker = action.payload;
     },
+    resetStore() {
+      return initialState;
+    },
   },
 });
 
@@ -98,6 +101,7 @@ export const {
   setUsageUtilityFilters,
   setMonthlyUsageUam,
   setRouteChecker,
+  resetStore: resetDashboardStore,
 } = DashBoardSlice.actions;
 
 export default DashBoardSlice.reducer;

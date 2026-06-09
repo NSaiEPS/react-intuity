@@ -28,10 +28,13 @@ const paymentSlice = createSlice({
     setPaymentLoader(state, action) {
       state.paymentLoader = action.payload;
     },
+    resetStore() {
+      return initialState;
+    },
   },
 });
 
-export const { setLastBillInfo, setPaymentLoader } = paymentSlice.actions;
+export const { setLastBillInfo, setPaymentLoader, resetStore: resetPaymentStore } = paymentSlice.actions;
 
 export default paymentSlice.reducer;
 
