@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 // import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-const SaveBankAccount = ({ companyName = "Creative Technologies" }) => {
+const SaveBankAccount = ({ companyName = "" }) => {
     type BankFormData = {
   routingNumber: string;
   accountNumber: string;
@@ -105,7 +105,10 @@ type FormErrors = Partial<Record<keyof BankFormData, string>>;
       return;
     }
 
-    // Send data to parent window (like the PHP version)
+    // Send data only to the parent that loaded this iframe — never "*"
+    const parentOrigin = document.referrer
+      ? new URL(document.referrer).origin
+      : window.location.origin;
     window.parent.postMessage(
       {
         source: "elavon",
@@ -115,7 +118,7 @@ type FormErrors = Partial<Record<keyof BankFormData, string>>;
         accountType: formData.accountType,
         token: new Date().toISOString().replace(/[-:.TZ]/g, ""),
       },
-      "*"
+      parentOrigin
     );
 
     alert("Bank account information submitted successfully!");

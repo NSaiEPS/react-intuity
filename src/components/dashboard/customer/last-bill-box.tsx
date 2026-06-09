@@ -132,13 +132,10 @@ const handlePreviewInvoice = async () => {
 };
 
 
+  const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? "";
   const rawHTML =
     lastBillInfo?.company?.optional_instructions ??
-    `<p><a href="https://www.google.com">Google</a>&nbsp;
-     <a href="https://test-web.pay.waterbill.com/">
-       https://test-web.pay.waterbill.com/
-     </a>
-   </p>`;
+    `<p><a href="${paymentUrl}">${paymentUrl}</a></p>`;
 
   const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
     ADD_ATTR: ["target", "rel"],
@@ -197,7 +194,7 @@ const handlePreviewInvoice = async () => {
             >
               <Grid container justifyContent="space-between">
                 <Typography fontWeight="bold">{item?.product_id}</Typography>
-                <Typography fontWeight="medium">${item?.amount}</Typography>
+                <Typography fontWeight="medium">${Number(item?.amount).toFixed(2)}</Typography>
               </Grid>
             </Box>
                 )
@@ -249,8 +246,8 @@ const handlePreviewInvoice = async () => {
                 >
                   <Typography variant="h6" fontWeight="bold">
                     {Number(lastBillInfo?.last_bill?.amount) < 0
-                      ? `-$${Math.abs(Number(lastBillInfo?.last_bill?.amount))}`
-                      : `$${lastBillInfo?.last_bill?.amount}`}
+                      ? `-$${Math.abs(Number(lastBillInfo?.last_bill?.amount)).toFixed(2)}`
+                      : `$${Number(lastBillInfo?.last_bill?.amount ?? 0).toFixed(2)}`}
                   </Typography>
                 </Box>
               </Grid>
@@ -274,7 +271,7 @@ const handlePreviewInvoice = async () => {
                     : ""}
                 </Typography>
                 <Typography fontWeight="bold" color="red">
-                  ${lastBillInfo?.last_bill?.late_date_amount}
+                  ${Number(lastBillInfo?.last_bill?.late_date_amount ?? 0).toFixed(2)}
                 </Typography>
               </Grid>
             </Box>
@@ -328,7 +325,7 @@ const handlePreviewInvoice = async () => {
             Total Account Balance
           </Typography>
           <Typography variant="h3" color={colors.blue} fontWeight="bold">
-            ${lastBillInfo?.customer?.balance}
+            ${Number(lastBillInfo?.customer?.balance ?? 0).toFixed(2)}
           </Typography>
 
           {!lastBillInfo?.last_bill?.id ? (

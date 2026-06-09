@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect } from "react";
 import { getLocalStorage, removeLocalStorage } from "@/utils/auth";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
+import { CheckCircle, Clock } from "@phosphor-icons/react/dist/ssr";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { oneTimePayment } from "@/state/features/accountSlice";
 import { useDispatch } from "@/hooks/redux";
@@ -10,6 +10,11 @@ import { Button } from "nsaicomponents";
 import { paths } from "@/utils/paths";
 
 const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
+  const location = useLocation();
+
+   const message = location.state?.message;
+   const news = location.state;
+console.log(news)
   useLayoutEffect(() => {
     document.title = successPage ? "Payment Confirmation" : "Card Redirect";
   }, [successPage]);
@@ -24,7 +29,6 @@ const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   // helper to clean params
@@ -144,10 +148,85 @@ if(!successPage){
 
 //console.log(location.state);
   const handleBackToLogin = () => {
-   const alias = location.state?.email;
+   const alias = location.state?.alias;
       navigate(paths.auth.newLogin(alias));
     
   };
+  if (successPage) {
+    const msgLower = (message || "").toLowerCase();
+    const isSuccess = /paid|success|complet|done|approved/.test(msgLower);
+    const isPending = /pending|processing|notif|review|wait/.test(msgLower);
+
+    const icon = isSuccess ? (
+      <CheckCircle size={72} weight="fill" color="#2e7d32" />
+    ) : isPending ? (
+      <Clock size={72} weight="fill" color="#f59e0b" />
+    ) : (
+      <CheckCircle size={72} weight="fill" color="#2e7d32" />
+    );
+
+    const title = isSuccess
+      ? "Payment Successful!"
+      : isPending
+      ? "Payment is Almost Complete"
+      : "Payment Confirmed";
+
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        height="100vh"
+        bgcolor="#f5f5f5"
+      >
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          textAlign="center"
+          gap={3}
+          bgcolor="white"
+          borderRadius="16px"
+          p={5}
+          maxWidth={520}
+          width="100%"
+          mx={2}
+          boxShadow="0 2px 12px rgba(0,0,0,0.08)"
+        >
+          {icon}
+
+          <Typography variant="h5" fontWeight={700}>
+            {title}
+          </Typography>
+
+          <Box
+            bgcolor="#fffde7"
+            borderRadius="8px"
+            px={3}
+            py={2}
+            width="100%"
+          >
+            <Typography variant="body1" color="text.primary">
+              {message || "Your payment has been processed."}
+            </Typography>
+          </Box>
+
+          <Button
+            onClick={handleBackToLogin}
+            variant="contained"
+            textTransform="none"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+            hoverColor="white"
+            style={{ borderRadius: "12px", height: "41px", minWidth: "180px" }}
+          >
+            ← Back to Login
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
       display="flex"
@@ -159,36 +238,17 @@ if(!successPage){
       gap={2}
     >
       <CheckCircle size={80} weight="fill" color="#2e7d32" />
-      {/* Phosphor success icon (filled green) */}
 
       <Typography variant="h5" fontWeight={600}>
-        {
-        successPage ?'Payment Successful!':
-        convenienceFee
-          ? "Transaction Initiated..."
-          : "Card added successfully"}
+        {convenienceFee ? "Transaction Initiated..." : "Card added successfully"}
       </Typography>
-      {
-     successPage ?   
-         <Button
-              onClick={handleBackToLogin}
-              variant="contained"
-              textTransform="none"
-              bgColor={colors.blue}
-              hoverBackgroundColor={colors["blue.3"]}
-              hoverColor="white"
-              style={{ borderRadius: "12px", height: "41px", marginTop: "8px", minWidth: "160px" }}
-            >
-              Back to Login
-            </Button>:
 
       <Box display="flex" alignItems="center" gap={1} mt={2}>
-
         <CircularProgress size={24} />
         <Typography variant="body2" color="text.secondary">
           Redirecting back...
         </Typography>
-      </Box>}
+      </Box>
     </Box>
   );
 };

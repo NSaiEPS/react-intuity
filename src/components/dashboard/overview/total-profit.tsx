@@ -37,8 +37,9 @@ export function TotalProfit({
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const { next_bill_days, next_bill } = dashBoardInfo?.body?.customer || {};
-
+  const {  next_bill } = dashBoardInfo?.body?.customer || {};
+  const { due_date } = dashBoardInfo?.body?.dashboard || {};
+console.log(due_date,'due_date')
    const [companyDetails, setCompanyDetails] = React.useState({
     phone: "+12345678900",
     email: "info@intuity.com",
@@ -139,9 +140,7 @@ export function TotalProfit({
   </Stack>
 ) : (
   <Typography variant="h3" fontWeight={700} mt={"auto"}>
-    {value === "BillDue"
-      ? formatToMMDDYYYY(next_bill)
-      : next_bill_days}
+    { due_date??'-'}
   </Typography>
 )}
         </Stack>

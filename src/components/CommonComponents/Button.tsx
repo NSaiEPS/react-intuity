@@ -1,4 +1,4 @@
-import React, { CSSProperties, JSX, MouseEventHandler, useRef } from "react";
+import React, { CSSProperties, JSX, MouseEventHandler, useInsertionEffect, useRef } from "react";
 
 type Variant = "contained" | "outlined" | "text";
 type Size = "small" | "medium" | "large";
@@ -167,50 +167,45 @@ const Button: React.FC<ButtonProps> = ({
     />
   );
 
+  // Inject per-instance hover styles once into the document head — avoids
+  // accumulating a <style> tag in the render tree on every re-render.
+  useInsertionEffect(() => {
+    const css = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .${className} {
+        ${hoverBackgroundColor ? `background-color: ${backgroundColor};` : ""}
+        ${hoverColor ? `color: ${textColor};` : ""}
+      }
+      .${className}:hover {
+        ${hoverBackgroundColor ? `background-color: ${hoverBackgroundColor};` : ""}
+        ${hoverColor ? `color: ${hoverColor};` : ""}
+      }
+    `;
+    const styleEl = document.createElement("style");
+    styleEl.dataset.btn = className;
+    styleEl.textContent = css;
+    document.head.appendChild(styleEl);
+    return () => { document.head.removeChild(styleEl); };
+  }, [className, backgroundColor, textColor, hoverBackgroundColor, hoverColor]);
+
   return (
-    <>
-      <style>
-        {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-
-          .${className} {
-            ${
-              hoverBackgroundColor
-                ? `background-color: ${backgroundColor};`
-                : ""
-            }
-            ${hoverColor ? `color: ${textColor};` : ""}
-          }
-
-          .${className}:hover {
-            ${
-              hoverBackgroundColor
-                ? `background-color: ${hoverBackgroundColor};`
-                : ""
-            }
-            ${hoverColor ? `color: ${hoverColor};` : ""}
-          }
-        `}
-      </style>
-
-      <button
-        type={type}
-        disabled={isDisabled}
-        aria-busy={loading}
-        onClick={onClick}
-        className={className}
-        style={buttonStyle}
-        {...props}
-      >
-        {loading && loadingPosition === "start" && Spinner}
-        {!loading || !hideChildrenWhenLoading ? children : null}
-        {loading && loadingPosition === "end" && Spinner}
-        {loading && loadingPosition === "center" && Spinner}
-      </button>
-    </>
+    <button
+      type={type}
+      disabled={isDisabled}
+      aria-busy={loading}
+      onClick={onClick}
+      className={className}
+      style={buttonStyle}
+      {...props}
+    >
+      {loading && loadingPosition === "start" && Spinner}
+      {!loading || !hideChildrenWhenLoading ? children : null}
+      {loading && loadingPosition === "end" && Spinner}
+      {loading && loadingPosition === "center" && Spinner}
+    </button>
   );
 };
 

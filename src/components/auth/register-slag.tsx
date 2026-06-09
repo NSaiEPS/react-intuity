@@ -310,12 +310,12 @@ const MainSection = memo(function MainSection() {
             {showPayAsGuest && (
               <>
                 {/* Desktop */}
-                <Grid xs={12} md={6} sx={{ display: { xs: "none", md: "block" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
+                <Grid item xs={12} md={6} sx={{ display: { xs: "none", md: "block" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
                   <PayAsGuestCard companyInfo={companyInfo} finalHTML={finalHTML} handlePayNow={handlePayNow} showFull />
                 </Grid>
 
                 {/* Mobile */}
-                <Grid xs={12} md={6} sx={{ display: { xs: "block", md: "none" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
+                <Grid item xs={12} md={6} sx={{ display: { xs: "block", md: "none" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
                   <PayAsGuestCard companyInfo={companyInfo} finalHTML={finalHTML} handlePayNow={handlePayNow} showFull={false} />
                 </Grid>
               </>

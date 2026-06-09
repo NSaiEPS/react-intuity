@@ -96,12 +96,11 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
         // formData.append("company_alias", companyInfo?.company?.alias);
         formData.append("acl_role_id", "4");
       }
+      const headers: Record<string, string> = { Accept: "application/json" };
+      if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch(generateTokenUrl, {
         method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: formData,
       });
 

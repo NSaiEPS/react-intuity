@@ -10,9 +10,10 @@ export default function RouteErrorBoundary() {
       error.message.includes("Failed to fetch dynamically imported module")
     ) {
       console.warn("Chunk load failed. Reloading app...");
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         window.location.reload();
       }, 1000); // smooth 1s reload
+      return () => clearTimeout(timer);
     }
   }, [error]);
 

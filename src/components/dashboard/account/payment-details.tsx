@@ -620,13 +620,10 @@ const PaymentForm = () => {
     }
   };
 
+  const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? "";
   const rawHTML =
     paymentDetailsInfo?.company?.optional_instructions ??
-    `<p><a href="https://www.google.com">Google</a>&nbsp;
-       <a href="https://test-web.pay.waterbill.com/">
-         https://test-web.pay.waterbill.com/
-       </a>
-     </p>`;
+    `<p><a href="${paymentUrl}">${paymentUrl}</a></p>`;
 
   const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
     ADD_ATTR: ["target", "rel"],
@@ -935,7 +932,7 @@ const PaymentForm = () => {
               <RadioGroup
                 value={paymentType}
                 onChange={(e) => {
-                  if (e.target.value == "no-save") {
+                  if (e.target.value === "no-save") {
                     if (Number(watch("amount")) === 0) {
                       toast.warn("Amount should be more than 0");
                       return;
@@ -1258,8 +1255,12 @@ const PaymentForm = () => {
               rows={[]}
               rowsPerPage={10}
               onSaveCardDetails={(data: string) => {
-                setSelectedCardDetails(JSON.parse(data));
-                setOpenConfirm(true);
+                try {
+                  setSelectedCardDetails(JSON.parse(data));
+                  setOpenConfirm(true);
+                } catch {
+                  console.error("Failed to parse card details");
+                }
               }}
               paymentDetailsPage={true}
             />

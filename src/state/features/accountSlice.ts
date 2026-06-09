@@ -259,7 +259,7 @@ export const updateAccountInfo = (
 
     if (res.status) {
       if (reduxNeeded) dispatch(setNotificationPreferenceDetails(res?.body));
-      if (res?.body?.otp) toast.success(`Otp is ${res?.body?.otp}`);
+      if (res?.body?.otp) toast.success("OTP sent successfully.");
       if (!dataRequired) {
         toast.success(
           res?.status == 200
@@ -781,7 +781,9 @@ export const oneTimePayment = (
   formData: FormData,
   successCallBack?: (customer: any) => void,
   failureCallBack?: () => void,
-  companyAlias?: string
+  companyAlias?: string,
+  successCallBackWithToast?: (toast: any) => void,
+
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
@@ -789,6 +791,7 @@ export const oneTimePayment = (
     if (res.status) {
       toast.success(res?.message ?? "Payment was successful");
       if (successCallBack) successCallBack(res?.body?.customer);
+      if (successCallBackWithToast) successCallBackWithToast(res?.message);
     } else {
       navigateTo("/login", { replace: true }, res?.message);
       if (res?.message !== "You are not authorised to use this api") {

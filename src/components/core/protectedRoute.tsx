@@ -61,7 +61,7 @@ const [checking2FA, setChecking2FA] = React.useState(true);
       } = data?.body || {};
 
       if (
-        two_fa_status === false &&
+        two_fa_status === false ||
         confirm_information_status === false
       ) {
         toast.info("Please complete 2FA first.")

@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
+import secureLocalStorage from "react-secure-storage";
 
 import "./styles/global.css"; // global styles
 
@@ -12,7 +13,7 @@ import { setRouter } from "./utils/navigation";
 setRouter(router);
 
 
-const isLoggedIn = localStorage.getItem("intuity-is-logged-in");
+const isLoggedIn = secureLocalStorage.getItem("intuity-is-logged-in");
 document.getElementById("init-loader")?.remove();
 
 isLoggedIn

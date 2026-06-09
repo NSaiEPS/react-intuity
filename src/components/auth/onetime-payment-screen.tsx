@@ -293,12 +293,16 @@ export default function OneTimePaymentScreen() {
         paymentData,
         () => { successScreenClose(); },
         undefined,
-        companyInfo?.company?.alias
+        companyInfo?.company?.alias,
+           (toast) => {
+
+successScreenClose(toast)
+        }
       )
     );
   };
 
-  const successScreenClose = () => {
+  const successScreenClose = (toast?:string) => {
     setIsDirty(false);
     setActiveStep(0);
     setFormData({
@@ -313,7 +317,10 @@ export default function OneTimePaymentScreen() {
       street: "",
     });
     navigateTo("/auth-card-redirect", {
-      state: { alias: companyInfo?.company?.alias },
+      state: { alias: companyInfo?.company?.alias,
+          message:toast
+
+       },
     });
   };
 const handleBackToLogin=()=>{
@@ -847,7 +854,7 @@ Account No *
 
       {/* Payment Iframe */}
       <PaymentIframe
-        type={formData.paymentType == "card" ? "card" : "account"}
+        type={formData.paymentType === "card" ? "card" : "account"}
         onSuccess={(res) => handleSaveDetails(res, companyInfo, formData, customerDetails)}
         oneTimePayment={formData}
         convenience_fee={String(formData.convenienceFee || 0)}

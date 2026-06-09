@@ -344,12 +344,16 @@ export default function OneTimePaymentModal({ open, onClose }) {
 successModalClose()
         },
         undefined,
-        companyInfo?.company?.alias
+        companyInfo?.company?.alias,
+         (toast) => {
+
+successModalClose(toast)
+        }
       )
     );
   };
 
-  const successModalClose=()=>{
+  const successModalClose=(toast?:string)=>{
   setIsDirty(false);
   setActiveStep(0);
     setFormData({
@@ -365,7 +369,9 @@ successModalClose()
     });
     onClose();
     navigateTo('/auth-card-redirect',{
-        state: { alias: companyInfo?.company?.alias,  },
+        state: { alias: companyInfo?.company?.alias,
+          message:toast
+          },
 
     })
   }
@@ -841,7 +847,7 @@ successModalClose()
             </div> */}
 
             <PaymentIframe
-              type={formData.paymentType == "card" ? "card" : "account"}
+              type={formData.paymentType === "card" ? "card" : "account"}
               onSuccess={(res) =>
                 handleSaveDetails(res, companyInfo, formData, customerDetails)
               }
@@ -931,13 +937,10 @@ successModalClose()
     setPdfPreviewInvocie(true);
   };
 
+  const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? "";
   const rawHTML =
     oneTimeData?.company?.optional_instructions ??
-    `<p><a href="https://www.google.com">Google</a>&nbsp;
-       <a href="https://test-web.pay.waterbill.com/">
-         https://test-web.pay.waterbill.com/
-       </a>
-     </p>`;
+    `<p><a href="${paymentUrl}">${paymentUrl}</a></p>`;
 
   const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
     ADD_ATTR: ["target", "rel"],

@@ -94,7 +94,11 @@ interface DecryptedDetails {
             ? processor?.iframe_url ?? processor?.iframe_url_ach
             : processor?.iframe_url_ach ?? processor?.iframe_url
         );
-        setProcessorDetails(JSON.parse(processor?.config_value));
+        try {
+          setProcessorDetails(JSON.parse(processor?.config_value));
+        } catch {
+          console.error("Failed to parse processor config_value");
+        }
       }
     }
   }, [paymentProcessorDetails, type]);
@@ -121,13 +125,14 @@ interface DecryptedDetails {
       return `TransactionSetupID=${paymentRequiredKeyDetails}`;
     }
 
+    const companyName = encodeURIComponent(
+      dashBoardInfo?.body?.company?.company_name ?? ""
+    );
     if (iframeDynamicUrl.includes("nacha_bank_frame")) {
-      // NACHA (currently assuming same param, adjust later if needed)
-      return `companyName=South & Center Chautauqua Lake Sewer District&sec_code=ppd,ccd`;
+      return `companyName=${companyName}&sec_code=ppd,ccd`;
     }
     if (iframeDynamicUrl.includes("achworks_frame")) {
-      // NACHA (currently assuming same param, adjust later if needed)
-      return `companyName=South & Center Chautauqua Lake Sewer District`;
+      return `companyName=${companyName}`;
     }
 
     return "";
@@ -153,18 +158,25 @@ interface DecryptedDetails {
   //   };
   // }, []);
 
-  // Listen for iframe postMessage
+  // Listen for iframe postMessage — only accept messages from the trusted iframe origin
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // //console.log("Received message from iframe:", event.data);
+      if (iframeDynamicUrl) {
+        try {
+          const trustedOrigin = new URL(iframeDynamicUrl).origin;
+          if (event.origin !== trustedOrigin) return;
+        } catch {
+          return;
+        }
+      }
       if (event?.data?.custId || event?.data?.token) {
-        onSuccess(event.data); // parent callback
+        onSuccess(event.data);
       }
     };
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [onSuccess]);
+  }, [onSuccess, iframeDynamicUrl]);
 
   async function decryptPass(encrypted) {
     const keyString = "Intuity";
