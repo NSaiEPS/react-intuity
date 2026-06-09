@@ -167,13 +167,13 @@ export default function AutoPayDetails(): React.JSX.Element {
 
         <CardHeader
           subheader={
-            <Typography variant="h6">
-              Name :{CustomerInfo?.customer_name}
+            <Typography variant="h6" textAlign="left">
+              Name: {CustomerInfo?.customer_name}
             </Typography>
           }
           title={
-            <Typography variant="h6">
-              Account No :{CustomerInfo?.acctnum}
+            <Typography variant="h6" textAlign="left">
+              Account No: {CustomerInfo?.acctnum}
             </Typography>
           }
         />

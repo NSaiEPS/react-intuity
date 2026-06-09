@@ -38,19 +38,20 @@ export function TotalProfit({
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const { due_date } = dashBoardInfo?.body?.dashboard || {};
+  const { due_date } = dashBoardInfo?.body?.customer?.last_bill || {};
+  const { balance } = dashBoardInfo?.body?.dashboard || {};
 
   const [companyDetails, setCompanyDetails] = React.useState({
     phone: "+12345678900",
     email: "info@intuity.com",
-    website: "",
+    website: "www.intuity.com",
   });
 
   React.useEffect(() => {
     setCompanyDetails({
       phone: aliasUser?.phone || "+12345678900",
       email: aliasUser?.email || "info@intuity.com",
-      website: aliasUser?.company_website_URL || "",
+      website: aliasUser?.company_website_URL || "www.intuity.com",
     });
   }, [aliasUser?.phone, aliasUser?.email, aliasUser?.company_website_URL]);
 
@@ -127,7 +128,8 @@ export function TotalProfit({
             </Stack>
           ) : (
             <Typography variant="h3" fontWeight={700} mt="auto">
-              {due_date ??"-"}
+              {balance >0 ?  formatToMMDDYYYY(due_date, false, true) ??"-":"-"}
+             
             </Typography>
           )}
         </Stack>

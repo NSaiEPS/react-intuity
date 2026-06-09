@@ -68,76 +68,54 @@ function UsageHeader() {
 
   return (
     <Grid container spacing={2} direction="column">
-      {/* Row 1: Usage History & Alerts */}
       <Grid item>
         <Box
           display="flex"
           flexDirection={isMobile ? "column" : "row"}
           justifyContent="space-between"
           alignItems={isMobile ? "flex-start" : "center"}
+          px={2}
+          py={1}
         >
-          <Typography
-            variant={isMobile ? "h6" : "h5"}
-            m={2.5}
-            // fontWeight={600}
-            ml={2}
-            mb={0}
-          >
-            Usage History
-          </Typography>
-
-          <Box
-            display="flex"
-            alignItems="center"
-            mt={!isMobile ? 3 : 0}
-            mr={"auto"}
-            ml={2}
-            sx={{
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              navigate(paths.dashboard.usageAlerts());
-            }}
-          >
-            <Typography variant={isMobile ? "body1" : "h6"} fontWeight={500}>
-              Usage Alerts
+          {/* Left: Title + Usage Alerts */}
+          <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+            <Typography variant={isMobile ? "h6" : "h5"}>
+              Usage History
             </Typography>
-            <Chip
-              label={usageAlerts?.total_alerts}
-              size="small"
-              sx={{
-                ml: 1,
-                height: 20,
-                minWidth: 20,
-                fontSize: "0.75rem",
-                color: "white",
-                backgroundColor: "#d32f2f",
-              }}
-            />
+
+            <Box
+              display="flex"
+              alignItems="center"
+              sx={{ cursor: "pointer" }}
+              onClick={() => navigate(paths.dashboard.usageAlerts())}
+            >
+              <Typography variant={isMobile ? "body1" : "h6"} fontWeight={500}>
+                Usage Alerts
+              </Typography>
+              <Chip
+                label={usageAlerts?.total_alerts}
+                size="small"
+                sx={{
+                  ml: 1,
+                  height: 20,
+                  minWidth: 20,
+                  fontSize: "0.75rem",
+                  color: "white",
+                  backgroundColor: "#d32f2f",
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
-        <Box
-          display="flex"
-          flexDirection={"column"}
-          justifyContent={isMobile ? "flex-start" : "flex-end"}
-          alignItems={isMobile ? "flex-start" : "flex-end"}
-          gap={0}
-          mt={isMobile ? 2 : -3}
-          sx={{
-            // width: "30%",
-            marginLeft: isMobile ? 2 : "auto",
-          }}
-        >
-          <Typography variant={isMobile ? "body1" : "h6"} mr={2}>
-            Account No: {CustomerInfo?.acctnum}
-          </Typography>
-          <Typography variant={isMobile ? "body2" : "subtitle1"} mr={2}>
-            Name: {CustomerInfo?.customer_name}
-          </Typography>
-          {/* <Typography variant={isMobile ? "body2" : "subtitle1"} mr={2}>
-            Address:{" "}
-            {`${CustomerInfo?.address} ${CustomerInfo.city} ${CustomerInfo?.state_name}`}
-          </Typography> */}
+
+          {/* Right: Account No & Name */}
+          <Box display="flex" flexDirection="column" mt={isMobile ? 1 : 0}>
+            <Typography variant={isMobile ? "body1" : "h6"}>
+              Account No: {CustomerInfo?.acctnum}
+            </Typography>
+            <Typography variant={isMobile ? "body1" : "h6"}>
+              Name: {CustomerInfo?.customer_name}
+            </Typography>
+          </Box>
         </Box>
       </Grid>
     </Grid>
