@@ -1,65 +1,45 @@
 import * as React from "react";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
+import { boarderRadius } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
-
-const user = {
-  name: "Sofia Rivers",
-  avatar: "/assets/avatar.png",
-  jobTitle: "Senior Developer",
-  country: "USA",
-  city: "Los Angeles",
-  timezone: "GTM-7",
-} as const;
 
 export function AccountInfo(): React.JSX.Element {
   const { accountInfo } = useSelector((state: RootState) => state?.Account);
   const { customer_name, address } = accountInfo?.customer_data?.[0] || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo");
 
-  const { company_logo }: { company_logo?: string } = (typeof CustomerInfo === "object" && CustomerInfo) || {};
+  const { company_logo }: { company_logo?: string } =
+    (typeof CustomerInfo === "object" && CustomerInfo) || {};
 
   return (
     <Card
+      elevation={0}
       sx={{
-        borderRadius: 0,
+        borderRadius: boarderRadius.card,
+        border: "1px solid #EAEAEA",
+        boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
+        backgroundColor: "#fff",
       }}
     >
       <CardContent>
-        <Stack spacing={2} sx={{ alignItems: "center" }}>
-          <div>
-            <Avatar src={company_logo} sx={{ height: "80px", width: "80px" }} />
-          </div>
-          <Stack spacing={1} sx={{ textAlign: "center" }}>
-            <Typography variant="h5">{customer_name}</Typography>
-            <Typography color="text.secondary" variant="body2">
-              {address}
+        <Stack spacing={2} sx={{ alignItems: "center", py: 1 }}>
+          <Avatar src={company_logo} sx={{ height: "80px", width: "80px" }} />
+          <Stack spacing={0.5} sx={{ textAlign: "center" }}>
+            <Typography variant="h5" fontWeight={700}>
+              {customer_name}
             </Typography>
             <Typography color="text.secondary" variant="body2">
-              {/* {user.timezone} */}
+              {address}
             </Typography>
           </Stack>
         </Stack>
       </CardContent>
-      <Divider />
-      {/* <CardActions>
-        <Button
-          fullWidth
-          variant="text"
-          sx={{ color: colors.blue, borderColor: colors.blue }}
-        >
-          Upload picture
-        </Button>
-      </CardActions> */}
     </Card>
   );
 }

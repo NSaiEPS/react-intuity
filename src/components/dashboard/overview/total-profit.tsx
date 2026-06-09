@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom"; // Correct hook for App Router
+import { useNavigate } from "react-router-dom";
 
 import { RootState } from "@/state/store";
 import { boarderRadius, formatToMMDDYYYY } from "@/utils";
@@ -16,6 +16,12 @@ import { Button } from "@mui/material";
 
 import { getLocalStorage } from "@/utils/auth";
 
+interface AliasUser {
+  phone: string;
+  email: string;
+  company_website_URL: string;
+}
+
 export interface TotalProfitProps {
   sx?: SxProps;
   value?: string;
@@ -25,37 +31,28 @@ export function TotalProfit({
   value,
   sx,
 }: TotalProfitProps): React.JSX.Element {
-    interface AliasUser {
+  const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
 
-  phone: string;
-  email: string;
-  company_website_URL: string;
-}
-    const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
-  
-  const navigate = useNavigate(); // Use the hook from next/navigation
+  const navigate = useNavigate();
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const {  next_bill } = dashBoardInfo?.body?.customer || {};
+
   const { due_date } = dashBoardInfo?.body?.dashboard || {};
-console.log(due_date,'due_date')
-   const [companyDetails, setCompanyDetails] = React.useState({
+
+  const [companyDetails, setCompanyDetails] = React.useState({
     phone: "+12345678900",
     email: "info@intuity.com",
     website: "",
   });
 
-
-  React.useEffect(()=>{
-
+  React.useEffect(() => {
     setCompanyDetails({
-            phone: aliasUser?.phone || "+12345678900",
-            email: aliasUser?.email || "info@intuity.com",
-            website: aliasUser?.company_website_URL || "",
-          });
-  },[aliasUser])
-
+      phone: aliasUser?.phone || "+12345678900",
+      email: aliasUser?.email || "info@intuity.com",
+      website: aliasUser?.company_website_URL || "",
+    });
+  }, [aliasUser?.phone, aliasUser?.email, aliasUser?.company_website_URL]);
 
   return (
     <Card
@@ -91,58 +88,48 @@ console.log(due_date,'due_date')
               : "Remaining days until late fees or penalties may be assessed"}
           </Typography>
 
-         {value === "CustomerService" ? (
-  <Stack spacing={2} alignItems="center">
-    
-    {/* PHONE + EMAIL SAME LINE */}
-    <Stack direction="row" spacing={2}>
-      <Button
-        startIcon={<IconCards type={"Headphones"} />}
-        component="a"
-        href={`tel:${companyDetails.phone}`}
-        sx={{
-          textTransform: "none",
-          color: "black",
-        }}
-      >
-        Call
-      </Button>
+          {value === "CustomerService" ? (
+            <Stack spacing={2} alignItems="center">
+              {/* Phone + Email on same row */}
+              <Stack direction="row" spacing={2}>
+                <Button
+                  startIcon={<IconCards type={"Headphones"} />}
+                  component="a"
+                  href={`tel:${companyDetails.phone}`}
+                  sx={{ textTransform: "none", color: "black" }}
+                >
+                  Call
+                </Button>
 
-      <Button
-        startIcon={<IconCards type={"Envelope"} />}
-        component="a"
-        href={`mailto:${companyDetails.email}`}
-        sx={{
-          textTransform: "none",
-          color: "black",
-        }}
-      >
-        Email
-      </Button>
-    </Stack>
+                <Button
+                  startIcon={<IconCards type={"Envelope"} />}
+                  component="a"
+                  href={`mailto:${companyDetails.email}`}
+                  sx={{ textTransform: "none", color: "black" }}
+                >
+                  Email
+                </Button>
+              </Stack>
 
-    {/* WEBSITE CENTER BELOW */}
-    {companyDetails.website && (
-      <Button
-        startIcon={<IconCards type={"Website"} />}
-        component="a"
-        href={companyDetails.website}
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          textTransform: "none",
-          color: "black",
-        }}
-      >
-        Website
-      </Button>
-    )}
-  </Stack>
-) : (
-  <Typography variant="h3" fontWeight={700} mt={"auto"}>
-    { due_date??'-'}
-  </Typography>
-)}
+              {/* Website below */}
+              {companyDetails.website && (
+                <Button
+                  startIcon={<IconCards type={"Website"} />}
+                  component="a"
+                  href={companyDetails.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ textTransform: "none", color: "black" }}
+                >
+                  Website
+                </Button>
+              )}
+            </Stack>
+          ) : (
+            <Typography variant="h3" fontWeight={700} mt="auto">
+              {due_date ??"-"}
+            </Typography>
+          )}
         </Stack>
       </CardContent>
     </Card>
