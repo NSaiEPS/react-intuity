@@ -147,6 +147,8 @@ const alias = rawSlug
     body?: {
       alias?: string;
       is_verified?: number;
+      is_two_fa_required?:boolean;
+      number_of_days_for_confirmation?:number
     };
   };
 
@@ -161,7 +163,7 @@ const alias = rawSlug
 
     }
     const companyAlias = res?.body?.alias || "intuityfe";
-    if (res?.body?.is_verified == 1) {
+    if (res?.body?.is_verified == 1 && !res?.body?.is_two_fa_required && res?.body?.number_of_days_for_confirmation) {
       await checkSession?.();
 
       if (pathname?.split("/")[2] !== "auth") {
