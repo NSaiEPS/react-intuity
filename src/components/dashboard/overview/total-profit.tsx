@@ -81,7 +81,7 @@ export function TotalProfit({
     >
       <CardContent sx={{ flex: 1, width: "100%" }}>
         <Stack spacing={2} justifyContent="center" alignItems="center">
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h5" fontWeight={600}>
             {value === "BillDue"
               ? "Bill Due Date"
               : value === "CustomerService"
@@ -127,7 +127,7 @@ export function TotalProfit({
               )}
             </Stack>
           ) : (
-            <Typography variant="h3" fontWeight={700} mt="auto">
+            <Typography variant="h4" fontWeight={700} mt="auto">
               {balance >0 ?  formatToMMDDYYYY(due_date, false, true) ??"-":"-"}
              
             </Typography>
