@@ -7,7 +7,7 @@ import {
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { calculatePaymentAmount, colors } from "@/utils";
-import { pdf } from "@react-pdf/renderer";
+// @react-pdf/renderer is 1.46 MB — loaded only when user requests a PDF preview
 import {
   Backdrop,
   Box,
@@ -34,8 +34,8 @@ import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 import { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
 import secureLocalStorage from "react-secure-storage";
-import OneTimePdf from "../dashboard/layout/one-time-invoice";
-import CustomModal from "../dashboard/layout/invoice-pdf-modal";
+// OneTimePdf & CustomModal pull in @react-pdf/renderer — lazy load so Pay Now renders instantly
+const CustomModal = React.lazy(() => import("../dashboard/layout/invoice-pdf-modal"));
 import { navigateTo } from "@/utils/navigation";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 
@@ -897,6 +897,10 @@ Account No *
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       try {
+        const [{ pdf }, { default: OneTimePdf }] = await Promise.all([
+          import("@react-pdf/renderer"),
+          import("../dashboard/layout/one-time-invoice"),
+        ]);
         const blob = await pdf(<OneTimePdf invoiceDetails={oneTimeData as any} />).toBlob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");

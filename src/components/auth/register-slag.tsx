@@ -20,20 +20,22 @@ import { Info } from "@phosphor-icons/react";
 import { Logo } from "../core/logo";
 import Button from "../CommonComponents/Button";
 
-// ✅ lazy load heavy components — not needed on first paint
-const OneTimePaymentModal = React.lazy(() => import("./onetime-payment-modal"));
-const SignInForm = React.lazy(() => import("./sign-in-form").then(m => ({ default: m.SignInForm })));
-const SignUpForm = React.lazy(() => import("./sign-up-form").then(m => ({ default: m.SignUpForm })));
+// ── Eager imports (small chunks, instantly adjacent to login page) ───────────
+// These are all < 25 KB and render on the first user interaction — no lazy needed.
+import { SignInForm } from "./sign-in-form";
+import { SignUpForm } from "./sign-up-form";
+import OneTimePaymentScreen from "./onetime-payment-screen";
+import OneTimePaymentModalDirect from "./onetime-payment-modal";
+const OneTimePaymentModal = OneTimePaymentModalDirect;
+
+// ── Lazy imports (genuinely infrequent paths or heavier chunks) ───────────────
 const ResetPasswordForm = React.lazy(() => import("./reset-password-form").then(m => ({ default: m.ResetPasswordForm })));
 const ForgotLoginForm = React.lazy(() => import("./forget-login-form").then(m => ({ default: m.ForgotLoginForm })));
 const UpdatePasswordScreen = React.lazy(() => import("../dashboard/account/UpdatePasswordScreen").then(m => ({ default: m.UpdatePasswordScreen })));
 const RegisterSuccess = React.lazy(() => import("./RegisterSuccess"));
 
-// Reserves the form card height while lazy chunks load — prevents CLS jump from 0px → full form
-const FormFallback = () => (
-  <Box sx={{ minHeight: 340 }} />
-);
-const OneTimePaymentScreen = React.lazy(() => import("./onetime-payment-screen"));
+// Fallback only used for the remaining lazy components
+const FormFallback = () => <Box sx={{ minHeight: 340 }} />;
 
 // ✅ memo — stops re-renders from parent
 const MainSection = memo(function MainSection() {
@@ -81,25 +83,17 @@ const MainSection = memo(function MainSection() {
 
   const { setContextLoading } = useLoading();
 
-  // Preload the form chunk for the current path immediately on mount
-  // so the Suspense boundary resolves faster (no blank box wait)
+  // Prefetch only the remaining lazy chunks (infrequent paths) while browser is idle
   React.useEffect(() => {
-    const t = requestAnimationFrame(() => {
-      if (pathname.includes("register")) {
-        import("./sign-up-form");
-      } else if (pathname.includes("onetime-payment")) {
-        import("./onetime-payment-screen");
-      } else if (pathname.includes("reset-password")) {
-        import("./reset-password-form");
-      } else if (pathname.includes("forgot-login")) {
-        import("./forget-login-form");
-      } else if (pathname.includes("update-password")) {
-        import("../dashboard/account/UpdatePasswordScreen");
-      } else {
-        import("./sign-in-form");
-      }
+    const idle: (cb: () => void) => void =
+      (window as any).requestIdleCallback
+        ? (cb) => (window as any).requestIdleCallback(cb, { timeout: 3000 })
+        : (cb) => window.setTimeout(cb, 500);
+
+    idle(() => {
+      import("./reset-password-form");
+      import("./forget-login-form");
     });
-    return () => cancelAnimationFrame(t);
   }, []);
 
   // Only show skeleton when we actually need to fetch company data.
@@ -176,9 +170,12 @@ const MainSection = memo(function MainSection() {
   );
 
   const getRequiredForms = () => {
-    if (pathname?.includes("onetime-payment")) return (
-      <React.Suspense fallback={<FormFallback />}><OneTimePaymentScreen /></React.Suspense>
-    );
+    // Eager — no Suspense needed, already in the bundle
+    if (pathname?.includes("onetime-payment")) return <OneTimePaymentScreen />;
+    if (pathname.includes("login"))            return <SignInForm user={true} />;
+    if (pathname.includes("register") || pathname === "/sign-up") return <SignUpForm />;
+
+    // Lazy — Suspense needed (infrequent paths)
     if (pathname?.includes("reset-password")) return (
       <React.Suspense fallback={<FormFallback />}><ResetPasswordForm /></React.Suspense>
     );
@@ -188,14 +185,8 @@ const MainSection = memo(function MainSection() {
     if (pathname?.includes("update-password")) return (
       <React.Suspense fallback={<FormFallback />}><UpdatePasswordScreen /></React.Suspense>
     );
-    if (pathname.includes("login")) return (
-      <React.Suspense fallback={<FormFallback />}><SignInForm user={true} /></React.Suspense>
-    );
     if (pathname.includes("register-success-")) return (
       <React.Suspense fallback={<FormFallback />}><RegisterSuccess /></React.Suspense>
-    );
-    if (pathname.includes("register") || pathname === "/sign-up") return (
-      <React.Suspense fallback={<FormFallback />}><SignUpForm /></React.Suspense>
     );
   };
 
@@ -397,7 +388,6 @@ const PayAsGuestCard = memo(function PayAsGuestCard({ companyInfo, finalHTML, ha
           <Button type="button" variant="contained" onClick={handlePayNow}
             style={{ borderRadius: "12px", height: "48px", width: "160px", backgroundColor: colors.blue, fontSize: "1rem", fontWeight: 600 }}
             textTransform="none"
-            onMouseEnter={() => import("./onetime-payment-screen")}
             onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
             onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
           >
