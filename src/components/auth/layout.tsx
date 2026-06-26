@@ -19,7 +19,7 @@ import {
 
 // import { paths } from '@/utils/paths'
 
-import OneTimePaymentCard from "./register-slag";
+import OneTimePaymentCard from "./register-slug";
 
 export interface LayoutProps {
   reset?: boolean;

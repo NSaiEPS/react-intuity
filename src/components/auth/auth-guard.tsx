@@ -23,7 +23,9 @@ export function AuthGuard({
 
   const { user, error, isLoading } = useUser();
 
-  const [isChecking, setIsChecking] = React.useState<boolean>(true);
+  // If the user is already in localStorage, render immediately — no blank flash.
+  // The async session check still runs in the background via useEffect.
+  const [isChecking, setIsChecking] = React.useState<boolean>(!loginUser);
 
   const checkPermissions = async (): Promise<void> => {
     if (isLoading) {

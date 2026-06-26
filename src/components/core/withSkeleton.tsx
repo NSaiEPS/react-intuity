@@ -1,7 +1,7 @@
 // withSkeleton.tsx
 import React, { ReactNode } from "react";
 import { Skeleton } from "@mui/material";
-import { useLoading } from "./skeletion-context";
+import { useLoading } from "./skeleton-context";
 
 interface WithSkeletonProps {
   children?: ReactNode;
@@ -11,7 +11,7 @@ export const SkeletonWrapper = withSkeleton(({ children }) => <>{children}</>);
 
 export default function withSkeleton<P>(Component: React.ComponentType<P>) {
   return function WrappedComponent(props: P & WithSkeletonProps) {
-    const { customLoader = false, ...rest } = props;
+    const { customLoader = false } = props;
     const { contextLoading } = useLoading();
 
     if (contextLoading || customLoader) {

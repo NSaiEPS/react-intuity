@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { BASE_URL } from '@/api/axios';
 import {
   getConvenienceFee,
   getPaymentDetails,
@@ -7,18 +8,12 @@ import {
   saveAcknowledgeForRecurringPayment,
   saveDefaultPaymentMethod,
   schedulePayment,
-} from "@/state/features/accountSlice";
-import { RootState } from "@/state/store";
-import {
-  calculatePaymentAmount,
-  colors,
-  CustomerInfo,
-  decryptFunction,
-  maskValue,
-} from "@/utils";
-import { getLocalStorage, IntuityUser } from "@/utils/auth";
-import { paths } from "@/utils/paths";
-import { zodResolver } from "@hookform/resolvers/zod";
+} from '@/state/features/accountSlice';
+import { RootState } from '@/state/store';
+import { calculatePaymentAmount, colors, CustomerInfo, decryptFunction, maskValue } from '@/utils';
+import { getLocalStorage, IntuityUser } from '@/utils/auth';
+import { paths } from '@/utils/paths';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Box,
   Button,
@@ -38,47 +33,166 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@mui/material";
-
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+} from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 // Correct hook for App Router
-import { Question } from "@phosphor-icons/react";
-import { CreditCard, Leaf } from "@phosphor-icons/react/dist/ssr";
-import dayjs, { Dayjs } from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import { CustomBackdrop, Loader } from "nsaicomponents";
-import { Controller, useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "@/hooks/redux";
+import { CurrencyDollar, Question } from '@phosphor-icons/react';
+import { CreditCard, Leaf } from '@phosphor-icons/react/dist/ssr';
+import dayjs, { Dayjs } from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import DOMPurify from 'dompurify';
+import { CustomBackdrop, Loader } from 'nsaicomponents';
+import { Controller, useForm } from 'react-hook-form';
 // const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
 
-import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { toast } from "@/lib/custom-toast";
-import { z as zod } from "zod";
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
+import { z as zod } from 'zod';
 
-import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
-import { LocalizationProvider } from "@/components/core/localization-provider";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
+import { toast } from '@/lib/custom-toast';
+import { useDispatch, useSelector } from '@/hooks/redux';
+import PaymentIframe from '@/components/CommonComponents/PaymentIframeModal';
+import { LocalizationProvider } from '@/components/core/localization-provider';
+// import { useLoading } from '@/components/core/skeletion-context';
+import { SkeletonWrapper } from '@/components/core/withSkeleton';
+import { ConfirmDialog } from '@/styles/theme/components/ConfirmDialog';
 
-import { PaymentMethods } from "../customer/payment-methods";
-import PaymentSummaryModal from "../overview/payment-summary-modal";
-import DOMPurify from "dompurify";
-import { BASE_URL } from "@/api/axios";
+import { PaymentMethods } from '../customer/payment-methods';
+import PaymentSummaryModal from '../overview/payment-summary-modal';
+import { useLoading } from '@/components/core/skeleton-context';
 
 // Register plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
 const schema = zod.object({
-  name: zod.string().min(1, "Name is required"),
-  email: zod.string().email("Invalid email"),
-  amount: zod.string().min(1, "Amount is required"),
+  name: zod.string().min(1, 'Name is required'),
+  email: zod.string().email('Invalid email'),
+  amount: zod.string().min(1, 'Amount is required'),
   convenienceFee: zod.number().optional(),
-  duedate: zod.date().refine((val) => !!val, { message: "Required" }),
+  duedate: zod.date().refine((val) => !!val, { message: 'Required' }),
 });
 
 type FormData = zod.infer<typeof schema>;
+
+const renderCardBrand = (brand?: string) => {
+  const b = (brand || 'visa').toLowerCase();
+  if (b.includes('visa')) {
+    return (
+      <Box
+        sx={{
+          border: '1px solid #E0E0E0',
+          borderRadius: '4px',
+          px: 1.2,
+          py: 0.4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          height: '24px',
+        }}
+      >
+        <span
+          style={{ fontWeight: '900', color: '#1A1F71', fontStyle: 'italic', fontSize: '13px', letterSpacing: '0.5px' }}
+        >
+          VISA
+        </span>
+      </Box>
+    );
+  }
+  if (b.includes('mastercard') || b.includes('master')) {
+    return (
+      <Box
+        sx={{
+          border: '1px solid #E0E0E0',
+          borderRadius: '4px',
+          px: 1.2,
+          py: 0.4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          height: '24px',
+        }}
+      >
+        <span style={{ fontWeight: 'bold', color: '#EB001B', fontSize: '11px' }}>MC</span>
+      </Box>
+    );
+  }
+  if (b.includes('discover')) {
+    return (
+      <Box
+        sx={{
+          border: '1px solid #E0E0E0',
+          borderRadius: '4px',
+          px: 1.2,
+          py: 0.4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          height: '24px',
+        }}
+      >
+        <span style={{ fontWeight: 'bold', color: '#F27020', fontSize: '11px' }}>Discover</span>
+      </Box>
+    );
+  }
+  if (b.includes('amex') || b.includes('american express')) {
+    return (
+      <Box
+        sx={{
+          border: '1px solid #E0E0E0',
+          borderRadius: '4px',
+          px: 1.2,
+          py: 0.4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          height: '24px',
+        }}
+      >
+        <span style={{ fontWeight: 'bold', color: '#0070CD', fontSize: '11px' }}>Amex</span>
+      </Box>
+    );
+  }
+  if (b.includes('checking') || b.includes('savings') || b.includes('bank') || b.includes('account')) {
+    return (
+      <Box
+        sx={{
+          border: '1px solid #E0E0E0',
+          borderRadius: '4px',
+          px: 1.2,
+          py: 0.4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          height: '24px',
+        }}
+      >
+        <span style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: '11px' }}>BANK</span>
+      </Box>
+    );
+  }
+  return (
+    <Box
+      sx={{
+        border: '1px solid #E0E0E0',
+        borderRadius: '4px',
+        px: 1,
+        py: 0.4,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        height: '24px',
+      }}
+    >
+      <CreditCard size={18} color="#555" />
+    </Box>
+  );
+};
 
 const PaymentForm = () => {
   const {
@@ -91,37 +205,36 @@ const PaymentForm = () => {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
-      email: "",
-      amount: "",
+      name: '',
+      email: '',
+      amount: '',
       convenienceFee: 0,
-      duedate: dayjs().add(1, "day").toDate(),
+      duedate: dayjs().add(1, 'day').toDate(),
     },
   });
 
-  const [paymentType, setPaymentType] = useState<"saved" | "no-save">("saved");
+  const [paymentType, setPaymentType] = useState<'saved' | 'no-save'>('saved');
 
-  const [debitType, setDebitType] = useState<"card" | "bank_account">("card");
+  const [debitType, setDebitType] = useState<'card' | 'bank_account'>('card');
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
   const location = useLocation();
-  const {
-    isSchedule,
-    dueDate,
-    customer_acknowledgement_text = "",
-  } = location.state || {};
+  const { isSchedule, dueDate, customer_acknowledgement_text = '' } = location.state || {};
+  // console.log(dueDate, 'Due Date');
   // //console.log(isSchedule, dueDate, customer_acknowledgement_text);
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
-  const [frequency, setFrequency] = useState("1");
-  const [repeatOption, setRepeatOption] = useState("repeat_indefinitely");
+  const [frequency, setFrequency] = useState('1');
+  const [repeatOption, setRepeatOption] = useState('repeat_indefinitely');
   const [repeatTimes, setRepeatTimes] = useState(1);
-  const [recurringAckownledgeModal, setRecurringAckownledgeModal] =
-    useState(false);
+  const [recurringAckownledgeModal, setRecurringAckownledgeModal] = useState(false);
+
+  const [saveThisPaymentForFuture, setSaveThisPaymentForFuture] = useState(false);
+
   const onCustomerAckowledge = () => {
     const formdata = new FormData();
-    formdata.append("acl_role_id", stored?.body?.acl_role_id);
-    formdata.append("customer_id", stored?.body?.customer_id);
-    formdata.append("recurring_acknowledge", "1");
+    formdata.append('acl_role_id', stored?.body?.acl_role_id);
+    formdata.append('customer_id', stored?.body?.customer_id);
+    formdata.append('recurring_acknowledge', '1');
 
     dispatch(
       saveAcknowledgeForRecurringPayment(formdata, () => {
@@ -134,82 +247,65 @@ const PaymentForm = () => {
     // //console.log({ ...data, paymentType });
   };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
-  const accountLoading = useSelector(
-    (state: RootState) => state?.Account.accountLoading
-  );
-  const convenienceFee = useSelector(
-    (state: RootState) => state?.Account.convenienceFee
-  );
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
+  const accountLoading = useSelector((state: RootState) => state?.Account.accountLoading);
+  const convenienceFee = useSelector((state: RootState) => state?.Account.convenienceFee);
+  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
 
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
   const navigate = useNavigate();
-
-  const paymentMethodInfoCards = useSelector(
-    (state: RootState) => state?.Account?.selectedCardInfo
-  );
-  const paymentDetailsInfo = useSelector(
-    (state: RootState) => state?.Account?.paymentDetailsInfo
-  );
+  const myCard = useSelector((state: RootState) => state?.Account?.paymentMethodInfoCards);
+  const paymentMethodInfoCards = useSelector((state: RootState) => state?.Account?.selectedCardInfo);
+  const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
 
   useEffect(() => {
     if (paymentDetailsInfo?.customer?.balance) {
-      setValue("amount", paymentDetailsInfo?.customer?.balance);
+      setValue('amount', paymentDetailsInfo?.customer?.balance);
     }
   }, [paymentDetailsInfo]);
   // const [maxPaymentModal, setMaxPaymentModal] = useState<any>(false);
 
-
-  const [myCustomerDetails, setCustomerDetails] = useState<{allow_overpayments: number; balance: number; id?: number; paperless?: 0 | 1;}>({
+  const [myCustomerDetails, setCustomerDetails] = useState<{
+    allow_overpayments: number;
+    balance: number;
+    id?: number;
+    paperless?: 0 | 1;
+  }>({
     allow_overpayments: 0,
     balance: 0,
   });
 
   const paymentDetails = () => {
     const formdata = new FormData();
-    formdata.append("acl_role_id", stored?.body?.acl_role_id);
-    formdata.append("customer_id", stored?.body?.customer_id);
+    formdata.append('acl_role_id', stored?.body?.acl_role_id);
+    formdata.append('customer_id', stored?.body?.customer_id);
 
-    dispatch(
-      getPaymentDetails(
-        formdata,
-        undefined,
-        setCustomerDetails,
-        setContextLoading
-      )
-    );
+    dispatch(getPaymentDetails(formdata, undefined, setCustomerDetails, setContextLoading));
   };
   React.useEffect(() => {
     paymentDetails();
   }, [stored]);
   const [hovered, setHovered] = useState(false);
 
- 
   const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
-    ? dashBoardInfo?.body?.customer as unknown as CustomerInfo
-    : getLocalStorage("intuity-customerInfo") as CustomerInfo | null;
+    ? (dashBoardInfo?.body?.customer as unknown as CustomerInfo)
+    : (getLocalStorage('intuity-customerInfo') as CustomerInfo | null);
 
   useEffect(() => {
     if (CustomerInfo?.acctnum) {
-      setValue("name", CustomerInfo?.customer_name);
-      setValue("email", CustomerInfo?.email);
-      setValue("amount", "0.00");
+      setValue('name', CustomerInfo?.customer_name);
+      setValue('email', CustomerInfo?.email);
+      setValue('amount', '0.00');
     }
     if (CustomerInfo?.company_id) {
       const formdata = new FormData();
-      formdata.append("acl_role_id", stored?.body?.acl_role_id);
-      formdata.append("company_id", CustomerInfo?.company_id);
-      dispatch(
-        getPaymentProcessorDetails(formdata, false)
-      );
+      formdata.append('acl_role_id', stored?.body?.acl_role_id);
+      formdata.append('company_id', CustomerInfo?.company_id);
+      dispatch(getPaymentProcessorDetails(formdata, false));
       const convenienceFeeFormdata = new FormData();
-      convenienceFeeFormdata.append("acl_role_id", stored?.body?.acl_role_id);
-      convenienceFeeFormdata.append("customer_id", stored?.body?.customer_id);
+      convenienceFeeFormdata.append('acl_role_id', stored?.body?.acl_role_id);
+      convenienceFeeFormdata.append('customer_id', stored?.body?.customer_id);
 
       dispatch(getConvenienceFee(convenienceFeeFormdata));
     }
@@ -218,8 +314,8 @@ const PaymentForm = () => {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
 
-  const id = searchParams.get("id");
-  const transId = searchParams.get("transId");
+  const id = searchParams.get('id');
+  const transId = searchParams.get('transId');
   // //console.log(transId, id, "transId");
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
@@ -242,66 +338,64 @@ const PaymentForm = () => {
   const [cardBankDetails, setCardBankDetails] = useState(null);
   const handleSaveDetails = (data, debitType) => {
     if (data?.error) {
-      toast.error(
-        data?.error ? data?.error : "Try again something went wrong!"
-      );
+      toast.error(data?.error ? data?.error : 'Try again something went wrong!');
 
       return;
     }
 
     const formdata = new FormData();
-    formdata.append("acl_role_id", stored?.body?.acl_role_id);
-    formdata.append("customer_id", stored?.body?.customer_id);
-    formdata.append("is_one_time", "1");
-    formdata.append("id", id);
+    formdata.append('acl_role_id', stored?.body?.acl_role_id);
+    formdata.append('customer_id', stored?.body?.customer_id);
+    formdata.append('is_one_time', '1');
+    formdata.append('id', id);
 
-    formdata.append("pay_payment_method", "pay_unsave_method");
-    formdata.append("payment_method_id_radio", debitType);
-    formdata.append("is_card", debitType === "card" ? "1" : "0");
+    formdata.append('pay_payment_method', 'pay_unsave_method');
+    formdata.append('payment_method_id_radio', debitType);
+    formdata.append('is_card', debitType === 'card' ? '1' : '0');
 
     //for card
-    if (debitType === "card") {
+    if (debitType === 'card') {
       if (data?.ssl_token) {
         // formdata.append("salestax", data?.ssl_token);
-        formdata.append("salestax", "0");
+        formdata.append('salestax', '0');
 
-        formdata.append("credit_card_number", data?.ssl_card_number);
-        formdata.append("card_type", data?.ssl_card_short_description);
-        formdata.append("expiration", data?.ssl_exp_date);
-        formdata.append("approval_code", data?.ssl_approval_code);
-        formdata.append("is_card_one_time", "1");
-        formdata.append("paytype_category", data?.ssl_card_short_description);
+        formdata.append('credit_card_number', data?.ssl_card_number);
+        formdata.append('card_type', data?.ssl_card_short_description);
+        formdata.append('expiration', data?.ssl_exp_date);
+        formdata.append('approval_code', data?.ssl_approval_code);
+        formdata.append('is_card_one_time', '1');
+        formdata.append('paytype_category', data?.ssl_card_short_description);
       } else {
-        formdata.append("credit_card_number", data?.cardNumber);
-        formdata.append("card_type", data?.cardType);
-        formdata.append("expiration", data?.cardExpDate);
-        formdata.append("is_card_one_time", "1");
+        formdata.append('credit_card_number', data?.cardNumber);
+        formdata.append('card_type', data?.cardType);
+        formdata.append('expiration', data?.cardExpDate);
+        formdata.append('is_card_one_time', '1');
       }
     }
-    if (debitType == "bank_account") {
-      if ("expiration" in data) {
-        formdata.append("expiration", "");
+    if (debitType == 'bank_account') {
+      if ('expiration' in data) {
+        formdata.append('expiration', '');
       }
 
-      formdata.append("bank_account_number", data?.accountNumber);
-      formdata.append("routing_number", data?.routingNumber);
+      formdata.append('bank_account_number', data?.accountNumber);
+      formdata.append('routing_number', data?.routingNumber);
       // formdata.append('account_type', data?.accountType);
       formdata.append(
-        "account_type",
-        data?.accountType === "PC"
-          ? "Personal Checking"
-          : data?.accountType === "PS"
-          ? "Personal Savings"
-          : data?.accountType === "BC"
-          ? "Business Checking"
-          : data?.accountType === "BS"
-          ? "Business Savings"
-          : data?.accountType === "GL"
-          ? "General Ledger"
-          : " Other"
+        'account_type',
+        data?.accountType === 'PC'
+          ? 'Personal Checking'
+          : data?.accountType === 'PS'
+            ? 'Personal Savings'
+            : data?.accountType === 'BC'
+              ? 'Business Checking'
+              : data?.accountType === 'BS'
+                ? 'Business Savings'
+                : data?.accountType === 'GL'
+                  ? 'General Ledger'
+                  : ' Other'
       );
     }
-    formdata.append("token", data?.ssl_token ?? data?.token);
+    formdata.append('token', data?.ssl_token ?? data?.token);
 
     // formdata.append(
     //   "convenienceFee",
@@ -310,14 +404,11 @@ const PaymentForm = () => {
     //   )
     // );
 
-    formdata.append("payment_method", "0");
+    formdata.append('payment_method', '0');
     // formdata.append("price", String(watch("amount") || 0));
-    formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+    formdata.append('price', Number(watch('amount') || 0).toFixed(2));
 
-    formdata.append(
-      "convenienceFee",
-      Number(watch("convenienceFee") || 0).toFixed(2)
-    );
+    formdata.append('convenienceFee', Number(watch('convenienceFee') || 0).toFixed(2));
 
     // "id:26286
     // acl_role_id:4
@@ -361,10 +452,10 @@ const PaymentForm = () => {
     const cardNum = selectedCardDetails.card_token;
 
     const formdata = new FormData();
-    formdata.append("acl_role_id", stored?.body?.acl_role_id);
-    formdata.append("customer_id", stored?.body?.customer_id);
-    formdata.append("default_payment", "1");
-    formdata.append("payment_method_id", cardNum);
+    formdata.append('acl_role_id', stored?.body?.acl_role_id);
+    formdata.append('customer_id', stored?.body?.customer_id);
+    formdata.append('default_payment', '1');
+    formdata.append('payment_method_id', cardNum);
     dispatch(
       saveDefaultPaymentMethod(formdata, true, () => {
         setOpenPaymentModal(false);
@@ -376,60 +467,56 @@ const PaymentForm = () => {
     );
   };
   const [openConfirm, setOpenConfirm] = useState(false);
- interface CardDetails {
-  date_used?: string | number | Date | Dayjs;
+  interface CardDetails {
+    date_used?: string | number | Date | Dayjs;
 
-  account_type?: string;
-  card_number?: string;          
-  bank_account_number?: string;  
-  card_type?: string;
-  card_token?: string;
+    account_type?: string;
+    card_number?: string;
+    bank_account_number?: string;
+    card_type?: string;
+    card_token?: string;
 
-  id?: string;
-  last4?: string;
-  brand?: string;
-  expMonth?: number;
-  expYear?: number;
+    id?: string;
+    last4?: string;
+    brand?: string;
+    expMonth?: number;
+    expYear?: number;
 
-  [key: string]: unknown;
-}
+    [key: string]: unknown;
+  }
 
   const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
   useEffect(() => {
     setSelectedCardDetails(paymentMethodInfoCards);
   }, [paymentMethodInfoCards]);
 
-  const amount = watch("amount");
+  const getCardLast4 = (selectedCardDetails: CardDetails) => {
+    const num = selectedCardDetails?.card_number
+      ? decryptFunction(selectedCardDetails.card_number)
+      : selectedCardDetails?.bank_account_number
+        ? decryptFunction(selectedCardDetails.bank_account_number)
+        : '';
+    return num ? num.slice(-4) : '';
+  };
+
+  const amount = watch('amount');
 
   useEffect(() => {
     const fee = calculatePaymentAmount({
-      amount: watch("amount") || "0",
-      paymentType:
-        paymentType === "saved"
-          ? selectedCardDetails?.card_type
-            ? "card"
-            : "bank_account"
-          : debitType,
-      cardType: selectedCardDetails?.card_type || "visa",
+      amount: watch('amount') || '0',
+      paymentType: paymentType === 'saved' ? (selectedCardDetails?.card_type ? 'card' : 'bank_account') : debitType,
+      cardType: selectedCardDetails?.card_type || 'visa',
       config: convenienceFee,
     }).convenienceFee.toFixed(2);
-    setValue("convenienceFee", Number(fee));
-  }, [
-    amount,
-    convenienceFee,
-    debitType,
-    selectedCardDetails?.card_type,
-    paymentType,
-    setValue,
-    watch,
-  ]);
+    setValue('convenienceFee', Number(fee));
+  }, [amount, convenienceFee, debitType, selectedCardDetails?.card_type, paymentType, setValue, watch]);
   useEffect(() => {
     if (
       myCustomerDetails?.allow_overpayments == 0 &&
       Number(amount) > Number(myCustomerDetails?.balance || 0) &&
       myCustomerDetails?.id
     ) {
-      setValue("amount",  `${myCustomerDetails?.balance ?? 0}`);
+      setValue('amount', `${myCustomerDetails?.balance ?? 0}`);
       toast.warn("Please don't pay more than you owe!");
     }
   }, [amount, myCustomerDetails, setValue]);
@@ -438,12 +525,12 @@ const PaymentForm = () => {
   //     toast.success("Card Added Successfully");
   //   }
   // }, [transId]);
-  const cardConvenienceFee = searchParams.get("convenience_fee");
-  const cardAmount = searchParams.get("amount");
-  const cardTransId = searchParams.get("transId");
-  const card_no = searchParams.get("card_no");
-  const card_type = searchParams.get("card_type");
-  const expiration = searchParams.get("expiration");
+  const cardConvenienceFee = searchParams.get('convenience_fee');
+  const cardAmount = searchParams.get('amount');
+  const cardTransId = searchParams.get('transId');
+  const card_no = searchParams.get('card_no');
+  const card_type = searchParams.get('card_type');
+  const expiration = searchParams.get('expiration');
   // //console.log(cardAmount, "cardAmount");
   useEffect(() => {
     if (cardAmount && cardConvenienceFee && cardTransId) {
@@ -455,37 +542,31 @@ const PaymentForm = () => {
     setShowPaymentSummary(false);
     const formdata = new FormData();
 
-    formdata.append("acl_role_id", stored?.body?.acl_role_id);
-    formdata.append("customer_id", stored?.body?.customer_id);
-    formdata.append("is_one_time", "0");
-    formdata.append("id", id);
+    formdata.append('acl_role_id', stored?.body?.acl_role_id);
+    formdata.append('customer_id', stored?.body?.customer_id);
+    formdata.append('is_one_time', '0');
+    formdata.append('id', id);
 
     if (isSchedule) {
-      formdata.append("is_one_time", "0");
+      formdata.append('is_one_time', '0');
 
       // formdata.append(
       //   "payment_method_id_radio",
       //   selectedCardDetails?.card_number ? "card" : "bank_account"
       // );
       // formdata.append("is_card", selectedCardDetails?.card_number ? "1" : "0");
-      formdata.append("payment_method_id_radio", "card");
-      formdata.append("is_card", "0");
+      formdata.append('payment_method_id_radio', 'card');
+      formdata.append('is_card', '0');
 
-      formdata.append("is_card_one_time", "0");
-      formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
-      formdata.append("payment_method", "1");
+      formdata.append('is_card_one_time', '0');
+      formdata.append('convenienceFee', String(watch('convenienceFee') || 0));
+      formdata.append('payment_method', '1');
 
-      formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+      formdata.append('price', Number(watch('amount') || 0).toFixed(2));
 
-      formdata.append(
-        "payment_method_id_form",
-        selectedCardDetails?.card_token
-      );
-      formdata.append(
-        "schedule_date",
-        dayjs(watch("duedate")).format("MM/DD/YY")
-      );
-      formdata.append("pay_now_hidden", "1");
+      formdata.append('payment_method_id_form', selectedCardDetails?.card_token);
+      formdata.append('schedule_date', dayjs(watch('duedate')).format('MM/DD/YY'));
+      formdata.append('pay_now_hidden', '1');
 
       // is_one_time:0
       // payment_method_id_radio:card
@@ -501,10 +582,10 @@ const PaymentForm = () => {
       //recurring
 
       if (recurringPaymentEnabled) {
-        formdata.append("make_recurring_pay", "1");
-        formdata.append("recurring_pay_opt", frequency);
-        formdata.append("select_repeat_options", repeatOption);
-        formdata.append("repeat_an_additional_times", String(repeatTimes));
+        formdata.append('make_recurring_pay', '1');
+        formdata.append('recurring_pay_opt', frequency);
+        formdata.append('select_repeat_options', repeatOption);
+        formdata.append('repeat_an_additional_times', String(repeatTimes));
       }
 
       // make_recurring_pay:1
@@ -518,25 +599,22 @@ const PaymentForm = () => {
         })
       );
     } else {
-      formdata.append("pay_payment_method", "pay_save_method");
-      formdata.append("payment_method_id_radio", "card");
-      formdata.append("is_card", "0");
-      formdata.append("is_card_one_time", "0");
+      formdata.append('pay_payment_method', 'pay_save_method');
+      formdata.append('payment_method_id_radio', 'card');
+      formdata.append('is_card', '0');
+      formdata.append('is_card_one_time', '0');
       if (selectedCardDetails?.bank_account_number) {
-        formdata.append("is_bank_account_payment_method_form", "1");
+        formdata.append('is_bank_account_payment_method_form', '1');
       }
       //for bank
       // is_bank_account_payment_method_form:1"
 
-      formdata.append(
-        "payment_method_id_form",
-        selectedCardDetails?.card_token
-      );
+      formdata.append('payment_method_id_form', selectedCardDetails?.card_token);
 
-      formdata.append("convenienceFee", String(watch("convenienceFee") || 0));
-      formdata.append("payment_method", "0");
+      formdata.append('convenienceFee', String(watch('convenienceFee') || 0));
+      formdata.append('payment_method', '0');
       // formdata.append("price", String(watch("amount") || 0));
-      formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+      formdata.append('price', Number(watch('amount') || 0).toFixed(2));
 
       // if (cardConvenienceFee) {
       //   const formdata = new FormData();
@@ -577,38 +655,31 @@ const PaymentForm = () => {
       if (cardConvenienceFee) {
         const formdata = new FormData();
 
-        formdata.append("acl_role_id", stored?.body?.acl_role_id);
-        formdata.append("customer_id", stored?.body?.customer_id);
-        formdata.append("is_one_time", "1");
-        formdata.append("id", id);
+        formdata.append('acl_role_id', stored?.body?.acl_role_id);
+        formdata.append('customer_id', stored?.body?.customer_id);
+        formdata.append('is_one_time', '1');
+        formdata.append('id', id);
         // formdata.append("pay_payment_method", "pay_save_method");
-        formdata.append("pay_payment_method", "pay_unsave_method");
-        formdata.append("payment_method_id_radio", "card");
-        formdata.append("is_card", "1");
-        formdata.append("is_card_one_time", "1");
+        formdata.append('pay_payment_method', 'pay_unsave_method');
+        formdata.append('payment_method_id_radio', 'card');
+        formdata.append('is_card', '1');
+        formdata.append('is_card_one_time', '1');
         // formdata.append("payment_method_id_form", cardTransId);
-        formdata.append("token", cardTransId);
-        formdata.append("credit_card_number", card_no);
-        formdata.append("card_type", card_type);
-        formdata.append("expiration", expiration);
+        formdata.append('token', cardTransId);
+        formdata.append('credit_card_number', card_no);
+        formdata.append('card_type', card_type);
+        formdata.append('expiration', expiration);
 
-        formdata.append(
-          "convenienceFee",
-          Number(cardConvenienceFee || 0).toFixed(2)
-        );
-        formdata.append("payment_method", "0");
-        formdata.append("price", Number(cardAmount || 0).toFixed(2));
+        formdata.append('convenienceFee', Number(cardConvenienceFee || 0).toFixed(2));
+        formdata.append('payment_method', '0');
+        formdata.append('price', Number(cardAmount || 0).toFixed(2));
 
         // formdata.append("price", Number(watch("amount") || 0).toFixed(2));
 
         dispatch(
-          paymentWithoutSavingDetails(
-            formdata,
-            true,
-            () => {
-              navigate(paths.dashboard.payNow());
-            }
-          )
+          paymentWithoutSavingDetails(formdata, true, () => {
+            navigate(paths.dashboard.payNow());
+          })
         );
         return;
       }
@@ -620,111 +691,175 @@ const PaymentForm = () => {
     }
   };
 
-  const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? "";
+  const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? '';
   const rawHTML =
-    paymentDetailsInfo?.company?.optional_instructions ??
-    `<p><a href="${paymentUrl}">${paymentUrl}</a></p>`;
+    paymentDetailsInfo?.company?.optional_instructions ?? `<p><a href="${paymentUrl}">${paymentUrl}</a></p>`;
 
   const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
-    ADD_ATTR: ["target", "rel"],
+    ADD_ATTR: ['target', 'rel'],
   });
 
   // force links to open in new tab
-  const finalHTML = sanitizedHTML.replace(
-    /<a /g,
-    '<a target="_blank" rel="noopener noreferrer" '
-  );
+  const finalHTML = sanitizedHTML.replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ');
+  const billAmountDueValue =
+    paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? CustomerInfo?.balance ?? 0;
+  const billAmountDueNumber = Number(String(billAmountDueValue).replace(/[^0-9.-]/g, ''));
+  const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${billAmountDueNumber.toFixed(2)}` : '$0.00';
+  const customerInfoDetails = CustomerInfo as
+    | (CustomerInfo & {
+        account_number?: string | number;
+        last_bill?: { due_date?: string };
+      })
+    | null;
+  const billDueDate =
+    dueDate ??
+    paymentDetailsInfo?.customer?.last_bill?.due_date ??
+    customerInfoDetails?.last_bill?.due_date ??
+    dashBoardInfo?.body?.customer?.last_bill?.due_date;
+  const formattedBillDueDate =
+    billDueDate && dayjs(billDueDate).isValid() ? dayjs(billDueDate).format('MM/DD/YYYY') : billDueDate ?? 'MM/DD/YYYY';
+  const accountNumber =
+    customerInfoDetails?.acctnum ??
+    customerInfoDetails?.account_number ??
+    paymentDetailsInfo?.customer?.acctnum ??
+    paymentDetailsInfo?.customer?.account_number ??
+    '-';
 
   return (
     <SkeletonWrapper>
-      <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
+      <Box sx={{ maxWidth: 720, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
             sx={{
-              flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "flex-start", sm: "center" },
-              gap: { xs: 1, sm: 0 },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              marginBottom: 2,
             }}
           >
-            <Typography variant="h6" color="black">
-              Name/Email For Payment Receipt
-            </Typography>
-
             <Box
-              display="flex"
               sx={{
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: { xs: "flex-start", sm: "center" },
-                gap: { xs: 1, sm: 2 },
+                width: 42,
+                height: 42,
+                borderRadius: '50%',
+                border: '2px solid #4A79D8',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {/* Payment Methods */}
-              <Typography
+              <CurrencyDollar size={24} weight="bold" color="#4A79D8" />
+            </Box>
+
+            <Typography
+              sx={{
+                color: '#2F66B3',
+                fontWeight: 700,
+                fontSize: { xs: '1.5rem', sm: '2rem' },
+                lineHeight: 1,
+              }}
+            >
+              Payment Details
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: '#EAF6FF',
+              boxShadow: '0 4px 14px rgba(23, 45, 86, 0.16)',
+              borderRadius: 1,
+              p: { xs: 2, sm: 3 },
+              mb: 2,
+            }}
+          >
+            <Stack spacing={1}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography fontWeight={500} color="black">
+                  Account No.:
+                </Typography>
+
+                <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
+                  {accountNumber}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography fontWeight={500} color="black">
+                  Bill Amount Due:
+                </Typography>
+
+                <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
+                  {billAmountDue}
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography fontWeight={500} color="black">
+                  Due Date
+                </Typography>
+
+                <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
+                  {formattedBillDueDate}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'flex-end',
+              gap: 2,
+              mb: 2,
+            }}
+          >
+            {myCustomerDetails.paperless === 0 && (
+              <Button
+                variant="contained"
+                onClick={() => navigate(paths.dashboard.paperless())}
                 sx={{
-                  fontSize: 14,
-                  color: colors.blue,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  ":hover": { cursor: "pointer" },
+                  width: { xs: '100%', sm: 240 },
+                  backgroundColor: colors.blue,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: colors['blue.3'],
+                  },
                 }}
-                onClick={() => setOpenPaymentModal(true)}
               >
-                <CreditCard
-                  color={"var(--NavItem-icon-color)"}
+                <Leaf
+                  color="var(--NavItem-icon-color)"
                   size={20}
-                  weight={"regular"}
+                  weight="regular"
                   style={{
-                    fontSize: "var(--icon-fontSize-md)",
-                    background: "transparent",
-                    fill: "currentColor",
+                    background: 'transparent',
+                    fill: 'currentColor',
+                    marginRight: '3px',
                   }}
                 />
-                PAYMENT METHODS
-              </Typography>
+                GO PAPERLESS
+              </Button>
+            )}
 
-              {/* Go Paperless */}
-              {myCustomerDetails.paperless === 0 && (
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    color: colors.blue,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    ":hover": { cursor: "pointer" },
-                  }}
-                  onClick={() => navigate(paths.dashboard.paperless())}
-                >
-                  <Leaf
-                    color={"var(--NavItem-icon-color)"}
-                    size={20}
-                    weight={"regular"}
-                    style={{
-                      fontSize: "var(--icon-fontSize-md)",
-                      background: "transparent",
-                      fill: "currentColor",
-                    }}
-                  />
-                  GO PAPERLESS
-                </Typography>
-              )}
-            </Box>
+            <Button
+              variant="contained"
+              onClick={() => navigate(paths.dashboard.autoPay())}
+              sx={{
+                width: { xs: '100%', sm: 240 },
+                backgroundColor: colors.blue,
+                fontWeight: 700,
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: colors['blue.3'],
+                },
+              }}
+            >
+              Enroll in AutoPay
+            </Button>
           </Box>
 
           {/* Name & Email */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              mb: 2,
-              flexDirection: { xs: "column", sm: "row" },
-            }}
-          >
+          <Box sx={{}}>
             <Box flex={1}>
               <Typography fontWeight={600}>Name</Typography>
               <Controller
@@ -742,7 +877,7 @@ const PaymentForm = () => {
               />
             </Box>
 
-            <Box flex={1}>
+            <Box flex={1} sx={{ mt: 1 }}>
               <Typography fontWeight={600}>Email</Typography>
               <Controller
                 name="email"
@@ -761,95 +896,107 @@ const PaymentForm = () => {
           </Box>
 
           {/* Amount */}
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 1, mt: 1 }}>
             <Typography fontWeight={600}>Amount to pay</Typography>
             <Controller
               name="amount"
               control={control}
               rules={{
-                required: "Amount is required",
-                min: { value: 0, message: "Amount must be greater than 0" },
+                required: 'Amount is required',
+                min: { value: 0, message: 'Amount must be greater than 0' },
               }}
               render={({ field }) => (
                 <Tooltip
                   title={
                     paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
                     paymentDetailsInfo?.company?.allow_overpayments == 0
-                      ? "Over payments are not allowed at this time. And also Partial payments are not allowed "
+                      ? 'Over payments are not allowed at this time. And also Partial payments are not allowed '
                       : paymentDetailsInfo?.customer?.is_payments_blocked == 1
-                      ? paymentDetailsInfo?.block_individual_customer_pay_text ??
-                        "Payments are not allowed at this time."
-                      : // : paymentDetailsInfo?.company?.allow_overpayments == 0
-                        // ? "Over payments are not allowed at this time."
-                        // : paymentDetailsInfo?.company?.allow_partial_payments == 0
-                        // ? "Partial payments are not allowed"
-                        ""
+                        ? paymentDetailsInfo?.block_individual_customer_pay_text ??
+                          'Payments are not allowed at this time.'
+                        : // : paymentDetailsInfo?.company?.allow_overpayments == 0
+                          // ? "Over payments are not allowed at this time."
+                          // : paymentDetailsInfo?.company?.allow_partial_payments == 0
+                          // ? "Partial payments are not allowed"
+                          ''
                   }
-                      componentsProps={{
-    tooltip: {
-      sx: {
-        backgroundColor: '#E7E6E6',
-        color: '#000000',
-        border: '1px solid #d0cfcf',
-           fontSize: '14px',        // 👈 updated
-      lineHeight: 1.4,
-        // fontSize: '0.8rem',
-        '& .MuiTooltip-arrow': {
-          color: '#E7E6E6',
-          '&::before': {
-            border: '1px solid #d0cfcf',
-          },
-        },
-      },
-    },
-  }}
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: '#E7E6E6',
+                        color: '#000000',
+                        border: '1px solid #d0cfcf',
+                        fontSize: '14px', // 👈 updated
+                        lineHeight: 1.4,
+                        // fontSize: '0.8rem',
+                        '& .MuiTooltip-arrow': {
+                          color: '#E7E6E6',
+                          '&::before': {
+                            border: '1px solid #d0cfcf',
+                          },
+                        },
+                      },
+                    },
+                  }}
                 >
                   <TextField
                     {...field}
                     fullWidth
                     size="small"
-                    type="number"
+                    type="text"
                     error={!!errors.amount}
                     helperText={errors.amount?.message}
                     InputProps={{
-                      startAdornment: <span style={{ marginRight: 4 }}>$</span>,
+                      // startAdornment: <span style={{ marginRight: 0, flexShrink: 0 }}>$</span>,
+                      sx: {
+                        justifyContent: 'flex-end',
+                        pr: { xs: 2, sm: 4 },
+                      },
                     }}
+                    inputProps={{
+                      inputMode: 'decimal',
+                      style: {
+                        flex: '0 0 auto',
+                        minWidth: '6ch',
+                        width: `${Math.min(Math.max(String(field.value ?? '').length + 1, 6), 30)}ch`,
+
+                        // maxWidth: 'calc(100% - 18px)',
+                        textAlign: 'right',
+                      },
+                    }}
+                    value={field.value ? `$${field.value}` : ''}
+                    placeholder="$0.00"
                     disabled={
-                      (paymentDetailsInfo?.company?.allow_partial_payments ==
-                        0 &&
+                      (paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
                         paymentDetailsInfo?.company?.allow_overpayments == 0) ||
                       paymentDetailsInfo?.customer?.is_payments_blocked == 1
                     }
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target.value.replace(/[^\d.]/g, '');
+                      const sanitizedValue = value.replace(/(\..*)\./g, '$1').replace(/^(\d+\.?\d{0,2}).*$/, '$1');
 
                       // Prevent empty or 0
-                      if (Number(value) < 0) {
-                        toast.warn("Amount should be more than 0");
+                      if (Number(sanitizedValue) < 0) {
+                        toast.warn('Amount should be more than 0');
                         return;
                       }
                       if (
                         paymentDetailsInfo?.company?.allow_overpayments == 0 &&
-                        Number(value) > paymentDetailsInfo?.customer?.balance
+                        Number(sanitizedValue) > paymentDetailsInfo?.customer?.balance
                       ) {
-                        toast.warn(
-                          "Over payments are not allowed at this time."
-                        );
+                        toast.warn('Over payments are not allowed at this time.');
                         return;
                       }
 
                       if (
-                        paymentDetailsInfo?.company?.allow_partial_payments ==
-                          0 &&
-                        Number(value) < paymentDetailsInfo?.customer?.balance
+                        paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
+                        Number(sanitizedValue) < paymentDetailsInfo?.customer?.balance
                       ) {
-                        toast.warn(
-                          "Partial payments are not allowed at this time."
-                        );
+                        toast.warn('Partial payments are not allowed at this time.');
                         return;
                       }
 
-                      field.onChange(value);
+                      field.onChange(sanitizedValue);
                     }}
                     // onBlur={(e) => {
                     //   // Also enforce on blur (in case user clears and leaves field)
@@ -861,22 +1008,52 @@ const PaymentForm = () => {
                 </Tooltip>
               )}
             />
-            <Stack
-              direction={{ xs: "column", sm: "row" }} // column on extra small, row from small+
-              spacing={2}
-              sx={{ mt: 1 }}
+            <Box
+              sx={{
+                mt: 2,
+                width: '100%',
+                display: 'grid',
+                gridTemplateColumns: { xs: 'minmax(0, 1fr) minmax(0, auto)', sm: 'minmax(0, 1fr) minmax(0, 260px)' },
+                rowGap: 1.5,
+                columnGap: 2,
+                alignItems: 'center',
+              }}
             >
-              <Typography sx={{ fontSize: 14, color: colors.blue }}>
-                Additional Convenience Fee: ${watch("convenienceFee") || 0}
+              <Typography sx={{ fontSize: { xs: 16, sm: 18 }, color: 'black' }}>Convenience Fee</Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: 16, sm: 18 },
+                  color: 'black',
+                  textAlign: 'right',
+                  pr: { xs: 2, sm: 6 },
+                }}
+              >
+                ${Number(watch('convenienceFee') || 0).toFixed(2)}
               </Typography>
-              <Typography sx={{ fontSize: 14, color: colors.blue }}>
-                Total Payment: $
-                {(
-                  (Number(watch("amount")) || 0) +
-                  (watch("convenienceFee") || 0)
-                ).toFixed(2)}
+
+              <Box
+                sx={{
+                  gridColumn: '1 / -1',
+                  borderTop: '1px solid #D0D0D0',
+                }}
+              />
+
+              <Typography fontWeight={700} color="black">
+                Total Payment
               </Typography>
-            </Stack>
+              <Typography
+                sx={{
+                  fontWeight: 800,
+                  color: 'black',
+                  textAlign: 'right',
+                  minWidth: 0,
+                  overflowWrap: 'anywhere',
+                  pr: { xs: 2, sm: 6 },
+                }}
+              >
+                ${((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)).toFixed(2)}
+              </Typography>
+            </Box>
           </Box>
 
           {/* Payment Method Option */}
@@ -895,9 +1072,7 @@ const PaymentForm = () => {
                           value={dayjs(field.value)}
                           minDate={dayjs()}
                           disablePast
-                          onChange={(date: Dayjs | null) =>
-                            field.onChange(date?.toDate())
-                          }
+                          onChange={(date: Dayjs | null) => field.onChange(date?.toDate())}
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -928,31 +1103,157 @@ const PaymentForm = () => {
               </Grid>
             </Box>
           ) : (
-            <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
-              <RadioGroup
-                value={paymentType}
-                onChange={(e) => {
-                  if (e.target.value === "no-save") {
-                    if (Number(watch("amount")) === 0) {
-                      toast.warn("Amount should be more than 0");
-                      return;
-                    }
-                  }
-                  setPaymentType(e.target.value as "saved" | "no-save");
+            selectedCardDetails?.id && (
+              <Box
+                sx={{
+                  border: '1.5px solid #2A72B9',
+                  borderRadius: '16px',
+                  p: 3,
+                  mb: 3,
+                  backgroundColor: '#ffffff',
                 }}
               >
-                <FormControlLabel
-                  value="saved"
-                  control={<Radio />}
-                  label="Pay with a saved payment method"
-                />
-                <FormControlLabel
-                  value="no-save"
-                  control={<Radio />}
-                  label="Pay without saving a payment method"
-                />
-              </RadioGroup>
-            </Box>
+                <Typography sx={{ fontWeight: 'bold', fontSize: '18px', color: '#172D56', mb: 2 }}>
+                  Payment Method
+                </Typography>
+
+                <RadioGroup
+                  value={paymentType}
+                  onChange={(e) => {
+                    const val = e.target.value as 'saved' | 'no-save';
+                    if (val === 'no-save') {
+                      if (Number(watch('amount')) === 0) {
+                        toast.warn('Amount should be more than 0');
+                        return;
+                      }
+                    }
+                    setPaymentType(val);
+                  }}
+                >
+                  {/* Option 1: Saved Payment Method */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
+                    <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} />
+
+                    {/* Saved payment details box */}
+                    <Box
+                      onClick={() => {
+                        setPaymentType('saved');
+                      }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        border: '1px solid #D6DBDF',
+                        borderRadius: '8px',
+                        p: '6px 12px',
+                        backgroundColor: '#ffffff',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          borderColor: '#A6ACAF',
+                        },
+                        gap: 1.5,
+                      }}
+                    >
+                      {renderCardBrand(paymentMethodInfoCards?.card_type ?? paymentMethodInfoCards?.account_type)}
+
+                      <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+                        {paymentMethodInfoCards?.card_type || paymentMethodInfoCards?.account_type || 'Card'} ending in{' '}
+                        {getCardLast4(paymentMethodInfoCards)}
+                      </Typography>
+
+                      {/* Default Badge */}
+                      <Box
+                        onClick={() => {
+                          setOpenPaymentModal(true);
+                        }}
+                        sx={{
+                          backgroundColor: '#E8F8F5',
+                          color: '#117A65',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          px: 1,
+                          py: 0.2,
+                          borderRadius: '4px',
+                        }}
+                      >
+                        Default
+                      </Box>
+
+                      {/* Caret/Chevron Icon */}
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
+                        onClick={() => {
+                          setOpenPaymentModal(true);
+                        }}
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </Box>
+                    </Box>
+
+                    {/* Add/Edit Button */}
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenPaymentModal(true);
+                      }}
+                      sx={{
+                        textTransform: 'none',
+                        backgroundColor: '#1E6091',
+                        color: '#ffffff',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: '4px',
+                        ml: 2,
+                        '&:hover': {
+                          backgroundColor: '#184E77',
+                        },
+                      }}
+                    >
+                      Add/Remove
+                    </Button>
+                  </Box>
+
+                  {/* Option 2: Pay this bill only */}
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <FormControlLabel
+                      value="no-save"
+                      control={<Radio color="primary" />}
+                      label={
+                        <Box sx={{ ml: 0.5, mt: -0.25 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography sx={{ fontWeight: 'bold', fontSize: '15px', color: '#E67E22' }}>
+                              Pay this bill only &ndash; don't save payment method
+                            </Typography>
+                            {/* <Typography
+                              sx={{ fontStyle: 'italic', fontSize: '13px', color: '#E67E22', fontWeight: 600 }}
+                            >
+                              not saved
+                            </Typography> */}
+                          </Box>
+                          <Typography sx={{ fontSize: '13px', color: '#7F8C8D', mt: 0.5 }}>
+                            Enter payment details for this transaction only.
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </Box>
+                </RadioGroup>
+              </Box>
+            )
           )}
 
           {isSchedule && (
@@ -980,11 +1281,7 @@ const PaymentForm = () => {
                   {/* Frequency Select */}
                   <FormControl sx={{ minWidth: 200 }}>
                     <InputLabel>Frequency</InputLabel>
-                    <Select
-                      value={frequency}
-                      onChange={(e) => setFrequency(e.target.value)}
-                      label="Frequency"
-                    >
+                    <Select value={frequency} onChange={(e) => setFrequency(e.target.value)} label="Frequency">
                       <MenuItem value="1">Every month</MenuItem>
                       <MenuItem value="2">Every 2 months</MenuItem>
                       <MenuItem value="3">Every 3 months</MenuItem>
@@ -992,24 +1289,20 @@ const PaymentForm = () => {
                       <MenuItem value="12">Every year</MenuItem>
                     </Select>
                     <FormHelperText>
-                      Recurring payments will not pay your invoice amount on the
-                      due date.
+                      Recurring payments will not pay your invoice amount on the due date.
                     </FormHelperText>
                   </FormControl>
 
                   {/* Repeat options */}
                   <FormControl>
-                    <RadioGroup
-                      value={repeatOption}
-                      onChange={(e) => setRepeatOption(e.target.value)}
-                    >
+                    <RadioGroup value={repeatOption} onChange={(e) => setRepeatOption(e.target.value)}>
                       {/* First Option */}
                       <FormControlLabel
                         value="repeat_indefinitely"
                         control={<Radio />}
                         label="Repeat indefinitely"
                         sx={{
-                          width: "220px",
+                          width: '220px',
                         }}
                       />
 
@@ -1023,11 +1316,9 @@ const PaymentForm = () => {
                             <Select
                               size="small"
                               value={repeatTimes}
-                              onChange={(e) =>
-                                setRepeatTimes(Number(e.target.value))
-                              }
+                              onChange={(e) => setRepeatTimes(Number(e.target.value))}
                               sx={{ width: 80 }}
-                              disabled={repeatOption !== "repeat_an_additional"}
+                              disabled={repeatOption !== 'repeat_an_additional'}
                             >
                               {Array.from(Array(25).keys()).map((n) => (
                                 <MenuItem key={n + 1} value={n + 1}>
@@ -1035,9 +1326,7 @@ const PaymentForm = () => {
                                 </MenuItem>
                               ))}
                             </Select>
-                            <Typography>
-                              times after the first payment
-                            </Typography>
+                            <Typography>times after the first payment</Typography>
                           </Box>
                         }
                       />
@@ -1049,131 +1338,169 @@ const PaymentForm = () => {
           )}
 
           {/* Saved Card Info Block (only show if saved method selected) */}
-          {paymentType === "saved" ? (
+          {paymentType === 'saved' ? (
             paymentDetailsInfo?.company?.allow_payments == 0 ? (
               <Box
                 className="instructions-html"
                 sx={{
-                  "& a": {
-                    color: "red !important", // this WILL override MUI tabs
-                    textDecoration: "none",
+                  '& a': {
+                    color: 'red !important', // this WILL override MUI tabs
+                    textDecoration: 'none',
                   },
                 }}
                 dangerouslySetInnerHTML={{ __html: finalHTML }}
               />
             ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
               <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-                {paymentDetailsInfo?.block_individual_customer_pay_text ??
-                  "Payments are not allowed at this time."}
+                {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
               </Typography>
             ) : selectedCardDetails?.id ? (
-              <>
-                <Box
-                  component={Paper}
+              <Box sx={{ display: 'flex', flexDirection: 'space-between', mt: 3 }}>
+                <Button
+                  onClick={() => navigate(-1)}
                   variant="outlined"
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    p: 2,
-                    mb: 3,
-                    backgroundColor: "#f3f9fd",
-                  }}
+                  sx={{ color: colors.blue, borderColor: colors.blue, mb: 1, px: 4 }}
                 >
-                  <FormControlLabel
-                    value="visa"
-                    control={<Radio checked />}
-                    label={
-                      selectedCardDetails?.card_type ??
-                      selectedCardDetails?.account_type
-                    }
-                  />
-                  <Typography
-                    sx={{
-                      fontFamily: "monospace", // ensures * and numbers align perfectly
-                    }}
-                  >
-                    {selectedCardDetails?.card_number
-                      ? decryptFunction(selectedCardDetails?.card_number)
-                      : selectedCardDetails?.bank_account_number
-                      ? decryptFunction(
-                          selectedCardDetails?.bank_account_number
-                        )
-                      : ""}
-                  </Typography>
-                  <Typography>
-                    {selectedCardDetails?.card_number ? "Card" : "Bank Account"}
-                  </Typography>
-                  <Typography>
-                    {/* {selectedCardDetails?.date_used} */}
-
-                    {dayjs
-                      .tz(selectedCardDetails?.date_used, "America/Chicago") // or whichever US timezone server uses
-                      .tz(dayjs.tz.guess()) // convert to user's local time
-                      .format("YYYY-MM-DD hh:mm A z")}
-                  </Typography>
-                </Box>
-                {/* Confirm Button */}
+                  {' Back'}
+                </Button>
                 <Button
                   onClick={() => {
-                    if (Number(watch("amount")) <= 0) {
-                      toast.warn("Amount should be more than 0");
+                    if (Number(watch('amount')) <= 0) {
+                      toast.warn('Amount should be more than 0');
                       return;
                     }
                     setShowPaymentSummary(true);
                   }}
                   variant="contained"
                   sx={{
-                    mt: 3,
                     mb: 1,
                     px: 4,
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
 
                     backgroundColor: colors.blue,
-                    "&:hover": {
-                      backgroundColor: colors["blue.3"], // or any other hover color
+                    '&:hover': {
+                      backgroundColor: colors['blue.3'], // or any other hover color
                     },
                   }}
+                  style={{
+                    marginLeft: 'auto',
+                  }}
                 >
-                  {isSchedule ? "Schedule a Payment" : " CONFIRM PAYMENT"}
+                  {isSchedule ? 'Schedule a Payment' : ' CONFIRM PAYMENT'}
                 </Button>
-              </>
+              </Box>
             ) : (
-              <Typography variant="body2" color="text.secondary">
-                No saved payment methods available. Please add a payment method.
-              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      onChange={(e) => setSaveThisPaymentForFuture(e.target.checked)}
+                      value={saveThisPaymentForFuture}
+                    />
+                  }
+                  label={
+                    <Box>
+                      <Typography sx={{ color: 'text.primary', fontSize: '15px' }}>
+                        Save payment method for future payments
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: 'text.secondary',
+                          fontSize: '13px',
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        You can manage or remove it in Payment Methods
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    mb: 2,
+                  }}
+                />
+
+                <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
+                  <RadioGroup
+                    row
+                    value={debitType}
+                    onChange={(e) => setDebitType(e.target.value as 'card' | 'bank_account')}
+                  >
+                    <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
+                    <FormControlLabel
+                      value="bank_account"
+                      control={<Radio />}
+                      label={
+                        <Box display="flex" alignItems="center" gap={1} position="relative">
+                          Bank Account
+                          <Box
+                            onMouseEnter={() => setHovered(true)}
+                            onMouseLeave={() => setHovered(false)}
+                            sx={{
+                              position: 'relative',
+                              display: 'inline-block',
+                              top: 3,
+                            }}
+                          >
+                            {/* Question Icon */}
+                            <Question size={20} color="#5dade2" weight="fill" />
+
+                            {/* Image popup */}
+                            {hovered && (
+                              <Box
+                                component="img"
+                                // src="/public/assets/bankaccount-help.png"
+                                src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+                                alt="Help"
+                                sx={{
+                                  position: 'absolute',
+                                  top: '30px', // below icon
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  width: 350,
+                                  height: 350,
+                                  borderRadius: 2,
+                                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                  zIndex: 999,
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </Box>
+                      }
+                    />
+                  </RadioGroup>
+                </Box>
+                <PaymentIframe
+                  type={debitType == 'card' ? 'card' : 'account'}
+                  onSuccess={(data: CardDetails) => setCardBankDetails(data)}
+                  invoiceId={id}
+                  convenience_fee={String(watch('convenienceFee') || 0)}
+                  amount={(Number(watch('amount')) || 0).toFixed(2)}
+                  amountRequired={true}
+                />
+              </Box>
             )
           ) : (
             <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
               <RadioGroup
                 row
                 value={debitType}
-                onChange={(e) =>
-                  setDebitType(e.target.value as "card" | "bank_account")
-                }
+                onChange={(e) => setDebitType(e.target.value as 'card' | 'bank_account')}
               >
-                <FormControlLabel
-                  value="card"
-                  control={<Radio />}
-                  label="Credit Card"
-                />
+                <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
                 <FormControlLabel
                   value="bank_account"
                   control={<Radio />}
                   label={
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      gap={1}
-                      position="relative"
-                    >
+                    <Box display="flex" alignItems="center" gap={1} position="relative">
                       Bank Account
                       <Box
                         onMouseEnter={() => setHovered(true)}
                         onMouseLeave={() => setHovered(false)}
                         sx={{
-                          position: "relative",
-                          display: "inline-block",
+                          position: 'relative',
+                          display: 'inline-block',
                           top: 3,
                         }}
                       >
@@ -1185,18 +1512,17 @@ const PaymentForm = () => {
                           <Box
                             component="img"
                             // src="/public/assets/bankaccount-help.png"
-                          src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
-
+                            src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
                             alt="Help"
                             sx={{
-                              position: "absolute",
-                              top: "30px", // below icon
-                              left: "50%",
-                              transform: "translateX(-50%)",
+                              position: 'absolute',
+                              top: '30px', // below icon
+                              left: '50%',
+                              transform: 'translateX(-50%)',
                               width: 350,
                               height: 350,
                               borderRadius: 2,
-                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                               zIndex: 999,
                             }}
                           />
@@ -1210,41 +1536,52 @@ const PaymentForm = () => {
           )}
         </form>
 
-        {paymentType === "no-save" ? (
+        {paymentType === 'no-save' ? (
           paymentDetailsInfo?.company?.allow_payments == 0 ? (
             <Box
               className="instructions-html"
               sx={{
-                "& a": {
-                  color: "red !important", // this WILL override MUI tabs
-                  textDecoration: "none",
+                '& a': {
+                  color: 'red !important', // this WILL override MUI tabs
+                  textDecoration: 'none',
                 },
               }}
               dangerouslySetInnerHTML={{ __html: finalHTML }}
             />
           ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
             <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-              {paymentDetailsInfo?.block_individual_customer_pay_text ??
-                "Payments are not allowed at this time."}
+              {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
             </Typography>
-          ) : Number(watch("amount")) <= 0 ? (
-            <Typography color="error" textAlign={"center"}>
-              Amount must be greater than 0 to proceed for the payment{" "}
+          ) : Number(watch('amount')) <= 0 ? (
+            <Typography color="error" textAlign={'center'}>
+              Amount must be greater than 0 to proceed for the payment{' '}
             </Typography>
           ) : (
             <PaymentIframe
-              type={debitType == "card" ? "card" : "account"}
+              type={debitType == 'card' ? 'card' : 'account'}
               onSuccess={(data: CardDetails) => setCardBankDetails(data)}
               invoiceId={id}
-              convenience_fee={String(watch("convenienceFee") || 0)}
-              amount={(Number(watch("amount")) || 0).toFixed(2)}
+              convenience_fee={String(watch('convenienceFee') || 0)}
+              amount={(Number(watch('amount')) || 0).toFixed(2)}
               amountRequired={true}
             />
           )
         ) : null}
 
         {openPaymentModal && (
-          <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
+          <Dialog
+            open={openPaymentModal}
+            scroll="paper"
+            fullWidth
+            maxWidth={false} // ✅ disable preset sizes
+            PaperProps={{
+              sx: {
+                maxHeight: '90vh',
+                width: Object.keys(myCard || {}).length ? '830px' : '800px', // ✅ custom fixed width
+                borderRadius: '12px',
+              },
+            }}
+          >
             <PaymentMethods
               onClose={() => {
                 setOpenPaymentModal(false);
@@ -1254,12 +1591,13 @@ const PaymentForm = () => {
               page={1}
               rows={[]}
               rowsPerPage={10}
-              onSaveCardDetails={(data: string) => {
+              onSaveCardDetails={(data: any) => {
+                console.log(data, 'fdddfdf');
                 try {
-                  setSelectedCardDetails(JSON.parse(data));
+                  setSelectedCardDetails(data);
                   setOpenConfirm(true);
                 } catch {
-                  console.error("Failed to parse card details");
+                  console.error('Failed to parse card details');
                 }
               }}
               paymentDetailsPage={true}
@@ -1283,41 +1621,28 @@ const PaymentForm = () => {
                 handlePay();
               }
             }}
-            amount={
-              cardAmount
-                ? Number(cardAmount)
-                : Number(amount || cardAmount || 0)
-            }
-            fee={
-              cardConvenienceFee
-                ? Number(cardConvenienceFee)
-                : Number(watch("convenienceFee") || 0)
-            }
+            amount={cardAmount ? Number(cardAmount) : Number(amount || cardAmount || 0)}
+            fee={cardConvenienceFee ? Number(cardConvenienceFee) : Number(watch('convenienceFee') || 0)}
             cardType={
               cardConvenienceFee && cardAmount && cardTransId
-                ? "card"
+                ? 'card'
                 : cardBankDetails
-                ? cardBankDetails?.cardType ??
-                  cardBankDetails?.ssl_card_short_description ??
-                  "Bank Account"
-                : selectedCardDetails?.card_type || "Bank Account"
+                  ? cardBankDetails?.cardType ?? cardBankDetails?.ssl_card_short_description ?? 'Bank Account'
+                  : selectedCardDetails?.card_type || 'Bank Account'
             }
             cardLast4={
               cardConvenienceFee && cardAmount && cardTransId
                 ? maskValue(cardTransId)
                 : cardBankDetails
-                ? cardBankDetails?.cardNumber ??
-                  cardBankDetails?.ssl_card_number ??
-                  cardBankDetails?.accountNumber
-                : selectedCardDetails?.card_number ??
-                  selectedCardDetails?.bank_account_number
+                  ? cardBankDetails?.cardNumber ?? cardBankDetails?.ssl_card_number ?? cardBankDetails?.accountNumber
+                  : selectedCardDetails?.card_number ?? selectedCardDetails?.bank_account_number
             }
-            dueDate={isSchedule ? watch("duedate") : null}
+            dueDate={isSchedule ? watch('duedate') : null}
             Recurring={recurringPaymentEnabled ? frequency : null}
             Payment={
               recurringPaymentEnabled
-                ? repeatOption == "repeat_indefinitely"
-                  ? "Thereafter"
+                ? repeatOption == 'repeat_indefinitely'
+                  ? 'Thereafter'
                   : String(repeatTimes)
                 : null
             }
@@ -1326,7 +1651,7 @@ const PaymentForm = () => {
         {openConfirm && (
           <ConfirmDialog
             open={openConfirm}
-            title={"Default payment method?"}
+            title={'Default payment method?'}
             message={`Do you want to save this as your default payment method?
 `}
             confirmLabel="Yes, Confirm"
@@ -1342,7 +1667,7 @@ const PaymentForm = () => {
         {recurringAckownledgeModal && (
           <ConfirmDialog
             open={recurringAckownledgeModal}
-            title={"Customer Acknowledgement"}
+            title={'Customer Acknowledgement'}
             message={customer_acknowledgement_text}
             confirmLabel="Yes, Confirm"
             cancelLabel="No"
@@ -1354,10 +1679,7 @@ const PaymentForm = () => {
             checkBox={true}
           />
         )}
-        <CustomBackdrop
-          open={accountLoading}
-          style={{ zIndex: 1300, color: "#fff" }}
-        >
+        <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
           <Loader />
         </CustomBackdrop>
       </Box>

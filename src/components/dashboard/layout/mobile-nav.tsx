@@ -44,7 +44,7 @@ export function MobileNav({
     interface AliasUser {
   logo?: string;
 }
-  let aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
+  const aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
 
   interface CompanyDetails {
   allow_auto_payment?: number | string;
@@ -229,14 +229,8 @@ function NavItem({
     return "intuityfe";
   }, [pathnames]);
 
-  // //console.log(slug, pathnames.split('/'), 'slugslug');
-
-  // const hrefs = pathFun(slug);
-  // const hrefs = typeof pathFun === 'function' ? pathFun(slug) : undefined;
   const hrefs = `/${slug}/dashboard${href?.split("/dashboard")[1]}`;
   const navigate = useNavigate();
-
-  // //console.log(hrefs, href, 'hrefshrefs', href?.split('/dashboard'));
   const handleClick = () => {
     if (hrefs && !external) {
       navigate(hrefs);

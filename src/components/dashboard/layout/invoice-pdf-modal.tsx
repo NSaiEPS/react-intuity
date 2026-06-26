@@ -1,17 +1,10 @@
 import * as React from "react";
 import { getInvoiceDetails } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
-import OneTimePdf from "./one-time-invoice";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-
-import InvoicePdfDocument from "./invoice-pdf-view";
-import AllInOneInvoicePdfDocument from "./all-in-one-invoice";
+import { useLoading } from "@/components/core/skeleton-context";
 
 type ModalProps = {
   open: boolean;
@@ -23,51 +16,48 @@ type ModalProps = {
   oneTime?: boolean;
 };
 
-export default function CustomModal({
-  open,
-  onClose,
-  title,
-
-  width = "800px",
-  id,
-  oneTime,
-}: ModalProps) {
+export default function CustomModal({ onClose, id, oneTime }: ModalProps) {
   const dispatch = useDispatch();
-
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
   const invoiceDetails = useSelector(
     (state: RootState) => state.DashBoard.invoiceDetails
-  );
-  const dashboardLoader = useSelector(
-    (state: RootState) => state.DashBoard.dashboardLoader
   );
   const oneTimeData = useSelector(
     (state: RootState) => state.Account.oneTimePaymentInfo
   );
 
-  // const raw = getLocalStorage('intuity-user');
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
   const { setContextLoading } = useLoading();
 
-  //   React.useLayoutEffect(() => {
-  //     setContextLoading(true);
-  //   }, []);
+  type PdfComponents = {
+    PDFDownloadLink: any;
+    PDFViewer: any;
+    InvoicePdfDocument: any;
+    OneTimePdf: any;
+  };
+  const [pdfComponents, setPdfComponents] = React.useState<PdfComponents | null>(null);
+
   React.useEffect(() => {
-    //TODO: change here
+    Promise.all([
+      import("@react-pdf/renderer"),
+      import("./invoice-pdf-view"),
+      import("./one-time-invoice"),
+    ]).then(([renderer, invoiceView, oneTimeInvoice]) => {
+      setPdfComponents({
+        PDFDownloadLink: renderer.PDFDownloadLink,
+        PDFViewer: renderer.PDFViewer,
+        InvoicePdfDocument: invoiceView.default,
+        OneTimePdf: oneTimeInvoice.default,
+      });
+    });
+  }, []);
+
+  React.useEffect(() => {
     if (!id && !oneTime) {
       toast.error("Invalid ID");
     } else {
@@ -95,7 +85,7 @@ export default function CustomModal({
       }}
       // onClick={onClose}
     >
-      <SkeletonWrapper customLoader={dashboardLoader}>
+      <>
    <div
         style={{ position: "relative", display: "inline-block" }}
         onClick={(e) => e.stopPropagation()}
@@ -125,35 +115,36 @@ export default function CustomModal({
       >
         ✕
       </button>
-          <PDFDownloadLink
-            document={
-              <InvoicePdfDocument
-                invoiceDetails={oneTime ? oneTimeData : invoiceDetails}
-              />
-            }
-            fileName={`invoice.pdf`}
-          >
-            {({ loading }) => (loading ? "Preparing PDF..." : "")}
-          </PDFDownloadLink>
+          {pdfComponents ? (
+            <>
+              <pdfComponents.PDFDownloadLink
+                document={
+                  <pdfComponents.InvoicePdfDocument
+                    invoiceDetails={oneTime ? oneTimeData : invoiceDetails}
+                  />
+                }
+                fileName={`invoice.pdf`}
+              >
+                {({ loading }: { loading: boolean }) => (loading ? "Preparing PDF..." : "")}
+              </pdfComponents.PDFDownloadLink>
 
-          <div style={{ height: "600px", marginTop: "20px" }}>
-            <PDFViewer width="1000px" height="600">
-              {oneTime ? (
-                <OneTimePdf invoiceDetails={oneTimeData as any} />
-              ) : (
-                <InvoicePdfDocument invoiceDetails={invoiceDetails} />
-              )}
-              {/* {
-                <AllInOneInvoicePdfDocument
-                isOneTime={oneTime ?true:false}
-                invoiceDetails={oneTime ?oneTimeData:invoiceDetails} />
-
-                
-              } */}
-            </PDFViewer>
-          </div>
+              <div style={{ height: "600px", marginTop: "20px" }}>
+                <pdfComponents.PDFViewer width="1000px" height="600">
+                  {oneTime ? (
+                    <pdfComponents.OneTimePdf invoiceDetails={oneTimeData as any} />
+                  ) : (
+                    <pdfComponents.InvoicePdfDocument invoiceDetails={invoiceDetails} />
+                  )}
+                </pdfComponents.PDFViewer>
+              </div>
+            </>
+          ) : (
+            <div style={{ height: "600px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span>Loading PDF viewer...</span>
+            </div>
+          )}
 </div>
-      </SkeletonWrapper>
+      </>
     </div>
   );
 }

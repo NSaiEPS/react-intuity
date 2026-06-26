@@ -14,7 +14,7 @@ import {
 import { Button } from "nsaicomponents";
 import { colors } from "@/utils";
 // import { X } from "@phosphor-icons/react";
-import VerifyModal from "../CommonComponents/VerifyModal";
+import VerifyModal from "../CommonComponents/verify-modal";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
@@ -93,7 +93,6 @@ export default function TwoFAModal({
 
   const roleId = stored?.body?.acl_role_id ?? "";
   const userId = stored?.body?.customer_id ?? "";
-  const token = stored?.body?.token ?? "";
 
   const dispatch = useDispatch();
 
@@ -128,9 +127,7 @@ export default function TwoFAModal({
     );
   };
 
-  const onVerifyText = () => {
-    // TODO: handle verification
-  };
+  const onVerifyText = () => {};
 
   // Text message: valid 10-digit phone AND is_phone_verified === 1
   // Phone call:   valid 10-digit phone (no verification required)

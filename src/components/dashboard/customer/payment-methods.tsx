@@ -10,16 +10,13 @@ import {
   colors,
   CustomerInfo,
   decryptFunction,
-  formatToMMDDYYYY,
 } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import {
   Box,
   Button,
   Card,
   CardActions,
-  CardHeader,
-  Checkbox,
   DialogActions,
   Divider,
   Grid,
@@ -39,14 +36,12 @@ import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-import { useSelection } from "@/hooks/use-selection";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 import AddBankAccountModal from "./add-bank-modal";
 import AddCardModal from "./add-card-modal";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { useLoading } from "@/components/core/skeletion-context";
-import Header from "@/components/CommonComponents/Header";
+import { useLoading } from "@/components/core/skeleton-context";
+import Header from "@/components/CommonComponents/header";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 export interface CardDetails {
@@ -78,11 +73,6 @@ interface CustomersTableProps {
   amount?: number;
   amountRequired?: boolean;
 }
-interface SelectedCardPayload {
-  id: string | number;
-  card_token: string | number;
-}
-
 const CardRow = React.memo(function CardRow({
   row,
   isSelected,
@@ -108,9 +98,6 @@ const CardRow = React.memo(function CardRow({
     },
     [onDelete, row]
   );
-  // const cardNumber = decryptFunction(row.number)
-  //   .then((res) => //console.log(res))
-  //   .catch((res) => //console.log(res));
   return (
     <TableRow hover key={row.id} selected={isSelected}>
       <TableCell>
@@ -160,16 +147,12 @@ const CardRow = React.memo(function CardRow({
 });
 
 export const PaymentMethods = ({
-  rows = [],
   isModal = false,
   onClose,
   accountInfo = false,
   onSaveCardDetails,
   autoPayDetails,
   paymentDetailsPage = false,
-  convenience_fee = 0,
-  amount = 0,
-  amountRequired = false,
 }: CustomersTableProps): React.JSX.Element => {
   const { setContextLoading } = useLoading();
 
@@ -187,20 +170,8 @@ export const PaymentMethods = ({
   const [cardModalOpen, setCardModalOpen] = React.useState(false);
   const [bankModalOpen, setBankModalOpen] = React.useState(false);
   const [openConfirm, setOpenConfirm] = React.useState(false);
-  const [deleCardDetails, setDeleteCardDetails] =
+  const [deleteCardDetails, setDeleteCardDetails] =
     React.useState<CardDetails | null>(null);
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-  const raw = getLocalStorage("intuity-user");
-
-  // const stored: IntuityUser | null =
-  //   typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-
   const stored = React.useMemo(() => {
     const raw = getLocalStorage("intuity-user");
     return typeof raw === "object" && raw !== null
@@ -228,14 +199,6 @@ export const PaymentMethods = ({
       (key) => paymentMethodInfoCards[key].card_token === selectedId?.card_token
     )[0];
     if (onSaveCardDetails) {
-      // const selectedCardDetails = paymentMethodInfoCards.filter(
-      //   (item) => item.card_token === selectedId
-      // )[0];
-
-      // //console.log(
-      //   "Selected Card Details:",
-      //   paymentMethodInfoCards[selectedCardDetails]
-      // );
       onSaveCardDetails(paymentMethodInfoCards[selectedCardDetails]);
       return;
     }
@@ -278,9 +241,7 @@ export const PaymentMethods = ({
     });
   }, [paymentMethodInfoCards]);
 
-  // 🧠 3. Stable row IDs for selection hook
-  const rowIds = React.useMemo(() => myCards.map((r) => r.id), [myCards]);
-  // const { selectOne, deselectOne, selected } = useSelection(rowIds);
+  // 🧠 3. Stable selection callback
   const selectOne = React.useCallback((data: { card_token: number; id: number }) => {
     setSelectedId(data);
   }, []);
@@ -293,14 +254,14 @@ export const PaymentMethods = ({
     const formData = new FormData();
     formData.append("acl_role_id", stored?.body?.acl_role_id);
     formData.append("customer_id", stored?.body?.customer_id);
-    formData.append("id", deleCardDetails?.id?.toString() || "");
+    formData.append("id", deleteCardDetails?.id?.toString() || "");
     formData.append("payment_method", "1");
     formData.append("customerid", stored?.body?.customer_id);
 
     dispatch(
       deleteCardAndBankAccount(
         formData,
-        deleCardDetails?.card_type ? "card" : "bank_account",
+        deleteCardDetails?.card_type ? "card" : "bank_account",
         () => {
           setOpenConfirm(false);
           // Refresh payment methods
@@ -311,35 +272,36 @@ export const PaymentMethods = ({
         }
       )
     );
-  }, [deleCardDetails, dispatch]);
+  }, [deleteCardDetails, dispatch]);
 
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
+  const customerData = React.useMemo(
+    () => dashBoardInfo?.customer ?? (getLocalStorage("intuity-customerInfo") as CustomerInfo | null),
+    [dashBoardInfo?.customer]
+  );
+  const companyId = customerData?.company_id;
 
   React.useEffect(() => {
-    if (CustomerInfo?.company_id) {
-      const formdata = new FormData();
-      formdata.append("acl_role_id", stored?.body?.acl_role_id);
-      formdata.append("company_id", CustomerInfo?.company_id);
-      dispatch(
-        getPaymentProcessorDetails(
-          formdata,
-          false,
-          undefined,
-          () => {
-            if (paymentDetailsPage) {
-              setContextLoading(false);
-            }
+    if (!companyId) return;
+    const formdata = new FormData();
+    formdata.append("acl_role_id", stored?.body?.acl_role_id);
+    formdata.append("company_id", companyId);
+    dispatch(
+      getPaymentProcessorDetails(
+        formdata,
+        false,
+        undefined,
+        () => {
+          if (paymentDetailsPage) {
+            setContextLoading(false);
           }
-        )
-      );
-    }
-  }, [CustomerInfo]);
+        }
+      )
+    );
+  }, [companyId]);
 
   const memoizedCardRows = React.useMemo(
     () =>
@@ -355,7 +317,7 @@ export const PaymentMethods = ({
     [myCards, selectedId, selectOne, handleDelete]
   );
   return (
-    <SkeletonWrapper>
+    <>
       <Card
         sx={{
           borderRadius: boarderRadius.card,
@@ -506,9 +468,9 @@ export const PaymentMethods = ({
         {/* Confirm Dialog */}
         <ConfirmDialog
           open={openConfirm}
-          title={deleCardDetails?.card_type ? "Card" : "Bank Account"}
+          title={deleteCardDetails?.card_type ? "Card" : "Bank Account"}
           message={`Are you sure want to Delete this ${
-            deleCardDetails?.card_type ? "Card" : "Bank Account"
+            deleteCardDetails?.card_type ? "Card" : "Bank Account"
           }?`}
           confirmLabel="Yes, Confirm"
           cancelLabel="Cancel"
@@ -525,6 +487,6 @@ export const PaymentMethods = ({
           <Loader />
         </CustomBackdrop>
       </Card>
-    </SkeletonWrapper>
+    </>
   );
 };

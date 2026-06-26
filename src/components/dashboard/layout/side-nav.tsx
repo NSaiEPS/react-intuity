@@ -9,7 +9,6 @@ import type { NavItemConfig } from "@/types/nav";
 import { isNavItemActive } from "@/lib/is-nav-item-active";
 import { navItems } from "./config";
 import { navIcons } from "./nav-icons";
-import { paths } from "@/utils/paths";
 import { getLocalStorage } from "@/utils/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
@@ -49,11 +48,9 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
 
   // ✅ useMemo — stop reading localStorage on every render
-  const { aliasUser, allow_auto_payment } = React.useMemo(() => {
-    const alias = getLocalStorage("alias-details") as { logo?: string } | null;
+  const { allow_auto_payment } = React.useMemo(() => {
     const companyDetails = getLocalStorage("intuity-company") as { allow_auto_payment?: number | string } | null;
     return {
-      aliasUser: alias,
       allow_auto_payment: dashBoardInfo?.body?.company?.allow_auto_payment ?? companyDetails?.allow_auto_payment,
     };
   }, [dashBoardInfo?.body?.company?.allow_auto_payment]); // ← only re-runs when company data changes

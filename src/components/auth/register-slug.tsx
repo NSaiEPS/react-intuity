@@ -3,22 +3,19 @@ import { getCompanyDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import {
-  Avatar, Backdrop, Box, CardContent, CircularProgress,
-  Divider, Grid, Stack, Typography,
+  Avatar, Box, CardContent,
+  Divider, Grid, Skeleton, Stack, Typography,
 } from "@mui/material";
 import DOMPurify from "dompurify";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
-import { SkeletonWrapper } from "../core/withSkeleton";
-import { useLoading } from "../core/skeletion-context";
-import { useTheme } from "@mui/material/styles";
 import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
 import { ClipboardText } from "@phosphor-icons/react/dist/ssr/ClipboardText";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { Info } from "@phosphor-icons/react";
 import { Logo } from "../core/logo";
-import Button from "../CommonComponents/Button";
+import Button from "../CommonComponents/button";
 
 // ── Eager imports (small chunks, instantly adjacent to login page) ───────────
 // These are all < 25 KB and render on the first user interaction — no lazy needed.
@@ -31,8 +28,8 @@ const OneTimePaymentModal = OneTimePaymentModalDirect;
 // ── Lazy imports (genuinely infrequent paths or heavier chunks) ───────────────
 const ResetPasswordForm = React.lazy(() => import("./reset-password-form").then(m => ({ default: m.ResetPasswordForm })));
 const ForgotLoginForm = React.lazy(() => import("./forget-login-form").then(m => ({ default: m.ForgotLoginForm })));
-const UpdatePasswordScreen = React.lazy(() => import("../dashboard/account/UpdatePasswordScreen").then(m => ({ default: m.UpdatePasswordScreen })));
-const RegisterSuccess = React.lazy(() => import("./RegisterSuccess"));
+const UpdatePasswordScreen = React.lazy(() => import("../dashboard/account/update-password-screen").then(m => ({ default: m.UpdatePasswordScreen })));
+const RegisterSuccess = React.lazy(() => import("./register-success"));
 
 // Fallback only used for the remaining lazy components
 const FormFallback = () => <Box sx={{ minHeight: 340 }} />;
@@ -41,10 +38,10 @@ const FormFallback = () => <Box sx={{ minHeight: 340 }} />;
 const MainSection = memo(function MainSection() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [onetimePaymentModalOpen, setOneTimePaymentModalOpen] = useState(false);
+  const [oneTimePaymentModalOpen, setOneTimePaymentModalOpen] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
 
-  const { accountLoading, companyInfo } = useSelector((state: RootState) => state?.Account);
+  const { companyInfo } = useSelector((state: RootState) => state?.Account);
   const routeChecker = useSelector((state: RootState) => state?.DashBoard?.routeChecker);
   const location = useLocation();
   const pathname = location.pathname;
@@ -81,7 +78,6 @@ const MainSection = memo(function MainSection() {
     [slug]
   );
 
-  const { setContextLoading } = useLoading();
 
   // Prefetch only the remaining lazy chunks (infrequent paths) while browser is idle
   React.useEffect(() => {
@@ -96,13 +92,6 @@ const MainSection = memo(function MainSection() {
     });
   }, []);
 
-  // Only show skeleton when we actually need to fetch company data.
-  // For plain /login (no slug) there's no API call → no skeleton → no CLS.
-  React.useLayoutEffect(() => {
-    if (hasCompanySlug) {
-      setContextLoading(true);
-    }
-  }, []);
 
   useEffect(() => {
     const formData = new FormData();
@@ -121,11 +110,7 @@ const MainSection = memo(function MainSection() {
         .replace("onetime-payment-", "")
         .replace("reset-password-", "");
       formData.append("alias", alias);
-      dispatch(getCompanyDetails(formData, undefined, failureCallBack, () => {
-        setContextLoading(false);
-      }));
-    } else {
-      setContextLoading(false);
+      dispatch(getCompanyDetails(formData, undefined, failureCallBack));
     }
   }, []); // ✅ removed slug dep — only run on mount
 
@@ -150,11 +135,16 @@ const MainSection = memo(function MainSection() {
 
   // ✅ useCallback — stable function reference
   const handlePayNow = useCallback(() => {
+ try {
+    sessionStorage.removeItem('guest-payment-state');
+  } catch {
+    /* storage unavailable — ignore */
+  }
     navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
   }, [navigate, companyInfo?.company?.alias]);
 
   // ✅ useMemo — DOMPurify runs once not every render
-  const { sanitizedHTML, finalHTML } = useMemo(() => {
+  const { finalHTML } = useMemo(() => {
     const rawHTML = companyInfo?.company?.optional_instructions ??
       `<p><a href="https://www.google.com">Google</a></p>`;
     const sanitized = DOMPurify.sanitize(rawHTML, { ADD_ATTR: ["target", "rel"] });
@@ -172,6 +162,9 @@ const MainSection = memo(function MainSection() {
   const getRequiredForms = () => {
     // Eager — no Suspense needed, already in the bundle
     if (pathname?.includes("onetime-payment")) return <OneTimePaymentScreen />;
+        if (pathname?.includes("forgot-login")) return (
+      <React.Suspense fallback={<FormFallback />}><ForgotLoginForm /></React.Suspense>
+    );
     if (pathname.includes("login"))            return <SignInForm user={true} />;
     if (pathname.includes("register") || pathname === "/sign-up") return <SignUpForm />;
 
@@ -179,9 +172,7 @@ const MainSection = memo(function MainSection() {
     if (pathname?.includes("reset-password")) return (
       <React.Suspense fallback={<FormFallback />}><ResetPasswordForm /></React.Suspense>
     );
-    if (pathname?.includes("forgot-login")) return (
-      <React.Suspense fallback={<FormFallback />}><ForgotLoginForm /></React.Suspense>
-    );
+
     if (pathname?.includes("update-password")) return (
       <React.Suspense fallback={<FormFallback />}><UpdatePasswordScreen /></React.Suspense>
     );
@@ -223,24 +214,33 @@ const MainSection = memo(function MainSection() {
   const showPayAsGuest = slug !== "login" && pathname?.includes("login") && !pathname?.includes("forgot");
 
   return (
-    <SkeletonWrapper>
-      <Box sx={{ backgroundSize: "cover", backgroundPosition: "center", color: "#0d1b2a", py: 2, px: { xs: 0, sm: 2 }, paddingBottom: 0 }}>
+    <Box sx={{ backgroundSize: "cover", backgroundPosition: "center", color: "#0d1b2a", py: 2, px: { xs: 0, sm: 2 }, paddingBottom: 0 }}>
         <Stack sx={{ maxWidth: "100%", mx: "auto" }}>
 
           {/* Header */}
           <Grid container sx={{ maxWidth: "1440px", width: { xs: "95%", sm: "92%", md: "90%" }, mx: "auto" }}>
             <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "center", alignItems: "center", textAlign: { xs: "center", sm: "left" }, width: "100%", gap: { xs: 1.5, sm: 2 }, px: 1 }}>
               {hasCompanySlug ? (
-                // Always reserve the avatar slot — avoids layout shift when logo loads from API
-                <Avatar
-                  src={companyInfo?.company?.logo || undefined}
-                  sx={{
-                    width: { xs: 56, sm: 70, md: 80 },
-                    height: { xs: 56, sm: 70, md: 80 },
-                    flexShrink: 0,
-                    visibility: companyInfo?.company?.logo ? "visible" : "hidden",
-                  }}
-                />
+                <>
+                  {companyInfo?.company ? (
+                    <Avatar
+                      src={companyInfo.company.logo || undefined}
+                      sx={{ width: { xs: 56, sm: 70, md: 80 }, height: { xs: 56, sm: 70, md: 80 }, flexShrink: 0 }}
+                    />
+                  ) : (
+                    <Skeleton variant="circular" width={70} height={70} sx={{ flexShrink: 0 }} />
+                  )}
+
+                  <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, width: { xs: "100%", sm: "auto" } }}>
+                    {companyInfo?.company?.company_name ? (
+                      <Typography variant="h5" sx={{ fontWeight: 700, wordBreak: "break-word", whiteSpace: "normal", lineHeight: 1.2 }}>
+                        {companyInfo.company.company_name}
+                      </Typography>
+                    ) : (
+                      <Skeleton variant="text" width={180} height={36} />
+                    )}
+                  </Box>
+                </>
               ) : (
                 <Box
                   onClick={() => {
@@ -255,14 +255,6 @@ const MainSection = memo(function MainSection() {
                   sx={{ display: "inline-flex" }}
                 >
                   <Logo color="dark" height={50} width={140} />
-                </Box>
-              )}
-
-              {hasCompanySlug && (
-                <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, width: { xs: "100%", sm: "auto" } }}>
-                  <Typography variant="h5" sx={{ fontWeight: 700, wordBreak: "break-word", whiteSpace: "normal", lineHeight: 1.2 }}>
-                    {companyInfo?.company?.company_name}
-                  </Typography>
                 </Box>
               )}
             </Box>
@@ -326,25 +318,27 @@ const MainSection = memo(function MainSection() {
           )}
         </Stack>
 
-        <Backdrop open={accountLoading} style={{ zIndex: 1300, color: "#fff" }}>
-          <CircularProgress color="success" />
-        </Backdrop>
-
         {/* ✅ Only render modal when opened */}
-        {onetimePaymentModalOpen && (
+        {oneTimePaymentModalOpen && (
           <React.Suspense fallback={null}>
-            <OneTimePaymentModal open={onetimePaymentModalOpen} onClose={() => setOneTimePaymentModalOpen(false)} />
+            <OneTimePaymentModal open={oneTimePaymentModalOpen} onClose={() => setOneTimePaymentModalOpen(false)} />
           </React.Suspense>
         )}
       </Box>
-    </SkeletonWrapper>
   );
 });
 
 export default MainSection;
 
+interface PayAsGuestCardProps {
+  companyInfo: { company?: { allow_payments?: number; alias?: string } } | null;
+  finalHTML: string;
+  handlePayNow: () => void;
+  showFull: boolean;
+}
+
 // ✅ extracted — prevents re-render of whole page
-const PayAsGuestCard = memo(function PayAsGuestCard({ companyInfo, finalHTML, handlePayNow, showFull }:any) {
+const PayAsGuestCard = memo(function PayAsGuestCard({ companyInfo, finalHTML, handlePayNow, showFull }: PayAsGuestCardProps) {
   return (
     <Box sx={{ overflow: "hidden", width: "100%", height: "100%", border: "1px solid #eaecf0", borderRadius: "16px", boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)", backgroundColor: "#fff", px: { xs: 3, sm: 4 }, py: { xs: 3, sm: 4 }, display: "flex", flexDirection: "column", gap: 3 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

@@ -17,9 +17,9 @@ import { z as zod } from "zod";
 
 import { authClient } from "@/lib/auth/client";
 
-import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
+import { UpdatePasswordModal } from "../dashboard/account/update-password-modal";
 import { paths } from "@/utils/paths";
-import Button from "../CommonComponents/Button";
+import Button from "../CommonComponents/button";
 import { Link } from "react-router";
 import { Button as MUIButton } from "@mui/material";
 
@@ -28,7 +28,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
-import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
@@ -156,7 +155,7 @@ export function ForgotLoginForm(): React.JSX.Element {
         label="Account Number *"
         type="text"
         onFocus={() => setAccountFocused(true)}
-        onBlur={(e) => { field.onBlur(); setAccountFocused(false); }}
+        onBlur={() => { field.onBlur(); setAccountFocused(false); }}
         startAdornment={
           <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
         }

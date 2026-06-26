@@ -1,7 +1,7 @@
 import React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import CompanyRouteGuard from "./components/core/company-routeGuard";
+import CompanyRouteGuard from "./components/core/company-route-guard";
 // Wrappers (keep them eager — they’re small and used everywhere)
 import ProtectedRoute, {
   Authorization,
@@ -9,19 +9,19 @@ import ProtectedRoute, {
   LoginSuspense,
 } from "./components/core/protectedRoute";
 import CardSuccess from "./components/dashboard/integrations/cardSuccess";
-import RouteErrorBoundary from "./components/RouteErrorBoundary";
-import RegisterSuccess from "./components/auth/RegisterSuccess";
+import RouteErrorBoundary from "./components/route-error-boundary";
+import RegisterSuccess from "./components/auth/register-success";
+
+// SignInPage is eager — it's the first thing every unauthenticated user sees.
+// Lazy-loading it only added a skeleton flash with no bundle benefit.
+import { SignInPage } from "./components/auth/sign-in-page";
 
 // Lazy imports for all pages
-const SignInPage = React.lazy(() =>
-  import("./components/auth/sign-in-page").then((m) => ({
-    default: m.SignInPage,
-  }))
-);
-const ConfirmInformation = React.lazy(
-  () => import("./pages/auth/confirm-information/page")
-);
-const DashBoardPage = React.lazy(() => import("./pages/dashboard/page"));
+// ConfirmInformation is eager — visited immediately after login in the 2FA/confirm flow.
+// Lazy-loading it only added a LoginSkeleton flash before the real data skeleton.
+import ConfirmInformation from "./pages/auth/confirm-information/page";
+// DashBoardPage is eager — main landing page after login, lazy-loading only added a LoaderFallback flash.
+import DashBoardPage from "./pages/dashboard/page";
 const PayNowPage = React.lazy(() => import("./pages/dashboard/pay-now/page"));
 const AlertsScreen = React.lazy(
   () => import("./pages/dashboard/usage-alerts/page")
@@ -63,17 +63,7 @@ const PaymentDetailsPage = React.lazy(
 );
 const NotFound = React.lazy(() => import("./pages/not-found"));
 
-// const LoaderFallback = React.lazy(() =>
-//   import("@/components/core/protectedRoute").then((module) => ({
-//     default: module.LoaderFallback,
-//   }))
-// );
 import { LoaderFallback } from "@/components/core/protectedRoute";
-
-// Suspense wrapper to avoid repeating
-// const withSuspense = (element: React.ReactNode) => (
-//   <React.Suspense fallback={<LoaderFallback />}>{element}</React.Suspense>
-// );
 
 const withSuspense = (element: React.ReactNode) => {
   return (
@@ -82,13 +72,13 @@ const withSuspense = (element: React.ReactNode) => {
     </React.Suspense>
   );
 };
-console.log('1.1.29', 'version');
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: LoginSuspense(
       <Authorization>
+        
         <SignInPage />
       </Authorization>
     ),

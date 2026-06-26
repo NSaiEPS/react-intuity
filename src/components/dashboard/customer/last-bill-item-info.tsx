@@ -9,8 +9,6 @@ import {
   ListItem,
   ListItemText,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 
@@ -36,9 +34,6 @@ export default function UtilityList({ data }) {
       return next;
     });
   };
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const entries = Object.entries(data as Record<string, BillingItem[]>);
 

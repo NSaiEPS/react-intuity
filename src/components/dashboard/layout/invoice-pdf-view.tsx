@@ -1,6 +1,6 @@
 import { UtilityItem } from "@/utils";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-import HeaderSection from "./HeaderSection";
+import HeaderSection from "./header-section";
 
 const styles1 = StyleSheet.create({
   section1: {
@@ -852,7 +852,7 @@ const grandTotal = utilityTotal + extraParamsTotal;;
           ([key, items]: [string, UtilityItem[]], uIdx: number) => {
             const [utilityName = "", , meterNumber = "", ...addressParts] =
               String(key).split(";");
-              let updatedItems=items?.filter((item)=>item?.product_id)
+              const updatedItems=items?.filter((item)=>item?.product_id)
             const serviceAddress = addressParts.join(";");
             // const utilityDetails : UtilityItem = items?.[0] ?? ({} as UtilityItem);
             const subtotal = updatedItems.reduce(

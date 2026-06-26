@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper } from '@mui/material';
 import { CalendarCheck, Headphones, Leaf, Megaphone } from '@phosphor-icons/react';
 
 const quickActions = [
@@ -37,9 +37,9 @@ export default function QuickActionsBox() {
         overflow: 'hidden',
       }}
     >
-      {quickActions.map((item, index) => (
+      {quickActions.map((item) => (
         <Box
-          key={index}
+          key={item.label1}
           sx={{
             display: 'flex',
             alignItems: 'center',

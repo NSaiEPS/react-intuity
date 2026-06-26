@@ -10,7 +10,7 @@ import { useDispatch } from "@/hooks/redux";
 import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
 
-import { useLoading } from "./skeletion-context";
+import { useLoading } from "./skeleton-context";
 
 export default function CompanyRouteGuard() {
   const user = getLocalStorage("intuity-user");

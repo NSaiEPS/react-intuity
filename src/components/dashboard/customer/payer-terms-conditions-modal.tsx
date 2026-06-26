@@ -1,13 +1,12 @@
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors, CustomerInfo } from "@/utils";
-import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
+import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
 import {
   CardActions,
   CardContent,
-  CardHeader,
   Checkbox,
   Dialog,
   DialogContent,
@@ -22,10 +21,10 @@ import {
 import { X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import Header from "@/components/CommonComponents/Header";
+import Header from "@/components/CommonComponents/header";
 
 const PayerTermsConditionsModal = () => {
-  const [payerTermsModalOPen, setPayerTermsModalOPen] = useState(false);
+  const [payerTermsModalOpen, setPayerTermsModalOpen] = useState(false);
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
@@ -44,13 +43,6 @@ const PayerTermsConditionsModal = () => {
     setIsPaperLessOn((prev) => !prev);
   };
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const raw = getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
@@ -58,8 +50,8 @@ const PayerTermsConditionsModal = () => {
 
   // let roleId = stored?.user?.body?.acl_role_id;
   // let userId = stored?.user?.body?.id;
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
   const handleSave = () => {
     const formData = new FormData();
 
@@ -119,7 +111,7 @@ const PayerTermsConditionsModal = () => {
                       }}
                       // Optional: onClick handler if you want to trigger something
                       onClick={() => {
-                        setPayerTermsModalOPen(true);
+                        setPayerTermsModalOpen(true);
                       }}
                     >
                       Payer Terms and Conditions
@@ -168,12 +160,12 @@ const PayerTermsConditionsModal = () => {
           Save changes
         </Button>
       </CardActions>
-      <Dialog open={payerTermsModalOPen} maxWidth="sm" fullWidth>
+      <Dialog open={payerTermsModalOpen} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ ml: 1, p: 2 }}>
           Payer Terms and Conditions
           <IconButton
             aria-label="close"
-            onClick={() => setPayerTermsModalOPen(false)}
+            onClick={() => setPayerTermsModalOpen(false)}
             sx={{
               position: "absolute",
               right: 10,

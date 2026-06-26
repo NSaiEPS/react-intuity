@@ -1,59 +1,48 @@
-import * as React from "react";
+import * as React from 'react';
+import { updatePaperLessInfo } from '@/state/features/accountSlice';
+import { RootState } from '@/state/store';
+import { boarderRadius, colors, CustomerInfo } from '@/utils';
+import { getLocalStorage, IntuityUser, updateLocalStorageValue } from '@/utils/auth';
+import { Box } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardHeader from '@mui/material/CardHeader';
+import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Unstable_Grid2';
+import { CreditCard } from '@phosphor-icons/react';
+import  { Dayjs } from 'dayjs';
+import { Button } from 'nsaicomponents';
 
-import { updatePaperLessInfo } from "@/state/features/accountSlice";
-import { RootState } from "@/state/store";
-import { boarderRadius, colors, CustomerInfo, decryptFunction } from "@/utils";
-import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-
-import CardHeader from "@mui/material/CardHeader";
-import Checkbox from "@mui/material/Checkbox";
-import Divider from "@mui/material/Divider";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
-import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Unstable_Grid2";
-import { Button } from "nsaicomponents";
-import { useDispatch, useSelector } from "@/hooks/redux";
-import dayjs, { Dayjs } from "dayjs";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import { SelectPaymentMethod } from "@/components/dashboard/customer/select-payment-method";
-import { Radio, Stack } from "@mui/material";
+import { useDispatch, useSelector } from '@/hooks/redux';
+import { SelectPaymentMethod } from '@/components/dashboard/customer/select-payment-method';
 
 export default function AutoPayDetails(): React.JSX.Element {
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-  const raw = getLocalStorage("intuity-user");
+  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
+  const raw = getLocalStorage('intuity-user');
+
+  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-//   interface CustomerInfo {
-//   acctnum: React.ReactNode;
-//   customer_name: React.ReactNode;
-//   autopay: number;
-//   id?: number;
-//   company_logo?: string;
-//   paperless?: 0 | 1;
-//   allow_overpayments?: number;
-//   balance?: number;
-// }
+  //   interface CustomerInfo {
+  //   acctnum: React.ReactNode;
+  //   customer_name: React.ReactNode;
+  //   autopay: number;
+  //   id?: number;
+  //   company_logo?: string;
+  //   paperless?: 0 | 1;
+  //   allow_overpayments?: number;
+  //   balance?: number;
+  // }
   const CustomerInfo: CustomerInfo | null = dashBoardInfo?.customer
     ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
+    : getLocalStorage('intuity-customerInfo');
   const [isAutoPay, setisAutoPay] = React.useState(false);
   const dispatch = useDispatch();
   const [autoPayDetails, setAutoPayDetails] = React.useState(null);
@@ -73,8 +62,8 @@ export default function AutoPayDetails(): React.JSX.Element {
     token?: string;
     date_used?: string | number | Date | Dayjs;
     account_type?: string;
-    card_number?: string;          
-    bank_account_number?: string;  
+    card_number?: string;
+    bank_account_number?: string;
     card_type?: string;
     card_token?: string;
     id?: string;
@@ -84,8 +73,7 @@ export default function AutoPayDetails(): React.JSX.Element {
     expYear?: number;
     [key: string]: unknown;
   }
-  const [selectedCardDetails, setSelectedCardDetails] =
-    React.useState<CardDetails>(null);
+  const [selectedCardDetails, setSelectedCardDetails] = React.useState<CardDetails>(null);
 
   //console.log(autoPayDetails, selectedCardDetails, "autoPayDetails");
 
@@ -94,18 +82,10 @@ export default function AutoPayDetails(): React.JSX.Element {
 
     const formData = new FormData();
 
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
+    formData.append('acl_role_id', roleId);
+    formData.append('customer_id', userId);
 
-    dispatch(
-      updatePaperLessInfo(
-        formData,
-        "autopay",
-        setAutoPayDetails,
-        true,
-        setAutoPaySettings
-      )
-    );
+    dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true, setAutoPaySettings));
   }, [CustomerInfo?.autopay]);
   const handleChange = () => {
     setisAutoPay((prev) => !prev);
@@ -113,8 +93,8 @@ export default function AutoPayDetails(): React.JSX.Element {
   const handleSaveChanges = () => {
     const formData = new FormData();
 
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
+    formData.append('acl_role_id', roleId);
+    formData.append('customer_id', userId);
 
     if (selectedCardDetails) {
       // "id_select_card:143
@@ -124,33 +104,153 @@ export default function AutoPayDetails(): React.JSX.Element {
       // customer_id:810
       // is_form:1"
 
-      formData.append("payment_method_id_model", selectedCardDetails?.token as string);
+      formData.append('payment_method_id_model', selectedCardDetails?.token as string);
 
-      formData.append("is_form", "1");
-      formData.append("auto_pay", isAutoPay ? "1" : "0");
+      formData.append('is_form', '1');
+      formData.append('auto_pay', isAutoPay ? '1' : '0');
 
-      formData.append("id_select_card", autoPaySettings?.id ?? "");
-      formData.append("auto_pay_model_save_card", "0");
-      dispatch(
-        updatePaperLessInfo(formData, "autopay", successCallBack)
-      );
+      formData.append('id_select_card', autoPaySettings?.id ?? '');
+      formData.append('auto_pay_model_save_card', '0');
+      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack));
       return;
     }
-    formData.append("auto_pay", isAutoPay ? "1" : "0");
+    formData.append('auto_pay', isAutoPay ? '1' : '0');
     // formData.append('id', dashBoardInfo?.body?.autopay_setting_id);
     // formData.append("id", userInfo?.autopay_setting_id);
     // formData.append('payment_method_id', dashBoardInfo?.body?.payment_method_id);
-    formData.append("payment_method_id", userInfo?.payment_method_id);
-    dispatch(updatePaperLessInfo(formData, "autopay", successCallBack));
+    formData.append('payment_method_id', userInfo?.payment_method_id);
+    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack));
   };
   const successCallBack = () => {
-    updateLocalStorageValue(
-      "intuity-customerInfo",
-      "autopay",
-      isAutoPay ? 1 : 0
-    );
+    updateLocalStorageValue('intuity-customerInfo', 'autopay', isAutoPay ? 1 : 0);
   };
   //console.log(selectedCardDetails, "selectedCardDetails");
+
+  const renderCardBrand = (brand?: string) => {
+    const b = (brand || 'visa').toLowerCase();
+    if (b.includes('visa')) {
+      return (
+        <Box
+          sx={{
+            border: '1px solid #E0E0E0',
+            borderRadius: '4px',
+            px: 1.2,
+            py: 0.4,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            height: '24px',
+          }}
+        >
+          <span
+            style={{
+              fontWeight: '900',
+              color: '#1A1F71',
+              fontStyle: 'italic',
+              fontSize: '13px',
+              letterSpacing: '0.5px',
+            }}
+          >
+            VISA
+          </span>
+        </Box>
+      );
+    }
+    if (b.includes('mastercard') || b.includes('master')) {
+      return (
+        <Box
+          sx={{
+            border: '1px solid #E0E0E0',
+            borderRadius: '4px',
+            px: 1.2,
+            py: 0.4,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            height: '24px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', color: '#EB001B', fontSize: '11px' }}>MC</span>
+        </Box>
+      );
+    }
+    if (b.includes('discover')) {
+      return (
+        <Box
+          sx={{
+            border: '1px solid #E0E0E0',
+            borderRadius: '4px',
+            px: 1.2,
+            py: 0.4,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            height: '24px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', color: '#F27020', fontSize: '11px' }}>Discover</span>
+        </Box>
+      );
+    }
+    if (b.includes('amex') || b.includes('american express')) {
+      return (
+        <Box
+          sx={{
+            border: '1px solid #E0E0E0',
+            borderRadius: '4px',
+            px: 1.2,
+            py: 0.4,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            height: '24px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', color: '#0070CD', fontSize: '11px' }}>Amex</span>
+        </Box>
+      );
+    }
+    if (b.includes('checking') || b.includes('savings') || b.includes('bank') || b.includes('account')) {
+      return (
+        <Box
+          sx={{
+            border: '1px solid #E0E0E0',
+            borderRadius: '4px',
+            px: 1.2,
+            py: 0.4,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            height: '24px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: '11px' }}>BANK</span>
+        </Box>
+      );
+    }
+    return (
+      <Box
+        sx={{
+          border: '1px solid #E0E0E0',
+          borderRadius: '4px',
+          px: 1,
+          py: 0.4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#FFFFFF',
+          height: '24px',
+        }}
+      >
+        <CreditCard size={18} color="#555" />
+      </Box>
+    );
+  };
   return (
     <Card
       sx={{
@@ -159,9 +259,7 @@ export default function AutoPayDetails(): React.JSX.Element {
     >
       <Grid container spacing={2} justifyContent="space-between">
         <CardHeader
-          subheader={
-            <Typography variant="h6">Current Autopay Method</Typography>
-          }
+          subheader={<Typography variant="h6">Current Autopay Method</Typography>}
           title={<Typography variant="h5">AutoPay Settings</Typography>}
         />
 
@@ -186,10 +284,10 @@ export default function AutoPayDetails(): React.JSX.Element {
         wrap="wrap"
         m={2}
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
+          display: 'flex',
+          justifyContent: 'space-between',
         }}
-        justifyContent={"space-between"}
+        justifyContent={'space-between'}
         mt={4}
         mb={4}
         // md={4}
@@ -199,112 +297,106 @@ export default function AutoPayDetails(): React.JSX.Element {
           // sm={6}
           // xs={12}
           sx={{
-            width: "60%",
+            width: '60%',
             // backgroundColor: 'red',
           }}
         >
           <Typography variant="h6">
-            Autopay must be enabled 24 hours prior to your invoice autopay
-            collection date to ensure processing.
+            Autopay must be enabled 24 hours prior to your invoice autopay collection date to ensure processing.
           </Typography>
           <FormGroup>
             <FormControlLabel
               sx={{
                 width: 150,
               }}
-              control={
-                <Checkbox
-                  defaultChecked
-                  onChange={handleChange}
-                  checked={isAutoPay}
-                />
-              }
+              control={<Checkbox defaultChecked onChange={handleChange} checked={isAutoPay} />}
               label="Auto Pay ON"
             />
           </FormGroup>
-          {autoPayDetails?.length ||
-          autoPayDetails?.id ||
-          selectedCardDetails?.token ? (
-            <Grid
-              container
-              alignItems="center"
-              spacing={2}
-              sx={{
-                flexWrap: "wrap",
-              }}
-            >
-              {/* Saved Details */}
-              <Grid xs={12} sm={6} md={3}>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  flexWrap="wrap"
-                  spacing={1}
-                  sx={{ wordBreak: "break-word" }}
-                >
-                  <Typography variant="h6" mr={1}>
-                    Saved Details:
-                  </Typography>
+          {autoPayDetails?.length || autoPayDetails?.id || selectedCardDetails?.token ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
+              {/* <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} /> */}
 
-                  <Typography variant="subtitle2">
-                    {selectedCardDetails?.card?.card_type ??
-                      selectedCardDetails?.card?.account_type ??
-                      autoPayDetails.card_type ??
-                      autoPayDetails.account_type}
-                  </Typography>
-                </Stack>
-              </Grid>
+              {/* Saved payment details box */}
+              <Box
+                // onClick={() => setPaymentType('saved')}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  border: '1px solid #D6DBDF',
+                  borderRadius: '8px',
+                  p: '6px 12px',
+                  backgroundColor: '#ffffff',
+                  cursor: 'pointer',
+                  '&:hover': { borderColor: '#A6ACAF' },
+                  gap: 1.5,
+                }}
+              >
+                {renderCardBrand(
+                  selectedCardDetails?.card?.card_type ??
+                    selectedCardDetails?.card?.account_type ??
+                    autoPayDetails?.card_type ??
+                    autoPayDetails?.account_type
+                )}
 
-              {/* Card Number */}
-              <Grid xs={12} sm={6} md={3}>
-                <Typography
+                <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+                  {selectedCardDetails?.card?.card_type ??
+                    selectedCardDetails?.card?.account_type ??
+                    autoPayDetails?.card_type ??
+                    autoPayDetails?.account_type ??
+                    'Card'}{' '}
+                  ending in{' '}
+                  {String(
+                    selectedCardDetails?.card?.card_number ??
+                      selectedCardDetails?.card?.bank_account_number ??
+                      autoPayDetails?.card_number ??
+                      autoPayDetails?.bank_account_number ??
+                      ''
+                  ).slice(-4)}
+                </Typography>
+
+                {/* Default Badge */}
+                <Box
                   sx={{
-                    fontFamily: "monospace",
-                    wordBreak: "break-all",
+                    backgroundColor: '#E8F8F5',
+                    color: '#117A65',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    px: 1,
+                    py: 0.2,
+                    borderRadius: '4px',
                   }}
                 >
-                  {selectedCardDetails?.card?.card_number ??
-                    decryptFunction(
-                      selectedCardDetails?.card?.bank_account_number ??
-                        autoPayDetails.card_number ??
-                        autoPayDetails.bank_account_number
-                    )}
-                </Typography>
-              </Grid>
+                  Default
+                </Box>
 
-              {/* Card Type */}
-              <Grid xs={12} sm={6} md={3}>
-                <Typography>
-                  {selectedCardDetails?.card?.card_type ||
-                  autoPayDetails?.card_type
-                    ? "Card"
-                    : "Bank Account"}
-                </Typography>
-              </Grid>
-
-              {/* Date */}
-              <Grid xs={12} sm={6} md={3}>
-                <Typography>
-                  {dayjs
-                    .tz(
-                      selectedCardDetails?.card?.date_used ??
-                        autoPayDetails.createdAt,
-                      "America/Chicago"
-                    )
-                    .tz(dayjs.tz.guess())
-                    .format("YYYY-MM-DD hh:mm A z")}
-                </Typography>
-              </Grid>
-            </Grid>
+                {/* Chevron Icon */}
+                <Box sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </Box>
+              </Box>
+            </Box>
           ) : (
-            ""
+            // No saved details — just show Add/Edit button
+            <></>
           )}
         </Grid>
 
         <Grid
           sx={{
-            marginTop: "auto",
-            marginBottom: "auto",
+            marginTop: 'auto',
+            marginBottom: 'auto',
           }}
           sm={6}
           xs={12}
@@ -316,21 +408,21 @@ export default function AutoPayDetails(): React.JSX.Element {
                 token: token,
               });
             }}
-            text={"Change Payment Method"}
+            text={'Change Payment Method'}
           />
         </Grid>
       </Grid>
 
       <Divider />
-      <CardActions sx={{ justifyContent: "flex-end" }}>
+      <CardActions sx={{ justifyContent: 'flex-end' }}>
         <Button
           variant="outlined"
           textTransform="capitalize"
           style={{
             color: colors.blue,
             borderColor: colors.blue,
-            borderRadius: "12px",
-            height: "41px",
+            borderRadius: '12px',
+            height: '41px',
           }}
         >
           Cancel
@@ -356,11 +448,11 @@ export default function AutoPayDetails(): React.JSX.Element {
           variant="contained"
           textTransform="none"
           bgColor={colors.blue}
-          hoverBackgroundColor={colors["blue.3"]}
+          hoverBackgroundColor={colors['blue.3']}
           hoverColor="white"
           style={{
-            borderRadius: "12px",
-            height: "41px",
+            borderRadius: '12px',
+            height: '41px',
             // backgroundColor: 'red',
           }}
         >

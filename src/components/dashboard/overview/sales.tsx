@@ -2,8 +2,8 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { getUsageGraph } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colorPalette, colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { colorPalette, colors } from "@/utils";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -52,8 +52,8 @@ export function Sales({
     (state: RootState) => state?.DashBoard?.monthlyUsageGraph
   );
 
-  const dashboardLoader = useSelector(
-    (state: RootState) => state?.DashBoard?.dashboardLoader
+  const dashboardLoading = useSelector(
+    (state: RootState) => state?.DashBoard?.dashboardLoading
   );
   // const dashBoardInfo = input;
 
@@ -61,8 +61,8 @@ export function Sales({
   const rateToDataMap: Record<string, number[]> = {};
 
   // First, loop over each month entry
-  dashBoardInfo?.usage_history_data?.data.forEach((month) => {
-    month.values.forEach((val) => {
+  dashBoardInfo?.usage_history_data?.data?.forEach((month) => {
+    month?.values?.forEach((val) => {
       const rate = String(val.rate); // normalize to string
       ratesSet.add(rate);
       if (!rateToDataMap[rate]) {
@@ -79,27 +79,18 @@ export function Sales({
     data: rateToDataMap[rate],
   }));
   const dispatch = useDispatch();
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
-  // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null = React.useMemo(() => {
+    const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+    return typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  }, [userInfo]);
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
   React.useEffect(() => {
+    if (!roleId || !userId) return;
     const formData = new FormData();
-if(roleId && userId) {
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("utility_type", "WATER");
@@ -107,8 +98,8 @@ if(roleId && userId) {
     formData.append("billed_usage", "1");
     formData.append("usage_history", "1");
 
-    dispatch(getUsageGraph(formData));}
-  }, [userInfo]);
+    dispatch(getUsageGraph(formData));
+  }, [userId]);
 
   const [barGraphData, setBarGraphData] = React.useState({
     gallons: [],
@@ -137,9 +128,9 @@ if(roleId && userId) {
     // }
     if (barData) {
       barData.forEach((item, index) => {
-        gallons.push(item?.[3]);
+        gallons.push(item?.[3] ?? "0");
         dollars.push("");
-        dates.push(item?.[0]);
+        dates.push(item?.[0] ?? "");
         colors.push(colorPalette[index]);
       });
     }
@@ -196,16 +187,10 @@ if(roleId && userId) {
         labels: {
           show: true,
           useHTML: true,
-          formatter: function (val, index) {
-            // //console.log('barGraphDatabarGraphData', val, index);
+          formatter: function (val) {
             const Dateindex = barGraphData.dates.indexOf(val);
             const dollar = barGraphData.dollars[Dateindex];
-            const dollarVal = barGraphData.dollars[index];
-            // const isNegative = dollarVal < 0;
-            // return `${dollarFormatted}\n${date}`;
-            // return `$ ${dollar}\n ${index}`;
-            const label = `${dollar} `;
-            return label;
+            return `${dollar} `;
           },
           style: {
             fontSize: "14px",
@@ -332,7 +317,7 @@ if(roleId && userId) {
       )}
 
       <CustomBackdrop
-        open={dashboardLoader && !dashboard}
+        open={dashboardLoading && !dashboard}
         style={{ zIndex: 1300, color: "#fff" }}
       >
         <Loader />

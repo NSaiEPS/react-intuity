@@ -5,7 +5,7 @@ import {
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors, CustomerInfo } from "@/utils";
-import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
+import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -30,7 +30,6 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import * as z from "zod";
 
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
-import { useLoading } from "@/components/core/skeletion-context";
 import { toast } from "@/lib/custom-toast";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 
@@ -134,8 +133,6 @@ export function Notifications(): React.JSX.Element {
     (state: RootState) => state?.Account
   );
   const [userUpdating, setUserUpdating] = React.useState("");
-  const { contextLoading } = useLoading();
-  //console.log(notificationPreferenceDetails, "notificationPreferenceDetails");
   const {
     control,
     handleSubmit,
@@ -155,7 +152,6 @@ export function Notifications(): React.JSX.Element {
 
   const watchEmail = watch("email");
   const watchPhone = watch("phone");
-  //console.log(watchPhone, "watchPhone");
   React.useEffect(() => {
     setEmailUpdated(true);
   }, [watchEmail]);
@@ -171,9 +167,10 @@ export function Notifications(): React.JSX.Element {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const userInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
+  const userInfo: CustomerInfo = React.useMemo(
+    () => dashBoardInfo?.customer ?? (getLocalStorage("intuity-customerInfo") as CustomerInfo),
+    [dashBoardInfo?.customer]
+  );
 
   React.useEffect(() => {
     if (userInfo) {
@@ -191,13 +188,6 @@ export function Notifications(): React.JSX.Element {
       }));
     }
   }, [reset, userInfo, notificationPreferenceDetails]);
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const raw = getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
@@ -208,7 +198,6 @@ export function Notifications(): React.JSX.Element {
   const handleEmailUpdate = async () => {
     const valid = await trigger("email");
     if (valid) {
-      //console.log("Updated email:", getValues("email"));
       setUserUpdating("email");
 
       const formData = new FormData();
@@ -236,7 +225,6 @@ export function Notifications(): React.JSX.Element {
         clickedState ? 1 : 0
       );
     }
-    //console.log("Email updated successfully");
   };
 
   const getPrefDetails = () => {
@@ -256,7 +244,6 @@ export function Notifications(): React.JSX.Element {
       return;
     }
 
-    // //console.log("Updated email:", getValues("email"));
     setUserUpdating("phone");
 
     const formData = new FormData();
@@ -280,7 +267,6 @@ export function Notifications(): React.JSX.Element {
   };
 
   const onSubmit = (data: FormData) => {
-    //console.log("Saved All:", data);
     reset(data);
     setEmailUpdated(false);
     setPhoneUpdated(false);
@@ -540,7 +526,7 @@ export function Notifications(): React.JSX.Element {
       )}
 
       <CustomBackdrop
-        open={accountLoading && !contextLoading}
+        open={accountLoading}
         style={{ zIndex: 1300, color: "#fff" }}
       >
         <Loader />

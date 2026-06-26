@@ -5,29 +5,21 @@ import {
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 // html2canvas (~800KB) + jsPDF (~500KB) are only needed when user clicks download
 // Dynamic import keeps them out of the initial page bundle entirely
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { useSearchParams } from "react-router";
 
-import Button from "@/components/CommonComponents/Button";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { InvoiceMainDetails } from "./Invoice-main-details-new";
+import Button from "@/components/CommonComponents/button";
+import { useLoading } from "@/components/core/skeleton-context";
+import { InvoiceMainDetails } from "./invoice-main-details-new";
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
 
   const id = searchParams.get("id");
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
 
   // const raw = getLocalStorage('intuity-user');
@@ -38,15 +30,12 @@ export default function InvoiceDetails() {
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
   const { setContextLoading } = useLoading();
 
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
   React.useEffect(() => {
-    //TODO: change here
-
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -125,7 +114,7 @@ export default function InvoiceDetails() {
   };
 
   return (
-    <SkeletonWrapper>
+    <>
       <div
         style={{
           marginLeft: "auto",
@@ -153,6 +142,6 @@ export default function InvoiceDetails() {
       <div ref={pdfRef} id="print-section">
         <InvoiceMainDetails />
       </div>
-    </SkeletonWrapper>
+    </>
   );
 }

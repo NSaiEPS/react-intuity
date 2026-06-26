@@ -12,10 +12,6 @@ export const removeLocalStorage = (key: string) => {
   secureLocalStorage.removeItem(key);
 };
 
-// export const clearLocalStorage = () => {
-//   secureLocalStorage.clear();
-// };
-
 export const clearLocalStorage = () => {
   removeLocalStorage("custom-auth-token");
   removeLocalStorage("intuity-user");

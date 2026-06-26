@@ -13,8 +13,6 @@ const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
   const location = useLocation();
 
    const message = location.state?.message;
-   const news = location.state;
-console.log(news)
   useLayoutEffect(() => {
     document.title = successPage ? "Payment Confirmation" : "Card Redirect";
   }, [successPage]);
@@ -41,7 +39,7 @@ console.log(news)
     return cleaned;
   };
   const convenienceFee = sanitize(searchParams.get("convenience_fee"));
-  let stored: { body?: { token?: string } } | null = getLocalStorage("intuity-user") as { body?: { token?: string } } | null;
+  const stored: { body?: { token?: string } } | null = getLocalStorage("intuity-user") as { body?: { token?: string } } | null;
   const worldPlayDetails = getLocalStorage("worldplay-details");
   //console.log("worldPlayDetails", worldPlayDetails);
   useEffect(() => {

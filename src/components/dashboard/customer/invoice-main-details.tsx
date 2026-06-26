@@ -3,9 +3,7 @@ import { RootState } from "@/state/store";
 import { colors, formatToMMDDYYYY, UtilityItem } from "@/utils";
 import {
   Box,
-  Checkbox,
   Divider,
-  FormControlLabel,
   Grid,
   Paper,
   Stack,
@@ -14,7 +12,6 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-  TextField,
   Typography,
 } from "@mui/material";
 import { CustomBackdrop, Loader } from "nsaicomponents";
@@ -24,8 +21,8 @@ export const InvoiceMainDetails = () => {
   const invoiceDetails = useSelector(
     (state: RootState) => state.DashBoard.invoiceDetails
   );
-  const dashboardLoader = useSelector(
-    (state: RootState) => state.DashBoard.dashboardLoader
+  const dashboardLoading = useSelector(
+    (state: RootState) => state.DashBoard.dashboardLoading
   );
   const {
     company,
@@ -629,7 +626,7 @@ export const InvoiceMainDetails = () => {
       {/* Footer */}
 
       <CustomBackdrop
-        open={dashboardLoader}
+        open={dashboardLoading}
         style={{ zIndex: 1300, color: "#fff" }}
       >
         <Loader />

@@ -5,11 +5,11 @@ import Box from "@mui/material/Box";
 // use plain document.title instead
 
 import CompanyDetails from "./company-details";
-import MainSection from "./register-slag";
+import MainSection from "./register-slug";
 
 
 export function SignInPage(): React.JSX.Element {
-  // Title is managed by MainSection (register-slag) via useLayoutEffect
+  // Title is managed by MainSection (register-slug) via useLayoutEffect
   // based on the current pathname — no override needed here.
 
   return (

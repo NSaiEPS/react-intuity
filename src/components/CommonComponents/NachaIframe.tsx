@@ -321,7 +321,7 @@ type FormErrors = Record<string, string>;
   };
 
   const validate = () => {
-    let newErrors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: string } = {};
     const numberRegex = /^[0-9]+$/;
 
     if (!formData.routingNumber) {

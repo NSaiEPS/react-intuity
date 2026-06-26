@@ -7,7 +7,7 @@ import {
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -27,31 +27,18 @@ function UsageFilter() {
   const [utilityType, setUtilityType] = useState("");
   const [unitMeasure, setUnitMeasure] = useState("");
   const [meterNo, setMeterNo] = useState("");
-  const dropdownDetailes = secureLocalStorage.getItem("intuity-meterDetails");
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const updatedMeterDetails = dashBoardInfo?.meterDetails
-    ? dashBoardInfo?.meterDetails
-    : dropdownDetailes;
+  // Memoize so secureLocalStorage.getItem isn't called on every render (returns new object each time)
+  const updatedMeterDetails = useMemo(() => {
+    if (dashBoardInfo?.meterDetails) return dashBoardInfo.meterDetails;
+    return secureLocalStorage.getItem("intuity-meterDetails") ?? {};
+  }, [dashBoardInfo?.meterDetails]);
 
-  const [meterDetails, setMeterDetails] = useState([]);
-
-  // const meterDetails = useMemo(() => {
-  //   if (!updatedMeterDetails) return [];
-
-  //   return Object.entries(updatedMeterDetails).map(([key, value]) => ({
-  //     utility_type_name: key,
-  //   }));
-  // }, [updatedMeterDetails]);
-
-  useEffect(() => {
-    let value = Object.entries(updatedMeterDetails).map(([key, value]) => ({
-      utility_type_name: key,
-    }));
-
-    setMeterDetails(value);
-  }, [updatedMeterDetails]);
+  const meterDetails = useMemo(() =>
+    Object.entries(updatedMeterDetails).map(([key]) => ({ utility_type_name: key })),
+  [updatedMeterDetails]);
 
   const dispatch = useDispatch();
 
@@ -75,9 +62,9 @@ function UsageFilter() {
   });
   useEffect(() => {
     if (meterDetails?.length) {
-      let type = [];
-      let ums = [];
-      let meterNum = [];
+      const type = [];
+      const ums = [];
+      const meterNum = [];
       meterDetails?.forEach((item) => {
         // if (item?.meter_number) {
         //   meterNum.push({
@@ -108,24 +95,16 @@ function UsageFilter() {
     }
   }, [meterDetails]);
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
-  // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const stored: IntuityUser | null = useMemo(() => {
+    const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+    return typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  }, [userInfo]);
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const token = stored?.body?.token;
   const [filterDates, setFilterDates] = useState({
     startDate: dayjs().startOf("month").format("YYYY-MM-DD"),
     endDate: dayjs().endOf("month").format("YYYY-MM-DD"),
@@ -147,10 +126,15 @@ function UsageFilter() {
     setUtiltyType();
     setUnitMeasure("");
     setMeterNo("");
+    return () => {
+      if (utilityTimerRef.current) clearTimeout(utilityTimerRef.current);
+    };
   }, [userId]);
 
+  const utilityTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const setUtiltyType = () => {
-    setTimeout(() => {
+    if (utilityTimerRef.current) clearTimeout(utilityTimerRef.current);
+    utilityTimerRef.current = setTimeout(() => {
       setUtilityType(filterList.type?.[0]?.value);
     }, 1000);
   };
@@ -202,9 +186,9 @@ function UsageFilter() {
   }, [unitMeasure]);
   const successCallBack = (data, isMeter = false) => {
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
-      let type = [...filterList.type];
-      let ums = [];
-      let meterNum = [];
+      const type = [...filterList.type];
+      const ums = [];
+      const meterNum = [];
 
       data?.utility_um_data?.forEach((item) => {
         // if (item?.meter_number) {

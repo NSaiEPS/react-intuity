@@ -22,10 +22,10 @@ import type {
   UsageGraphBody,
 } from "@/types/domain";
 
-interface DahBoardState {
+interface DashBoardState {
   dashBoardInfo: DashboardResponse & Record<string, any>;
-  dashboardLoader: boolean;
-  notificationLoader: boolean;
+  dashboardLoading: boolean;
+  notificationLoading: boolean;
   dashboardError: string | null;
   notificationList: NotificationPreferencesBody | Record<string, any>;
   usageGraph: UsageGraphBody;
@@ -36,10 +36,10 @@ interface DahBoardState {
   routeChecker: boolean;
 }
 
-const initialState: DahBoardState = {
+const initialState: DashBoardState = {
   dashBoardInfo: {} as DashboardResponse & Record<string, any>,
-  dashboardLoader: false,
-  notificationLoader: false,
+  dashboardLoading: false,
+  notificationLoading: false,
   dashboardError: null,
   notificationList: {},
   usageGraph: {},
@@ -58,13 +58,13 @@ const DashBoardSlice = createSlice({
       state.dashBoardInfo = action.payload;
     },
     setDashboardLoader(state, action) {
-      state.dashboardLoader = action.payload;
+      state.dashboardLoading = action.payload;
     },
     setNotificationList(state, action) {
       state.notificationList = action.payload;
     },
     setNotificationLoader(state, action) {
-      state.notificationLoader = action.payload;
+      state.notificationLoading = action.payload;
     },
     setusageGraph(state, action) {
       state.usageGraph = action.payload;

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { getUsageAlerts } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import {
   Box,
   CardHeader,
@@ -25,46 +25,33 @@ function UsageHeader() {
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
-  // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const stored: IntuityUser | null = React.useMemo(() => {
+    const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+    return typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  }, [userInfo]);
 
   const { accountLoading, usageAlerts } = useSelector(
     (state: RootState) => state?.Account
   );
 
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+
   const dispatch = useDispatch();
   useEffect(() => {
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
+    if (!roleId || !userId) return;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
 
-    //     acl_role_id:4
-    // customer_id:810
-    // formData.append('is_form', '0');
-
     dispatch(getUsageAlerts(formData));
-  }, [userInfo]);
+  }, [userId]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-
-  //console.log(CustomerInfo, "dhyh");
 
   return (
     <Grid container spacing={2} direction="column">

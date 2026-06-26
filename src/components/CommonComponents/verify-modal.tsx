@@ -17,9 +17,6 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { updateAccountInfo } from "@/state/features/accountSlice";
-import { paths } from "@/utils/paths";
-import { useUser } from "@/hooks/use-user";
-import { useNavigate } from "react-router";
 
 // ✅ Zod schema
 const schema = z.object({
@@ -74,9 +71,6 @@ export default function AuthCodeModal({
     (state: RootState) => state?.Account?.accountLoading
   );
   const raw = getLocalStorage("intuity-user");
-  const { checkSession } = useUser();
-  const navigate = useNavigate();
-
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const role_id = stored?.body?.acl_role_id;
@@ -95,8 +89,7 @@ export default function AuthCodeModal({
     // country_code:1
     // selected_value:method
 
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
+    const userId = stored?.body?.customer_id;
 
     const formData = new FormData();
 
@@ -133,10 +126,7 @@ export default function AuthCodeModal({
     );
   };
 
-  const onSubmit = async (data: FormValues) => {
-    // await checkSession?.();
-
-    // navigate(paths.dashboard.overview());
+  const onSubmit = async (_data: FormValues) => {
     reset();
     onClose();
     onClose2Fa()

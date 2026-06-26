@@ -1,13 +1,21 @@
-// pages/invoice.js (or any component file)
-import { useLoading } from "@/components/core/skeletion-context";
+import { useLoading } from "@/components/core/skeleton-context";
+import { PaymentDetailsSkeleton } from "@/components/dashboard/skeletons";
 import PaymentForm from "@/components/dashboard/account/payment-details";
 import * as React from "react";
 
 export default function PaymentDetailsPage() {
-  const { setContextLoading } = useLoading();
+  const { contextLoading, setContextLoading } = useLoading();
 
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
-  return <PaymentForm />;
+
+  return (
+    <>
+      {contextLoading && <PaymentDetailsSkeleton />}
+      <div style={{ display: contextLoading ? "none" : "block" }}>
+        <PaymentForm />
+      </div>
+    </>
+  );
 }

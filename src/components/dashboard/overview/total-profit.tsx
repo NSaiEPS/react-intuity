@@ -9,7 +9,7 @@ import Stack from "@mui/material/Stack";
 import type { SxProps } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
-import { IconCards } from "@/components/dashboard/overview/Icon-cards";
+import { IconCards } from "@/components/dashboard/overview/icon-cards";
 
 import { paths } from "@/utils/paths";
 import { Button } from "@mui/material";
@@ -34,8 +34,8 @@ export function TotalProfit({
   const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
 
   const navigate = useNavigate();
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  const { dashBoardInfo } = useSelector(
+    (state: RootState) => state?.DashBoard
   );
 
   const { due_date } = dashBoardInfo?.body?.customer?.last_bill || {};
@@ -55,6 +55,22 @@ export function TotalProfit({
     });
   }, [aliasUser?.phone, aliasUser?.email, aliasUser?.company_website_URL]);
 
+  const cardSx: SxProps = {
+    ...sx,
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+    borderRadius: boarderRadius.card,
+    padding: 2,
+    paddingTop: 1,
+    boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
+    backgroundColor: "#fff",
+    border: "1px solid #EAEAEA",
+  };
+
   return (
     <Card
       onClick={() => {
@@ -63,21 +79,7 @@ export function TotalProfit({
         }
       }}
       elevation={0}
-      sx={{
-        ...sx,
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        textAlign: "center",
-        borderRadius: boarderRadius.card,
-        padding: 2,
-        paddingTop: 1,
-        boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
-        backgroundColor: "#fff",
-        border: "1px solid #EAEAEA",
-      }}
+      sx={cardSx}
     >
       <CardContent sx={{ flex: 1, width: "100%" }}>
         <Stack spacing={2} justifyContent="center" alignItems="center">

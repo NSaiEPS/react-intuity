@@ -1,12 +1,11 @@
-// import api from '@/app/api/axios';
-import api, { BASE_URL } from "@/api/axios";
+import { BASE_URL } from "@/api/axios";
 import { navigateTo } from "@/utils/navigation";
 import secureLocalStorage from "react-secure-storage";
 import { toast } from "@/lib/custom-toast";
 
 import type { User } from "@/types/user";
 
-import { clearLocalStorage, getLocalStorage, removeLocalStorage, setLocalStorage } from "../../utils/auth";
+import { clearLocalStorage, getLocalStorage, setLocalStorage } from "../../utils/auth";
 import { store } from "@/state/store";
 import { resetAccountStore } from "@/state/features/accountSlice";
 import { resetDashboardStore } from "@/state/features/dashBoardSlice";
@@ -17,14 +16,6 @@ function generateToken(): string {
   window.crypto.getRandomValues(arr);
   return Array.from(arr, (v) => v.toString(16).padStart(2, "0")).join("");
 }
-
-const user = {
-  id: "USR-000",
-  avatar: "/assets/avatar.png",
-  firstName: "Sofia",
-  lastName: "Rivers",
-  email: "sofia@devias.io",
-} satisfies User;
 
 export interface SignUpParams {
   firstName: string;
@@ -62,29 +53,6 @@ class AuthClient {
     return { error: "Social authentication not implemented" };
   }
 
-  // async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
-  //   const { email, password } = params;
-  //   const formData = new FormData();
-
-  //   formData.append('email', email);
-  //   formData.append('password', password);
-
-  //   // Make API request
-  //   const res = await api.post('/login', formData);
-  //   //console.log(res, 'errorerror');
-  //   const token = res.data?.body.token;
-
-  //   if (token) {
-  //     localStorage.setItem('custom-auth-token', token);
-  //     setLocalStorage('custom-auth-token', token);
-
-  //     setLocalStorage('intuity-user', JSON.stringify(res.data?.body));
-  //     return {};
-  //   } else {
-  //     return { error: res?.data?.body?.errors?.[0] };
-  //   }
-  // }
-
   async signInWithPassword(
     params: { email: string; password: string },
     successCallBack
@@ -108,9 +76,6 @@ class AuthClient {
       return { error: data?.body?.errors?.[0] || "Login failed" };
     }
     data.body.email = email;
-    // Save user data (not token!) in localStorage
-    // localStorage.setItem('intuity-user', JSON.stringify(data));
-    // localStorage.setItem('custom-auth-token', data?.body?.token);
     secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
     secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
     secureLocalStorage.setItem("intuity-is-logged-in", "true")
@@ -118,12 +83,6 @@ class AuthClient {
       "intuity-companyId",
       data?.body?.alias || "intuityfe"
     );
-    // Cookies.set('intuity-user', JSON.stringify(data.body), {
-    //   expires: 7,
-    //   secure: true,
-    //   path: '/',
-    //   sameSite: 'Lax',
-    // });
     if (successCallBack && data?.body?.token) {
       successCallBack(data);
     }
@@ -133,7 +92,6 @@ class AuthClient {
   async resetPassword(params: { email: string },alias:string): Promise<{ error?: string }> {
     const { email } = params;
     const formData = new FormData();
-// //console.log(alias)
     formData.append("email", email);
 
     const res = await fetch(`${BASE_URL}index/recover-password`, {
@@ -243,7 +201,7 @@ class AuthClient {
       method: "POST",
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: formData,
     }).catch(() => {/* silent — user is already logged out locally */});

@@ -3,15 +3,15 @@ import {
   getConfirmInfo,
   getUserInfoByToken,
 } from "@/state/features/accountSlice";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useDispatch } from "@/hooks/redux";
-import { useLocation, useParams } from "react-router";
+import { useLocation } from "react-router";
 
 import { ConfirmInfoDetails } from "@/components/auth/confirm-info";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { useLoading } from "@/components/core/skeleton-context";
+import { ConfirmInfoSkeleton } from "@/components/dashboard/skeletons";
 
 export default function ConfirmInformation() {
   const { search } = useLocation();
@@ -41,15 +41,8 @@ export default function ConfirmInformation() {
     }
   }, [token]);
 
-  const { setContextLoading } = useLoading();
+  const { contextLoading, setContextLoading } = useLoading();
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const dispatch = useDispatch();
   React.useLayoutEffect(() => {
     document.title = "Confirm Info";
@@ -126,9 +119,7 @@ export default function ConfirmInformation() {
         px: { xs: 2, sm: 4, md: 8, lg: 20 },
       }}
     >
-      <SkeletonWrapper>
-        <ConfirmInfoDetails />
-      </SkeletonWrapper>
+      {contextLoading ? <ConfirmInfoSkeleton /> : <ConfirmInfoDetails />}
 
       {/* <Typography
         variant="body2"

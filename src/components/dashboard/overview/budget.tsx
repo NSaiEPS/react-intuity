@@ -1,10 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom"; // Correct hook for App Router
 
-import { getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
 import { Button, CardActions } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Card from "@mui/material/Card";
@@ -14,11 +12,10 @@ import type { SxProps } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { CurrencyDollar as CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
 // import { HandCoins } from '@phosphor-icons/react';
-import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "@/hooks/redux";
+import { useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
-import { IconCards } from "@/components/dashboard/overview/Icon-cards";
+import { IconCards } from "@/components/dashboard/overview/icon-cards";
 
 export interface BudgetProps {
   diff?: number;
@@ -31,18 +28,14 @@ export interface BudgetProps {
 
 export function Budget({
   sx,
-  value,
   userInfo = false,
   icons = false,
 }: BudgetProps): React.JSX.Element {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { dashBoardInfo, dashboardLoader } = useSelector(
+  const { dashBoardInfo } = useSelector(
     (state: RootState) => state?.DashBoard
   );
-  const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const {
-    last_bill,
     acctnum,
     customer_name,
     service_address,
@@ -52,29 +45,8 @@ export function Budget({
   } = dashBoardInfo?.body?.customer || {};
   const { balance } = dashBoardInfo?.body?.dashboard || {};
 
-  React.useEffect(() => {
-    type IntuityUser = {
-      body?: {
-        acl_role_id?: string;
-        customer_id?: string;
-        token?: string;
-      };
-    };
-    const raw = getLocalStorage("intuity-user");
-
-    const stored: IntuityUser | null =
-      typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
-    let token = stored?.body?.token;
-    if (!userInfo) {
-      dispatch(getDashboardInfo(roleId, userId));
-    }
-  }, []);
 
   return (
-    // <Card sx={{ borderRadius: boarderRadius.card, ...sx }}>
     <Card
       elevation={0}
       sx={{
@@ -198,12 +170,6 @@ export function Budget({
           </Stack>
         )}
       </CardContent>
-      <CustomBackdrop
-        open={dashboardLoader || accountLoading}
-        style={{ zIndex: 1300, color: "#fff" }}
-      >
-        <Loader />
-      </CustomBackdrop>
     </Card>
   );
 }

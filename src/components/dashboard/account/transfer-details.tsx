@@ -1,9 +1,6 @@
 import * as React from "react";
 
-import { stopTransferService } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Divider from "@mui/material/Divider";
@@ -12,7 +9,7 @@ import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Grid from "@mui/material/Unstable_Grid2";
 import { CustomBackdrop, Loader } from "nsaicomponents";
-import { useDispatch, useSelector } from "@/hooks/redux";
+import { useSelector } from "@/hooks/redux";
 
 export function TransferDetailsForm(): React.JSX.Element {
   const { transferInfo, accountLoading } = useSelector(
@@ -20,17 +17,10 @@ export function TransferDetailsForm(): React.JSX.Element {
   );
 
   const {
-  customer_name = "",
-  acctnum = "",
-  address = "",
-  phone = "",
-  email = "",
-  role = "",
-  comment = "",
-  service_address = "",
-  phone2 = "",
-  id = "",
-  meterNumber = "",
+    customer_name = "",
+    acctnum = "",
+    service_address = "",
+    meterNumber = "",
   } = transferInfo?.customer_data?.[0] || {};
 
 

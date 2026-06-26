@@ -1,5 +1,5 @@
 import { Action, configureStore } from "@reduxjs/toolkit";
-import thunk, { ThunkAction, ThunkMiddleware } from "redux-thunk";
+import { ThunkAction } from "redux-thunk";
 
 import accountSlice from "./features/accountSlice";
 import dashBoardSlice from "./features/dashBoardSlice";

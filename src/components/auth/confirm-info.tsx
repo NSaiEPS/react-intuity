@@ -2,22 +2,20 @@ import React, { useEffect, useReducer } from "react";
 import { getConfirmInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import type { CustomerAccount } from "@/types/domain";
 import {
   Box,
-  Button,
   Card,
   CardContent,
-  CircularProgress,
   Grid,
   Stack,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Link as MUILink } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Button } from "nsaicomponents";
+
 import { useLocation } from "react-router-dom";
 
 import { useDispatch, useSelector } from "@/hooks/redux";
@@ -27,7 +25,6 @@ import PhoneModal from "./confirm-phone-modal";
 import { paths } from "@/utils/paths";
 import { useNavigate } from "react-router";
 import TwoFAModal from "./2fa-login";
-import { maxWidth } from "@mui/system";
 import secureLocalStorage from "react-secure-storage";
 
 type State = {
@@ -84,14 +81,6 @@ const two_fa_status = location.state?.two_fa_status ?? false;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const dispatch = useDispatch();
-
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
 
   const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
@@ -309,38 +298,43 @@ const two_fa_status = location.state?.two_fa_status ?? false;
           </MUILink> */}
           <Button
             variant="outlined"
-            fullWidth={isMobile}
-            onClick={()=>successCallBack('skip')}
-            sx={{
-              px: 4,
-              borderColor: colors.blue,
+            textTransform="none"
+            onClick={() => successCallBack('skip')}
+            style={{
+              borderRadius: "12px",
+              height: "44px",
+              paddingLeft: "24px",
+              paddingRight: "24px",
+              fontWeight: 600,
               color: colors.blue,
-              fontWeight: "bold",
-              fontSize: { xs: "0.8rem", sm: "1rem" },
-              "&:hover": {
-                borderColor: colors["blue.3"],
-                backgroundColor: "transparent",
-              },
+              borderColor: colors.blue,
+              backgroundColor: "#fff",
+              width: isMobile ? "100%" : "auto",
             }}
           >
-            SKIP
+            Skip
           </Button>
         </Grid>
         <Grid item xs={6} textAlign="right">
           <Button
-            fullWidth={isMobile}
+            disabled={accountLoading}
+            loading={accountLoading}
             variant="contained"
-            sx={{
-              px: 4,
-              backgroundColor: colors.blue,
-              "&:hover": {
-                backgroundColor: colors["blue.3"],
-              },
-              fontSize: { xs: "0.8rem", sm: "1rem" },
+            textTransform="none"
+            bgColor={colors.blue}
+            hoverBackgroundColor={colors["blue.3"]}
+            hoverColor="white"
+            style={{
+              borderRadius: "12px",
+              height: "44px",
+              paddingLeft: "24px",
+              paddingRight: "24px",
+              fontWeight: 600,
+              width: isMobile ? "100%" : "auto",
             }}
             onClick={hanldeConfirm}
           >
-            CONFIRM
+            Confirm
           </Button>
         </Grid>
       </Grid>
@@ -366,16 +360,6 @@ const two_fa_status = location.state?.two_fa_status ?? false;
         customerData={reqCustomer() as any}
       />
 
-      {accountLoading && (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="100vh"
-        >
-          <CircularProgress />
-        </Box>
-      )}
     </Box>
   );
 }

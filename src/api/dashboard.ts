@@ -6,6 +6,11 @@ import api from "./axios";
 // Token is injected automatically by the axios request interceptor in axios.ts.
 // No function here needs to accept or forward a token.
 
+export async function check2FAStatusApi() {
+  const res = await api.get("index/check-two-fa-confirm-status");
+  return res.data;
+}
+
 export async function homeApi({ role_id, user_id }: { role_id: string; user_id: string }) {
   const formData = new FormData();
   formData.append("acl_role_id", role_id);

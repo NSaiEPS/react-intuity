@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 
 import { logger } from "@/lib/default-logger";
@@ -12,7 +11,6 @@ export interface GuestGuardProps {
 export function GuestGuard({
   children,
 }: GuestGuardProps): React.JSX.Element | null {
-  const navigate = useNavigate();
   const { user, error, isLoading } = useUser();
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
 

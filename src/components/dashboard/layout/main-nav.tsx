@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
@@ -20,13 +20,17 @@ import { useSelector } from "react-redux";
 import { usePopover } from "@/hooks/use-popover";
 import { Logo } from "@/components/core/logo";
 
-import { MobileNav } from "./mobile-nav";
-import { UserPopover } from "./user-popover";
+const MobileNavLazy = React.lazy(() =>
+  import("./mobile-nav").then((m) => ({ default: m.MobileNav }))
+);
+const UserPopoverLazy = React.lazy(() =>
+  import("./user-popover").then((m) => ({ default: m.UserPopover }))
+);
 import { paths } from "@/utils/paths";
-import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 export function MainNav(): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
+  const [hasOpenedNav, setHasOpenedNav] = React.useState<boolean>(false);
   const navigate = useNavigate();
 
   const userPopover = usePopover<HTMLDivElement>();
@@ -42,7 +46,7 @@ export function MainNav(): React.JSX.Element {
 
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo") as Record<string, any> | null;
-  let aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
+  const aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 
@@ -134,6 +138,7 @@ export function MainNav(): React.JSX.Element {
           <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>
             <IconButton
               onClick={(): void => {
+                setHasOpenedNav(true);
                 setOpenNav(true);
               }}
               sx={{ display: { lg: "none" } }}
@@ -215,36 +220,31 @@ export function MainNav(): React.JSX.Element {
           </Stack>
         </Stack>
       </Box>
-      {/* {userPopover.open && (
-        <UserPopover
+      <React.Suspense fallback={null}>
+        <UserPopoverLazy
           type={clickedType}
           anchorEl={userPopover.anchorRef.current}
           onClose={userPopover.handleClose}
           open={userPopover.open}
         />
-      )} */}
 
-      <UserPopover
-        type={clickedType}
-        anchorEl={userPopover.anchorRef.current}
-        onClose={userPopover.handleClose}
-        open={userPopover.open}
-      />
+        <UserPopoverLazy
+          type={clickedType}
+          anchorEl={notificationPopover.anchorRef.current}
+          onClose={notificationPopover.handleClose}
+          open={notificationPopover.open}
+          openType={"email"}
+        />
+      </React.Suspense>
 
-      <UserPopover
-        type={clickedType}
-        anchorEl={notificationPopover.anchorRef.current}
-        onClose={notificationPopover.handleClose}
-        open={notificationPopover.open}
-        openType={"email"}
-      />
-
-      <MobileNav
-        onClose={() => {
-          setOpenNav(false);
-        }}
-        open={openNav}
-      />
+      {hasOpenedNav && (
+        <React.Suspense fallback={null}>
+          <MobileNavLazy
+            onClose={() => setOpenNav(false)}
+            open={openNav}
+          />
+        </React.Suspense>
+      )}
     </React.Fragment>
   );
 }

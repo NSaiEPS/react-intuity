@@ -3,7 +3,7 @@ import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Card,
@@ -77,21 +77,13 @@ export function UpdatePasswordForm(): React.JSX.Element {
 
   const dispatch = useDispatch();
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-
   const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const onSubmit = (data: FormData) => {
-    let roleId = stored?.body?.acl_role_id;
-    let userId = stored?.body?.customer_id;
+    const roleId = stored?.body?.acl_role_id;
+    const userId = stored?.body?.customer_id;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);

@@ -2,7 +2,6 @@ import * as React from "react";
 import { RootState } from "@/state/store";
 import { colors, CustomerInfo, formatToMMDDYYYY } from "@/utils";
 import { getLocalStorage } from "@/utils/auth";
-import { paths } from "@/utils/paths";
 import {
   Box,
   Button,
@@ -15,9 +14,8 @@ import {
 import DOMPurify from "dompurify";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
-import UtilityList from "./last-bill-itemInfo";
+import UtilityList from "./last-bill-item-info";
 import { PaymentModal } from "./paymnet-modal";
 
 const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
@@ -56,8 +54,6 @@ export function LastBill(): React.JSX.Element {
   const [open, setOpen] = React.useState<boolean>(false);
 
 
-  const navigate = useNavigate();
-
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
   );
@@ -75,8 +71,7 @@ export function LastBill(): React.JSX.Element {
     ? dashBoardInfo?.customer
     : getLocalStorage("intuity-customerInfo");
 
-  const [balanceCount, setBalanceCount] = React.useState(0);
-    const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
+  const [previewInvoicePdf, setPdfPreviewInvocie] = React.useState(false);
 
   React.useEffect(() => {
     let totalAmount = 0;
@@ -93,9 +88,7 @@ export function LastBill(): React.JSX.Element {
       );
     }
 
-    const safeAmount = Number(lastBillInfo?.last_bill?.amount);
-    const balance = (!isNaN(safeAmount) ? safeAmount : 0) - totalAmount;
-    setBalanceCount(Number(balance.toFixed(2)));
+    // totalAmount computed for potential future balance display
   }, [lastBillInfo?.billing_list]);
 
 const handlePreviewInvoice = async () => {

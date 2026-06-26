@@ -1,40 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors, CustomerInfo } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
-import {
-  Box,
-  Button,
-  CardHeader,
-  Divider,
-  FormControl,
-  Grid,
-  IconButton,
-  MenuItem,
-  Select,
-  Tooltip,
-  Typography,
-  Chip,
-} from "@mui/material";
-import { Question, Trash, ArrowClockwise, Plus } from "@phosphor-icons/react";
+import { colors } from "@/utils";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
+import { useLoading } from "@/components/core/skeleton-context";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
-import Header from "@/components/CommonComponents/Header";
-import EmailDialog from '@/components/auth/confirm-email-modal'
+import Header from "@/components/CommonComponents/header";
+import EmailDialog from "@/components/auth/confirm-email-modal";
+import { ContactMethodsSection, type ContactMethod } from "./contact-methods-section";
+import { NotificationPreferenceRow, type NotificationPreferenceOption } from "./notification-preference-row";
+
+const TEXT_TO_VALUE_FORMAT: Record<string, string> = {
+  Text: "2",
+  Email: "1",
+  Both: "3",
+  None: "4",
+};
+
+const BILLER_TEXT_TO_VALUE_FORMAT: Record<string, string> = {
+  Text: "1",
+  Email: "0",
+  Both: "2",
+  None: "3",
+};
+
+const phoneGatedOptions = (textValue: string, bothValue: string): NotificationPreferenceOption[] => [
+  { label: "Text", value: textValue, requiresVerifiedPhone: true },
+  { label: "Email", value: "1" },
+  { label: "Both", value: bothValue, requiresVerifiedPhone: true },
+];
 
 function NotificationsSettings() {
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
-
-  const userInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
-
   const { setContextLoading } = useLoading();
   const dispatch = useDispatch();
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -43,30 +42,13 @@ function NotificationsSettings() {
     setContextLoading(true);
   }, []);
 
-  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
-
-  // mock contact list (normally from API)
   const { accountLoading, notificationPreferenceDetails } = useSelector(
     (state: RootState) => state?.Account
   );
 
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
-  const TextToValueFormat = {
-    Text: "2",
-    Email: "1",
-    Both: "3",
-    None: "4",
-  };
-  const billerTextToValueFormat = {
-    Text: "1",
-    Email: "0",
-    Both: "2",
-    None: "3",
-  };
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
-    const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [preferences, setPreferences] = useState<any>({
     new_bill: "1",
     payment_confirmation: "1",
@@ -79,16 +61,16 @@ function NotificationsSettings() {
     updated_email: "",
   });
 
-  const [contacts, setContacts] = useState([
+  const [contacts, setContacts] = useState<ContactMethod[]>([
     {
       type: "phone",
       value: preferences?.phone_no,
-      verified: preferences?.is_phone_verified == 1 ? true : false,
+      verified: preferences?.is_phone_verified == 1,
     },
     {
       type: "email",
       value: preferences?.email,
-      verified: preferences?.email_updated_date == 1 ? true : false,
+      verified: preferences?.email_updated_date == 1,
     },
   ]);
 
@@ -98,69 +80,88 @@ function NotificationsSettings() {
         {
           type: "phone",
           value:
-            notificationPreferenceDetails?.phone_no &&
-            notificationPreferenceDetails?.phone_no != 0
+            notificationPreferenceDetails?.phone_no && notificationPreferenceDetails?.phone_no != 0
               ? notificationPreferenceDetails?.phone_no
               : "",
-          verified:
-            notificationPreferenceDetails?.is_phone_verified == 1
-              ? true
-              : false,
+          verified: notificationPreferenceDetails?.is_phone_verified == 1,
         },
         {
           type: "email",
-          value:
-            notificationPreferenceDetails?.updated_email ??
-            notificationPreferenceDetails?.email,
-          verified:
-            notificationPreferenceDetails?.email_updated_date == 1
-              ? true
-              : false,
+          value: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails?.email,
+          verified: notificationPreferenceDetails?.email_updated_date == 1,
         },
       ]);
 
       setPreferences({
-        new_bill:
-          TextToValueFormat[
-            notificationPreferenceDetails?.new_bill?.selected
-          ] || "1",
+        new_bill: TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.new_bill?.selected] || "1",
         payment_confirmation:
-          TextToValueFormat[
-            notificationPreferenceDetails?.payment_confirmation?.selected
-          ] || "1",
-        reminders:
-          TextToValueFormat[
-            notificationPreferenceDetails?.reminders?.selected
-          ] || "1",
+          TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.payment_confirmation?.selected] || "1",
+        reminders: TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.reminders?.selected] || "1",
         biller_announcements:
-          billerTextToValueFormat[
-            notificationPreferenceDetails?.biller_announcements?.selected
-          ] || "1",
-        email:
-          notificationPreferenceDetails?.updated_email ??
-          notificationPreferenceDetails.email,
+          BILLER_TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.biller_announcements?.selected] || "1",
+        email: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails.email,
         email_updated_date: notificationPreferenceDetails?.email_updated_date,
         is_phone_verified: notificationPreferenceDetails?.is_phone_verified,
         phone_no:
-          notificationPreferenceDetails?.phone_no &&
-          notificationPreferenceDetails?.phone_no != 0
+          notificationPreferenceDetails?.phone_no && notificationPreferenceDetails?.phone_no != 0
             ? notificationPreferenceDetails?.phone_no
             : "",
-        // notificationPreferenceDetails?.phone_no,
         updated_email: notificationPreferenceDetails.updated_email,
       });
     }
   }, [notificationPreferenceDetails]);
+
   const handleChange = (field: string, value: string) => {
     setPreferences((prev) => ({ ...prev, [field]: value }));
   };
 
-  // contact actions
-  const handleConfirm = () => {
-    // //console.log(value);
+  const raw = getLocalStorage("intuity-user");
+  const stored: IntuityUser | null = typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
 
+  const getPrefDetails = () => {
     const formData = new FormData();
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("id", userId);
+    formData.append("model_open", "15");
 
+    dispatch(updateAccountInfo(formData, true, successCallBack, true, setContextLoading, true));
+  };
+
+  useEffect(() => {
+    getPrefDetails();
+  }, [userId]);
+
+  const successCallBack = (res) => {
+    setPreferences({
+      new_bill: TEXT_TO_VALUE_FORMAT[res?.new_bill?.selected] || "1",
+      payment_confirmation: TEXT_TO_VALUE_FORMAT[res?.payment_confirmation?.selected] || "1",
+      reminders: TEXT_TO_VALUE_FORMAT[res?.reminders?.selected] || "1",
+      biller_announcements: BILLER_TEXT_TO_VALUE_FORMAT[res?.biller_announcements?.selected] || "1",
+      email: res?.updated_email ?? res?.email,
+      email_updated_date: res?.email_updated_date,
+      is_phone_verified: res?.is_phone_verified,
+      phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
+      updated_email: res?.updated_email,
+    });
+    setContacts([
+      {
+        type: "phone",
+        value: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
+        verified: res?.is_phone_verified == 1,
+      },
+      {
+        type: "email",
+        value: res?.updated_email ?? res?.email,
+        verified: res?.email_updated_date == 1,
+      },
+    ]);
+  };
+
+  const handleConfirm = () => {
+    const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("id", userId);
@@ -174,46 +175,19 @@ function NotificationsSettings() {
         setOpenConfirm(false);
       })
     );
-
-    // model_open:5
-    // remove_phone:1
-    // acl_role_id:4
-    // customer_id:810"
-
-    // setContacts((prev) => prev.filter((c) => c.value !== value));
   };
 
   const handleResendVerification = (value: string) => {
     const formData = new FormData();
-
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("notification_email", value);
 
     dispatch(updateAccountInfo(formData, true, null));
-
-    //console.log("Resend verification for:", value);
-    // API call here
   };
-
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-  const raw = getLocalStorage("intuity-user");
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  const roleId = stored?.body?.acl_role_id;
-  const userId = stored?.body?.customer_id;
 
   const handleSave = () => {
-    //console.log("Saved preferences:", preferences);
-
     const formData = new FormData();
-
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("id", userId);
@@ -226,199 +200,39 @@ function NotificationsSettings() {
     dispatch(updateAccountInfo(formData, true, getPrefDetails));
   };
 
-  useEffect(() => {
-    getPrefDetails();
-  }, [userId]);
-
-  const getPrefDetails = () => {
-    const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("model_open", "15");
-
-    dispatch(
-      updateAccountInfo(
-        formData,
-        true,
-        successCallBack,
-        true,
-        setContextLoading,
-        true
-      )
-    );
-  };
-
-  const successCallBack = (res) => {
-    setPreferences({
-      new_bill: TextToValueFormat[res?.new_bill?.selected] || "1",
-      payment_confirmation:
-        TextToValueFormat[res?.payment_confirmation?.selected] || "1",
-      reminders: TextToValueFormat[res?.reminders?.selected] || "1",
-      biller_announcements:
-        billerTextToValueFormat[res?.biller_announcements?.selected] || "1",
-      email: res?.updated_email ?? res?.email,
-      email_updated_date: res?.email_updated_date,
-      is_phone_verified: res?.is_phone_verified,
-      phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
-      updated_email: res?.updated_email,
-    });
-    setContacts([
-      {
-        type: "phone",
-        // value: res?.phone_no,
-        value: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
-
-        verified: res?.is_phone_verified == 1 ? true : false,
-      },
-      {
-        type: "email",
-        value: res?.updated_email ?? res?.email,
-        verified: res?.email_updated_date == 1 ? true : false,
-      },
-    ]);
-  };
+  const phoneVerified =
+    preferences?.is_phone_verified === 1 && !!preferences?.phone_no && preferences?.phone_no !== "0";
 
   return (
-    <SkeletonWrapper>
+    <>
       <Box sx={{ pt: 0 }}>
         <Header title="Communication Settings" />
 
         <Divider />
 
-        {/* Contact methods section */}
-        <Box p={2}>
-          <Typography variant="h6" fontWeight="bold" mb={2}>
-            Your Contact Information
-          </Typography>
-          {contacts.map((contact) => (
-            <Grid
-              container
-              key={contact.value}
-              alignItems="center"
-              justifyContent="space-between"
-              mb={1}
-            >
-             {/* <Grid item>
-  <Typography sx={{display:"flex",alignItems:"center",gap:"6px"}}>
-    <span style={{ fontSize: "1.5rem" }}>
-      {contact.type === "phone" ? "📱" : "📧"}
-    </span>{" "}
-    {contact.value}
-  </Typography>
-</Grid> */}
-<Grid item>
-  <Typography sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-    <span style={{ fontSize: "1.5rem" }}>
-      {contact.type === "phone" ? "📱" : "📧"}
-    </span>
-    {!contact?.value || contact?.value === "0" ? (
-      <Typography variant="body2" color="text.secondary" fontStyle="italic">
-        {contact.type === "phone"
-          ? "Number is not available, Please Add."
-          : "Email is not available, Please Add."}
-      </Typography>
-    ) : (
-      contact.value
-    )}
-  </Typography>
-</Grid>
-              <Grid
-                item
-                display="flex"
-                alignItems="center"
-                justifyContent="flex-start"
-                gap={1}
-              >
-                {!contact?.value || contact?.value == "0" ? (
-             
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<Plus size={16} />}
-                    // onClick={() => setPhoneModalOpen(true)}
-                     onClick={() => {
-                      if (contact.type === 'phone') {
-                        setPhoneModalOpen(true)
-                      } else if (contact.type === 'email') {
-                        setEmailModalOpen(true)
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
-                ) : contact.type === "email" && !preferences.updated_email ? (
-                  <Chip label="Verified" color="success" size="small" />
-                ) : contact.verified ? (
-                  <Chip label="Verified" color="success" size="small" />
-                ) : (
-                  <>
-                    <Chip label="Not Verified" color="warning" size="small" />
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<ArrowClockwise size={16} />}
-                      onClick={() => handleResendVerification(contact.value)}
-                    >
-                      Resend
-                    </Button>
-                  </>
-                )}
-                {contact.type === "phone" &&
-                  contact.value &&
-                  contact.value !== "0" && (
-                    <Button
-                      color="error"
-                      size="small"
-                      variant="outlined"
-                      startIcon={<Trash size={18} />}
-                      onClick={() => setOpenConfirm(true)}
-                      sx={{
-                        borderColor: "error.main",
-                        color: "error.main",
-                        "& .MuiButton-startIcon svg": { color: "currentColor" }, // ensure svg follows text color
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  )}
-              </Grid>
-            </Grid>
-          ))}
-        </Box>
+        <ContactMethodsSection
+          contacts={contacts}
+          hasUpdatedEmail={!!preferences.updated_email}
+          onAddContact={(type) => (type === "phone" ? setPhoneModalOpen(true) : setEmailModalOpen(true))}
+          onResendVerification={handleResendVerification}
+          onRemovePhone={() => setOpenConfirm(true)}
+        />
 
         <Divider />
 
         <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
           Select your notification preference for each type of notice
         </Typography>
-        {(preferences?.is_phone_verified !== 1 ||
-          !preferences?.phone_no ||
-          preferences?.phone_no == "0") && (
-          <Box
-            sx={{
-              // backgroundColor: (theme) => theme.palette.error.light,
-              color: (theme) => theme.palette.error.dark,
-              m: 2,
-              borderRadius: 1,
-              mb: 2,
-              // p: 2,
-            }}
-          >
+
+        {!phoneVerified && (
+          <Box sx={{ color: (theme) => theme.palette.error.dark, m: 2, borderRadius: 1, mb: 2 }}>
             <Typography variant="body2">
-              Text messaging is not available as an option until you first
-              validate your mobile phone number by selecting{" "}
+              Text messaging is not available as an option until you first validate your mobile phone number
+              by selecting{" "}
               <Typography
                 component="span"
-                sx={{
-                  color: "primary.main",
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  setPhoneModalOpen(true);
-                }}
+                sx={{ color: "primary.main", textDecoration: "underline", cursor: "pointer" }}
+                onClick={() => setPhoneModalOpen(true)}
               >
                 {preferences?.phone_no && preferences?.phone_no !== "0"
                   ? "Validate mobile phone number"
@@ -429,228 +243,52 @@ function NotificationsSettings() {
           </Box>
         )}
 
-        <Grid container p={2} alignItems="center">
-          <Grid item xs={12} sm={6}>
-            <Typography>New bill</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <Select
-                value={preferences.new_bill}
-                onChange={(e) => handleChange("new_bill", e.target.value)}
-              >
-                <MenuItem
-                  value="2"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Text
-                </MenuItem>
-                <MenuItem value="1">Email</MenuItem>
-                <MenuItem
-                  value="3"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Both
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        <NotificationPreferenceRow
+          label="New bill"
+          value={preferences.new_bill}
+          options={phoneGatedOptions("2", "3")}
+          onChange={(value) => handleChange("new_bill", value)}
+          phoneVerified={phoneVerified}
+          pt={2}
+        />
 
-        <Grid container alignItems="center" p={2} pt={0}>
-          <Grid item xs={12} sm={6}>
-            <Typography>Payment confirmation</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <Select
-                value={preferences.payment_confirmation}
-                onChange={(e) =>
-                  handleChange("payment_confirmation", e.target.value)
-                }
-              >
-                <MenuItem
-                  value="2"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Text
-                </MenuItem>
-                <MenuItem value="1">Email</MenuItem>
-                <MenuItem
-                  value="3"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Both
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        <NotificationPreferenceRow
+          label="Payment confirmation"
+          value={preferences.payment_confirmation}
+          options={phoneGatedOptions("2", "3")}
+          onChange={(value) => handleChange("payment_confirmation", value)}
+          phoneVerified={phoneVerified}
+        />
 
-        <Grid container p={2} alignItems="center" pt={0}>
-          <Grid item xs={12} sm={6} display="flex" alignItems="center">
-            <Typography>Due date reminder (5 days ahead)</Typography>
-            <Tooltip
-              title="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
-              arrow
-                  componentsProps={{
-    tooltip: {
-      sx: {
-        backgroundColor: '#E7E6E6',
-        color: '#000000',
-        border: '1px solid #d0cfcf',
-           fontSize: '14px',        // 👈 updated
-      lineHeight: 1.4,
-        // fontSize: '0.8rem',
-        '& .MuiTooltip-arrow': {
-          color: '#E7E6E6',
-          '&::before': {
-            border: '1px solid #d0cfcf',
-          },
-        },
-      },
-    },
-  }}
-            >
-              <IconButton edge="end">
-                <Question size={20} color="#90caf9" weight="fill" />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <Select
-                value={preferences.reminders}
-                onChange={(e) => handleChange("reminders", e.target.value)}
-              >
-                <MenuItem
-                  value="2"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Text
-                </MenuItem>
-                <MenuItem value="1">Email</MenuItem>
-                <MenuItem
-                  value="3"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Both
-                </MenuItem>
-                <MenuItem value="4">None</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        <NotificationPreferenceRow
+          label="Due date reminder (5 days ahead)"
+          value={preferences.reminders}
+          options={[...phoneGatedOptions("2", "3"), { label: "None", value: "4" }]}
+          onChange={(value) => handleChange("reminders", value)}
+          phoneVerified={phoneVerified}
+          tooltip="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
+        />
 
-        <Grid container p={2} alignItems="center" pt={0}>
-          <Grid item xs={12} sm={6} display="flex" alignItems="center">
-            <Typography>Biller announcements</Typography>
-            <Tooltip
-              title="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
-              placement="top"
-              arrow
-                  componentsProps={{
-    tooltip: {
-      sx: {
-        backgroundColor: '#E7E6E6',
-        color: '#000000',
-        border: '1px solid #d0cfcf',
-           fontSize: '14px',        // 👈 updated
-      lineHeight: 1.4,
-        // fontSize: '0.8rem',
-        '& .MuiTooltip-arrow': {
-          color: '#E7E6E6',
-          '&::before': {
-            border: '1px solid #d0cfcf',
-          },
-        },
-      },
-    },
-  }}
-            >
-              <IconButton edge="end">
-                <Question size={20} color="#90caf9" weight="fill" />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <Select
-                value={preferences.biller_announcements}
-                onChange={(e) =>
-                  handleChange("biller_announcements", e.target.value)
-                }
-              >
-                <MenuItem
-                  value="1"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Text
-                </MenuItem>
-                <MenuItem value="0">Email</MenuItem>
-                <MenuItem
-                  value="2"
-                  disabled={
-                    preferences?.is_phone_verified !== 1 ||
-                    !preferences?.phone_no ||
-                    preferences?.phone_no == "0"
-                  }
-                >
-                  Both
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+        <NotificationPreferenceRow
+          label="Biller announcements"
+          value={preferences.biller_announcements}
+          options={[
+            { label: "Text", value: "1", requiresVerifiedPhone: true },
+            { label: "Email", value: "0" },
+            { label: "Both", value: "2", requiresVerifiedPhone: true },
+          ]}
+          onChange={(value) => handleChange("biller_announcements", value)}
+          phoneVerified={phoneVerified}
+          tooltip="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
+        />
 
         <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
-          <Button
-            color="inherit"
-            variant="outlined"
-            sx={{
-              color: colors.blue,
-              borderColor: colors.blue,
-            }}
-          >
+          <Button color="inherit" variant="outlined" sx={{ color: colors.blue, borderColor: colors.blue }}>
             Cancel
           </Button>
           <Button
             variant="contained"
-            sx={{
-              backgroundColor: colors.blue,
-              "&:hover": {
-                backgroundColor: colors["blue.3"],
-              },
-            }}
+            sx={{ backgroundColor: colors.blue, "&:hover": { backgroundColor: colors["blue.3"] } }}
             color="primary"
             onClick={handleSave}
           >
@@ -658,11 +296,11 @@ function NotificationsSettings() {
           </Button>
         </Box>
       </Box>
+
       <ConfirmDialog
         open={openConfirm}
-        title={"Remove Phone Number"}
-        message={`Are you sure want to Remove this ${preferences?.phone_no} 
-          Phone Number?`}
+        title="Remove Phone Number"
+        message={`Are you sure want to Remove this ${preferences?.phone_no} Phone Number?`}
         confirmLabel="Yes, Confirm"
         cancelLabel="Cancel"
         onConfirm={handleConfirm}
@@ -671,18 +309,17 @@ function NotificationsSettings() {
       />
       <PhoneModal
         open={phoneModalOpen}
-        // clickedDetails={clickedDetails}
         onClose={() => setPhoneModalOpen(false)}
         notificationPage={true}
         onSuccess={getPrefDetails}
       />
-       <EmailDialog
+      <EmailDialog
         open={emailModalOpen}
         onClose={() => setEmailModalOpen(false)}
         clickedDetails={{ id: userId }}
         onSuccess={getPrefDetails}
       />
-    </SkeletonWrapper>
+    </>
   );
 }
 

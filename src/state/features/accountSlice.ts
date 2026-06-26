@@ -1,4 +1,5 @@
 import {
+  check2FAStatusApi,
   accountCustomerInfo,
   accountDetailsAPI,
   contactCustomerServiceApi,
@@ -50,7 +51,8 @@ import type {
   UsageAlertsBody,
 } from "@/types/domain";
 
-interface DahBoardState {
+interface AccountState {
+  twoFaChecking: boolean;
   userInfo: Record<string, unknown>;
   accountInfo: AccountInfoBody;
   accountLoading: boolean;
@@ -70,7 +72,8 @@ interface DahBoardState {
   paymentDetailsInfo: PaymentDetailsBody;
 }
 
-const initialState: DahBoardState = {
+const initialState: AccountState = {
+  twoFaChecking: false,
   accountInfo: {},
   accountLoading: false,
   accountError: null,
@@ -110,9 +113,12 @@ const AccountSlice = createSlice({
       state.selectedCardInfo = action.payload;
     },
     setConfirmInfo(state, action) {
+      console.log('successCallBack', action.payload);
       state.confirmInfo = action.payload;
     },
     setCompanyInfo(state, action) {
+      console.log('successCallBack', action.payload);
+
       state.companyInfo = action.payload;
     },
     setUsageAlerts(state, action) {
@@ -139,6 +145,9 @@ const AccountSlice = createSlice({
     setPaymentDetailsInfo(state, action) {
       state.paymentDetailsInfo = action.payload;
     },
+    setTwoFaChecking(state, action) {
+      state.twoFaChecking = action.payload;
+    },
     resetStore() {
       return initialState;
     },
@@ -161,6 +170,7 @@ export const {
   setPaymentRequiredKeyDetails,
   setNotificationPreferenceDetails,
   setPaymentDetailsInfo,
+  setTwoFaChecking,
   resetStore: resetAccountStore,
 } = AccountSlice.actions;
 
@@ -491,7 +501,10 @@ export const getCompanyDetails = (
   dispatch(setAccountLoading(true));
   try {
     const res = await getCompanyDetailsApi({ formData });
+      console.log('successCallBack', res);
+
     if (res.status) {
+      console.log('successCallBack', res?.body);
       dispatch(setCompanyInfo(res?.body));
       if (successCallBack) successCallBack();
     } else {
@@ -878,5 +891,36 @@ export const getUserInfoByToken = (
   } finally {
     dispatch(setAccountLoading(false));
     if (setContextLoading) setContextLoading(false);
+  }
+};
+
+export const check2FAStatus = (
+  company: string,
+  navigateFn: (path: string, opts: { replace: boolean; state?: unknown }) => void
+) => async (dispatch: AppDispatch): Promise<void> => {
+  dispatch(setTwoFaChecking(true));
+  try {
+    const res = await check2FAStatusApi();
+    const { two_fa_status, confirm_information_status } = res?.body || {};
+    const is_skipped = secureLocalStorage.getItem("is_skipped");
+
+    if (
+      two_fa_status === false ||
+      (confirm_information_status === false && !is_skipped)
+    ) {
+      const message =
+        two_fa_status === true && confirm_information_status === false
+          ? "Please complete Confirm Information."
+          : "Please complete 2FA first.";
+      simpleToast.info(message);
+      navigateFn(`/${company}/confirm-information`, {
+        replace: true,
+        state: { two_fa_status },
+      });
+    }
+  } catch {
+    // silent — user stays on current page if check fails
+  } finally {
+    dispatch(setTwoFaChecking(false));
   }
 };

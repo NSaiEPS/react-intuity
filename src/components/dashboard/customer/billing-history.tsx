@@ -1,30 +1,15 @@
 import * as React from "react";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
-import { AppDispatch, RootState } from "@/state/store";
+import { RootState } from "@/state/store";
 
-import { getLocalStorage } from "@/utils/auth";
-import {
-  Box,
-  Card,
-  CardHeader,
-  FormControl,
-  Grid,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@mui/material";
-import Typography from "@mui/material/Typography";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { Card, FormControl, Grid, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
 
-import PdfViewer from "../layout/invoice-pdf-view";
 import InvoiceTransactionTabs from "./billing-history-tabs";
-import { boarderRadius, CustomerInfo } from "@/utils";
-import Header from "@/components/CommonComponents/Header";
-
-function noop(): void {
-  // do nothing
-}
+import { boarderRadius } from "@/utils";
+import Header from "@/components/CommonComponents/header";
 
 export interface Customer {
   id: string;
@@ -41,20 +26,11 @@ export interface Customer {
 }
 
 interface CustomersTableProps {
-  count?: number;
-  page?: number;
   rows?: Customer[];
-  rowsPerPage?: number;
 }
 
-export function BillingHistory({
-  count = 0,
-  rows = [],
-  page = 0,
-  rowsPerPage = 0,
-}: CustomersTableProps): React.JSX.Element {
+export function BillingHistory({ rows = [] }: CustomersTableProps): React.JSX.Element {
   const [isInvoice, setIsInvoice] = React.useState<number[]>([]);
-  const [pdfModal, setPdfModal] = React.useState<boolean>(false);
 
   const handleInvoiceToggle = (id: number): void => {
     setIsInvoice((prev) =>
@@ -71,9 +47,6 @@ export function BillingHistory({
     setSelectedYear(year);
     filterByYear(event.target.value);
   };
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
@@ -82,17 +55,7 @@ export function BillingHistory({
     (state: RootState) => state?.Payment?.paymentLoader
   );
 
-  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
   const dispatch = useDispatch();
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
@@ -101,7 +64,6 @@ export function BillingHistory({
   const filterByYear = (year) => {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -141,131 +103,13 @@ export function BillingHistory({
         dummyInvoice={lastBillInfo}
         rows={rows}
         isInvoice={isInvoice}
-        setPdfModal={setPdfModal}
-        count={count}
-        page={page}
-        rowsPerPage={rowsPerPage}
       />
-      {/* <Card
-        sx={{
-          borderRadius: boarderRadius.card,
-        }}
-      >
-        <Box sx={{ overflowX: 'auto' }}>
-          <Table sx={{ minWidth: '800px' }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Transaction Type</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Balance</TableCell>
-              </TableRow>
-            </TableHead>
-            {dummyInvoice.map((item) => {
-              return (
-                <TableBody key={item.id}>
-                  <TableRow hover key={1}>
-                    <TableCell>
-                      <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                        <IconButton
-                          onClick={() => {
-                            handleInvoiceToggle(item.id);
-                          }}
-                        >
-                          {isInvoice?.includes(item.id) ? (
-                            <Minus size={10} weight="bold" />
-                          ) : (
-                            <Plus size={10} weight="bold" />
-                          )}
-                        </IconButton>
-                        <Typography variant="subtitle2">invoice</Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell>{dayjs().format('MMM D, YYYY')}</TableCell>
-
-                    <TableCell>Success</TableCell>
-                    <TableCell>$ 130 </TableCell>
-                    <TableCell sx={{}}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        $ 130.86
-                        <Box
-                          onClick={() => setPdfModal(true)}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.5,
-                            cursor: 'pointer',
-                            color: colors.blue,
-                          }}
-                        >
-                          <FileText size={18} weight="regular" />
-                          <Typography
-                            sx={{
-                              color: colors.blue,
-                            }}
-                            variant="body2"
-                          >
-                            View Invoice
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                  {Array.isArray(rows) &&
-                    isInvoice.includes(item.id) &&
-                    rows.map((row) => {
-                      return (
-                        <TableRow hover key={row.id}>
-                          <TableCell>
-                            <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                              <Typography variant="subtitle2">{row.type}</Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
-
-                          <TableCell>{row.status}</TableCell>
-                          <TableCell>{row.price}</TableCell>
-                          <TableCell>{row.balance}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                </TableBody>
-              );
-            })}
-          </Table>
-        </Box>
-        <Divider />
-        <TablePagination
-          component="div"
-          count={count}
-          onPageChange={noop}
-          onRowsPerPageChange={noop}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[5, 10, 25]}
-        />
-      </Card> */}
-
       <CustomBackdrop
         open={paymentLoader}
         style={{ zIndex: 1300, color: "#fff" }}
       >
         <Loader />
       </CustomBackdrop>
-      {/* <PdfViewer
-        open={pdfModal}
-        onClose={() => {
-          setPdfModal(false);
-        }}
-        fileUrl=""
-      /> */}
     </Card>
   );
 }

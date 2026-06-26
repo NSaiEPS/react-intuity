@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { getConfirmInfo } from "@/state/features/accountSlice";
 import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   // Button,
@@ -20,7 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "@/hooks/redux";
 import { z as zod } from "zod";
 
-import Button from "../CommonComponents/Button";
+import Button from "../CommonComponents/button";
 
 // Zod schema
 const schema = zod.object({
@@ -49,13 +49,6 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
     resolver: zodResolver(schema),
   });
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const raw = getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
@@ -65,8 +58,8 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
     onSuccess?.();
     onClose();
 
-    let role_id = stored?.body?.acl_role_id;
-    let user_id = stored?.body?.customer_id;
+    const role_id = stored?.body?.acl_role_id;
+    const user_id = stored?.body?.customer_id;
     const formData = new FormData();
 
     formData.append("acl_role_id", role_id);
@@ -77,8 +70,7 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
   const onSubmit = (data) => {
     setIsPending(true);
 
-    let role_id = stored?.body?.acl_role_id;
-    let user_id = stored?.body?.customer_id;
+    const role_id = stored?.body?.acl_role_id;
     const formData = new FormData();
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", clickedDetails?.id);

@@ -1,8 +1,13 @@
 import CryptoJS from "crypto-js";
 
-export function decryptFromPHP(encryptedBase64) {
-  const envKey = import.meta.env.VITE_ENCRYPTION_KEY;
-  const envIV = import.meta.env.VITE_ENCRYPTION_DECRYPTION_IV;
+export function decryptFromPHP(encryptedBase64: string): string {
+  const envKey = import.meta.env.VITE_ENCRYPTION_KEY as string | undefined;
+  const envIV = import.meta.env.VITE_ENCRYPTION_DECRYPTION_IV as string | undefined;
+
+  if (!envKey || !envIV) {
+    console.error("VITE_ENCRYPTION_KEY or VITE_ENCRYPTION_DECRYPTION_IV is not set in environment");
+    return "";
+  }
 
   const key = CryptoJS.enc.Utf8.parse(envKey);
   const iv = CryptoJS.enc.Utf8.parse(envIV);

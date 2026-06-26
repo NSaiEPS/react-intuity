@@ -1,9 +1,8 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
 import { contactCustomerService } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { colors } from "@/utils";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Card,
@@ -26,12 +25,9 @@ import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import { Button } from "nsaicomponents";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import { toast } from "@/lib/custom-toast";
 import { z } from "zod";
 
-import { paths } from "@/utils/paths";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { useLoading } from "@/components/core/skeletion-context";
+import { useLoading } from "@/components/core/skeleton-context";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 // Schema
@@ -72,7 +68,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -91,21 +87,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
     },
   });
   const dispatch = useDispatch();
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-  let roleId = stored?.body?.acl_role_id;
-  let customer_id = stored?.body?.customer_id;
+  const roleId = stored?.body?.acl_role_id;
+  const customer_id = stored?.body?.customer_id;
 
   
   const onSubmit = (data: FormValues) => {
@@ -125,7 +113,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     formData.append("question", data?.question);
     formData.append("preferMethod", data?.preferredContactMethod);
     formData.append("amthe", data?.preferredOwnerMethod);
-    files.forEach((file, index) => {
+    files.forEach((file) => {
       formData.append(`upload_file`, file);
     });
     // if (!files?.length) {
@@ -241,7 +229,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
   
 
   return (
-    <SkeletonWrapper>
+    <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card sx={{ borderRadius: 0 }}>
           <CardContent>
@@ -479,7 +467,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                 {files.length > 0 && (
                   <Grid container spacing={1} mt={2}>
                     {files.map((file, index) => (
-                      <Grid key={index}>
+                      <Grid key={`${file.name}-${file.lastModified}`}>
                         <Chip
                           label={file.name}
                           onDelete={() => handleFileRemove(index)}
@@ -532,6 +520,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
           </CardActions>
         </Card>
       </form>
-    </SkeletonWrapper>
+    </>
   );
 }

@@ -4,6 +4,7 @@ import {
   getPaymentProcessorDetails,
   guestPaymentRequest,
   oneTimePayment,
+  setOneTimePaymentInfo,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { calculatePaymentAmount, colors } from "@/utils";
@@ -53,12 +54,44 @@ import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import { BASE_URL } from "@/api/axios";
 const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
 
+const SESSION_KEY = "guest-payment-state";
+
+type PersistedState = {
+  activeStep: number;
+  formData: {
+    accountNo: string;
+    invoiceAmount: string;
+    name: string;
+    email: string;
+    amountToPay: string;
+    convenienceFee: string;
+    totalPayment: string;
+    paymentType: string;
+    street: string;
+  };
+  customerDetails: Record<string, any>;
+  oneTimeData: any;
+};
+
+function loadSnapshot(): PersistedState | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as PersistedState) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function OneTimePaymentScreen() {
+  const snapshot = React.useRef(loadSnapshot());
+
   const [isDirty, setIsDirty] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
+  // Never restore to step 2 — the payment iframe needs a fresh processor API call
+  const [activeStep, setActiveStep] = useState(() => {
+    const saved = snapshot.current?.activeStep ?? 0;
+    return saved === 2 ? 0 : saved;
+  });
   const dispatch = useDispatch();
-  const [iframeLoading, setIframeLoading] = useState(true);
-  const [hovered, setHovered] = useState(false);
 
   const companyInfo = useSelector(
     (state: RootState) => state.Account.companyInfo
@@ -70,18 +103,42 @@ export default function OneTimePaymentScreen() {
     (state: RootState) => state.Account.oneTimePaymentInfo
   );
 
-  const [formData, setFormData] = useState({
-    accountNo: "",
-    invoiceAmount: "",
-    name: "",
-    email: "",
-    amountToPay: "",
-    convenienceFee: "",
-    totalPayment: "",
-    paymentType: "card",
-    street: "",
-  });
-  const [customerDetails, setCustomerDetails] = useState<any>({});
+  const [formData, setFormData] = useState(
+    () =>
+      snapshot.current?.formData ?? {
+        accountNo: "",
+        invoiceAmount: "",
+        name: "",
+        email: "",
+        amountToPay: "",
+        convenienceFee: "",
+        totalPayment: "",
+        paymentType: "card",
+        street: "",
+      }
+  );
+  const [customerDetails, setCustomerDetails] = useState<any>(
+    () => snapshot.current?.customerDetails ?? {}
+  );
+
+  // On mount: restore oneTimeData into Redux if we have a snapshot
+  useEffect(() => {
+    if (snapshot.current?.oneTimeData) {
+      dispatch(setOneTimePaymentInfo(snapshot.current.oneTimeData));
+    }
+  }, []);
+
+  // Persist progress to sessionStorage whenever relevant state changes
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({ activeStep, formData, customerDetails, oneTimeData })
+      );
+    } catch {
+      // sessionStorage quota exceeded — ignore
+    }
+  }, [activeStep, formData, customerDetails, oneTimeData]);
 
   type FormErrors = {
     accountNo?: string;
@@ -148,7 +205,7 @@ export default function OneTimePaymentScreen() {
   }, [formData.amountToPay, convenienceFee, activeStep]);
 
   const validateStep = () => {
-    let newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {};
     if (activeStep === 0) {
       if (!formData.accountNo)
         newErrors.accountNo = "Account No. is required";
@@ -218,12 +275,12 @@ export default function OneTimePaymentScreen() {
           }));
           handleNext();
         },
-        hanldeFailure
+        handleFailure
       )
     );
   };
 
-  const hanldeFailure = (data, noToast = false) => {
+  const handleFailure = (data, noToast = false) => {
     if (noToast) {
       setIsDirty(false);
       return;
@@ -302,7 +359,8 @@ successScreenClose(toast)
     );
   };
 
-  const successScreenClose = (toast?:string) => {
+  const successScreenClose = (toast?: string) => {
+    sessionStorage.removeItem(SESSION_KEY);
     setIsDirty(false);
     setActiveStep(0);
     setFormData({
@@ -332,6 +390,7 @@ const handleBackToLogin=()=>{
   // replaces onModalClose — navigates back instead of closing a dialog
   const handleGoBack = () => {
     if (!confirmIfDirty()) return;
+    sessionStorage.removeItem(SESSION_KEY);
     setIsDirty(false);
     setActiveStep(0);
     setFormData({
@@ -393,11 +452,12 @@ const handleBackToLogin=()=>{
             shrink={accountNoFocused || Boolean(formData.accountNo)}
             sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
           >
-Account No *
+                  Account Number *
+
           </InputLabel>
           <OutlinedInput
             notched={accountNoFocused || Boolean(formData.accountNo)}
-            label="Account No *"
+            label="Account Number *"
             value={formData.accountNo}
             onChange={handleChange("accountNo")}
             onFocus={() => setAccountNoFocused(true)}
@@ -405,6 +465,27 @@ Account No *
             startAdornment={
               <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
+               endAdornment={
+                    <InputAdornment position="end">
+                      <Tooltip
+                        title={
+                          <span style={{ fontSize: '14px', lineHeight: 1.4 }}>
+                            Please locate your account number on your statement. If you received a “Utility Bill Ready”
+                            email notification, your account number can be found at the top of the email content.
+                          </span>
+                        }
+                        placement="top"
+                        arrow
+                        enterTouchDelay={0}
+                        leaveTouchDelay={3000}
+                        {...tooltipSx}
+                      >
+                        <IconButton size="small">
+                          <Question size={20} color="#90caf9" weight="fill" />
+                        </IconButton>
+                      </Tooltip>
+                    </InputAdornment>
+                  }
            
           />
           {errors.accountNo && (
@@ -430,6 +511,7 @@ Account No *
             onChange={handleChange("invoiceAmount")}
             onFocus={() => setInvoiceFocused(true)}
             onBlur={() => setInvoiceFocused(false)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleRetrieveBill(); } }}
             startAdornment={
               <CurrencyDollar size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
             }
@@ -444,9 +526,11 @@ Account No *
                   }
                   placement="top"
                   arrow
+                  enterTouchDelay={0}
+                  leaveTouchDelay={3000}
                   {...tooltipSx}
                 >
-                  <IconButton edge="end" size="small">
+                  <IconButton  size="small">
                     <Question size={20} color="#5dade2" weight="fill" />
                   </IconButton>
                 </Tooltip>
@@ -611,7 +695,14 @@ Account No *
       {/* Due Amount + Preview Invoice */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
         <Typography variant="body2" fontWeight={600}>
-          Due Amount: <span style={{ color: colors.blue }}>${customerDetails.balance}</span>
+          Due Amount: <span style={{ color: colors.blue }}>
+            $
+            {/* {customerDetails.balance} */}
+               {Number(customerDetails.balance).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+            </span>
         </Typography>
         <Typography
           variant="body2"
@@ -633,6 +724,8 @@ Account No *
               ? companyInfo?.block_individual_customer_pay_text ?? "Payments are not allowed at this time."
               : ""
           }
+          enterTouchDelay={0}
+          leaveTouchDelay={3000}
           {...tooltipSx}
         >
           <FormControl fullWidth error={!!errors.amountToPay}>
@@ -645,9 +738,20 @@ Account No *
             <OutlinedInput
               notched={amountFocused || Boolean(formData.amountToPay)}
               label="Amount To Pay *"
-              value={formData.amountToPay}
+              // value={formData.amountToPay}
+                value={
+                      amountFocused
+                        ? formData.amountToPay
+                        : formData.amountToPay
+                          ? Number(formData.amountToPay).toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                          : ''
+                    }
               onFocus={() => setAmountFocused(true)}
               onBlur={() => setAmountFocused(false)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
               disabled={
                 companyInfo?.company?.allow_partial_payments == 0 ||
                 companyInfo?.company?.allow_overpayments == 0
@@ -812,35 +916,41 @@ Account No *
             value="bank_account"
             control={<Radio />}
             label={
-              <Box display="flex" alignItems="center" gap={1} position="relative">
+              <Box display="flex" alignItems="center" gap={1}>
                 Bank Account
-                <Box
-                  onMouseEnter={() => setHovered(true)}
-                  onMouseLeave={() => setHovered(false)}
-                  sx={{ position: "relative", display: "inline-block", top: 3 }}
-                >
-                  <Question size={20} color="#5dade2" weight="fill" />
-                  {hovered && (
+                <Tooltip
+                  title={
                     <Box
                       component="img"
-
-                                                src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
-                      
-                      alt="Help"
-                      sx={{
-                        position: "absolute",
-                        top: "30px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: 350,
-                        height: 350,
-                        borderRadius: 2,
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                        zIndex: 999,
-                      }}
+                      src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+                      alt="Bank account help"
+                      sx={{ width: "100%", display: "block", borderRadius: 1 }}
                     />
-                  )}
-                </Box>
+                  }
+                  placement="bottom"
+                  arrow
+                  enterTouchDelay={0}
+                  leaveTouchDelay={5000}
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: "#fff",
+                        border: "1px solid #d0cfcf",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                        maxWidth: "min(90vw, 360px)",
+                        p: 1,
+                        "& .MuiTooltip-arrow": {
+                          color: "#fff",
+                          "&::before": { border: "1px solid #d0cfcf" },
+                        },
+                      },
+                    },
+                  }}
+                >
+                  <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                    <Question size={20} color="#5dade2" weight="fill" />
+                  </Box>
+                </Tooltip>
               </Box>
             }
           />
@@ -891,32 +1001,49 @@ Account No *
   };
 
   const [previewInvoicePdf, setPdfPreviewInvocie] = useState(false);
-
   const handlePreviewInvoice = async () => {
     if (!oneTimeData) return;
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isMobile = isIOS || /Android/i.test(navigator.userAgent);
+
     if (isMobile) {
+      // iOS: open the tab synchronously while still inside the user-gesture.
+      // After await the gesture is gone and Safari blocks window.open.
+      const newTab = isIOS ? window.open('', '_blank') : null;
       try {
         const [{ pdf }, { default: OneTimePdf }] = await Promise.all([
-          import("@react-pdf/renderer"),
-          import("../dashboard/layout/one-time-invoice"),
+          import('@react-pdf/renderer'),
+          import('../dashboard/layout/one-time-invoice'),
         ]);
         const blob = await pdf(<OneTimePdf invoiceDetails={oneTimeData as any} />).toBlob();
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `invoice-${oneTimeData?.last_bill?.invoice_number || "file"}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+
+        if (isIOS) {
+          if (newTab) {
+            newTab.location.href = url;
+          } else {
+            // Popup was blocked — fall back to replacing current tab
+            window.location.href = url;
+          }
+        } else {
+          // Android: download attribute works on blob URLs
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `invoice-${oneTimeData?.last_bill?.invoice_number || 'file'}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
       } catch (error) {
-        console.error("PDF Download Error:", error);
+        console.error('PDF Download Error:', error);
+        newTab?.close();
       }
       return;
     }
     setPdfPreviewInvocie(true);
   };
+
 const [accountNoFocused, setAccountNoFocused] = React.useState(false);
 const [invoiceFocused, setInvoiceFocused] = React.useState(false);
 
@@ -1006,12 +1133,14 @@ const [amountFocused, setAmountFocused] = React.useState(false);
       </Backdrop>
 
       {previewInvoicePdf && (
-        <CustomModal
-          open={previewInvoicePdf}
-          onClose={() => setPdfPreviewInvocie(false)}
-          id={oneTimeData?.last_bill?.id}
-          oneTime={true}
-        />
+        <React.Suspense fallback={<Backdrop open sx={{ zIndex: 1400, color: "#fff" }}><CircularProgress /></Backdrop>}>
+          <CustomModal
+            open={previewInvoicePdf}
+            onClose={() => setPdfPreviewInvocie(false)}
+            id={oneTimeData?.last_bill?.id}
+            oneTime={true}
+          />
+        </React.Suspense>
       )}
     </Box>
   );

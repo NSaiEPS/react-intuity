@@ -1,44 +1,21 @@
 import * as React from "react";
-
 import { boarderRadius } from "@/utils";
-import { Card, CardHeader, Divider, Grid, Typography } from "@mui/material";
-import Stack from "@mui/material/Stack";
-
-//import { companySlugs, config } from "@/config";
+import { Card } from "@mui/material";
 import NotificationsSettings from "@/components/dashboard/overview/notification-settings";
 import { Notifications } from "@/components/dashboard/settings/notifications";
+import { useLoading } from "@/components/core/skeleton-context";
+import { NotificationSettingsSkeleton } from "@/components/dashboard/skeletons";
 
-//export const metadata = {
-//   title: `Notification Settings - ${config.site.name}`,
-// } satisfies Metadata;
-// export async function generateStaticParams() {
-//   return companySlugs.map((company) => ({ company }));
-// }
 export default function NotificationSettingsPage(): React.JSX.Element {
+  const { contextLoading } = useLoading();
+
   return (
-    <Card
-      sx={{
-        borderRadius: boarderRadius.card,
-      }}
-    >
-      {/* <Grid container spacing={2} justifyContent="space-between">
-        <CardHeader
-          title={
-            <Typography ml={1} variant="h5">
-              Notification Settings
-            </Typography>
-          }
-        />
-
-        <CardHeader
-          subheader={<Typography variant="h6">Name :TUCKER, GARY</Typography>}
-          title={<Typography variant="h5">Account No :1146</Typography>}
-        />
-      </Grid>
-
-      <Divider /> */}
-      <NotificationsSettings />
-      <Notifications />
-    </Card>
+    <>
+      {contextLoading && <NotificationSettingsSkeleton />}
+      <Card sx={{ borderRadius: boarderRadius.card, display: contextLoading ? 'none' : 'block' }}>
+        <NotificationsSettings />
+        <Notifications />
+      </Card>
+    </>
   );
 }

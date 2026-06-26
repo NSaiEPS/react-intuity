@@ -121,7 +121,7 @@ const AUTO_CLOSE_MS = 10000;
 export default function CustomAlertModal() {
   const [payload, setPayload] = React.useState<ToastPayload | null>(null);
   const [progress, setProgress] = React.useState(100);
-  const [secsLeft, setSecsLeft] = React.useState(5);
+  const [, setSecsLeft] = React.useState(5);
   const [hovered, setHovered] = React.useState(false);
 
   const rafRef     = React.useRef<number | null>(null);

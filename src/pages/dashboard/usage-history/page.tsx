@@ -1,9 +1,5 @@
 import * as React from "react";
-
-import { Box, Card, Grid } from "@mui/material";
-import Stack from "@mui/material/Stack";
-
-//import { companySlugs, config } from "@/config";
+import { Card, Grid } from "@mui/material";
 import BarChart from "@/components/dashboard/overview/billing-usage";
 const Sales = React.lazy(() =>
   import("@/components/dashboard/overview/sales").then((module) => ({
@@ -13,38 +9,29 @@ const Sales = React.lazy(() =>
 import UsageFilter from "@/components/dashboard/overview/usage-filter";
 import UsageHeader from "@/components/dashboard/overview/usage-header";
 import { boarderRadius } from "@/utils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/state/store";
+import { UsageHistorySkeleton } from "@/components/dashboard/skeletons";
 
-//export const metadata = {
-//   title: `Usage - ${config.site.name}`,
-// } satisfies Metadata;
-// export async function generateStaticParams() {
-//   return companySlugs.map((company) => ({ company }));
-// }
 export default function UsageHistoryPage(): React.JSX.Element {
-  return (
-    <Card
-      sx={{
-        borderRadius: boarderRadius.card,
-      }}
-    >
-      <UsageHeader />
-      <Grid lg={8} xs={12}>
-        <UsageFilter />
-        <Sales
-          path="usage-history"
-          chartSeries={[
-            {
-              name: "2025",
-              data: [18, 16, 5, 8, 3, 14, 14, 16, 17, 19, 18, 20],
-            },
-            { name: "2024", data: [12, 11, 4, 6, 2, 9, 9, 10, 11, 12, 13, 13] },
-          ]}
-          sx={{ height: "100%" }}
-        />
-        {/* <BarChart /> */}
+  const usageGraph = useSelector((state: RootState) => state?.DashBoard?.usageGraph);
+  const hasUsageData = !!usageGraph && Object.keys(usageGraph).length > 0;
 
-        <BarChart />
-      </Grid>
-    </Card>
+  return (
+    <>
+      {!hasUsageData && <UsageHistorySkeleton />}
+      <Card sx={{ borderRadius: boarderRadius.card, display: !hasUsageData ? 'none' : 'block' }}>
+        <UsageHeader />
+        <Grid lg={8} xs={12}>
+          <UsageFilter />
+          <Sales
+            path="usage-history"
+            chartSeries={[]}
+            sx={{ height: "100%" }}
+          />
+          <BarChart />
+        </Grid>
+      </Card>
+    </>
   );
 }

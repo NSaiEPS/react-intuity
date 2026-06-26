@@ -4,8 +4,8 @@ import {
   updateAccountCustomerInfo,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius, colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { colors } from "@/utils";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -69,16 +69,8 @@ export function AccountDetailsForm(): React.JSX.Element {
     (state: RootState) => state?.Account
   );
   const customer = accountInfo?.customer_data?.[0] || {};
-  const meter = accountInfo?.body?.meterDetails?.[0] || {};
 
   const [isEditEnable, setIsEditEnable] = React.useState(false);
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
@@ -170,14 +162,12 @@ export function AccountDetailsForm(): React.JSX.Element {
   const getUserDetails = () => {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
     dispatch(getAccountInfo(roleId, userId));
   };
 
   const onSubmit = (data: FormSchema) => {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
 
     const userData = new FormData();
     userData.append("acl_role_id", roleId);

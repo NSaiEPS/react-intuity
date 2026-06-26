@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { paths } from "@/utils/paths";
-import Button from "../../CommonComponents/Button";
+import Button from "../../CommonComponents/button";
 import { Button as MUIButton } from "@mui/material";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
@@ -72,7 +72,6 @@ export function UpdatePasswordScreen(): React.JSX.Element {
   const {
     control,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues,

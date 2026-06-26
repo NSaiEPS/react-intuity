@@ -1,10 +1,13 @@
 import axios from 'axios';
 import secureLocalStorage from 'react-secure-storage';
+import { toast } from 'react-toastify';
+import { navigateTo } from '@/utils/navigation';
 
 export const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://test-intuity.waterbill.com/';
 
 export const api = axios.create({
   baseURL: BASE_URL,
+  timeout: 30000,
   headers: {
     Accept: 'application/json',
   },
@@ -25,7 +28,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && error.config?.url !== 'users/login') {
       secureLocalStorage.clear();
-      window.location.reload();
+      toast.info('Your session has expired. Please log in again.');
+      navigateTo('/login', { replace: true });
     }
     return Promise.reject(error);
   }

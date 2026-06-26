@@ -5,12 +5,11 @@ import {
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colorPalette } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import {
   Box,
   FormControl,
   Grid,
-  InputLabel,
   MenuItem,
   Select,
   Typography,
@@ -24,63 +23,46 @@ import secureLocalStorage from "react-secure-storage";
 const HeaderSection = ({ setUamType }) => {
   const [utilityType, setUtilityType] = useState("WATER");
   const [unitMeasure, setUnitMeasure] = useState("");
-  const [meterNo, setMeterNo] = useState("");
   const dispatch = useDispatch();
 
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
-  // const raw = getLocalStorage('intuity-user');
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const stored: IntuityUser | null = useMemo(() => {
+    const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+    return typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  }, [userInfo]);
 
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
 
-  let roleId = stored?.body?.acl_role_id;
-  let userId = stored?.body?.customer_id;
-  let token = stored?.body?.token;
-
-  const dropdownDetailes = secureLocalStorage.getItem("intuity-meterDetails");
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
-  const updatedMeterDetails = dashBoardInfo?.meterDetails
-    ? dashBoardInfo?.meterDetails
-    : dropdownDetailes;
+  // Memoize so secureLocalStorage.getItem isn't called on every render (returns new object each time)
+  const updatedMeterDetails = useMemo(() => {
+    if (dashBoardInfo?.meterDetails) return dashBoardInfo.meterDetails;
+    return secureLocalStorage.getItem("intuity-meterDetails") ?? {};
+  }, [dashBoardInfo?.meterDetails]);
 
-  // const meterDetails = useMemo(() => {
-  //   if (!updatedMeterDetails) return [];
+  const meterDetails = useMemo(() =>
+    Object.entries(updatedMeterDetails).map(([key]) => ({ utility_type_name: key })),
+  [updatedMeterDetails]);
 
-  //   return Object.entries(updatedMeterDetails).map(([key, value]) => ({
-  //     utility_type_name: key,
-  //   }));
-  // }, [updatedMeterDetails]);
-  const [meterDetails, setMeterDetails] = useState([]);
-
-  useEffect(() => {
-    let value = Object.entries(updatedMeterDetails).map(([key, value]) => ({
-      utility_type_name: key,
-    }));
-    setMeterDetails(value);
-  }, [updatedMeterDetails]);
-
+  const utilityTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setUtiltyType = () => {
+    if (utilityTimerRef.current) clearTimeout(utilityTimerRef.current);
+    utilityTimerRef.current = setTimeout(() => {
+      setUtilityType(filterList.type?.[0]?.value);
+    }, 1000);
+  };
   useEffect(() => {
     setUtilityType("");
     setUtiltyType();
     setUnitMeasure("");
-    setMeterNo("");
+    return () => {
+      if (utilityTimerRef.current) clearTimeout(utilityTimerRef.current);
+    };
   }, [userId]);
-  const setUtiltyType = () => {
-    setTimeout(() => {
-      setUtilityType(filterList.type?.[0]?.value);
-    }, 1000);
-  };
   const [filterList, setFilterList] = useState({
     type: [
       {
@@ -98,9 +80,9 @@ const HeaderSection = ({ setUamType }) => {
   });
   useEffect(() => {
     if (meterDetails?.length) {
-      let type = [];
-      let ums = [];
-      let meterNum = [];
+      const type = [];
+      const ums = [];
+      const meterNum = [];
       meterDetails?.forEach((item) => {
         // if (item?.meter_number) {
         //   meterNum.push({
@@ -144,11 +126,11 @@ const HeaderSection = ({ setUamType }) => {
     }
   }, [utilityType]);
 
-  const successCallBack = (data, isMeter = false) => {
+  const successCallBack = (data) => {
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
-      let type = [...filterList.type];
-      let ums = [];
-      let meterNum = [];
+      const type = [...filterList.type];
+      const ums = [];
+      const meterNum = [];
 
       data?.utility_um_data?.forEach((item) => {
         // if (item?.meter_number) {
@@ -382,16 +364,13 @@ type BarChartData = Record<string, [number, number]>;
     const dollars: number[] = [];
     const dates: string[] = [];
     const colors: string[] = [];
-    if (barData.bar_chart_data) {
-      Object?.entries(barData.bar_chart_data).forEach(
-        ([key, values], index) => {
-          gallons.push(values?.[0]);
-
-          dollars.push(values?.[1]);
-          dates.push(key?.split(",")[0]);
-          colors.push(colorPalette[index]);
-        }
-      );
+    if (barData?.bar_chart_data) {
+      Object.entries(barData.bar_chart_data).forEach(([key, values], index) => {
+        gallons.push(Number(values?.[0]) || 0);
+        dollars.push(Number(values?.[1]) || 0);
+        dates.push(key?.split(",")[0] ?? "");
+        colors.push(colorPalette[index]);
+      });
     }
 
     setBarGraphData({ gallons, dollars, dates, colors });
@@ -444,19 +423,10 @@ type BarChartData = Record<string, [number, number]>;
           labels: {
             show: true,
             useHTML: true,
-            formatter: function (val, index) {
-              // //console.log('barGraphDatabarGraphData', val, index);
-              let Dateindex = barGraphData.dates.indexOf(val);
-              let dollar = barGraphData.dollars[Dateindex];
-              const dollarVal = barGraphData.dollars[index];
-              const isNegative = dollarVal < 0;
-              const dollarFormatted = `${isNegative ? "-" : ""}$${Math.abs(
-                dollarVal
-              ).toFixed(2)}`;
-              const date = barGraphData.dates[index];
-              // return `${dollarFormatted}\n${date}`;
-              // return `$ ${dollar}\n ${index}`;
-              const label = `$ ${dollar} (${index})`;
+            formatter: function (val) {
+              const Dateindex = barGraphData.dates.indexOf(val);
+              const dollar = barGraphData.dollars[Dateindex] ?? 0;
+              const label = `$ ${dollar}`;
               return label;
             },
             style: {

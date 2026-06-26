@@ -195,7 +195,7 @@ export function SignUpForm() {
         </Box>
       )}
 
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={(e) => { e.preventDefault(); if (activeStep !== 3) handleNext(); }}>
         <Stack spacing={2}>
 
           {activeStep === 0 && (
@@ -239,8 +239,9 @@ export function SignUpForm() {
 
               {activeStep < steps.length && (
                 <Button
-                  onClick={handleNext}
+                  type="submit"
                   disabled={loading}
+                  loading={loading}
                   variant="contained"
                   textTransform="none"
                   bgColor={colors.blue}

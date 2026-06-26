@@ -6,7 +6,7 @@ import {
 import { getNotificationList } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors, CustomerInfo, dummyCountriesList } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -29,7 +29,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { z as zod } from "zod";
 
-import Button from "../CommonComponents/Button";
+import Button from "../CommonComponents/button";
 type PhoneModal = {
   open: boolean;
   onClose: () => void;
@@ -47,15 +47,14 @@ export default function PhoneModal({
   notificationNumber = null,
   onSuccess,
 }:PhoneModal) {
-  const { confirmInfo, notificationPreferenceDetails } = useSelector(
+  const { confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
   const [isPending, setIsPending] = useState(false);
-  const [isOtpModal, setIsOtp] = useState(false);
-  // //console.log(isOtpModal, notificationNumber, "isOtpModal");
+  const [isOtpModal, setIsOtpModal] = useState(false);
   useEffect(() => {
     if (notificationNumber) {
-      setIsOtp(true);
+      setIsOtpModal(true);
     }
   }, [notificationNumber]);
   const [phoneNumber, setPhoneNumber] = useState();
@@ -108,13 +107,6 @@ export default function PhoneModal({
     );
   }, [confirmInfo]);
   const dispatch = useDispatch();
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
   const raw = getLocalStorage("intuity-user");
 
   const stored: IntuityUser | null =
@@ -155,7 +147,7 @@ export default function PhoneModal({
       reset({
         phone: "",
       });
-      setIsOtp(true);
+      setIsOtpModal(true);
     }
 
     const formData = new FormData();
@@ -180,7 +172,6 @@ export default function PhoneModal({
   }
   const role_id = stored?.body?.acl_role_id;
   const user_id = stored?.body?.customer_id;
-  const token = stored?.body?.token;
   const onSubmit = (data) => {
     if (!isOtpModal) {
       setPhoneNumber(data.phone);
@@ -215,7 +206,7 @@ export default function PhoneModal({
               reset({
                 phone: "",
               });
-              setIsOtp(true);
+              setIsOtpModal(true);
             }
           },
           false,
@@ -255,7 +246,7 @@ export default function PhoneModal({
   };
   const failureCallBack = () => {
     setIsPending(false);
-    // setIsOtp(true);
+    // setIsOtpModal(true);
   };
   useEffect(() => {
     if (open) {
@@ -267,7 +258,7 @@ export default function PhoneModal({
 
     return () => {
       setIsPending(false);
-      setIsOtp(false);
+      setIsOtpModal(false);
     };
   }, [open, reset]);
   const dashBoardInfo = useSelector(

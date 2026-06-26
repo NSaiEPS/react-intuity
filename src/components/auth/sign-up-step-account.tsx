@@ -11,9 +11,8 @@ import {
 } from "@mui/material";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { Controller, Control, FieldErrors } from "react-hook-form";
-import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
-import { Question } from "@phosphor-icons/react";
+import { Question, User } from "@phosphor-icons/react";
 import { RegisterFormData } from "./sign-up-schema";
 
 // ─── Tooltip content per verification type ─────────────────────────────────────
@@ -84,7 +83,7 @@ export function StepAccountInfo({ control, errors, showError }: StepAccountInfoP
               onFocus={() => setAccountFocused(true)}
               onBlur={() => { field.onBlur(); setAccountFocused(false); }}
               startAdornment={
-                <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+                <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
               }
               // endAdornment={
               //   <InputAdornment position="end">
@@ -210,6 +209,7 @@ export function StepAccountInfo({ control, errors, showError }: StepAccountInfoP
               {...field}
               notched={answerFocused || Boolean(field.value)}
               label="Answer *"
+              autoComplete="off"
               onFocus={() => setAnswerFocused(true)}
               onBlur={() => { field.onBlur(); setAnswerFocused(false); }}
               startAdornment={

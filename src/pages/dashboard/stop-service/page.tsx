@@ -1,91 +1,41 @@
 import * as React from "react";
-
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Unstable_Grid2";
-
-//import { companySlugs, config } from "@/config";
 import { SendBillDetailsForm } from "@/components/dashboard/account/send-bill-details";
 import { TransferDetailsForm } from "@/components/dashboard/account/transfer-details";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-import { useLoading } from "@/components/core/skeletion-context";
-import { getLocalStorage } from "@/utils/auth";
+import { useLoading } from "@/components/core/skeleton-context";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { stopTransferService } from "@/state/features/accountSlice";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
+import { StopServiceSkeleton } from "@/components/dashboard/skeletons";
+import { boarderRadius } from "@/utils";
+import { Card } from "@mui/material";
+import Header from "@/components/CommonComponents/header";
 
-import { boarderRadius, CustomerInfo } from "@/utils";
-import { Card, CardHeader, Grid as MUIGrid } from "@mui/material";
-import Header from "@/components/CommonComponents/Header";
-
-//export const metadata = {
-//   title: `Stop | Transfer - ${config.site.name}`,
-// } satisfies Metadata;
-// export async function generateStaticParams() {
-//   return companySlugs.map((company) => ({ company }));
-// }
 export default function StopTransferServicePage(): React.JSX.Element {
-  const { setContextLoading } = useLoading();
+  const { contextLoading, setContextLoading } = useLoading();
   const dispatch = useDispatch();
-
   const userInfo = useSelector((state: RootState) => state.Account.userInfo);
+
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
 
-  const getUserDetails = () => {
-    type IntuityUser = {
-      body?: {
-        acl_role_id?: string;
-        customer_id?: string;
-        token?: string;
-      };
-    };
+  React.useEffect(() => {
     const raw = getLocalStorage("intuity-user");
-
     const stored: IntuityUser | null =
       typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-
-    // let roleId = stored?.user?.body?.acl_role_id;
-    // let userId = stored?.user?.body?.id;
-
-    const roleId = stored?.body?.acl_role_id;
-    const customer_id = stored?.body?.customer_id;
-
     const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", customer_id);
+    formData.append("acl_role_id", stored?.body?.acl_role_id);
+    formData.append("customer_id", stored?.body?.customer_id);
     formData.append("is_form", "0");
-    dispatch(
-      stopTransferService(formData, true, undefined, setContextLoading)
-    );
-  };
-  React.useEffect(() => {
-    getUserDetails();
+    dispatch(stopTransferService(formData, true, undefined, setContextLoading));
   }, [userInfo]);
 
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
-
-  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
   return (
-    <SkeletonWrapper>
-      <Card
-        sx={{
-          borderRadius: boarderRadius.card,
-        }}
-      >
-        {/* <div>
-          <Typography variant="h5" m={2}>
-            {" "}
-            Stop/Transfer Service
-          </Typography>
-        </div> */}
-
+    <>
+      {contextLoading && <StopServiceSkeleton />}
+      <Card sx={{ borderRadius: boarderRadius.card, display: contextLoading ? 'none' : 'block' }}>
         <Header title="Stop/Transfer Service" />
         <Grid container spacing={3}>
           <Grid lg={12} md={12} xs={12}>
@@ -94,6 +44,6 @@ export default function StopTransferServicePage(): React.JSX.Element {
           </Grid>
         </Grid>
       </Card>
-    </SkeletonWrapper>
+    </>
   );
 }

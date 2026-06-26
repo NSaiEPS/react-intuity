@@ -1,62 +1,44 @@
 import * as React from "react";
-
-import { CardHeader, Grid, Typography } from "@mui/material";
 import Stack from "@mui/material/Stack";
-import dayjs from "dayjs";
-
-//import { companySlugs, config } from "@/config";
 import { BillingHistory } from "@/components/dashboard/customer/billing-history";
-import type { Customer } from "@/components/dashboard/customer/customers-table";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import { AppDispatch, RootState } from "@/state/store";
+import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
-import { useLoading } from "@/components/core/skeletion-context";
-import { SkeletonWrapper } from "@/components/core/withSkeleton";
-
-//export const metadata = {
-// export async function generateStaticParams() {
-//   return companySlugs.map((company) => ({ company }));
-// }  title: `Billing - ${config.site.name}`,
-// } satisfies Metadata;
+import { useLoading } from "@/components/core/skeleton-context";
+import { PriorBillsSkeleton } from "@/components/dashboard/skeletons";
 
 export default function PriorBillsPage(): React.JSX.Element {
   const page = 0;
-  const rowsPerPage = 10;
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const dispatch = useDispatch();
-  const { setContextLoading } = useLoading();
-
+  const { contextLoading, setContextLoading } = useLoading();
   const currentYear = new Date().getFullYear();
 
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
+
   React.useEffect(() => {
-    const years = Array.from({ length: 15 }, (_, index) => currentYear - index);
-
-    const roleId = stored?.body?.acl_role_id;
-    const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
+    const years = Array.from({ length: 15 }, (_, i) => currentYear - i);
     const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
+    formData.append("acl_role_id", stored?.body?.acl_role_id);
+    formData.append("customer_id", stored?.body?.customer_id);
+    formData.append("id", stored?.body?.customer_id);
     formData.append("year", String(years[0]));
-
     dispatch(getLastBillInfo(formData, setContextLoading));
   }, [userInfo]);
 
   return (
-    <SkeletonWrapper>
-      <Stack spacing={3}>
-        <BillingHistory count={10} page={page} />
+    <>
+      {contextLoading && <PriorBillsSkeleton />}
+      <Stack spacing={3} sx={{ display: contextLoading ? 'none' : 'flex' }}>
+        <BillingHistory />
       </Stack>
-    </SkeletonWrapper>
+    </>
   );
 }

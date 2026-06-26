@@ -1,7 +1,6 @@
 import * as React from "react";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
-import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { setUserInfo } from "@/state/features/accountSlice";
 
 import { colors } from "@/utils";
@@ -28,14 +27,13 @@ import { z as zod } from "zod";
 import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/hooks/use-user";
 
-import Button from "../CommonComponents/Button";
+import Button from "../CommonComponents/button";
 
 import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
-import { Link as RouterLink } from "react-router-dom";
-import { Link as MuiLink } from "@mui/material";
 import { setLocalStorage } from "@/utils/auth";
 import { RootState } from "@/state/store";
+import { CompanyInfoBody } from "@/types/domain";
 
 
 
@@ -50,20 +48,17 @@ type Values = zod.infer<typeof schema>;
 
 const defaultValues = { email: "", password: "" } satisfies Values;
 
-export function SignInForm({ user = false }): React.JSX.Element {
+export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.Element {
   const navigate = useNavigate();
 
   const { checkSession } = useUser();
   const location = useLocation();
   const pathname = location.pathname;
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
+  console.log(companyInfo,'successCallBack')
   const [showPassword, setShowPassword] = React.useState<boolean>();
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
-
-  const hasLoginAlias =
-    pathname?.split("/")[1] !== "login" &&
-    pathname?.includes("login");
 
   const {
     control,
@@ -117,7 +112,7 @@ const alias = rawSlug
       try {
         const { error } = await authClient.signInWithPassword(
           values,
-          successCallBack
+          (res)=>successCallBack(res,companyInfo)
         );
 
         if (error) {
@@ -138,7 +133,7 @@ const alias = rawSlug
         setIsPending(false);
       }
     },
-    [checkSession, setError]
+    [checkSession, setError,companyInfo]
   );
 
   const dispatch = useDispatch();
@@ -152,10 +147,11 @@ const alias = rawSlug
     };
   };
 
-  const successCallBack = async (res: AuthResponse) => {
-    
+  const successCallBack = async (res: AuthResponse,companyInfo: CompanyInfoBody | null) => {
+    console.log(pathname,res,companyInfo,'successCallBack')
     dispatch(setUserInfo(res));
     if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
+
       setLocalStorage("alias-details", companyInfo?.company);
       
     } else {

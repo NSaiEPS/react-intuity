@@ -1,7 +1,7 @@
 import * as React from "react";
 import { stopTransferService } from "@/state/features/accountSlice";
 import { boarderRadius, colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -23,7 +23,6 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import { borderColor } from "@mui/system";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -31,7 +30,6 @@ import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import dayjs, { Dayjs } from "dayjs";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch } from "@/hooks/redux";
-import { toast } from "@/lib/custom-toast";
 import { z } from "zod";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
@@ -111,25 +109,18 @@ export function SendBillDetailsForm(): React.JSX.Element {
   const dispatch = useDispatch();
 
   const onSubmit: SubmitHandler<FormDataContent> = (data) => {
-    let files:  File[] = data?.files?.length ? data?.files : [];
+    const files:  File[] = data?.files?.length ? data?.files : [];
 
     // if (!files?.length) {
     //   toast.warning('Please upload any file');
     //   return;
     // }
-    type IntuityUser = {
-      body?: {
-        acl_role_id?: string;
-        customer_id?: string;
-        token?: string;
-      };
-    };
     const raw = getLocalStorage("intuity-user");
 
     const stored: IntuityUser | null =
       typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-    let roleId = stored?.body?.acl_role_id;
-    let customer_id = stored?.body?.customer_id;
+    const roleId = stored?.body?.acl_role_id;
+    const customer_id = stored?.body?.customer_id;
     // //console.log(data, 'hhhhhhh');
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
@@ -148,7 +139,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
       dayjs(data?.requestedStopDate).format("DD/MM/YYYY")
     );
     formData.append("attorneys_contact", data?.applicableField);
-    files.forEach((file, index) => {
+    files.forEach((file) => {
       formData.append(`upload_file`, file);
     });
     // if (!files?.length) {
@@ -460,7 +451,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             {files.length > 0 && (
               <Grid container spacing={1} mt={2}>
                 {files.map((file, index) => (
-                  <Grid key={index}>
+                  <Grid key={`${file.name}-${file.lastModified}`}>
                     <Chip
                       label={file.name}
                       onDelete={() => handleFileRemove(index)}

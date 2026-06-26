@@ -3,7 +3,6 @@ import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
-import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,

@@ -444,7 +444,7 @@ export default function AlertsScreen() {
                 ) : (
                   sortedAlerts.map((row, index) => (
                     <TableRow
-                      key={index}
+                      key={row?.id}
                       sx={{ bgcolor: index % 2 ? "#f9fcff" : "white" }}
                     >
                       <TableCell padding="checkbox">

@@ -17,9 +17,9 @@ import { z as zod } from "zod";
 
 import { authClient } from "@/lib/auth/client";
 
-import { UpdatePasswordModal } from "../dashboard/account/UpdatePasswordModal";
+import { UpdatePasswordModal } from "../dashboard/account/update-password-modal";
 import { paths } from "@/utils/paths";
-import Button from "../CommonComponents/Button";
+import Button from "../CommonComponents/button";
 import { Link } from "react-router";
 import { Button as MUIButton } from "@mui/material";
 
@@ -28,7 +28,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
-import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 const schema = zod.object({
@@ -53,7 +52,6 @@ export function ResetPasswordForm(): React.JSX.Element {
   const { companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
-  //console.log(companyInfo)
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
@@ -130,7 +128,7 @@ const [emailFocused, setEmailFocused] = React.useState(false);
         label="Enter login username"
         type="text"
         onFocus={() => setEmailFocused(true)}
-        onBlur={(e) => { field.onBlur(); setEmailFocused(false); }}
+        onBlur={() => { field.onBlur(); setEmailFocused(false); }}
         startAdornment={
           <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
         }

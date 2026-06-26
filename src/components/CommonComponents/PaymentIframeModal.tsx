@@ -94,7 +94,7 @@ interface DecryptedDetails {
             ? processor?.iframe_url ?? processor?.iframe_url_ach
             : processor?.iframe_url_ach ?? processor?.iframe_url
         );
-        try {
+    try {
           setProcessorDetails(JSON.parse(processor?.config_value));
         } catch {
           console.error("Failed to parse processor config_value");
@@ -125,7 +125,7 @@ interface DecryptedDetails {
       return `TransactionSetupID=${paymentRequiredKeyDetails}`;
     }
 
-    const companyName = encodeURIComponent(
+     const companyName = encodeURIComponent(
       dashBoardInfo?.body?.company?.company_name ?? ""
     );
     if (iframeDynamicUrl.includes("nacha_bank_frame")) {
@@ -159,7 +159,7 @@ interface DecryptedDetails {
   // }, []);
 
   // Listen for iframe postMessage — only accept messages from the trusted iframe origin
-  useEffect(() => {
+ useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (iframeDynamicUrl) {
         try {
@@ -316,22 +316,13 @@ interface DecryptedDetails {
       }
 
       dispatch(
-        getWorldPlayPaymentDetails(formdata, (res) => {
+        getWorldPlayPaymentDetails( formdata, (res) => {
           setWorldpayDetails(res);
         })
       );
     }
   }, [curentProcessor, amountRequired]);
 
-
-    if( curentProcessor?.includes("forte")){
-       if (type === "account") {
-  return <ForteACH onSuccess={onSuccess}
-      amount={String(amount ?? "0")}
-      convenience_fee={String(convenience_fee ?? "0")} />
-       };
-  return <FortePayment onSuccess={onSuccess} />;
-}
   useEffect(() => {
     if (
       curentProcessor?.includes("worldpay") &&
@@ -365,6 +356,15 @@ interface DecryptedDetails {
     };
   }, [curentProcessor, worldpayDetails]);
 
+
+    if( curentProcessor?.includes("forte")){
+       if (type === "account") {
+  return <ForteACH onSuccess={onSuccess}
+      amount={String(amount ?? "0")}
+      convenience_fee={String(convenience_fee ?? "0")} />
+       };
+  return <FortePayment onSuccess={onSuccess} />;
+}
 
 
 //   useEffect(() => {

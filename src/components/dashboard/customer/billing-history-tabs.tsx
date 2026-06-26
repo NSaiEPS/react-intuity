@@ -13,7 +13,6 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   Tabs,
   Typography,
@@ -24,7 +23,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
 import { paths } from "@/utils/paths";
-import { boarderRadius, colors } from "@/utils";
+import { colors } from "@/utils";
 
 // Register plugins
 dayjs.extend(utc);
@@ -39,10 +38,6 @@ export default function InvoiceTransactionTabs({
   rows,
   isInvoice,
   handleInvoiceToggle,
-  setPdfModal,
-  count,
-  page,
-  rowsPerPage,
 }) {
   const [currentTab, setCurrentTab] = useState("invoice");
   const navigate = useNavigate();
@@ -291,15 +286,6 @@ export default function InvoiceTransactionTabs({
         </Box>
       </Card>
       <Divider />
-      {/* <TablePagination
-        component="div"
-        count={count}
-        onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
-      /> */}
     </Box>
   );
 }

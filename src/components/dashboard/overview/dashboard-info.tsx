@@ -120,7 +120,6 @@ const IOSSwitch = styled((props: SwitchProps) => (
 export function DashboardInfo({
   sx,
   type,
-  isActive = false,
   value,
   typeofUser,
   apiCall = false,
@@ -130,8 +129,6 @@ export function DashboardInfo({
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const { allow_auto_payment, paperless, notification_reminder } =
-    dashBoardInfo?.body?.company || {};
   const [checked, setChecked] = React.useState(
     dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false
   );
@@ -150,14 +147,6 @@ export function DashboardInfo({
   const [clickedState, setClickedState] = React.useState(false);
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const dispatch = useDispatch();
-  type IntuityUser = {
-    body?: {
-      acl_role_id?: string;
-      customer_id?: string;
-      token?: string;
-    };
-  };
-
 
 // ✅ Fix — move inside useMemo
 const { roleId, userId } = React.useMemo(() => {
@@ -289,8 +278,7 @@ const { roleId, userId } = React.useMemo(() => {
     biller_announcements: "1",
   });
   const notificationResponse = (res) => {
-    let value = res?.reminders?.selected;
-    // //console.log(res, 'successCallBack');
+    const value = res?.reminders?.selected;
     setNotificationPrefrences({
       new_bill: TextToValueFormat[res?.new_bill?.selected] || "1",
       payment_confirmation:

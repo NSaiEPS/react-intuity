@@ -146,7 +146,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   // Validation per step
   const validateStep = () => {
-    let newErrors:Record<string, string> = {};
+    const newErrors:Record<string, string> = {};
     if (activeStep === 0) {
       if (!formData.accountNo) {
         newErrors.accountNo = "Account No. is required";
