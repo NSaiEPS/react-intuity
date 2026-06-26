@@ -31,7 +31,7 @@ import { setRouteChecker } from "@/state/features/dashBoardSlice";
 
 const passwordSchema = z
   .string()
-  .min(5, "Password must be at least 5 characters");
+  .min(6, "Password must be at least 6 characters");
 
 const schema = z
   .object({
@@ -53,7 +53,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
     new_password: false,
     repassword: false,
   });
-
+const [passwordLoading, setPasswordLoading] = React.useState(false);
   const toggleVisibility = (key: keyof typeof show) => {
     setShow((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -91,10 +91,19 @@ export function UpdatePasswordForm(): React.JSX.Element {
     formData.append("new_password", data?.new_password);
     formData.append("repassword", data?.repassword);
     formData.append("password", data?.password);
-
-    dispatch(updateAccountInfo(formData, true));
+setPasswordLoading(true)
+    dispatch(updateAccountInfo(formData, true, successCallBack));
   };
+const successCallBack=()=>{
+setPasswordLoading(false)
 
+  reset()
+  setShow({
+        password: false,
+    new_password: false,
+    repassword: false,
+  })
+}
   React.useEffect(() => {
     if (isDirty) {
       dispatch(setRouteChecker(true));
@@ -172,7 +181,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
                 endAdornment={
                   <InputAdornment position="end">
                     <Tooltip
-                      title="Passwords must be a minimum of 5 characters. Special characters (!@#$%^&*) are allowed."
+                      title="Passwords must be a minimum of 6 characters. Special characters (!@#$%^&*) are allowed."
                       placement="top"
                       arrow
                           componentsProps={{
@@ -244,14 +253,15 @@ export function UpdatePasswordForm(): React.JSX.Element {
               borderColor: colors.blue,
               borderRadius: "12px",
               height: "41px",
+              backgroundColor: "white",
             }}
             onClick={handleReset}
           >
             Cancel
           </Button>
           <Button
-            disabled={accountLoading}
-            loading={accountLoading}
+            disabled={passwordLoading}
+            loading={passwordLoading}
             type="submit"
             variant="contained"
             textTransform="none"

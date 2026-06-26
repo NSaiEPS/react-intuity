@@ -27,13 +27,14 @@ const schema = z.object({
   email: z
     .string()
     .min(1, "Login Id or Email is required")
-    .email("Invalid email format"),
+
 });
 
 type FormData = z.infer<typeof schema>;
 
 export function AccountSettingsForm(): React.JSX.Element {
-  const { accountLoading } = useSelector((state: RootState) => state?.Account);
+  // const { accountLoading } = useSelector((state: RootState) => state?.Account);
+const [accountLoading, setAccountLoading] = React.useState(false);
 
   const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
 
@@ -71,11 +72,14 @@ export function AccountSettingsForm(): React.JSX.Element {
     formData.append("name", data?.name ? data?.name : userInfo?.user_name);
     formData.append("email", data?.email ? data?.email : userInfo?.loginID);
     formData.append("is_form", "1");
+setAccountLoading(true)
 
     dispatch(updateAccountInfo(formData, true, successCallBack));
   };
 
   const successCallBack = () => {
+setAccountLoading(false)
+
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
     dispatch(getDashboardInfo(roleId, userId));
@@ -137,7 +141,7 @@ export function AccountSettingsForm(): React.JSX.Element {
               <InputLabel shrink={!!watchedValues.email}>Login Id or Email</InputLabel>
               <OutlinedInput
                 label="Login Id or Email"
-                type="email"
+                type="text"
                 notched={!!watchedValues.email}
                 {...register("email")}
               />
@@ -158,6 +162,8 @@ export function AccountSettingsForm(): React.JSX.Element {
               borderColor: colors.blue,
               borderRadius: "12px",
               height: "41px",
+              backgroundColor: "white",
+
             }}
             onClick={handleReset}  // ← reset to original user values
           >

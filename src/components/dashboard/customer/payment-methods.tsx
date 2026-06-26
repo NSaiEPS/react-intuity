@@ -554,7 +554,7 @@ export const PaymentMethods = ({
               </Box>
             </Stack>
           </Box>
-          <Grid item>
+          {/* <Grid item>
             <CardActions sx={{ justifyContent: 'flex-end' }}>
               <Button
                 onClick={() => setRemoveSaveDetails(true)}
@@ -581,7 +581,7 @@ export const PaymentMethods = ({
                 Save details
               </Button>
             </CardActions>
-          </Grid>
+          </Grid> */}
 
           {/* ── Modals ── */}
           {cardModalOpen && (

@@ -263,7 +263,7 @@ export const updateAccountInfo = (
   dataRequired = false,
   setContextLoading?: SetLoadingFn,
   reduxNeeded = false,
-  noRedirect = false
+  noRedirect = true
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
