@@ -67,7 +67,17 @@ export function SelectPaymentMethod({
       </Typography>
 
       {/* <AddCardModal open={cardModalOpen} onClose={() => setCardModalOpen(false)} /> */}
-      <Dialog open={openPaymentModal} maxWidth="lg" fullWidth>
+      <Dialog
+        open={openPaymentModal}
+        maxWidth={false} // ✅ disable preset sizes
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            minWidth: '800px', // ✅ custom fixed width
+            borderRadius: '12px',
+          },
+        }}
+      >
         <PaymentMethods
           onClose={() => {
             setOpenPaymentModal(false);
