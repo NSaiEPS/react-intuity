@@ -113,11 +113,11 @@ const AccountSlice = createSlice({
       state.selectedCardInfo = action.payload;
     },
     setConfirmInfo(state, action) {
-      console.log('successCallBack', action.payload);
+     // console.log('successCallBack', action.payload);
       state.confirmInfo = action.payload;
     },
     setCompanyInfo(state, action) {
-      console.log('successCallBack', action.payload);
+     // console.log('successCallBack', action.payload);
 
       state.companyInfo = action.payload;
     },
@@ -501,10 +501,10 @@ export const getCompanyDetails = (
   dispatch(setAccountLoading(true));
   try {
     const res = await getCompanyDetailsApi({ formData });
-      console.log('successCallBack', res);
+      //console.log('successCallBack', res);
 
     if (res.status) {
-      console.log('successCallBack', res?.body);
+      //console.log('successCallBack', res?.body);
       dispatch(setCompanyInfo(res?.body));
       if (successCallBack) successCallBack();
     } else {
