@@ -72,8 +72,9 @@ class AuthClient {
 
     const data = await res.json();
 
-    if (!res.ok || data?.body?.errors?.[0]) {
-      return { error: data?.body?.errors?.[0] || "Login failed" };
+
+    if (!res.ok ||  data?.body?.errors?.[0]) {
+      return { error:  typeof data?.body?.errors === "string" ? data?.body?.errors : data?.body?.errors?.[0] || "Login failed" };
     }
     data.body.email = email;
     secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
