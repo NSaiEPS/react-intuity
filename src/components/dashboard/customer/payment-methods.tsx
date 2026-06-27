@@ -377,7 +377,7 @@ export const PaymentMethods = ({
       )),
     [myCards, selectedId, selectOne, handleDelete]
   );
-  console.log(memoizedCardRows, 'memoizedCardRows');
+  // console.log(memoizedCardRows, 'memoizedCardRows');
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: isModal ? '100%' : '70%', mx: 'auto' }}>

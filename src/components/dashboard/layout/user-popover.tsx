@@ -11,6 +11,7 @@ import { NotificationsPopover } from "./notifications-popover";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { useDispatch } from "react-redux";
 import { getNotificationList } from "@/state/features/dashBoardSlice";
+import { AppDispatch } from "@/state/store";
 
 export interface UserPopoverProps {
   anchorEl: Element | null;
@@ -28,7 +29,8 @@ export function UserPopover({
   openType,
 }: UserPopoverProps): React.JSX.Element {
   const theme = useTheme();
-    const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+
   
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const raw = getLocalStorage("intuity-user");
