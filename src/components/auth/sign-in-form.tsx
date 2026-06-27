@@ -27,7 +27,8 @@ import { z as zod } from "zod";
 import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/hooks/use-user";
 
-import Button from "../CommonComponents/button";
+import Button from '../CommonComponents/Button';
+
 
 import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";

@@ -9,7 +9,8 @@ import Stack from "@mui/material/Stack";
 import type { SxProps } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
-import { IconCards } from "@/components/dashboard/overview/icon-cards";
+import { IconCards } from '@/components/dashboard/overview/Icon-cards';
+
 
 import { paths } from "@/utils/paths";
 import { Button } from "@mui/material";

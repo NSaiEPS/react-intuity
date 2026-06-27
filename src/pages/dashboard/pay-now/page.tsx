@@ -10,7 +10,8 @@ import { PayNowSkeleton } from "@/components/dashboard/skeletons";
 import { LastBill } from "@/components/dashboard/customer/last-bill-box";
 import { Card, Divider } from "@mui/material";
 import { boarderRadius } from "@/utils";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 
 export default function PayNowPage(): React.JSX.Element {
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);

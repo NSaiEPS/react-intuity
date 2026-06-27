@@ -21,7 +21,8 @@ import {
 import { X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 
 const PayerTermsConditionsModal = () => {
   const [payerTermsModalOpen, setPayerTermsModalOpen] = useState(false);

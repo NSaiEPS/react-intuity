@@ -6,7 +6,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { Card } from "@mui/material";
 import { boarderRadius } from "@/utils";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 
 export default function SettingsPage(): React.JSX.Element {
   const dashboardLoading = useSelector((state: RootState) => state?.DashBoard?.dashboardLoading);

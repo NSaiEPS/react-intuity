@@ -9,7 +9,8 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 
 import InvoiceTransactionTabs from "./billing-history-tabs";
 import { boarderRadius } from "@/utils";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 
 export interface Customer {
   id: string;

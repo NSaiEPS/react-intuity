@@ -19,7 +19,8 @@ import { authClient } from "@/lib/auth/client";
 
 import { UpdatePasswordModal } from "../dashboard/account/update-password-modal";
 import { paths } from "@/utils/paths";
-import Button from "../CommonComponents/button";
+import Button from '../CommonComponents/Button';
+
 import { Link } from "react-router";
 import { Button as MUIButton } from "@mui/material";
 

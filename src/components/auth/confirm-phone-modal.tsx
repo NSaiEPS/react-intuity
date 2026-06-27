@@ -29,7 +29,9 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { z as zod } from "zod";
 
-import Button from "../CommonComponents/button";
+import Button from '../CommonComponents/Button';
+
+
 type PhoneModal = {
   open: boolean;
   onClose: () => void;

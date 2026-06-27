@@ -20,7 +20,8 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "@/hooks/redux";
 import { z as zod } from "zod";
 
-import Button from "../CommonComponents/button";
+import Button from '../CommonComponents/Button';
+
 
 // Zod schema
 const schema = zod.object({

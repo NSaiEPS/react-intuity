@@ -15,7 +15,8 @@ import { ClipboardText } from "@phosphor-icons/react/dist/ssr/ClipboardText";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { Info } from "@phosphor-icons/react";
 import { Logo } from "../core/logo";
-import Button from "../CommonComponents/button";
+import Button from '../CommonComponents/Button';
+
 
 // ── Eager imports (small chunks, instantly adjacent to login page) ───────────
 // These are all < 25 KB and render on the first user interaction — no lazy needed.

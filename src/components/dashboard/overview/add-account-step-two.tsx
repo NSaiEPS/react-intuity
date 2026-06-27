@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Box, TextField, Typography } from "@mui/material";
 import { Controller, type Control, type FieldErrors } from "react-hook-form";
-import Button from "@/components/CommonComponents/button";
+import Button from '@/components/CommonComponents/Button';
+
 import { colors } from "@/utils";
 import { FeeDisclaimerNote } from "./fee-disclaimer-note";
 

@@ -15,7 +15,8 @@ import { CurrencyDollar as CurrencyDollarIcon } from "@phosphor-icons/react/dist
 import { useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
-import { IconCards } from "@/components/dashboard/overview/icon-cards";
+import { IconCards } from '@/components/dashboard/overview/Icon-cards';
+
 
 export interface BudgetProps {
   diff?: number;

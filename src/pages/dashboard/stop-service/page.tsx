@@ -10,7 +10,8 @@ import { RootState } from "@/state/store";
 import { StopServiceSkeleton } from "@/components/dashboard/skeletons";
 import { boarderRadius } from "@/utils";
 import { Card } from "@mui/material";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 
 export default function StopTransferServicePage(): React.JSX.Element {
   const { contextLoading, setContextLoading } = useLoading();

@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLoading } from "@/components/core/skeleton-context";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 import EmailDialog from "@/components/auth/confirm-email-modal";
 import { ContactMethodsSection, type ContactMethod } from "./contact-methods-section";
 import { NotificationPreferenceRow, type NotificationPreferenceOption } from "./notification-preference-row";

@@ -10,7 +10,8 @@ import { getAccountInfo } from "@/state/features/accountSlice";
 import { useLoading } from "@/components/core/skeleton-context";
 import { AccountSkeleton } from "@/components/dashboard/skeletons";
 import { boarderRadius } from "@/utils";
-import Header from "@/components/CommonComponents/header";
+import Header from '@/components/CommonComponents/Header';
+
 
 export default function AccountPage(): React.JSX.Element {
   const dispatch = useDispatch();
