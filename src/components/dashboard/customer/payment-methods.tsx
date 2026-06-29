@@ -39,6 +39,8 @@ import { ConfirmDialog } from '@/styles/theme/components/ConfirmDialog';
 import AddBankAccountModal from './add-bank-modal';
 import AddCardModal from './add-card-modal';
 import { useLoading } from '@/components/core/skeleton-context';
+import { useLocation } from "react-router-dom";
+
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -257,6 +259,9 @@ export const PaymentMethods = ({
   const [removeSaveDetails, setRemoveSaveDetails] = React.useState(false);
   const [deleCardDetails, setDeleteCardDetails] = React.useState<CardDetails | null>(null);
 
+  const location = useLocation();
+  const isPaymentMethodsPage = location.pathname.includes("payment-methods");
+
   type IntuityUser = {
     body?: { acl_role_id?: string; customer_id?: string; token?: string };
   };
@@ -274,6 +279,8 @@ export const PaymentMethods = ({
       dispatch(getPaymentDetails(formdata, undefined, undefined, setContextLoading));
     }
   }, [dispatch]);
+
+
 
   const myCards = React.useMemo(() => {
     if (!paymentMethodInfoCards) return [];
@@ -444,7 +451,7 @@ export const PaymentMethods = ({
                         arrow
                         enterTouchDelay={0}
                         leaveTouchDelay={3000}
-                        // componentsProps={{ tooltip: { sx: tooltipSx } }}
+                      // componentsProps={{ tooltip: { sx: tooltipSx } }}
                       >
                         <IconButton size="small" sx={{ p: 0.2 }}>
                           <Question size={16} color="#90caf9" weight="fill" />
@@ -475,7 +482,10 @@ export const PaymentMethods = ({
           <Box sx={{ px: 3, py: 1.5 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="caption" color="text.secondary" fontStyle="italic" fontSize="0.75rem">
-                If card expires, or you need to edit a payment method, please select Remove then add your card.
+                {/* If credit card expires, or you need to edit a payment method, please select Remove then add your card. */}
+                {isPaymentMethodsPage
+                  ? "If card expires, or you need to edit a payment method, please select Remove then add your card."
+                  : "If credit card expires, or you need to edit a payment method, please select Remove then add your card."}
               </Typography>
               {/* Add a payment method with popover */}
               <Box>
