@@ -132,6 +132,7 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
             color: colors.blue,
             borderColor: colors.blue,
             borderRadius: "12px",
+            backgroundColor:"white",
             height: "41px",
           }}
         >

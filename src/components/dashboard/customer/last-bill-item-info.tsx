@@ -67,8 +67,14 @@ export default function UtilityList({ data }) {
 
       {/* ── One row per utility group ── */}
       {entries.map(([key, items]) => {
-        const [utilityName, , meterNumber, ...addressParts] = key.split(';');
-        const serviceAddress = addressParts.join(';');
+        // const [utilityName,  meterNumber, ...addressParts] = key.split(';');
+        // const serviceAddress = addressParts.join(';');
+        const parts = key.split(";");
+
+        const utilityName = parts[0];
+        const meterNumber = parts[1];
+        const serviceAddress = parts.slice(2).filter(Boolean).join(" ");
+
 
         // Suppression: skip items with null/blank description or null amount
         const visibleItems = items?.filter(

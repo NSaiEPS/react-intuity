@@ -10,10 +10,16 @@ interface UtilityBillBlockProps {
 }
 
 export function UtilityBillBlock({ utilityKey, items, previousBalance, billingAmount }: UtilityBillBlockProps): React.JSX.Element {
-  const [utilityName, , meterNumber, ...addressParts] = utilityKey.split(";");
-  const serviceAddress = addressParts.join(";");
+  // const [utilityName, , meterNumber, ...addressParts] = utilityKey.split(";");
+  // const serviceAddress = addressParts.join(";");
   const utilityDetails: UtilityItem = items?.[0] ?? ({} as UtilityItem);
   const billedItems = items?.filter((item) => item?.product_id);
+
+  const parts = utilityKey.split(";");
+
+const utilityName = parts[0];
+const meterNumber = parts[1];
+const serviceAddress = parts.slice(2).filter(Boolean).join(" ");
 
   // Subtotal = sum of line items only
   const subtotal = items.reduce((acc, item) => acc + (item?.amount || 0), 0);

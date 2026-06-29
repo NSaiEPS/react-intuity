@@ -100,7 +100,7 @@ const MainSection = memo(function MainSection() {
       slug?.startsWith("login-") ||
       slug?.startsWith("register-") ||
       slug?.startsWith("onetime-payment-") ||
-      slug?.startsWith("forgot-login-")||
+      slug?.startsWith("forgot-login-") ||
       slug?.startsWith("reset-password-")
     ) {
       const alias = slug
@@ -136,11 +136,11 @@ const MainSection = memo(function MainSection() {
 
   // ✅ useCallback — stable function reference
   const handlePayNow = useCallback(() => {
- try {
-    sessionStorage.removeItem('guest-payment-state');
-  } catch {
-    /* storage unavailable — ignore */
-  }
+    try {
+      sessionStorage.removeItem('guest-payment-state');
+    } catch {
+      /* storage unavailable — ignore */
+    }
     navigate(paths.auth.oneTimePayment(companyInfo?.company?.alias));
   }, [navigate, companyInfo?.company?.alias]);
 
@@ -163,10 +163,10 @@ const MainSection = memo(function MainSection() {
   const getRequiredForms = () => {
     // Eager — no Suspense needed, already in the bundle
     if (pathname?.includes("onetime-payment")) return <OneTimePaymentScreen />;
-        if (pathname?.includes("forgot-login")) return (
+    if (pathname?.includes("forgot-login")) return (
       <React.Suspense fallback={<FormFallback />}><ForgotLoginForm /></React.Suspense>
     );
-    if (pathname.includes("login"))            return <SignInForm user={true} />;
+    if (pathname.includes("login")) return <SignInForm user={true} />;
     if (pathname.includes("register") || pathname === "/sign-up") return <SignUpForm />;
 
     // Lazy — Suspense needed (infrequent paths)
@@ -216,116 +216,127 @@ const MainSection = memo(function MainSection() {
 
   return (
     <Box sx={{ backgroundSize: "cover", backgroundPosition: "center", color: "#0d1b2a", py: 2, px: { xs: 0, sm: 2 }, paddingBottom: 0 }}>
-        <Stack sx={{ maxWidth: "100%", mx: "auto" }}>
+      <Stack sx={{ maxWidth: "100%", mx: "auto" }}>
 
-          {/* Header */}
-          <Grid container sx={{ maxWidth: "1440px", width: { xs: "95%", sm: "92%", md: "90%" }, mx: "auto" }}>
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "center", alignItems: "center", textAlign: { xs: "center", sm: "left" }, width: "100%", gap: { xs: 1.5, sm: 2 }, px: 1 }}>
-              {hasCompanySlug ? (
-                <>
-                  {companyInfo?.company ? (
-                    <Avatar
-                      src={companyInfo.company.logo || undefined}
-                      sx={{ width: { xs: 56, sm: 70, md: 80 }, height: { xs: 56, sm: 70, md: 80 }, flexShrink: 0 }}
-                    />
+        {/* Header */}
+        <Grid container sx={{ maxWidth: "1440px", width: { xs: "95%", sm: "92%", md: "90%" }, mx: "auto" }}>
+          <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "center", alignItems: "center", textAlign: { xs: "center", sm: "left" }, width: "100%", gap: { xs: 1.5, sm: 2 }, px: 1 }}>
+            {hasCompanySlug ? (
+              <>
+                {companyInfo?.company ? (
+                  <Avatar
+                    src={companyInfo.company.logo || undefined}
+                    sx={{
+                      width: "max-content",
+                      height: { xs: 56, sm: 70, md: 80 },
+                      flexShrink: 0,
+                      // bgcolor: "white",
+                      borderRadius:"0",
+                      "& img": {
+                        objectFit: "contain",
+                        // padding: "6px", // optional
+                      },
+                    }}
+                  // {{ width: { xs: 56, sm: 70, md: 80 }, height: { xs: 56, sm: 70, md: 80 }, flexShrink: 0 }}
+                  />
+                ) : (
+                  <Skeleton variant="circular" width={70} height={70} sx={{ flexShrink: 0 }} />
+                )}
+
+                <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, width: { xs: "100%", sm: "auto" } }}>
+                  {companyInfo?.company?.company_name ? (
+                    <Typography variant="h5" sx={{ fontWeight: 700, wordBreak: "break-word", whiteSpace: "normal", lineHeight: 1.2 }}>
+                      {companyInfo.company.company_name}
+                    </Typography>
                   ) : (
-                    <Skeleton variant="circular" width={70} height={70} sx={{ flexShrink: 0 }} />
+                    <Skeleton variant="text" width={180} height={36} />
                   )}
-
-                  <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, width: { xs: "100%", sm: "auto" } }}>
-                    {companyInfo?.company?.company_name ? (
-                      <Typography variant="h5" sx={{ fontWeight: 700, wordBreak: "break-word", whiteSpace: "normal", lineHeight: 1.2 }}>
-                        {companyInfo.company.company_name}
-                      </Typography>
-                    ) : (
-                      <Skeleton variant="text" width={180} height={36} />
-                    )}
-                  </Box>
-                </>
-              ) : (
-                <Box
-                  onClick={() => {
-                    if (routeChecker) {
-                      if (window.confirm("You have unsaved changes. Are you sure you want to leave this page?")) {
-                        navigate(paths.auth.newLogin());
-                      }
-                    } else {
+                </Box>
+              </>
+            ) : (
+              <Box
+                onClick={() => {
+                  if (routeChecker) {
+                    if (window.confirm("You have unsaved changes. Are you sure you want to leave this page?")) {
                       navigate(paths.auth.newLogin());
                     }
-                  }}
-                  sx={{ display: "inline-flex" }}
-                >
-                  <Logo color="dark" height={50} width={140} />
-                </Box>
-              )}
-            </Box>
-          </Grid>
-
-          {/* Announcement banner */}
-          {isLoginPath && !pathname.includes("forgot-login") && rawMessage && (
-            <Box sx={{ px: { xs: 2.5, sm: 0 } }}>
-              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, borderRadius: "10px", px: 2, py: 1.5, mt: 2, mb: 1.5, maxWidth: "700px", mx: "auto", textAlign: "left", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)" }}>
-                <Info size={20} color={colors.blue} weight="regular" style={{ flexShrink: 0, marginTop: 0 }} />
-                <Typography variant="body2" color="text.primary" component="div">
-                  <strong>Announcements:</strong> {getImportantAlert()}
-                </Typography>
+                  } else {
+                    navigate(paths.auth.newLogin());
+                  }
+                }}
+                sx={{ display: "inline-flex" }}
+              >
+                <Logo color="dark" height={50} width={140} />
               </Box>
-            </Box>
-          )}
-
-          {/* Main grid */}
-          <Grid
-            container
-            sx={{ maxWidth: "1440px", width: { xs: "90%", sm: "95%" }, height: "100%", mx: "auto" }}
-            py={1.9}
-            pb={2.4}
-            justifyContent={showPayAsGuest ? "space-between" : "center"}
-          >
-            {/* Form card */}
-            <Grid item xs={12} md={6}>
-              <Grid sx={{ overflow: "hidden", width: "100%", height: "100%", marginTop: 0, border: "1px solid #eaecf0", borderRadius: "16px", boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)", backgroundColor: "#fff" }}>
-                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-                  {getRequiredForms()}
-                </CardContent>
-              </Grid>
-            </Grid>
-
-            {/* Pay as Guest — desktop + mobile, only when needed */}
-            {showPayAsGuest && (
-              <>
-                {/* Desktop */}
-                <Grid item xs={12} md={6} sx={{ display: { xs: "none", md: "block" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
-                  <PayAsGuestCard companyInfo={companyInfo} finalHTML={finalHTML} handlePayNow={handlePayNow} showFull />
-                </Grid>
-
-                {/* Mobile */}
-                <Grid item xs={12} md={6} sx={{ display: { xs: "block", md: "none" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
-                  <PayAsGuestCard companyInfo={companyInfo} finalHTML={finalHTML} handlePayNow={handlePayNow} showFull={false} />
-                </Grid>
-              </>
             )}
+          </Box>
+        </Grid>
+
+        {/* Announcement banner */}
+        {isLoginPath && !pathname.includes("forgot-login") && rawMessage && (
+          <Box sx={{ px: { xs: 2.5, sm: 0 } }}>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, borderRadius: "10px", px: 2, py: 1.5, mt: 2, mb: 1.5, maxWidth: "700px", mx: "auto", textAlign: "left", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)" }}>
+              <Info size={20} color={colors.blue} weight="regular" style={{ flexShrink: 0, marginTop: 0 }} />
+              <Typography variant="body2" color="text.primary" component="div">
+                <strong>Announcements:</strong> {getImportantAlert()}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
+        {/* Main grid */}
+        <Grid
+          container
+          sx={{ maxWidth: "1440px", width: { xs: "90%", sm: "95%" }, height: "100%", mx: "auto" }}
+          py={1.9}
+          pb={2.4}
+          justifyContent={showPayAsGuest ? "space-between" : "center"}
+        >
+          {/* Form card */}
+          <Grid item xs={12} md={6}>
+            <Grid sx={{ overflow: "hidden", width: "100%", height: "100%", marginTop: 0, border: "1px solid #eaecf0", borderRadius: "16px", boxShadow: "0px 2px 16px rgba(99, 132, 200, 0.08), 0px 1px 4px rgba(0,0,0,0.04)", backgroundColor: "#fff" }}>
+              <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                {getRequiredForms()}
+              </CardContent>
+            </Grid>
           </Grid>
 
-          {/* Important fee notice */}
-          {isLoginPath && !pathname.includes("forgot-login") && (
-            <Box sx={{ px: { xs: 2.5, sm: 0 } }}>
-              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, backgroundColor: "#eff6ff", border: "1px solid #dbeafe", borderRadius: "10px", px: 2, py: 1.5, mt: 1, mb: 1.5, maxWidth: "700px", mx: "auto", textAlign: "left" }}>
-                <Info size={20} color={colors.blue} weight="regular" style={{ flexShrink: 0, marginTop: 2 }} />
-                <Typography variant="body2" color="text.primary">
-                  <strong>Important:</strong> A convenience or service fee may be charged by the payment processor for credit/debit card, e-check or ACH online payments. The fee amount will be displayed before you complete your transaction.
-                </Typography>
-              </Box>
-            </Box>
-          )}
-        </Stack>
+          {/* Pay as Guest — desktop + mobile, only when needed */}
+          {showPayAsGuest && (
+            <>
+              {/* Desktop */}
+              <Grid item xs={12} md={6} sx={{ display: { xs: "none", md: "block" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
+                <PayAsGuestCard companyInfo={companyInfo} finalHTML={finalHTML} handlePayNow={handlePayNow} showFull />
+              </Grid>
 
-        {/* ✅ Only render modal when opened */}
-        {oneTimePaymentModalOpen && (
-          <React.Suspense fallback={null}>
-            <OneTimePaymentModal open={oneTimePaymentModalOpen} onClose={() => setOneTimePaymentModalOpen(false)} />
-          </React.Suspense>
+              {/* Mobile */}
+              <Grid item xs={12} md={6} sx={{ display: { xs: "block", md: "none" }, pl: { xs: 0, md: "20px" }, pt: { xs: "20px", md: 0 }, maxWidth: "1440px", width: "90%", mx: "auto" }}>
+                <PayAsGuestCard companyInfo={companyInfo} finalHTML={finalHTML} handlePayNow={handlePayNow} showFull={false} />
+              </Grid>
+            </>
+          )}
+        </Grid>
+
+        {/* Important fee notice */}
+        {isLoginPath && !pathname.includes("forgot-login") && (
+          <Box sx={{ px: { xs: 2.5, sm: 0 } }}>
+            <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, backgroundColor: "#eff6ff", border: "1px solid #dbeafe", borderRadius: "10px", px: 2, py: 1.5, mt: 1, mb: 1.5, maxWidth: "700px", mx: "auto", textAlign: "left" }}>
+              <Info size={20} color={colors.blue} weight="regular" style={{ flexShrink: 0, marginTop: 2 }} />
+              <Typography variant="body2" color="text.primary">
+                <strong>Important:</strong> A convenience or service fee may be charged by the payment processor for credit/debit card, e-check or ACH online payments. The fee amount will be displayed before you complete your transaction.
+              </Typography>
+            </Box>
+          </Box>
         )}
-      </Box>
+      </Stack>
+
+      {/* ✅ Only render modal when opened */}
+      {oneTimePaymentModalOpen && (
+        <React.Suspense fallback={null}>
+          <OneTimePaymentModal open={oneTimePaymentModalOpen} onClose={() => setOneTimePaymentModalOpen(false)} />
+        </React.Suspense>
+      )}
+    </Box>
   );
 });
 

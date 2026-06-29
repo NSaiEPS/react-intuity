@@ -384,14 +384,28 @@ export default function PhoneModal({
         fullWidth
         error={!!errors.phone}
         helperText={errors.phone?.message}
-        placeholder="(555) 000-0000"
-        value={formatUS(field.value || "")}
-        onChange={(e) => {
-          field.onChange(formatUS(e.target.value));
+        placeholder={isOtpModal ? "Enter OTP" : "(555) 000-0000"}
+        value={
+          isOtpModal
+            ? field.value || ""
+            : formatUS(field.value || "")
+        }
+        onChange=
+        {(e) => {
+          if (isOtpModal) {
+            // OTP: only digits
+            field.onChange(e.target.value.replace(/\D/g, "").slice(0, 6));
+          } else {
+            // Phone: format as US number
+            field.onChange(formatUS(e.target.value));
+          }
         }}
+        // {(e) => {
+        //   field.onChange(formatUS(e.target.value));
+        // }}
         inputProps={{
           inputMode: "numeric",
-          maxLength: 14, // ✅ (XXX) XXX-XXXX = 14 chars
+          maxLength: isOtpModal ? 6 : 14, 
         }}
       />
     );

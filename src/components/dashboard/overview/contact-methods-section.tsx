@@ -23,17 +23,27 @@ export function ContactMethodsSection({
   onResendVerification,
   onRemovePhone,
 }: ContactMethodsSectionProps): React.JSX.Element {
+  console.log(contacts,"contacts");
+  
   return (
     <Box p={2}>
       <Typography variant="h6" fontWeight="bold" mb={2}>
         Your Contact Information
       </Typography>
       {contacts.map((contact) => (
+        <>
+        
+        {console.log(contact, "2222")}
+        
         <Grid container key={contact.value} alignItems="center" justifyContent="space-between" mb={1}>
           <Grid item>
             <Typography sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <span style={{ fontSize: "1.5rem" }}>{contact.type === "phone" ? "📱" : "📧"}</span>
-              {!contact?.value || contact?.value === "0" ? (
+              {
+              !contact?.value 
+              //  contact?.value === "0" || 
+              //  contact?.verified === false
+                ? (
                 <Typography variant="body2" color="text.secondary" fontStyle="italic">
                   {contact.type === "phone"
                     ? "Number is not available, Please Add."
@@ -45,7 +55,11 @@ export function ContactMethodsSection({
             </Typography>
           </Grid>
           <Grid item display="flex" alignItems="center" justifyContent="flex-start" gap={1}>
-            {!contact?.value || contact?.value == "0" ? (
+            {
+            !contact?.value  
+            // contact?.value == "0" || 
+            // contact?.verified === false
+             ?  (
               <Button
                 size="small"
                 variant="outlined"
@@ -89,6 +103,7 @@ export function ContactMethodsSection({
             )}
           </Grid>
         </Grid>
+        </>
       ))}
     </Box>
   );
