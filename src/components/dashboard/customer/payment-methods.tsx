@@ -475,7 +475,7 @@ export const PaymentMethods = ({
           <Box sx={{ px: 3, py: 1.5 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="caption" color="text.secondary" fontStyle="italic" fontSize="0.75rem">
-                If credit card expires, or you need to edit a payment method, please select Remove then add your card.
+                If card expires, or you need to edit a payment method, please select Remove then add your card.
               </Typography>
               {/* Add a payment method with popover */}
               <Box>
