@@ -29,7 +29,7 @@ export function AccountInfo(): React.JSX.Element {
     >
       <CardContent>
         <Stack spacing={2} sx={{ alignItems: "center", py: 1 }}>
-          <Avatar src={company_logo} sx={{ height: "80px", width: "80px" }} />
+          <Avatar src={company_logo} sx={{height:"max-content" ,width: "80px" }} />
           <Stack spacing={0.5} sx={{ textAlign: "center" }}>
             <Typography variant="h5" fontWeight={700}>
               {customer_name}

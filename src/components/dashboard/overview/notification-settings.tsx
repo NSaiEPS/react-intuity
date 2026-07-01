@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { updateAccountInfo } from "@/state/features/accountSlice";
+import React, { useEffect, useMemo, useState } from "react";
+import { updateAccountInfo, updateVoicePreference } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
-import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { colors, CustomerInfo } from "@/utils";
+import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
 import {
   Box,
   Button,
@@ -15,7 +15,11 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Stack,
+  Switch,
+  type SwitchProps,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLoading } from "@/components/core/skeleton-context";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
@@ -41,6 +45,62 @@ const BILLER_TEXT_TO_VALUE_FORMAT: Record<string, string> = {
   None: "3",
 };
 
+const IOSSwitch = styled((props: SwitchProps) => (
+  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
+))(({ theme }) => ({
+  width: 70,
+  height: 30,
+  padding: 0,
+  display: "flex",
+  "& .MuiSwitch-switchBase": {
+    padding: 0,
+    margin: 3,
+    transitionDuration: "300ms",
+    "&.Mui-checked": {
+      transform: "translateX(40px)",
+      color: "#fff",
+      "& .MuiSwitch-thumb": { backgroundColor: "#fff" },
+      "& + .MuiSwitch-track": {
+        backgroundColor: "#00C853",
+        opacity: 1,
+        border: 0,
+        "&::before": { opacity: 1, color: "white" },
+        "&::after": { opacity: 0, color: "white" },
+      },
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    boxSizing: "border-box",
+    width: 24,
+    height: 24,
+    backgroundColor: "#bdbdbd",
+  },
+  "& .MuiSwitch-track": {
+    borderRadius: 30 / 2,
+    backgroundColor: "#bdbdbd50",
+    opacity: 1,
+    transition: theme.transitions.create(["background-color"], { duration: 500 }),
+    position: "relative",
+    "&::before, &::after": {
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)",
+      fontSize: 10,
+      fontWeight: 600,
+      fontFamily: "Inter",
+      color: "#fff",
+      width: 20,
+      textAlign: "center",
+    },
+    "&::before": { content: '"ON"', left: 8, opacity: 1 },
+    "&::after": { content: '"OFF"', right: 8, opacity: 1, color: "#555" },
+  },
+  "& .Mui-checked + .MuiSwitch-track": {
+    "&::before": { color: "#fff", opacity: 1 },
+    "&::after": { color: "#fff", opacity: 0 },
+  },
+}));
+
 const phoneGatedOptions = (textValue: string, bothValue: string): NotificationPreferenceOption[] => [
   { label: "Text", value: textValue, requiresVerifiedPhone: true },
   { label: "Email", value: "1" },
@@ -51,6 +111,14 @@ function NotificationsSettings() {
   const { setContextLoading } = useLoading();
   const dispatch = useDispatch();
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [openVoiceConfirm, setOpenVoiceConfirm] = useState(false);
+  const [clickedState, setClickedState] = useState(false);
+
+  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const userInfo: CustomerInfo = useMemo(
+    () => dashBoardInfo?.customer ?? (getLocalStorage("intuity-customerInfo") as CustomerInfo),
+    [dashBoardInfo?.customer]
+  );
 
   React.useLayoutEffect(() => {
     setContextLoading(true);
@@ -123,6 +191,30 @@ function NotificationsSettings() {
       });
     }
   }, [notificationPreferenceDetails]);
+
+  useEffect(() => {
+    if (userInfo) {
+      setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
+    }
+  }, [userInfo]);
+
+  const handleVoiceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setClickedState(event.target.checked);
+    setOpenVoiceConfirm(true);
+  };
+
+  const handleVoiceConfirm = () => {
+    const formData = new FormData();
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    formData.append("is_voice_optout", clickedState ? "1" : "0");
+    dispatch(
+      updateVoicePreference(formData, () => {
+        updateLocalStorageValue("intuity-customerInfo", "is_voice_optout", clickedState ? 1 : 0);
+      })
+    );
+    setOpenVoiceConfirm(false);
+  };
 
   const handleChange = (field: string, value: string) => {
     setPreferences((prev) => ({ ...prev, [field]: value }));
@@ -199,6 +291,25 @@ function NotificationsSettings() {
     dispatch(updateAccountInfo(formData, true, null));
   };
 
+  const handleCancel = () => {
+    setPreferences({
+      new_bill: TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.new_bill?.selected] || "1",
+      payment_confirmation:
+        TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.payment_confirmation?.selected] || "1",
+      reminders: TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.reminders?.selected] || "1",
+      biller_announcements:
+        BILLER_TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.biller_announcements?.selected] || "1",
+      email: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails.email,
+      email_updated_date: notificationPreferenceDetails?.email_updated_date,
+      is_phone_verified: notificationPreferenceDetails?.is_phone_verified,
+      phone_no:
+        notificationPreferenceDetails?.phone_no && notificationPreferenceDetails?.phone_no != 0
+          ? notificationPreferenceDetails?.phone_no
+          : "",
+      updated_email: notificationPreferenceDetails.updated_email,
+    })
+  }
+
   const handleSave = () => {
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
@@ -233,7 +344,30 @@ function NotificationsSettings() {
 
         {/* <Divider /> */}
 
-        <Typography variant="h6" fontWeight="bold" mt={3} mb={2} px={2}>
+        <Stack
+          direction="row"
+          spacing={3}
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mx: 2, my: 2, px: 2, py: 1.5, border: "1px solid #DCDFE4", borderRadius: 1 }}
+        >
+          <Typography variant="h6" fontWeight={500}>
+            Enable Emergency Calls to My Phone
+          </Typography>
+          <Stack
+            component="button"
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
+            sx={{ all: "unset", display: "flex" }}
+          >
+            <IOSSwitch
+              checked={clickedState}
+              onChange={handleVoiceChange}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
+            />
+          </Stack>
+        </Stack>
+
+        {/* <Typography variant="h6" fontWeight="bold" mt={3} mb={2} px={2}>
           Select your notification preference for each type of notice
         </Typography>
 
@@ -254,7 +388,7 @@ function NotificationsSettings() {
               .
             </Typography>
           </Box>
-        )}
+        )} */}
 
         <TableContainer sx={{ border: "1px solid #E2E8F0", borderRadius: "12px", overflow: "hidden", mt: 2, mx: 2, width: "calc(100% - 32px)", boxShadow: "none" }}>
           <Table sx={{ minWidth: 650 }}>
@@ -337,7 +471,7 @@ function NotificationsSettings() {
         </TableContainer>
 
         <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
-          <Button color="inherit" variant="outlined" sx={{ color: colors.blue, borderColor: colors.blue }}>
+          <Button color="inherit" variant="outlined" sx={{ color: colors.blue, borderColor: colors.blue }} onClick={handleCancel}>
             Cancel
           </Button>
           <Button
@@ -349,8 +483,22 @@ function NotificationsSettings() {
             Save Preferences
           </Button>
         </Box>
-      </Box>
+      </Box >
 
+      {openVoiceConfirm && (
+        <ConfirmDialog
+          open={openVoiceConfirm}
+          title="Voice Call"
+          message={`Are you sure want to ${clickedState ? "ON" : "OFF"} it`}
+          confirmLabel="Yes, Confirm"
+          cancelLabel="Cancel"
+          onConfirm={handleVoiceConfirm}
+          onCancel={() => {
+            setOpenVoiceConfirm(false);
+            setClickedState((prev) => !prev);
+          }}
+        />
+      )}
       <ConfirmDialog
         open={openConfirm}
         title="Remove Phone Number"

@@ -115,16 +115,36 @@ export function MainNav(): React.JSX.Element {
               sx={{ display: "inline-flex" }}
             >
               {aliasUser ? (
+                // <Avatar
+                //   src={aliasUser?.logo}
+                //   sx={{
+                //     width: 70,
+                //     height: "max-content",
+                //     mr: 1.5,
+                //     cursor: "pointer",
+                //   }}
+                // />
+
                 <Avatar
-                  src={aliasUser?.logo}
-                  sx={{
-                    width: 70,
-                    height: 70,
-                    mr: 1.5,
-                    // backgroundColor: "red",
-                    cursor: "pointer",
-                  }}
-                />
+  src={aliasUser?.logo}
+  sx={{
+    width:  "max-content",
+    height: { xs: 50, sm: 60, md: 70 },
+    mr: { xs: 1, sm: 1.5 },
+    cursor: "pointer",
+    flexShrink: 0,
+    bgcolor: "#fff",
+    // border: "1px solid #e0e0e0",
+    borderRadius:"0",
+
+    "& img": {
+      objectFit: "contain",
+      // width: "100%",
+      // height: "100%",
+      // padding: "4px",
+    },
+  }}
+/>
               ) : (
                 <Logo
                   color="dark"
