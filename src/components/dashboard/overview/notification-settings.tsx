@@ -3,7 +3,19 @@ import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
-import { Box, Button, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLoading } from "@/components/core/skeleton-context";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
@@ -13,6 +25,7 @@ import Header from '@/components/CommonComponents/Header';
 import EmailDialog from "@/components/auth/confirm-email-modal";
 import { ContactMethodsSection, type ContactMethod } from "./contact-methods-section";
 import { NotificationPreferenceRow, type NotificationPreferenceOption } from "./notification-preference-row";
+import { FileText, CreditCard, Calendar, Megaphone } from "@phosphor-icons/react";
 
 const TEXT_TO_VALUE_FORMAT: Record<string, string> = {
   Text: "2",
@@ -64,14 +77,13 @@ function NotificationsSettings() {
 
   const [contacts, setContacts] = useState<ContactMethod[]>([
     {
-      type: "phone",
-      value: preferences?.phone_no,
-      verified: preferences?.is_phone_verified == 1,
-    },
-    {
       type: "email",
       value: preferences?.email,
       verified: preferences?.email_updated_date == 1,
+    }, {
+      type: "phone",
+      value: preferences?.phone_no,
+      verified: preferences?.is_phone_verified == 1,
     },
   ]);
 
@@ -79,17 +91,17 @@ function NotificationsSettings() {
     if (notificationPreferenceDetails) {
       setContacts([
         {
+          type: "email",
+          value: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails?.email,
+          verified: notificationPreferenceDetails?.email_updated_date == 1,
+        },
+        {
           type: "phone",
           value:
             notificationPreferenceDetails?.phone_no && notificationPreferenceDetails?.phone_no != 0
               ? notificationPreferenceDetails?.phone_no
               : "",
           verified: notificationPreferenceDetails?.is_phone_verified == 1,
-        },
-        {
-          type: "email",
-          value: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails?.email,
-          verified: notificationPreferenceDetails?.email_updated_date == 1,
         },
       ]);
 
@@ -207,9 +219,9 @@ function NotificationsSettings() {
   return (
     <>
       <Box sx={{ pt: 0 }}>
-        <Header title="Communication Settings" />
+        <Header fontWeight={600} title="Notification Settings" description="Choose how you'd like to hear from us. Your contact details are shown below." />
 
-        <Divider />
+        {/* <Divider /> */}
 
         <ContactMethodsSection
           contacts={contacts}
@@ -219,9 +231,9 @@ function NotificationsSettings() {
           onRemovePhone={() => setOpenConfirm(true)}
         />
 
-        <Divider />
+        {/* <Divider /> */}
 
-        <Typography variant="h6" fontWeight="bold" mb={2} p={2}>
+        <Typography variant="h6" fontWeight="bold" mt={3} mb={2} px={2}>
           Select your notification preference for each type of notice
         </Typography>
 
@@ -244,44 +256,85 @@ function NotificationsSettings() {
           </Box>
         )}
 
-        <NotificationPreferenceRow
-          label="New bill"
-          value={preferences.new_bill}
-          options={phoneGatedOptions("2", "3")}
-          onChange={(value) => handleChange("new_bill", value)}
-          phoneVerified={phoneVerified}
-          pt={2}
-        />
-
-        <NotificationPreferenceRow
-          label="Payment confirmation"
-          value={preferences.payment_confirmation}
-          options={phoneGatedOptions("2", "3")}
-          onChange={(value) => handleChange("payment_confirmation", value)}
-          phoneVerified={phoneVerified}
-        />
-
-        <NotificationPreferenceRow
-          label="Due date reminder (5 days ahead)"
-          value={preferences.reminders}
-          options={[...phoneGatedOptions("2", "3"), { label: "None", value: "4" }]}
-          onChange={(value) => handleChange("reminders", value)}
-          phoneVerified={phoneVerified}
-          tooltip="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
-        />
-
-        <NotificationPreferenceRow
-          label="Biller announcements"
-          value={preferences.biller_announcements}
-          options={[
-            { label: "Text", value: "1", requiresVerifiedPhone: true },
-            { label: "Email", value: "0" },
-            { label: "Both", value: "2", requiresVerifiedPhone: true },
-          ]}
-          onChange={(value) => handleChange("biller_announcements", value)}
-          phoneVerified={phoneVerified}
-          tooltip="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
-        />
+        <TableContainer sx={{ border: "1px solid #E2E8F0", borderRadius: "12px", overflow: "hidden", mt: 2, mx: 2, width: "calc(100% - 32px)", boxShadow: "none" }}>
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead sx={{ backgroundColor: "#F8FAFC" }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, px: 3, borderBottom: "1px solid #E2E8F0" }}>
+                  Notification Type
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
+                  EMAIL
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
+                  TEXT
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
+                  BOTH
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
+                  NONE
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <NotificationPreferenceRow
+                label="New Bill"
+                icon={<FileText size={20} />}
+                iconBgColor="#EBF3FF"
+                iconColor="#1A73E8"
+                badge="Required"
+                description="Sent when your bill is ready to view & pay."
+                value={preferences.new_bill}
+                options={phoneGatedOptions("2", "3")}
+                onChange={(value) => handleChange("new_bill", value)}
+                phoneVerified={phoneVerified}
+              />
+              <NotificationPreferenceRow
+                label="Payment Confirmation"
+                icon={<CreditCard size={20} />}
+                iconBgColor="#E6F4EA"
+                iconColor="#1E8E3E"
+                badge="Required"
+                description="Receipt sent after each payment is processed."
+                value={preferences.payment_confirmation}
+                options={phoneGatedOptions("2", "3")}
+                onChange={(value) => handleChange("payment_confirmation", value)}
+                phoneVerified={phoneVerified}
+              />
+              <NotificationPreferenceRow
+                label="Due Date Reminder"
+                icon={<Calendar size={20} />}
+                iconBgColor="#F3E8FF"
+                iconColor="#9333EA"
+                badge="Optional"
+                description="Bill due date, upcoming autopay, etc. reminders."
+                value={preferences.reminders}
+                options={[...phoneGatedOptions("2", "3"), { label: "None", value: "4" }]}
+                onChange={(value) => handleChange("reminders", value)}
+                phoneVerified={phoneVerified}
+                tooltip="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
+              />
+              <NotificationPreferenceRow
+                label="Biller Announcements"
+                icon={<Megaphone size={20} />}
+                iconBgColor="#FFF4E5"
+                iconColor="#F2994A"
+                badge="Required"
+                description="Service alerts, outages, emergencies, etc."
+                value={preferences.biller_announcements}
+                options={[
+                  { label: "Text", value: "1", requiresVerifiedPhone: true },
+                  { label: "Email", value: "0" },
+                  { label: "Both", value: "2", requiresVerifiedPhone: true },
+                ]}
+                onChange={(value) => handleChange("biller_announcements", value)}
+                phoneVerified={phoneVerified}
+                tooltip="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
+              />
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
           <Button color="inherit" variant="outlined" sx={{ color: colors.blue, borderColor: colors.blue }}>
@@ -293,7 +346,7 @@ function NotificationsSettings() {
             color="primary"
             onClick={handleSave}
           >
-            Save
+            Save Preferences
           </Button>
         </Box>
       </Box>

@@ -5,36 +5,51 @@ import { CardHeader, Grid, Typography } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 
-function Header({ title }: { title: string }): React.JSX.Element {
+interface HeaderProps {
+  title: string;
+  description?: string;
+  fontWeight?: React.CSSProperties["fontWeight"];
+}
+
+function Header({
+  title,
+  description,
+  fontWeight,
+}: HeaderProps): React.JSX.Element {
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
+  const customerInfo: CustomerInfo = dashBoardInfo?.customer
+    ? dashBoardInfo.customer
     : getLocalStorage("intuity-customerInfo");
 
-    //console.log(CustomerInfo,'CustomerInfo');
-    
   return (
     <Grid container spacing={2} justifyContent="space-between">
       <CardHeader
         title={
-          <Typography ml={1} variant="h5">
+          <Typography ml={1} variant="h5" fontWeight={fontWeight}>
             {title}
           </Typography>
+        }
+        subheader={
+          description ? (
+            <Typography ml={1} variant="h6">
+              {description}
+            </Typography>
+          ) : undefined
         }
       />
 
       <CardHeader
         subheader={
           <Typography variant="h6" textAlign="left">
-            Name: {CustomerInfo?.customer_name}
+            Name: {customerInfo?.customer_name}
           </Typography>
         }
         title={
           <Typography variant="h6" textAlign="left">
-            Account No: {CustomerInfo?.acctnum}
+            Account No: {customerInfo?.acctnum}
           </Typography>
         }
       />

@@ -39,7 +39,7 @@ type PhoneModal = {
   notificationPage?: boolean;
   notificationNumber?: any;
   // notificationNumber?: number | string | null;
-   onSuccess?: () => void;
+  onSuccess?: () => void;
 };
 export default function PhoneModal({
   open,
@@ -48,7 +48,7 @@ export default function PhoneModal({
   notificationPage = false,
   notificationNumber = null,
   onSuccess,
-}:PhoneModal) {
+}: PhoneModal) {
   const { confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
@@ -71,14 +71,14 @@ export default function PhoneModal({
         isOtpModal ? 4 : 14,
         isOtpModal
           ? "Otp is must be atleast of 4 digits"
-          : "Phone number is too short"
+          : "Mobile number is too short"
       )
-      .max(15, isOtpModal ? "Otp is too long" : "Phone number is too long"),
+      .max(15, isOtpModal ? "Otp is too long" : "Mobile number is too long"),
     // .regex(
     //   /^[0-9]+$/,
     //   isOtpModal
     //     ? "Otp must contain only digits"
-    //     : "Phone number must contain only digits"
+    //     : "Mobile number must contain only digits"
     // ),
   });
   type FormData = zod.infer<typeof schema>;
@@ -142,7 +142,7 @@ export default function PhoneModal({
     }
 
     if (isOtpModal) {
-      onSuccess?.(); 
+      onSuccess?.();
       onClose();
     }
     if (!isOtpModal) {
@@ -279,7 +279,7 @@ export default function PhoneModal({
           alignItems: "center",
         }}
       >
-        Change Notification Phone No. (Account No.
+        Change Notification Mobile No. (Account No.
         {notificationPage ? CustomerInfo?.acctnum : clickedDetails?.acctnum})
         <IconButton onClick={onClose}>
           <X size={24} color={colors.blue} />
@@ -290,7 +290,7 @@ export default function PhoneModal({
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           {isOtpModal
             ? "Enter Verification Code. "
-            : " Enter your phone number and we'll text you a verification code."}
+            : " Enter your mobile number and we'll text you a verification code."}
         </Typography>
 
         <Box sx={{ display: "flex", gap: 2 }}>
@@ -364,39 +364,39 @@ export default function PhoneModal({
     />
   )}
 /> */}
-<Controller
-  name="phone"
-  control={control}
-  render={({ field }) => {
-    const formatUS = (value: string) => {
-      const digits = value.replace(/\D/g, "").slice(0, 10);
-      if (digits.length < 4) return digits;
-      if (digits.length < 7)
-        return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-    };
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => {
+              const formatUS = (value: string) => {
+                const digits = value.replace(/\D/g, "").slice(0, 10);
+                if (digits.length < 4) return digits;
+                if (digits.length < 7)
+                  return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+              };
 
-    return (
-      <TextField
-        {...field}
-        label={isOtpModal ? "Otp" : "Phone No"}
-        variant="outlined"
-        fullWidth
-        error={!!errors.phone}
-        helperText={errors.phone?.message}
-        placeholder="(555) 000-0000"
-        value={formatUS(field.value || "")}
-        onChange={(e) => {
-          field.onChange(formatUS(e.target.value));
-        }}
-        inputProps={{
-          inputMode: "numeric",
-          maxLength: 14, // ✅ (XXX) XXX-XXXX = 14 chars
-        }}
-      />
-    );
-  }}
-/>
+              return (
+                <TextField
+                  {...field}
+                  label={isOtpModal ? "Otp" : "Mobile No"}
+                  variant="outlined"
+                  fullWidth
+                  error={!!errors.phone}
+                  helperText={errors.phone?.message}
+                  placeholder="(555) 000-0000"
+                  value={formatUS(field.value || "")}
+                  onChange={(e) => {
+                    field.onChange(formatUS(e.target.value));
+                  }}
+                  inputProps={{
+                    inputMode: "numeric",
+                    maxLength: 14, // ✅ (XXX) XXX-XXXX = 14 chars
+                  }}
+                />
+              );
+            }}
+          />
 
         </Box>
       </DialogContent>

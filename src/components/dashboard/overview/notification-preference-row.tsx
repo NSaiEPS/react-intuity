@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FormControl, Grid, IconButton, MenuItem, Select, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Radio, TableCell, TableRow, Tooltip, Typography } from "@mui/material";
 import { Question } from "@phosphor-icons/react";
 
 const tooltipSlotProps = {
@@ -33,8 +33,11 @@ interface NotificationPreferenceRowProps {
   onChange: (value: string) => void;
   phoneVerified: boolean;
   tooltip?: string;
-  /** Top padding for the row's outer Grid (matches original per-row spacing). */
-  pt?: number;
+  icon: React.ReactNode;
+  iconBgColor: string;
+  iconColor: string;
+  badge?: "Required" | "Optional";
+  description: string;
 }
 
 export function NotificationPreferenceRow({
@@ -44,35 +47,97 @@ export function NotificationPreferenceRow({
   onChange,
   phoneVerified,
   tooltip,
-  pt = 0,
+  icon,
+  iconBgColor,
+  iconColor,
+  badge,
+  description,
 }: NotificationPreferenceRowProps): React.JSX.Element {
   return (
-    <Grid container p={2} alignItems="center" pt={pt}>
-      <Grid item xs={12} sm={6} display="flex" alignItems="center">
-        <Typography>{label}</Typography>
-        {tooltip ? (
-          <Tooltip title={tooltip} arrow componentsProps={tooltipSlotProps}>
-            <IconButton edge="end">
-              <Question size={20} color="#90caf9" weight="fill" />
-            </IconButton>
-          </Tooltip>
-        ) : null}
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth>
-          <Select value={value} onChange={(e) => onChange(e.target.value)}>
-            {options.map((option) => (
-              <MenuItem
-                key={option.value}
-                value={option.value}
+    <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+      <TableCell sx={{ borderBottom: "1px solid #E2E8F0", py: 2.5, px: 3 }}>
+        <Box display="flex" alignItems="center">
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              backgroundColor: iconBgColor,
+              color: iconColor,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: 2,
+              flexShrink: 0,
+            }}
+          >
+            {icon}
+          </Box>
+          <Box>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography sx={{ fontWeight: 600, color: "#1E293B", fontSize: "15px" }}>
+                {label}
+              </Typography>
+              {badge && (
+                <Box
+                  sx={{
+                    backgroundColor: badge === "Required" ? "#E6F0FD" : "#E6F4EA",
+                    color: badge === "Required" ? "#0B57D0" : "#137333",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: "4px",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {badge}
+                </Box>
+              )}
+              {tooltip ? (
+                <Tooltip title={tooltip} arrow componentsProps={tooltipSlotProps}>
+                  <IconButton size="small" edge="end" sx={{ p: 0.25 }}>
+                    <Question size={16} color="#90caf9" weight="fill" />
+                  </IconButton>
+                </Tooltip>
+              ) : null}
+            </Box>
+            <Typography sx={{ color: "#64748B", fontSize: "13px", mt: 0.5 }}>
+              {description}
+            </Typography>
+          </Box>
+        </Box>
+      </TableCell>
+
+      {["Email", "Text", "Both", "None"].map((col) => {
+        const option = options.find((opt) => opt.label.toUpperCase() === col.toUpperCase());
+        return (
+          <TableCell
+            key={col}
+            align="center"
+            sx={{ borderBottom: "1px solid #E2E8F0", py: 2.5 }}
+          >
+            {option ? (
+              <Radio
+                checked={value === option.value}
+                onChange={() => onChange(option.value)}
                 disabled={option.requiresVerifiedPhone && !phoneVerified}
-              >
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+                sx={{
+                  color: "#CBD5E1",
+                  "&.Mui-checked": {
+                    color: "#0B57D0",
+                  },
+                  "&.Mui-disabled": {
+                    color: "#F1F5F9",
+                  },
+                }}
+              />
+            ) : (
+              <Typography sx={{ color: "#94A3B8", fontWeight: 500 }}>—</Typography>
+            )}
+          </TableCell>
+        );
+      })}
+    </TableRow>
   );
 }
