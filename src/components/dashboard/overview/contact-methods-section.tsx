@@ -72,7 +72,14 @@ export function ContactMethodsSection({
                 py: 1.5,
                 px: 2.5,
                 borderRadius: 0,
-                borderRight: index === 0 ? "1px solid #DCDFE4" : 0,
+                borderBottom: {
+                  xs: index === 0 ? "1px solid #DCDFE4" : 0,
+                  md: 0,
+                },
+                borderRight: {
+                  xs: 0,
+                  md: index === 0 ? "1px solid #DCDFE4" : 0,
+                },
                 height: "100%",
               }}
             >
