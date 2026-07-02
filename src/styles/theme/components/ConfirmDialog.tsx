@@ -41,6 +41,12 @@ export function ConfirmDialog({
     if (!open) setChecked(false);
   }, [open]);
 
+  console.log("ConfirmDialog rendered", title);
+
+  React.useEffect(() => {
+  console.log("Dialog open:", open, title);
+}, [open]);
+
   return (
     <Dialog open={open}>
       <DialogTitle>{title}</DialogTitle>
@@ -81,6 +87,7 @@ export function ConfirmDialog({
             borderColor: colors.blue,
             borderRadius: "12px",
             height: "41px",
+            background:"white"
           }}
           disabled={loader}
         >

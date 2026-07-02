@@ -236,6 +236,8 @@ const CardRow = React.memo(function CardRow({
   );
 });
 
+console.log("PaymentMethods rendered");
+
 export const PaymentMethods = ({
   isModal = false,
   onClose,
@@ -258,6 +260,10 @@ export const PaymentMethods = ({
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [removeSaveDetails, setRemoveSaveDetails] = React.useState(false);
   const [deleCardDetails, setDeleteCardDetails] = React.useState<CardDetails | null>(null);
+  const [openDefaultModal, setOpenDefaultModal] = React.useState(false);
+  const [dialogType, setDialogType] = React.useState<
+    "delete" | "remove" | "default" | null
+  >(null);
 
   const location = useLocation();
   const isPaymentMethodsPage = location.pathname.includes("payment-methods");
@@ -305,13 +311,26 @@ export const PaymentMethods = ({
     });
   }, [paymentMethodInfoCards]);
 
+  const [pendingSelection, setPendingSelection] =
+    React.useState<{ card_token: number; id: number } | null>(null);
+
   const selectOne = React.useCallback((data: { card_token: number; id: number }) => {
-    setSelectedId((prev) => (prev?.id === data.id ? null : data));
+    // setSelectedId((prev) => (prev?.id === data.id ? null : data));
+    console.log("selectOne called");
+    // setSelectedId(data);
+    setPendingSelection(data);
+    setDialogType("default");
   }, []);
 
+  const handleDefaultSave = () => {
+    handleSaveDetails();
+    // setOpenDefaultModal(false);
+  };
+
   const handleDelete = React.useCallback((row: CardDetails) => {
-    setOpenConfirm(true);
+    // setOpenConfirm(true);
     setDeleteCardDetails(row);
+    setDialogType("delete");
   }, []);
 
   const handleConfirm = React.useCallback(() => {
@@ -324,7 +343,7 @@ export const PaymentMethods = ({
 
     dispatch(
       deleteCardAndBankAccount(formData, deleCardDetails?.card_type ? 'card' : 'bank_account', () => {
-        setOpenConfirm(false);
+        // setOpenConfirm(false);
         const refreshForm = new FormData();
         refreshForm.append('acl_role_id', stored?.body?.acl_role_id);
         refreshForm.append('customer_id', stored?.body?.customer_id);
@@ -333,8 +352,10 @@ export const PaymentMethods = ({
     );
   }, [deleCardDetails, dispatch]);
 
-  const handleSaveDetails = () => {
-    const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(
+  const handleSaveDetails = (payment = selectedId) => {
+    if (!payment) return;
+
+    const selectedCardDetails = Object.keys(paymentMethodInfoCards).find(
       (key) => paymentMethodInfoCards[key].card_token == selectedId?.card_token
     )[0];
     if (onSaveCardDetails) {
@@ -603,7 +624,55 @@ export const PaymentMethods = ({
           )}
           {bankModalOpen && <AddBankAccountModal open={bankModalOpen} onClose={() => setBankModalOpen(false)} />}
 
+
           <ConfirmDialog
+            open={dialogType !== null}
+            title={
+              dialogType === "default"
+                ? "Confirm"
+                : dialogType === "remove"
+                  ? "Warning"
+                  : deleCardDetails?.card_type
+                    ? "Card"
+                    : "Bank Account"
+            }
+            message={
+              dialogType === "default"
+                ? "Are you sure you want to make this your default payment method?"
+                : dialogType === "remove"
+                  ? "You are removing your Primary payment method. No Primary payment method will be assigned after this payment method is removed."
+                  : `Are you sure you want to delete this ${deleCardDetails?.card_type ? "Card" : "Bank Account"
+                  }?`
+            }
+            confirmLabel={dialogType === "default" ? "Save" : "Yes, Confirm"}
+            cancelLabel="Cancel"
+            onConfirm={() => {
+              if (dialogType === "default" && pendingSelection) {
+                setSelectedId(pendingSelection);
+               handleSaveDetails(pendingSelection);
+
+              } else if (dialogType === "remove") {
+                setSelectedId(null);
+              } else if (dialogType === "delete") {
+                handleConfirm();
+              }
+
+              setPendingSelection(null);
+
+              setDialogType(null);
+            }}
+            onCancel={() => {
+              if (dialogType === "default") {
+
+                setSelectedId(null);
+              }
+              setPendingSelection(null);
+              setDialogType(null);
+            }}
+            loader={accountLoading}
+          />
+
+          {/* <ConfirmDialog
             open={openConfirm || removeSaveDetails}
             title={removeSaveDetails ? 'Warning' : deleCardDetails?.card_type ? 'Card' : 'Bank Account'}
             message={
@@ -623,7 +692,21 @@ export const PaymentMethods = ({
             }}
             onCancel={() => (removeSaveDetails ? setRemoveSaveDetails(false) : setOpenConfirm(false))}
             loader={accountLoading}
-          />
+          /> */}
+
+          {/* <ConfirmDialog
+            open={openDefaultModal}
+            title="Confirm"
+            message="Are you sure you want to make this your default payment method?"
+            confirmLabel="Save"
+            cancelLabel="Cancel"
+            onConfirm={handleDefaultSave}
+            onCancel={() => {
+              setOpenDefaultModal(false);
+              setSelectedId(null); // removes radio selection if cancelled
+            }}
+            loader={accountLoading}
+          /> */}
 
           <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
             <Loader />
