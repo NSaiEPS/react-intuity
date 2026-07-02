@@ -131,7 +131,7 @@ function NotificationsSettings() {
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
 
-  const [preferences, setPreferences] = useState<any>({
+  const defaultPreferences = {
     new_bill: "1",
     payment_confirmation: "1",
     reminders: "1",
@@ -141,7 +141,10 @@ function NotificationsSettings() {
     is_phone_verified: 0,
     phone_no: "",
     updated_email: "",
-  });
+  };
+
+  const [preferences, setPreferences] = useState<any>(defaultPreferences);
+  const [savedPreferences, setSavedPreferences] = useState<any>(defaultPreferences);
 
   const [contacts, setContacts] = useState<ContactMethod[]>([
     {
@@ -173,7 +176,7 @@ function NotificationsSettings() {
         },
       ]);
 
-      setPreferences({
+      const nextPrefs = {
         new_bill: TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.new_bill?.selected] || "1",
         payment_confirmation:
           TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.payment_confirmation?.selected] || "1",
@@ -188,7 +191,9 @@ function NotificationsSettings() {
             ? notificationPreferenceDetails?.phone_no
             : "",
         updated_email: notificationPreferenceDetails.updated_email,
-      });
+      };
+      setPreferences(nextPrefs);
+      setSavedPreferences(nextPrefs);
     }
   }, [notificationPreferenceDetails]);
 
@@ -240,7 +245,7 @@ function NotificationsSettings() {
   }, [userId]);
 
   const successCallBack = (res) => {
-    setPreferences({
+    const nextPrefs = {
       new_bill: TEXT_TO_VALUE_FORMAT[res?.new_bill?.selected] || "1",
       payment_confirmation: TEXT_TO_VALUE_FORMAT[res?.payment_confirmation?.selected] || "1",
       reminders: TEXT_TO_VALUE_FORMAT[res?.reminders?.selected] || "1",
@@ -250,7 +255,9 @@ function NotificationsSettings() {
       is_phone_verified: res?.is_phone_verified,
       phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
       updated_email: res?.updated_email,
-    });
+    };
+    setPreferences(nextPrefs);
+    setSavedPreferences(nextPrefs);
     setContacts([
       {
         type: "phone",
@@ -326,6 +333,12 @@ function NotificationsSettings() {
 
   const phoneVerified =
     preferences?.is_phone_verified === 1 && !!preferences?.phone_no && preferences?.phone_no !== "0";
+
+  const hasChanges =
+    preferences.new_bill !== savedPreferences.new_bill ||
+    preferences.payment_confirmation !== savedPreferences.payment_confirmation ||
+    preferences.reminders !== savedPreferences.reminders ||
+    preferences.biller_announcements !== savedPreferences.biller_announcements;
 
   return (
     <>
@@ -471,11 +484,21 @@ function NotificationsSettings() {
         </TableContainer>
 
         <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
-          <Button color="inherit" variant="outlined" sx={{ color: colors.blue, borderColor: colors.blue }} onClick={handleCancel}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            disabled={!hasChanges}
+            sx={{
+              color: hasChanges ? colors.blue : undefined,
+              borderColor: hasChanges ? colors.blue : undefined,
+            }}
+            onClick={handleCancel}
+          >
             Cancel
           </Button>
           <Button
             variant="contained"
+            disabled={!hasChanges}
             sx={{ backgroundColor: colors.blue, "&:hover": { backgroundColor: colors["blue.3"] } }}
             color="primary"
             onClick={handleSave}

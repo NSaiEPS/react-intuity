@@ -80,6 +80,7 @@ export function ContactMethodsSection({
                 container
                 justifyContent="space-between"
                 alignItems="end"
+                height={"stretch"}
               >
                 <Grid item xs sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "stretch" }} >
                   <Typography

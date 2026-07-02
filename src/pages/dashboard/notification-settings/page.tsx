@@ -14,7 +14,7 @@ export default function NotificationSettingsPage(): React.JSX.Element {
       {contextLoading && <NotificationSettingsSkeleton />}
       <Card sx={{ borderRadius: boarderRadius.card, display: contextLoading ? 'none' : 'block' }}>
         <NotificationsSettings />
-        {/* <Notifications /> */}
+        <Notifications />
       </Card>
     </>
   );
