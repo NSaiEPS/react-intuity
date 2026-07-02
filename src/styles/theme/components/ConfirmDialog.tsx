@@ -81,6 +81,7 @@ export function ConfirmDialog({
             borderColor: colors.blue,
             borderRadius: "12px",
             height: "41px",
+            background:"white"
           }}
           disabled={loader}
         >
