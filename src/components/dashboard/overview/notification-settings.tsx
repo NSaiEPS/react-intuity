@@ -241,7 +241,10 @@ function NotificationsSettings() {
   };
 
   useEffect(() => {
-    getPrefDetails();
+    if(userId){
+ getPrefDetails();
+    }
+   
   }, [userId]);
 
   const successCallBack = (res) => {
