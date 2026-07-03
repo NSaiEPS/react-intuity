@@ -43,12 +43,12 @@ function Header({
 
       <CardHeader
         subheader={
-          <Typography variant="h6" textAlign="left">
+          <Typography ml={1} variant="h6" textAlign="left">
             Name: {customerInfo?.customer_name}
           </Typography>
         }
         title={
-          <Typography variant="h6" textAlign="left">
+          <Typography ml={1} variant="h6" textAlign="left">
             Account No: {customerInfo?.acctnum}
           </Typography>
         }

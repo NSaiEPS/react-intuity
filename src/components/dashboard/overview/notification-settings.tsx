@@ -241,7 +241,10 @@ function NotificationsSettings() {
   };
 
   useEffect(() => {
-    getPrefDetails();
+    if(userId){
+ getPrefDetails();
+    }
+   
   }, [userId]);
 
   const successCallBack = (res) => {
@@ -403,7 +406,7 @@ function NotificationsSettings() {
           </Box>
         )} */}
 
-        <TableContainer sx={{ border: "1px solid #E2E8F0", borderRadius: "12px", overflow: "hidden", mt: 2, mx: 2, width: "calc(100% - 32px)", boxShadow: "none" }}>
+        <TableContainer sx={{ border: "1px solid #E2E8F0", borderRadius: "12px", overflowX: "auto", overflowY: "hidden", mt: 2, mx: 2, width: "calc(100% - 32px)", boxShadow: "none", WebkitOverflowScrolling: "touch" }}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead sx={{ backgroundColor: "#F8FAFC" }}>
               <TableRow>
@@ -424,7 +427,7 @@ function NotificationsSettings() {
                 </TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody sx={{overflow: "auto"}}>
               <NotificationPreferenceRow
                 label="New Bill"
                 icon={<FileText size={20} />}
