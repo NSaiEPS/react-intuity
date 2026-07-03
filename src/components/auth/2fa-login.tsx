@@ -83,8 +83,8 @@ export default function TwoFAModal({
   const [state, dispatchLocal] = useReducer(reducer, initialState);
 
   const confirmInfo = useSelector((s: RootState) => s?.Account?.confirmInfo);
-  const accountLoading = useSelector(
-    (s: RootState) => s?.Account?.accountLoading
+  const { twoFactorLoading } = useSelector(
+    (s: RootState) => s?.Account
   );
 
   const raw = getLocalStorage("intuity-user");
@@ -122,12 +122,12 @@ export default function TwoFAModal({
 
     dispatch(
       updateAccountInfo(formData, true, () =>
-        dispatchLocal({ type: "OPEN_VERIFY_MODAL" })
+        dispatchLocal({ type: "OPEN_VERIFY_MODAL" }), "2fa"
       )
     );
   };
 
-  const onVerifyText = () => {};
+  const onVerifyText = () => { };
 
   // Text message: valid 10-digit phone AND is_phone_verified === 1
   // Phone call:   valid 10-digit phone (no verification required)
@@ -147,7 +147,7 @@ export default function TwoFAModal({
       open={open}
       maxWidth="sm"
       fullWidth
-      //  onClose={onClose}
+    //  onClose={onClose}
     >
       <DialogTitle>
         <Stack
@@ -170,7 +170,7 @@ export default function TwoFAModal({
         </Typography>
 
         <Typography fontWeight={500} mb={2}>
-          {customerData?.phone_no?maskPhone(customerData?.phone_no):""}
+          {customerData?.phone_no ? maskPhone(customerData?.phone_no) : ""}
         </Typography>
 
         <Typography gutterBottom>How would you like to receive it?</Typography>
@@ -208,8 +208,8 @@ export default function TwoFAModal({
       <DialogActions>
         <Box sx={{ flexGrow: 1 }} />
         <Button
-          loading={accountLoading}
-          disabled={!state.method || accountLoading}
+          loading={twoFactorLoading}
+          disabled={!state.method || twoFactorLoading}
           onClick={handleSendCode}
           type="button"
           variant="contained"

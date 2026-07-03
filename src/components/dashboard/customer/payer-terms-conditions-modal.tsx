@@ -111,7 +111,9 @@ const PayerTermsConditionsModal = () => {
                         },
                       }}
                       // Optional: onClick handler if you want to trigger something
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         setPayerTermsModalOpen(true);
                       }}
                     >
@@ -132,9 +134,16 @@ const PayerTermsConditionsModal = () => {
           style={{
             color: colors.blue,
             borderColor: colors.blue,
+            backgroundColor: "white",
             borderRadius: "12px",
             height: "41px",
           }}
+          disabled={
+            accountLoading ||
+            (CustomerInfo?.paperless === 1 && isPaperLessOn) ||
+            (CustomerInfo?.paperless !== 1 && !isPaperLessOn)
+          }
+          onClick={() => { setIsPaperLessOn(CustomerInfo?.paperless === 1) }}
         >
           Cancel
         </Button>

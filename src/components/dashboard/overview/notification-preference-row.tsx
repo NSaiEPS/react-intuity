@@ -53,6 +53,11 @@ export function NotificationPreferenceRow({
   badge,
   description,
 }: NotificationPreferenceRowProps): React.JSX.Element {
+  const hasDisabledOption = options.some(
+    (opt) => opt.requiresVerifiedPhone && !phoneVerified
+  );
+  const disabledTooltip = "Add a mobile number to enable this option";
+
   return (
     <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
       <TableCell sx={{ borderBottom: "1px solid #E2E8F0", py: 2.5, px: 3 }}>
@@ -75,9 +80,15 @@ export function NotificationPreferenceRow({
           </Box>
           <Box>
             <Box display="flex" alignItems="center" gap={1}>
-              <Typography sx={{ fontWeight: 600, color: "#1E293B", fontSize: "15px" }}>
-                {label}
-              </Typography>
+              <Tooltip
+                title={hasDisabledOption ? disabledTooltip : ""}
+                arrow
+                componentsProps={tooltipSlotProps}
+              >
+                <Typography sx={{ fontWeight: 600, color: "#1E293B", fontSize: "15px", cursor: hasDisabledOption ? "default" : "inherit" }}>
+                  {label}
+                </Typography>
+              </Tooltip>
               {badge && (
                 <Box
                   sx={{
@@ -118,20 +129,36 @@ export function NotificationPreferenceRow({
             sx={{ borderBottom: "1px solid #E2E8F0", py: 2.5 }}
           >
             {option ? (
-              <Radio
-                checked={value === option.value}
-                onChange={() => onChange(option.value)}
-                disabled={option.requiresVerifiedPhone && !phoneVerified}
-                sx={{
-                  color: "#CBD5E1",
-                  // "&.Mui-checked": {
-                  //   color: "#0B57D0",
-                  // },
-                  "&.Mui-disabled": {
-                    color: "#F1F5F9",
-                  },
-                }}
-              />
+              (() => {
+                const isDisabled = !!(option.requiresVerifiedPhone && !phoneVerified);
+                const radio = (
+                  <Radio
+                    checked={value === option.value}
+                    onChange={() => onChange(option.value)}
+                    disabled={isDisabled}
+                    sx={{
+                      color: "#CBD5E1",
+                      // "&.Mui-checked": {
+                      //   color: "#0B57D0",
+                      // },
+                      "&.Mui-disabled": {
+                        color: "#F1F5F9",
+                      },
+                    }}
+                  />
+                );
+                return isDisabled ? (
+                  <Tooltip
+                    title={disabledTooltip}
+                    arrow
+                    componentsProps={tooltipSlotProps}
+                  >
+                    <span style={{ display: "inline-block" }}>{radio}</span>
+                  </Tooltip>
+                ) : (
+                  radio
+                );
+              })()
             ) : (
               <Typography sx={{ color: "#94A3B8", fontWeight: 500 }}>—</Typography>
             )}

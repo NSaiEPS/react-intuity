@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { colors, formatToMMDDYYYY } from "@/utils";
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -20,6 +19,8 @@ import { useNavigate } from "react-router";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
+import { Button } from 'nsaicomponents';
+
 
 interface PaymentModalProps {
   open: boolean;
@@ -121,8 +122,8 @@ export function PaymentModal({
     return lastBillInfo?.company?.allow_auto_payment == 1
       ? true
       : option.value != "autopay"
-      ? true
-      : false;
+        ? true
+        : false;
   };
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
@@ -131,99 +132,99 @@ export function PaymentModal({
         <FormControl component="fieldset" sx={{ width: "100%", pl: 1 }}>
           <RadioGroup value={paymentOption} onChange={handleChange}>
             {(lastBillInfo?.recurring_payment_msg1 ||
-            lastBillInfo?.customer?.is_payment_schedule ||
-            lastBillInfo?.customer?.is_recurring_payment
+              lastBillInfo?.customer?.is_payment_schedule ||
+              lastBillInfo?.customer?.is_recurring_payment
               ? [
-                  {
-                    value: "payNow",
-                    title: "Pay Now",
-                    description:
-                      lastBillInfo?.pay_now_text ??
-                      lastBillInfo?.nacha_pay_now_text ??
-                      lastBillInfo?.achworks_pay_now_text ??
-                      // lastBillInfo?.achworks_pay_now_text ??
-                      "Payment will be processed immediately.",
-                    extraInfo: (
-                      <>
-                        <Typography
-                          variant="body2"
-                          fontWeight="bold"
-                          sx={{ mt: 2 }}
-                        >
-                          •{" "}
-                          {lastBillInfo?.recurring_payment_msg1
-                            ? lastBillInfo?.recurring_payment_msg1
-                            : lastBillInfo?.customer?.is_payment_schedule
+                {
+                  value: "payNow",
+                  title: "Pay Now",
+                  description:
+                    lastBillInfo?.pay_now_text ??
+                    lastBillInfo?.nacha_pay_now_text ??
+                    lastBillInfo?.achworks_pay_now_text ??
+                    // lastBillInfo?.achworks_pay_now_text ??
+                    "Payment will be processed immediately.",
+                  extraInfo: (
+                    <>
+                      <Typography
+                        variant="body2"
+                        fontWeight="bold"
+                        sx={{ mt: 2 }}
+                      >
+                        •{" "}
+                        {lastBillInfo?.recurring_payment_msg1
+                          ? lastBillInfo?.recurring_payment_msg1
+                          : lastBillInfo?.customer?.is_payment_schedule
                             ? lastBillInfo?.schedule_payment_msg
                             : "Recurring Payment"}
-                        </Typography>
-                        {lastBillInfo?.customer?.is_payment_schedule ? (
-                          <Box sx={{ mt: 1 }}>
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              sx={{ color: "primary.main", cursor: "pointer" }}
-                              onClick={() => handleDeleteRecurring("schedule")}
-                            >
-                              Delete
-                            </Typography>{" "}
-                          </Box>
-                        ) : (
-                          <Box sx={{ mt: 1 }}>
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              sx={{ color: "primary.main", cursor: "pointer" }}
-                              onClick={() =>
-                                handleDeleteRecurring("Next Recurring")
-                              }
-                            >
-                              Remove just the next payment?
-                            </Typography>{" "}
-                            OR{" "}
-                            <Typography
-                              component="span"
-                              variant="body2"
-                              sx={{ color: "primary.main", cursor: "pointer" }}
-                              onClick={() =>
-                                handleDeleteRecurring("All Recurring")
-                              }
-                            >
-                              Remove all remaining recurring payments?
-                            </Typography>
-                          </Box>
-                        )}
-                      </>
-                    ),
-                  },
-                ]
+                      </Typography>
+                      {lastBillInfo?.customer?.is_payment_schedule ? (
+                        <Box sx={{ mt: 1 }}>
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ color: "primary.main", cursor: "pointer" }}
+                            onClick={() => handleDeleteRecurring("schedule")}
+                          >
+                            Delete
+                          </Typography>{" "}
+                        </Box>
+                      ) : (
+                        <Box sx={{ mt: 1 }}>
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ color: "primary.main", cursor: "pointer" }}
+                            onClick={() =>
+                              handleDeleteRecurring("Next Recurring")
+                            }
+                          >
+                            Remove just the next payment?
+                          </Typography>{" "}
+                          OR{" "}
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{ color: "primary.main", cursor: "pointer" }}
+                            onClick={() =>
+                              handleDeleteRecurring("All Recurring")
+                            }
+                          >
+                            Remove all remaining recurring payments?
+                          </Typography>
+                        </Box>
+                      )}
+                    </>
+                  ),
+                },
+              ]
               : [
-                  {
-                    value: "payNow",
-                    title: "Pay Now",
-                    description:
-                      lastBillInfo?.pay_now_text ??
-                      lastBillInfo?.nacha_pay_now_text ??
-                      lastBillInfo?.achworks_pay_now_text ??
-                      // lastBillInfo?.achworks_pay_now_text ??
+                {
+                  value: "payNow",
+                  title: "Pay Now",
+                  description:
+                    lastBillInfo?.pay_now_text ??
+                    lastBillInfo?.nacha_pay_now_text ??
+                    lastBillInfo?.achworks_pay_now_text ??
+                    // lastBillInfo?.achworks_pay_now_text ??
 
-                      "Payment will be processed immediately.",
-                  },
-                  {
-                    value: "schedule",
-                    title: "Schedule a payment",
-                    description:
-                      lastBillInfo?.schedule_payment_text ??
-                      "Make a single scheduled payment - that's it!",
-                  },
-                  {
-                    value: "autopay",
-                    title: "Sign up for Autopay",
-                    description:
-                      lastBillInfo?.text_autopay_billing ??
-                      "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
-                  },
-                ]
+                    "Payment will be processed immediately.",
+                },
+                {
+                  value: "schedule",
+                  title: "Schedule a payment",
+                  description:
+                    lastBillInfo?.schedule_payment_text ??
+                    "Make a single scheduled payment - that's it!",
+                },
+                {
+                  value: "autopay",
+                  title: "Sign up for Autopay",
+                  description:
+                    lastBillInfo?.text_autopay_billing ??
+                    "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
+                },
+              ]
             ).map(
               (option) =>
                 getAutoPayInfo(option) && (
@@ -297,11 +298,15 @@ export function PaymentModal({
       >
         <Button
           onClick={onClose}
-          sx={{
+          variant="outlined"
+          textTransform="capitalize"
+          style={{
             color: colors.blue,
             borderColor: colors.blue,
+            backgroundColor: "white",
+            borderRadius: '12px',
+            height: '41px',
           }}
-          variant="outlined"
         >
           Cancel
         </Button>
@@ -318,13 +323,14 @@ export function PaymentModal({
               handleProceed();
             }
           }}
-          color="primary"
           variant="contained"
-          sx={{
-            backgroundColor: colors.blue,
-            "&:hover": {
-              backgroundColor: colors["blue.3"], // or any other hover color
-            },
+          textTransform="none"
+          bgColor={colors.blue}
+          hoverBackgroundColor={colors['blue.3']}
+          hoverColor="white"
+          style={{
+            borderRadius: '12px',
+            height: '41px',
           }}
         >
           Proceed to Payment
@@ -340,10 +346,10 @@ export function PaymentModal({
           deleteType
             ? `Are you sure you want to remove your ${deleteType} payment?`
             : lastBillInfo.recurring_payment_msg1
-            ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
-            : lastBillInfo.schedule_payment_msg
-            ? `${lastBillInfo.schedule_payment_msg} Do you still want to make an additional payment?`
-            : `${lastBillInfo?.pending_payment_text}`
+              ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
+              : lastBillInfo.schedule_payment_msg
+                ? `${lastBillInfo.schedule_payment_msg} Do you still want to make an additional payment?`
+                : `${lastBillInfo?.pending_payment_text}`
         }
         confirmLabel="Yes, Confirm"
         cancelLabel="Cancel"

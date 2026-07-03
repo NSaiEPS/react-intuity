@@ -73,7 +73,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     const location = useLocation();
 
 const two_fa_status = location.state?.two_fa_status ?? false;
-  const { accountLoading, confirmInfo } = useSelector(
+  const { accountLoading:loading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
 
@@ -317,8 +317,8 @@ const two_fa_status = location.state?.two_fa_status ?? false;
         </Grid>
         <Grid item xs={6} textAlign="right">
           <Button
-            disabled={accountLoading}
-            loading={accountLoading}
+            disabled={loading}
+            loading={loading}
             variant="contained"
             textTransform="none"
             bgColor={colors.blue}

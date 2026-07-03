@@ -112,7 +112,7 @@ export function ContactMethodsSection({
 
                     {label}
 
-                    {!empty && (
+                    {/* {!empty && (
                       ((contact.type === "email" && !hasUpdatedEmail) ||
                         contact.verified) ? (
                         <Chip
@@ -171,7 +171,7 @@ export function ContactMethodsSection({
                           )}
                         </Box>
                       )
-                    )}
+                    )} */}
                   </Typography>
 
                   <Typography

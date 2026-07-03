@@ -34,7 +34,7 @@ type FormData = z.infer<typeof schema>;
 
 export function AccountSettingsForm(): React.JSX.Element {
   // const { accountLoading } = useSelector((state: RootState) => state?.Account);
-const [accountLoading, setAccountLoading] = React.useState(false);
+  const [accountLoading, setAccountLoading] = React.useState(false);
 
   const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
 
@@ -72,13 +72,13 @@ const [accountLoading, setAccountLoading] = React.useState(false);
     formData.append("name", data?.name ? data?.name : userInfo?.user_name);
     formData.append("email", data?.email ? data?.email : userInfo?.loginID);
     formData.append("is_form", "1");
-setAccountLoading(true)
+    setAccountLoading(true)
 
     dispatch(updateAccountInfo(formData, true, successCallBack));
   };
 
   const successCallBack = () => {
-setAccountLoading(false)
+    setAccountLoading(false)
 
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;

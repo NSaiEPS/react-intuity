@@ -95,7 +95,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
   const roleId = stored?.body?.acl_role_id;
   const customer_id = stored?.body?.customer_id;
 
-  
+
   const onSubmit = (data: FormValues) => {
     const files: File[] = data.files ? Array.from(data.files) : [];
 
@@ -129,19 +129,19 @@ export function CustomerDetailsForm(): React.JSX.Element {
     setValue("preferredContactMethod", "Phone");
     setValue("question", "");
 
-    setHasUnsavedChanges(false); 
+    setHasUnsavedChanges(false);
   };
 
-   React.useEffect(() => {
-  
-        if( hasUnsavedChanges ){
-          dispatch(setRouteChecker(true));
-          
-        }
-        return () => {
-          dispatch(setRouteChecker(false));
-        }
-      }, [hasUnsavedChanges]);
+  React.useEffect(() => {
+
+    if (hasUnsavedChanges) {
+      dispatch(setRouteChecker(true));
+
+    }
+    return () => {
+      dispatch(setRouteChecker(false));
+    }
+  }, [hasUnsavedChanges]);
   React.useEffect(() => {
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
@@ -173,8 +173,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
     } else {
       setValue("email", ""); // or omit setting it if schema allows optional
     }
-    
-    setHasUnsavedChanges(false); 
+
+    setHasUnsavedChanges(false);
 
   };
   const rawFiles = watch("files");
@@ -186,7 +186,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
     setValue("files", [...files, ...selectedFiles], { shouldValidate: true });
-        setHasUnsavedChanges(true);
+    setHasUnsavedChanges(true);
 
     e.target.value = ""; // reset input for duplicate file names
   };
@@ -195,7 +195,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
     const updatedFiles = [...files];
     updatedFiles.splice(index, 1);
     setValue("files", updatedFiles, { shouldValidate: true });
-        setHasUnsavedChanges(true);
+    setHasUnsavedChanges(true);
 
   };
 
@@ -225,8 +225,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [hasUnsavedChanges]);
-  
-  
+
+
 
   return (
     <>
@@ -288,7 +288,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                 />
               </Grid>
 
-              
+
 
               <Grid md={6} xs={12}>
                 <Controller
@@ -492,12 +492,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
               disables={accountLoading}
               textTransform="none"
               onClick={() => {
-               handleReset()
+                handleReset()
                 setHasUnsavedChanges(false);
               }}
               style={{
                 color: colors.blue,
                 borderColor: colors.blue,
+                backgroundColor: "white",
                 borderRadius: "12px",
                 height: "41px",
               }}

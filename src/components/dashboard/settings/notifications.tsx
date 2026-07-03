@@ -38,7 +38,7 @@ const schema = z.object({
   phone: z
     .string()
     .min(14, "Phone must be at least 10 digits")
-    // .max(15, "Phone must be no more than 15 digits"),
+  // .max(15, "Phone must be no more than 15 digits"),
   // .regex(/^[0-9]+$/, "Phone must contain only digits"),
 });
 
@@ -182,7 +182,7 @@ export function Notifications(): React.JSX.Element {
         // phone: notificationPreferenceDetails?.phone_no,
         phone:
           notificationPreferenceDetails?.phone_no &&
-          notificationPreferenceDetails?.phone_no != 0
+            notificationPreferenceDetails?.phone_no != 0
             ? notificationPreferenceDetails?.phone_no
             : "",
       }));
@@ -235,7 +235,7 @@ export function Notifications(): React.JSX.Element {
     formData.append("id", userId);
     formData.append("model_open", "15");
 
-    dispatch(updateAccountInfo(formData, true, null, true, null, true));
+    dispatch(updateAccountInfo(formData, true, null, undefined, true, null, true));
   };
 
   const handlePhoneUpdate = async () => {
@@ -402,33 +402,33 @@ export function Notifications(): React.JSX.Element {
                 )}
               /> */}
               <Controller
-  name="phone"
-  control={control}
-  render={({ field }) => {
-    const formatUS = (value: string) => {
-      const digits = value.replace(/\D/g, "").slice(0, 10);
-      if (digits.length < 4) return digits;
-      if (digits.length < 7)
-        return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-    };
+                name="phone"
+                control={control}
+                render={({ field }) => {
+                  const formatUS = (value: string) => {
+                    const digits = value.replace(/\D/g, "").slice(0, 10);
+                    if (digits.length < 4) return digits;
+                    if (digits.length < 7)
+                      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+                  };
 
-    return (
-      <OutlinedInput
-        {...field}
-        label="Notification Phone No."
-        type="tel"
-        id="phone"
-        placeholder="(555) 000-0000"
-        value={formatUS(field.value || "")}
-        onChange={(e) => {
-          field.onChange(formatUS(e.target.value));
-        }}
-        inputProps={{ maxLength: 14 }}
-      />
-    );
-  }}
-/>
+                  return (
+                    <OutlinedInput
+                      {...field}
+                      label="Notification Phone No."
+                      type="tel"
+                      id="phone"
+                      placeholder="(555) 000-0000"
+                      value={formatUS(field.value || "")}
+                      onChange={(e) => {
+                        field.onChange(formatUS(e.target.value));
+                      }}
+                      inputProps={{ maxLength: 14 }}
+                    />
+                  );
+                }}
+              />
               {errors.phone && (
                 <Box color="error.main" mt={0.5} fontSize={13}>
                   {errors.phone.message}
@@ -519,8 +519,8 @@ export function Notifications(): React.JSX.Element {
               ? getValues("phone")
               : notificationPreferenceDetails?.phone_no &&
                 notificationPreferenceDetails?.phone_no !== "0"
-              ? notificationPreferenceDetails?.phone_no
-              : getValues("phone")
+                ? notificationPreferenceDetails?.phone_no
+                : getValues("phone")
           }
         />
       )}

@@ -148,15 +148,15 @@ export function DashboardInfo({
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const dispatch = useDispatch();
 
-// ✅ Fix — move inside useMemo
-const { roleId, userId } = React.useMemo(() => {
-  const raw = getLocalStorage("intuity-user");
-  const stored = typeof raw === "object" && raw !== null ? raw as any : null;
-  return {
-    roleId: stored?.body?.acl_role_id,
-    userId: stored?.body?.customer_id,
-  };
-}, []); // ← only reads localStorage once
+  // ✅ Fix — move inside useMemo
+  const { roleId, userId } = React.useMemo(() => {
+    const raw = getLocalStorage("intuity-user");
+    const stored = typeof raw === "object" && raw !== null ? raw as any : null;
+    return {
+      roleId: stored?.body?.acl_role_id,
+      userId: stored?.body?.customer_id,
+    };
+  }, []); // ← only reads localStorage once
 
 
 
@@ -169,7 +169,7 @@ const { roleId, userId } = React.useMemo(() => {
     formData.append("model_open", "15");
 
     dispatch(
-      updateAccountInfo(formData, true, notificationResponse, true)
+      updateAccountInfo(formData, true, notificationResponse, undefined, true)
     );
   };
   const handleConfirm = () => {
@@ -319,8 +319,8 @@ const { roleId, userId } = React.useMemo(() => {
                 {type === "paperLess"
                   ? "Paperless"
                   : type === "notification"
-                  ? "Bill Due Reminder"
-                  : "Auto Pay"}
+                    ? "Bill Due Reminder"
+                    : "Auto Pay"}
               </Typography>
               {type === "paperLess" ? (
                 <Avatar
@@ -367,8 +367,8 @@ const { roleId, userId } = React.useMemo(() => {
 
                 width: "70px",
               }}
-              // onChange={handleChange}
-              // disabled={type === 'notification'}
+            // onChange={handleChange}
+            // disabled={type === 'notification'}
             >
               <IOSSwitch
                 checked={checked}
@@ -388,8 +388,8 @@ const { roleId, userId } = React.useMemo(() => {
           type === "paperLess"
             ? "Paperless"
             : type === "notification"
-            ? "Notifications"
-            : "Auto Pay"
+              ? "Notifications"
+              : "Auto Pay"
         }
         message={`Are you sure want to ${!checked ? "ON" : "OFF"} it`}
         confirmLabel="Yes, Confirm"

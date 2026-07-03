@@ -46,7 +46,7 @@ type AuthCodeModalProps = {
   onClose: () => void;
   onVerify: (code: string) => void;
   customerData: CustomerInfo | null;
-  onClose2Fa:()=>void;
+  onClose2Fa: () => void;
 };
 
 export default function AuthCodeModal({
@@ -67,8 +67,8 @@ export default function AuthCodeModal({
   });
 
   const customerInfo = customerData;
-  const accountLoading = useSelector(
-    (state: RootState) => state?.Account?.accountLoading
+  const { otpLoading } = useSelector(
+    (state: RootState) => state?.Account
   );
   const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
@@ -118,6 +118,7 @@ export default function AuthCodeModal({
         formData,
         true,
         onSubmit,
+        "otp",
         false,
         undefined,
         false,
@@ -172,6 +173,7 @@ export default function AuthCodeModal({
             style={{
               color: colors.blue,
               borderColor: colors.blue,
+              backgroundColor: "white",
               borderRadius: "12px",
               height: "41px",
             }}
@@ -179,8 +181,8 @@ export default function AuthCodeModal({
             Cancel
           </Button>
           <Button
-            loading={accountLoading}
-            disabled={accountLoading}
+            loading={otpLoading}
+            disabled={otpLoading}
             type="submit"
             //   onClick={handleVerify}
             variant="contained"

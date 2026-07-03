@@ -6,7 +6,6 @@ import {
   DialogActions,
   Typography,
   Divider,
-  Button,
   Box,
   Stack,
   IconButton,
@@ -15,6 +14,7 @@ import {
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
 import dayjs from "dayjs";
+import { Button } from 'nsaicomponents';
 
 interface PaymentSummaryModalProps {
   open: boolean;
@@ -61,14 +61,27 @@ export default function PaymentSummaryModal({
             Payment Summary
           </Typography>
           <Button
+            // sx={{
+            //   // width: '2px',
+            //   // backgroundColor: 'red',
+            //   minWidth: 0,
+            //   padding: "4px",
+            //   // backgroundColor: 'red',
+            //   width: "32px", // or any visible size
+            //   height: "32px",
+            // }}
             sx={{
-              // width: '2px',
-              // backgroundColor: 'red',
-              minWidth: 0,
               padding: "4px",
-              // backgroundColor: 'red',
-              width: "32px", // or any visible size
-              height: "32px",
+            }}
+            variant="none"
+            style={{
+              color: colors.blue,
+              borderColor: colors.blue,
+              backgroundColor: "white",
+              // borderRadius: '12px',
+              height: '32px',
+              minWidth: "fit-content",
+              padding: "4px",
             }}
             onClick={onClose}
           >
@@ -182,16 +195,27 @@ export default function PaymentSummaryModal({
             <Button
               onClick={onClose}
               variant="outlined"
-              sx={{ color: colors.blue, borderColor: colors.blue }}
+              textTransform="capitalize"
+              style={{
+                color: colors.blue,
+                borderColor: colors.blue,
+                backgroundColor: "white",
+                borderRadius: '12px',
+                height: '41px',
+              }}
             >
               Cancel
             </Button>
             <Button
               onClick={onPay}
               variant="contained"
-              sx={{
-                backgroundColor: colors.blue,
-                "&:hover": { backgroundColor: colors["blue.3"] },
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors['blue.3']}
+              hoverColor="white"
+              style={{
+                borderRadius: '12px',
+                height: '41px',
               }}
             >
               Pay Now

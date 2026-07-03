@@ -56,6 +56,8 @@ interface AccountState {
   userInfo: Record<string, unknown>;
   accountInfo: AccountInfoBody;
   accountLoading: boolean;
+  otpLoading: boolean,
+  twoFactorLoading: boolean,
   accountError: string | null;
   transferInfo: TransferInfoBody;
   paymentMethodInfo: PaymentDetailsBody;
@@ -76,6 +78,8 @@ const initialState: AccountState = {
   twoFaChecking: false,
   accountInfo: {},
   accountLoading: false,
+  otpLoading: false,
+  twoFactorLoading: false,
   accountError: null,
   transferInfo: {},
   paymentMethodInfo: {},
@@ -103,6 +107,12 @@ const AccountSlice = createSlice({
     setAccountLoading(state, action) {
       state.accountLoading = action.payload;
     },
+    setOtpLoading(state, action) {
+      state.otpLoading = action.payload;
+    },
+    setTwoFactorLoading(state, action) {
+      state.twoFactorLoading = action.payload;
+    },
     setTransferInfo(state, action) {
       state.transferInfo = action.payload;
     },
@@ -113,11 +123,11 @@ const AccountSlice = createSlice({
       state.selectedCardInfo = action.payload;
     },
     setConfirmInfo(state, action) {
-     // console.log('successCallBack', action.payload);
+      // console.log('successCallBack', action.payload);
       state.confirmInfo = action.payload;
     },
     setCompanyInfo(state, action) {
-     // console.log('successCallBack', action.payload);
+      // console.log('successCallBack', action.payload);
 
       state.companyInfo = action.payload;
     },
@@ -157,6 +167,8 @@ const AccountSlice = createSlice({
 export const {
   setAccountInfo,
   setAccountLoading,
+  setOtpLoading,
+  setTwoFactorLoading,
   setTransferInfo,
   setPaymentMethodInfo,
   setSelectedCardInfo,
@@ -260,12 +272,19 @@ export const updateAccountInfo = (
   formData: FormData,
   profile = false,
   successCallBack?: (data?: any) => void,
+  typeOfLoading?: "otp" | "2fa",
   dataRequired = false,
   setContextLoading?: SetLoadingFn,
   reduxNeeded = false,
-  noRedirect = true
+  noRedirect = true,
 ) => async (dispatch: AppDispatch): Promise<void> => {
-  dispatch(setAccountLoading(true));
+  if (typeOfLoading === "2fa") {
+    dispatch(setTwoFactorLoading(true));
+  } else if (typeOfLoading === "otp") {
+    dispatch(setOtpLoading(true));
+  } else {
+    dispatch(setAccountLoading(true))
+  }
   try {
     const res = profile
       ? await updateUserInfo({ formData })
@@ -279,10 +298,10 @@ export const updateAccountInfo = (
           res?.status == 200
             ? res?.data
             : res?.message
-            ? res?.body?.notification_email_message ?? res?.message
-            : profile
-            ? "Updated User Info"
-            : "Updated Password!"
+              ? res?.body?.notification_email_message ?? res?.message
+              : profile
+                ? "Updated User Info"
+                : "Updated Password!"
         );
       }
       if (successCallBack) {
@@ -309,6 +328,8 @@ export const updateAccountInfo = (
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!!!!");
   } finally {
+    dispatch(setTwoFactorLoading(false));
+    dispatch(setOtpLoading(false));
     dispatch(setAccountLoading(false));
     if (setContextLoading) setContextLoading(false);
   }
@@ -330,8 +351,8 @@ export const updatePaperLessInfo = (
           res?.message
             ? res?.message
             : type === "autopay"
-            ? "Updated Auto Pay!"
-            : "Updated Paperless!"
+              ? "Updated Auto Pay!"
+              : "Updated Paperless!"
         );
       }
       if (successCallBack) {
@@ -401,8 +422,8 @@ export const deleteCardAndBankAccount = (
         res?.message
           ? res?.message
           : type === "card"
-          ? "Successfully Deleted the Card"
-          : "Successfully Deleted the Bank Account"
+            ? "Successfully Deleted the Card"
+            : "Successfully Deleted the Bank Account"
       );
       if (successCallBack) successCallBack();
     } else {
@@ -501,7 +522,7 @@ export const getCompanyDetails = (
   dispatch(setAccountLoading(true));
   try {
     const res = await getCompanyDetailsApi({ formData });
-      //console.log('successCallBack', res);
+    //console.log('successCallBack', res);
 
     if (res.status) {
       //console.log('successCallBack', res?.body);

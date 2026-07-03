@@ -5,7 +5,6 @@ import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
 import {
   Box,
-  Button,
   Divider,
   Typography,
   Table,
@@ -30,6 +29,7 @@ import EmailDialog from "@/components/auth/confirm-email-modal";
 import { ContactMethodsSection, type ContactMethod } from "./contact-methods-section";
 import { NotificationPreferenceRow, type NotificationPreferenceOption } from "./notification-preference-row";
 import { FileText, CreditCard, Calendar, Megaphone } from "@phosphor-icons/react";
+import { Button } from 'nsaicomponents';
 
 const TEXT_TO_VALUE_FORMAT: Record<string, string> = {
   Text: "2",
@@ -237,14 +237,14 @@ function NotificationsSettings() {
     formData.append("id", userId);
     formData.append("model_open", "15");
 
-    dispatch(updateAccountInfo(formData, true, successCallBack, true, setContextLoading, true));
+    dispatch(updateAccountInfo(formData, true, successCallBack, undefined, true, setContextLoading, true));
   };
 
   useEffect(() => {
-    if(userId){
- getPrefDetails();
+    if (userId) {
+      getPrefDetails();
     }
-   
+
   }, [userId]);
 
   const successCallBack = (res) => {
@@ -367,7 +367,7 @@ function NotificationsSettings() {
           justifyContent="space-between"
           sx={{ mx: 2, my: 2, px: 2, py: 1.5, border: "1px solid #DCDFE4", borderRadius: 1 }}
         >
-          <Typography variant="h6" fontWeight={500}>
+          <Typography variant="h6" fontWeight={500} fontSize={16} >
             Enable Emergency Calls to My Phone
           </Typography>
           <Stack
@@ -427,7 +427,7 @@ function NotificationsSettings() {
                 </TableCell>
               </TableRow>
             </TableHead>
-            <TableBody sx={{overflow: "auto"}}>
+            <TableBody sx={{ overflow: "auto" }}>
               <NotificationPreferenceRow
                 label="New Bill"
                 icon={<FileText size={20} />}
@@ -490,10 +490,20 @@ function NotificationsSettings() {
           <Button
             color="inherit"
             variant="outlined"
+            textTransform="capitalize"
             disabled={!hasChanges}
             sx={{
               color: hasChanges ? colors.blue : undefined,
               borderColor: hasChanges ? colors.blue : undefined,
+
+            }}
+            // bgColor="white"
+            style={{
+              color: colors.blue,
+              borderColor: colors.blue,
+              backgroundColor: "white",
+              borderRadius: '12px',
+              height: '41px',
             }}
             onClick={handleCancel}
           >
@@ -504,7 +514,12 @@ function NotificationsSettings() {
             disabled={!hasChanges}
             sx={{ backgroundColor: colors.blue, "&:hover": { backgroundColor: colors["blue.3"] } }}
             color="primary"
+            textTransform="capitalize"
             onClick={handleSave}
+            style={{
+              borderRadius: '12px',
+              height: '41px',
+            }}
           >
             Save Preferences
           </Button>

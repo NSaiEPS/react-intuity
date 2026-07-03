@@ -14,7 +14,7 @@ import FormGroup from '@mui/material/FormGroup';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2';
 import { CreditCard } from '@phosphor-icons/react';
-import  { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import { Button } from 'nsaicomponents';
 
 import { useDispatch, useSelector } from '@/hooks/redux';
@@ -290,7 +290,7 @@ export default function AutoPayDetails(): React.JSX.Element {
         justifyContent={'space-between'}
         mt={4}
         mb={4}
-        // md={4}
+      // md={4}
       >
         <Grid
           // md={8}
@@ -334,9 +334,9 @@ export default function AutoPayDetails(): React.JSX.Element {
               >
                 {renderCardBrand(
                   selectedCardDetails?.card?.card_type ??
-                    selectedCardDetails?.card?.account_type ??
-                    autoPayDetails?.card_type ??
-                    autoPayDetails?.account_type
+                  selectedCardDetails?.card?.account_type ??
+                  autoPayDetails?.card_type ??
+                  autoPayDetails?.account_type
                 )}
 
                 <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
@@ -348,10 +348,10 @@ export default function AutoPayDetails(): React.JSX.Element {
                   ending in{' '}
                   {String(
                     selectedCardDetails?.card?.card_number ??
-                      selectedCardDetails?.card?.bank_account_number ??
-                      autoPayDetails?.card_number ??
-                      autoPayDetails?.bank_account_number ??
-                      ''
+                    selectedCardDetails?.card?.bank_account_number ??
+                    autoPayDetails?.card_number ??
+                    autoPayDetails?.bank_account_number ??
+                    ''
                   ).slice(-4)}
                 </Typography>
 
@@ -421,8 +421,20 @@ export default function AutoPayDetails(): React.JSX.Element {
           style={{
             color: colors.blue,
             borderColor: colors.blue,
+            backgroundColor: "white",
             borderRadius: '12px',
             height: '41px',
+          }}
+          disabled={
+            selectedCardDetails
+              ? false
+              : accountLoading ||
+              (CustomerInfo?.autopay === 1 && isAutoPay) ||
+              (CustomerInfo?.autopay !== 1 && !isAutoPay)
+          }
+          onClick={() => {
+            setisAutoPay(CustomerInfo?.autopay === 1);
+            // setSelectedCardDetails(null); // Optional: reset selected card as well
           }}
         >
           Cancel
@@ -440,8 +452,8 @@ export default function AutoPayDetails(): React.JSX.Element {
             selectedCardDetails
               ? false
               : accountLoading ||
-                (CustomerInfo?.autopay === 1 && isAutoPay) ||
-                (CustomerInfo?.autopay !== 1 && !isAutoPay)
+              (CustomerInfo?.autopay === 1 && isAutoPay) ||
+              (CustomerInfo?.autopay !== 1 && !isAutoPay)
           }
           loading={accountLoading}
           onClick={handleSaveChanges}
@@ -453,7 +465,6 @@ export default function AutoPayDetails(): React.JSX.Element {
           style={{
             borderRadius: '12px',
             height: '41px',
-            // backgroundColor: 'red',
           }}
         >
           Save changes
