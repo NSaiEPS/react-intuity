@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage } from "@/utils/auth";
 import { Navigate } from "react-router";
+import AutoPayPrototype from "@/components/dashboard/customer/autopay/autopay-prototype-mui";
 
 //export const metadata = {
 //   title: `Auto Pay  - ${config.site.name}`,
@@ -20,8 +21,8 @@ export default function AutoPayPage(): React.JSX.Element {
   interface CompanyDetails {
     allow_auto_payment?: number | string;
   }
-  
-    const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
+
+  const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
 
   const { allow_auto_payment } =
     dashBoardInfo?.body?.company || companyDetails || {};
@@ -29,5 +30,6 @@ export default function AutoPayPage(): React.JSX.Element {
   if (allow_auto_payment !== 1) {
     return <Navigate to={"/"} replace />;
   }
-  return <AutoPayDetails />;
+  return <AutoPayPrototype />
+  // return <AutoPayDetails />;
 }

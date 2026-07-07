@@ -445,7 +445,7 @@ export const PaymentMethods = ({
                         arrow
                         enterTouchDelay={0}
                         leaveTouchDelay={3000}
-                        // componentsProps={{ tooltip: { sx: tooltipSx } }}
+                      // componentsProps={{ tooltip: { sx: tooltipSx } }}
                       >
                         <IconButton size="small" sx={{ p: 0.2 }}>
                           <Question size={16} color="#90caf9" weight="fill" />
@@ -477,7 +477,7 @@ export const PaymentMethods = ({
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="caption" color="text.secondary" fontStyle="italic" fontSize="0.75rem">
                 {/* If credit card expires, or you need to edit a payment method, please select Remove then add your card.   {isPaymentMethodsPage */}
-  {isPaymentMethodsPage                  ? "If card expires, or you need to edit a payment method, please select Remove then add your card."
+                {isPaymentMethodsPage ? "If card expires, or you need to edit a payment method, please select Remove then add your card."
                   : "If credit card expires, or you need to edit a payment method, please select Remove then add your card."}              </Typography>
               {/* Add a payment method with popover */}
               <Box>
@@ -556,7 +556,7 @@ export const PaymentMethods = ({
               </Box>
             </Stack>
           </Box>
-          {/* <Grid item>
+          <Grid item>
             <CardActions sx={{ justifyContent: 'flex-end' }}>
               <Button
                 onClick={() => setRemoveSaveDetails(true)}
@@ -564,10 +564,10 @@ export const PaymentMethods = ({
                 disabled={!selectedId}
                 sx={{ color: colors.blue, borderColor: colors.blue }}
 
-                // sx={{
-                //   backgroundColor: colors.blue,
-                //   '&:hover': { backgroundColor: colors['blue.3'] },
-                // }}
+              // sx={{
+              //   backgroundColor: colors.blue,
+              //   '&:hover': { backgroundColor: colors['blue.3'] },
+              // }}
               >
                 Remove
               </Button>
@@ -583,7 +583,7 @@ export const PaymentMethods = ({
                 Save details
               </Button>
             </CardActions>
-          </Grid> */}
+          </Grid>
 
           {/* ── Modals ── */}
           {cardModalOpen && (
