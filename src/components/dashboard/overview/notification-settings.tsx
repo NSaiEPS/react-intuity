@@ -368,7 +368,8 @@ function NotificationsSettings() {
           sx={{ mx: 2, my: 2, px: 2, py: 1.5, border: "1px solid #DCDFE4", borderRadius: 1 }}
         >
           <Typography variant="h6" fontWeight={500} fontSize={16} >
-            Enable Emergency Calls to My Phone
+            {/* Enable Emergency Calls to My Phone */}
+            Receive voice calls from your utility provider regarding utility sevices
           </Typography>
           <Stack
             component="button"

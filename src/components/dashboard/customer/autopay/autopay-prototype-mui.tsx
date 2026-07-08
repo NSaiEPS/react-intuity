@@ -1104,7 +1104,7 @@ export default function AutoPayPrototype() {
     ? (dashBoardInfo?.body?.customer as unknown as CustomerInfo)
     : (getLocalStorage('intuity-customerInfo') as CustomerInfo | null);
 
-  const myCustomerDetails = userInfo?.body?.customer as any;
+  const myCustomerDetails = userInfo?.body as any;
   const billAmountDueValue =
     paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? CustomerInfo?.balance ?? 0;
   const billAmountDueNumber = Number(String(billAmountDueValue).replace(/[^0-9.-]/g, ''));

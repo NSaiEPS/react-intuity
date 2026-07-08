@@ -460,7 +460,14 @@ export default function AlertsScreen() {
                       <TableCell>{row.customer_name || "-"}</TableCell>
                       <TableCell>{row.utility_type_name || "-"}</TableCell>
                       <TableCell>{row.meter_number || "-"}</TableCell>
-                      <TableCell>{row.message || "-"}</TableCell>
+                      <TableCell>
+                        {/* {row.message || "-"} */}
+ <div
+    dangerouslySetInnerHTML={{
+      __html: row.message || "-",
+    }}
+  />
+                      </TableCell>
                       <TableCell>
                         <IconButton
                           color="error"
