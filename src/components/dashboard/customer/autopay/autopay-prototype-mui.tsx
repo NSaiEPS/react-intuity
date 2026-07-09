@@ -783,7 +783,7 @@ function ReviewConfirm({
               setisAutoPay(userInfo?.autopay === 1);
               onBack()
             }}>
-            Back
+            ← Back
           </Button>
           <Button
             disabled={
