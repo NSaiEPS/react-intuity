@@ -1551,13 +1551,17 @@ export default function AutoPayPrototype() {
 
       formData.append('id_select_card', autoPaySettings?.id ?? '');
       formData.append('auto_pay_model_save_card', '0');
-      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack));
+      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
+        undefined,
+        false));
       return;
     }
     formData.append('auto_pay', isAutoPay ? '1' : '0');
 
     formData.append('payment_method_id', userInfo?.payment_method_id);
-    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack));
+    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
+      undefined,
+      false));
   };
 
   const successCallBack = () => {
@@ -1587,13 +1591,17 @@ export default function AutoPayPrototype() {
 
       formData.append('id_select_card', autoPaySettings?.id ?? '');
       formData.append('auto_pay_model_save_card', '0');
-      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate));
+      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate, false,
+        undefined,
+        false));
       return;
     }
     formData.append('auto_pay', '0');
 
     formData.append('payment_method_id', userInfo?.payment_method_id);
-    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate));
+    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate, false,
+      undefined,
+      false));
     setShowDeactivated(true);
   }
 
@@ -1627,7 +1635,9 @@ export default function AutoPayPrototype() {
     formData.append('acl_role_id', roleId);
     formData.append('customer_id', userId);
 
-    dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true, setAutoPaySettings));
+    dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true,
+      setAutoPaySettings,
+      false));
   }, [CustomerInfo?.autopay]);
 
   /* ---------------- Render ---------------- */

@@ -340,13 +340,14 @@ export const updatePaperLessInfo = (
   type: string,
   successCallBack?: ((data?: PaymentCard) => void) | (() => void),
   saveResponse = false,
-  setAutoPaySettings?: (settings: Record<string, unknown>) => void
+  setAutoPaySettings?: (settings: Record<string, unknown>) => void,
+  showSuccessToast = true
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
     const res = await paperLessUpdate({ formData, type });
     if (res.status) {
-      if (!saveResponse) {
+      if (!saveResponse && showSuccessToast) {
         toast.success(
           res?.message
             ? res?.message
