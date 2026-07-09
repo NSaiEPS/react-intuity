@@ -26,7 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Bank, CreditCard, Plus, Question, Trash, X } from '@phosphor-icons/react';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { CustomBackdrop, Loader } from 'nsaicomponents';
@@ -45,19 +45,31 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export interface CardDetails {
-  name: string;
+  date_used?: string | number | Date | Dayjs;
+
+  account_type?: string;
+  card_number?: string;
+  bank_account_number?: string;
+  card_type?: string;
+  card_token: any;
+
+
+  id?: string;
+  last4?: string;
+  brand?: string;
+  expMonth?: number;
+  expYear?: number;
+    expiration_month?: string | number;
+  expiration_year?: string | number;
+
+  [key: string]: unknown;
+    name: string;
   number: string;
   type: string;
   createdAt: string;
-  id: number;
   isBank: boolean;
-  card_token: number;
-  card_type?: string;
-  bank_account_number?: string;
-  account_type?: string;
-  date_used?: string;
-  expiration_month?: string | number;
-  expiration_year?: string | number;
+
+
 }
 
 interface CustomersTableProps {
@@ -97,7 +109,7 @@ const CardRow = React.memo(function CardRow({
 }: {
   row: CardDetails;
   isSelected: boolean;
-  onSelect: (data: { card_token: number; id: number }) => void;
+  onSelect: (data: { card_token: number; id: number| string }) => void;
   onDelete: (row: CardDetails) => void;
 }) {
   const handleCheckboxChange = React.useCallback(() => {

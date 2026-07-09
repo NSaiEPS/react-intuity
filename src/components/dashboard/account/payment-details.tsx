@@ -201,15 +201,26 @@ export interface CardDetails {
   card_number?: string;
   bank_account_number?: string;
   card_type?: string;
-  card_token?: string;
+  card_token: number | string;
+
 
   id?: string;
   last4?: string;
   brand?: string;
   expMonth?: number;
   expYear?: number;
+    expiration_month?: string | number;
+  expiration_year?: string | number;
 
   [key: string]: unknown;
+    name: string;
+  number: string;
+  type: string;
+  createdAt: string;
+  isBank: boolean;
+
+
+
 }
 
 export const getCardLast4 = (selectedCardDetails: CardDetails) => {
@@ -283,7 +294,7 @@ const PaymentForm = () => {
   const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
   const navigate = useNavigate();
   const myCard = useSelector((state: RootState) => state?.Account?.paymentMethodInfoCards);
-  const paymentMethodInfoCards = useSelector((state: RootState) => state?.Account?.selectedCardInfo);
+  const paymentMethodInfoCards:any = useSelector((state: RootState) => state?.Account?.selectedCardInfo);
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
 
   useEffect(() => {
@@ -476,7 +487,7 @@ const PaymentForm = () => {
   };
 
   const onSaveCardDetails = () => {
-    const cardNum = selectedCardDetails.card_token;
+    const cardNum:string = selectedCardDetails.card_token;
 
     const formdata = new FormData();
     formdata.append('acl_role_id', stored?.body?.acl_role_id);
@@ -496,7 +507,7 @@ const PaymentForm = () => {
   const [openConfirm, setOpenConfirm] = useState(false);
 
 
-  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
+  const [selectedCardDetails, setSelectedCardDetails] = useState<any>({});
   useEffect(() => {
     setSelectedCardDetails(paymentMethodInfoCards);
   }, [paymentMethodInfoCards]);

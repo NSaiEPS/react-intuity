@@ -721,6 +721,7 @@ function ReviewConfirm({
   accountLoading: boolean;
   selectedCardDetails: CardDetails | null;
   setSelectedCardDetails: React.Dispatch<React.SetStateAction<CardDetails | null>>;
+  setisAutoPay?:any;
 }) {
   // const [manageOpen, setManageOpen] = useState(false);
 
@@ -738,7 +739,8 @@ function ReviewConfirm({
         Confirm the payment method you'd like to use for AutoPay.
       </Typography>
 
-      <Card variant="none" sx={{ p: 1, borderRadius: 0 }}>
+      <Card   elevation={0}
+ sx={{ p: 1, borderRadius: 0 }}>
         <AccountBanner accountNo={accountNo} amountDue={amountDue} dueDate={dueDate} />
         <StepRail step={2} />
         <PaymentMethodSelector
@@ -749,7 +751,8 @@ function ReviewConfirm({
           onOpenManage={() => setOpenPaymentModal(true)}
         />
 
-        <Card variant='none' sx={{ py: 1.75, my: 2.25 }}>
+        <Card   elevation={0}
+ sx={{ py: 1.75, my: 2.25 }}>
           <FormControlLabel
             sx={{ alignItems: 'flex-start' }}
             control={
@@ -1172,7 +1175,7 @@ function DeactivatePage({
         You are about to deactivate AutoPay for the account below.
       </Typography>
 
-      <Card variant="none" sx={{ py: 2.5, borderColor: palette.line }}>
+      <Card elevation={0} sx={{ py: 2.5, borderColor: palette.line }}>
         <Box sx={{
           backgroundColor: '#EAF6FF',
           boxShadow: '0 4px 14px rgba(23, 45, 86, 0.16)',
@@ -1363,10 +1366,10 @@ export default function AutoPayPrototype() {
   const dispatch = useDispatch();
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
-  const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
+  const userInfo: any = getLocalStorage('intuity-customerInfo') as CustomerInfo;
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
 
-  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
+  const raw:any = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
   const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
 
   const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
@@ -1551,13 +1554,17 @@ export default function AutoPayPrototype() {
 
       formData.append('id_select_card', autoPaySettings?.id ?? '');
       formData.append('auto_pay_model_save_card', '0');
-      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack));
+      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
+        undefined,
+        false));
       return;
     }
     formData.append('auto_pay', isAutoPay ? '1' : '0');
 
     formData.append('payment_method_id', userInfo?.payment_method_id);
-    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack));
+    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
+      undefined,
+      false));
   };
 
   const successCallBack = () => {
@@ -1587,13 +1594,17 @@ export default function AutoPayPrototype() {
 
       formData.append('id_select_card', autoPaySettings?.id ?? '');
       formData.append('auto_pay_model_save_card', '0');
-      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate));
+      dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate, false,
+        undefined,
+        false));
       return;
     }
     formData.append('auto_pay', '0');
 
     formData.append('payment_method_id', userInfo?.payment_method_id);
-    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate));
+    dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate, false,
+      undefined,
+      false));
     setShowDeactivated(true);
   }
 
@@ -1627,7 +1638,9 @@ export default function AutoPayPrototype() {
     formData.append('acl_role_id', roleId);
     formData.append('customer_id', userId);
 
-    dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true, setAutoPaySettings));
+    dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true,
+      setAutoPaySettings,
+      false));
   }, [CustomerInfo?.autopay]);
 
   /* ---------------- Render ---------------- */

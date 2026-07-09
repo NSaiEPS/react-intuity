@@ -180,6 +180,7 @@ export interface CustomerInfo {
   balance?: number;
   email?: string;
   company_id?: string;
+  body?:any
 }
 
 export interface UtilityItem {
