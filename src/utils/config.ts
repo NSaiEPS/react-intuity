@@ -33,6 +33,18 @@ export const companySlugs = [
   ...authSlugs,
 ];
 
+export const tooltipSx = {
+  backgroundColor: "#E7E6E6",
+  color: "#000",
+  border: "1px solid #d0cfcf",
+  fontSize: "14px",
+  lineHeight: 1.4,
+  "& .MuiTooltip-arrow": {
+    color: "#E7E6E6",
+    "&::before": { border: "1px solid #d0cfcf" },
+  },
+};
+
 // export async function fetchCompanySlugs() {
 //   const res = await fetch('https://your-api.com/companies');
 //   return await res.json();

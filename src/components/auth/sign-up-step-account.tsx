@@ -14,6 +14,7 @@ import { Controller, Control, FieldErrors } from "react-hook-form";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { Question, User } from "@phosphor-icons/react";
 import { RegisterFormData } from "./sign-up-schema";
+import { tooltipSx } from "@/utils/config";
 
 // ─── Tooltip content per verification type ─────────────────────────────────────
 const authTooltips: Record<string, React.ReactNode> = {
@@ -38,17 +39,6 @@ const authTooltips: Record<string, React.ReactNode> = {
   pin: "Your personal identification number (PIN) was sent with your new bill email notice. If you cannot find your PIN, select one of the other verification questions.",
 };
 
-const tooltipSx = {
-  backgroundColor: "#E7E6E6",
-  color: "#000",
-  border: "1px solid #d0cfcf",
-  fontSize: "14px",
-  lineHeight: 1.4,
-  "& .MuiTooltip-arrow": {
-    color: "#E7E6E6",
-    "&::before": { border: "1px solid #d0cfcf" },
-  },
-};
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 interface StepAccountInfoProps {
@@ -107,9 +97,9 @@ export function StepAccountInfo({ control, errors, showError }: StepAccountInfoP
               //     </Tooltip>
               //   </InputAdornment>
               // }
-                  endAdornment={
-                            <InputAdornment position="end">
-                              {/* <Tooltip
+              endAdornment={
+                <InputAdornment position="end">
+                  {/* <Tooltip
                                 title={
                                   <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
                                     Please locate your account number on your statement. If you received a ‘Utility Bill Ready’ email notification, your account number can be found at the top of the email content.
@@ -124,12 +114,12 @@ export function StepAccountInfo({ control, errors, showError }: StepAccountInfoP
                                 </IconButton>
                               </Tooltip> */}
 
-                                 <Tooltip
-   title={
-                                  <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
-                                    Please locate your account number on your statement. If you received a “Utility Bill Ready” email notification, your account number can be found at the top of the email content.
-                                  </span>
-                                }
+                  <Tooltip
+                    title={
+                      <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
+                        Please locate your account number on your statement. If you received a “Utility Bill Ready” email notification, your account number can be found at the top of the email content.
+                      </span>
+                    }
                     placement="top"
                     arrow
                     enterTouchDelay={0}
@@ -140,8 +130,8 @@ export function StepAccountInfo({ control, errors, showError }: StepAccountInfoP
                       <Question size={20} color="#90caf9" weight="fill" />
                     </IconButton>
                   </Tooltip>
-                            </InputAdornment>
-                          }
+                </InputAdornment>
+              }
             />
             {showError(errors.accountNumber) && (
               <FormHelperText>{errors.accountNumber?.message}</FormHelperText>

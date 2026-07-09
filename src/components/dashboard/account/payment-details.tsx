@@ -74,7 +74,7 @@ const schema = zod.object({
 
 type FormData = zod.infer<typeof schema>;
 
-const renderCardBrand = (brand?: string) => {
+export const renderCardBrand = (brand?: string) => {
   const b = (brand || 'visa').toLowerCase();
   if (b.includes('visa')) {
     return (
@@ -192,6 +192,33 @@ const renderCardBrand = (brand?: string) => {
       <CreditCard size={18} color="#555" />
     </Box>
   );
+};
+
+export interface CardDetails {
+  date_used?: string | number | Date | Dayjs;
+
+  account_type?: string;
+  card_number?: string;
+  bank_account_number?: string;
+  card_type?: string;
+  card_token?: string;
+
+  id?: string;
+  last4?: string;
+  brand?: string;
+  expMonth?: number;
+  expYear?: number;
+
+  [key: string]: unknown;
+}
+
+export const getCardLast4 = (selectedCardDetails: CardDetails) => {
+  const num = selectedCardDetails?.card_number
+    ? decryptFunction(selectedCardDetails.card_number)
+    : selectedCardDetails?.bank_account_number
+      ? decryptFunction(selectedCardDetails.bank_account_number)
+      : '';
+  return num ? num.slice(-4) : '';
 };
 
 const PaymentForm = () => {
@@ -467,37 +494,12 @@ const PaymentForm = () => {
     );
   };
   const [openConfirm, setOpenConfirm] = useState(false);
-  interface CardDetails {
-    date_used?: string | number | Date | Dayjs;
 
-    account_type?: string;
-    card_number?: string;
-    bank_account_number?: string;
-    card_type?: string;
-    card_token?: string;
-
-    id?: string;
-    last4?: string;
-    brand?: string;
-    expMonth?: number;
-    expYear?: number;
-
-    [key: string]: unknown;
-  }
 
   const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
   useEffect(() => {
     setSelectedCardDetails(paymentMethodInfoCards);
   }, [paymentMethodInfoCards]);
-
-  const getCardLast4 = (selectedCardDetails: CardDetails) => {
-    const num = selectedCardDetails?.card_number
-      ? decryptFunction(selectedCardDetails.card_number)
-      : selectedCardDetails?.bank_account_number
-        ? decryptFunction(selectedCardDetails.bank_account_number)
-        : '';
-    return num ? num.slice(-4) : '';
-  };
 
   const amount = watch('amount');
 
@@ -707,9 +709,9 @@ const PaymentForm = () => {
   const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${billAmountDueNumber.toFixed(2)}` : '$0.00';
   const customerInfoDetails = CustomerInfo as
     | (CustomerInfo & {
-        account_number?: string | number;
-        last_bill?: { due_date?: string };
-      })
+      account_number?: string | number;
+      last_bill?: { due_date?: string };
+    })
     | null;
   const billDueDate =
     dueDate ??
@@ -909,16 +911,16 @@ const PaymentForm = () => {
                 <Tooltip
                   title={
                     paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
-                    paymentDetailsInfo?.company?.allow_overpayments == 0
+                      paymentDetailsInfo?.company?.allow_overpayments == 0
                       ? 'Over payments are not allowed at this time. And also Partial payments are not allowed '
                       : paymentDetailsInfo?.customer?.is_payments_blocked == 1
                         ? paymentDetailsInfo?.block_individual_customer_pay_text ??
-                          'Payments are not allowed at this time.'
+                        'Payments are not allowed at this time.'
                         : // : paymentDetailsInfo?.company?.allow_overpayments == 0
-                          // ? "Over payments are not allowed at this time."
-                          // : paymentDetailsInfo?.company?.allow_partial_payments == 0
-                          // ? "Partial payments are not allowed"
-                          ''
+                        // ? "Over payments are not allowed at this time."
+                        // : paymentDetailsInfo?.company?.allow_partial_payments == 0
+                        // ? "Partial payments are not allowed"
+                        ''
                   }
                   componentsProps={{
                     tooltip: {
@@ -998,12 +1000,12 @@ const PaymentForm = () => {
 
                       field.onChange(sanitizedValue);
                     }}
-                    // onBlur={(e) => {
-                    //   // Also enforce on blur (in case user clears and leaves field)
-                    //   if (!e.target.value || Number(e.target.value) <= 0) {
-                    //     field.onChange("1");
-                    //   }
-                    // }}
+                  // onBlur={(e) => {
+                  //   // Also enforce on blur (in case user clears and leaves field)
+                  //   if (!e.target.value || Number(e.target.value) <= 0) {
+                  //     field.onChange("1");
+                  //   }
+                  // }}
                   />
                 </Tooltip>
               )}

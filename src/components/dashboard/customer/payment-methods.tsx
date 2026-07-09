@@ -39,6 +39,7 @@ import { ConfirmDialog } from '@/styles/theme/components/ConfirmDialog';
 import AddBankAccountModal from './add-bank-modal';
 import AddCardModal from './add-card-modal';
 import { useLoading } from '@/components/core/skeleton-context';
+import { tooltipSx } from '@/utils/config';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -445,7 +446,7 @@ export const PaymentMethods = ({
                         arrow
                         enterTouchDelay={0}
                         leaveTouchDelay={3000}
-                      // componentsProps={{ tooltip: { sx: tooltipSx } }}
+                        componentsProps={{ tooltip: { sx: tooltipSx } }}
                       >
                         <IconButton size="small" sx={{ p: 0.2 }}>
                           <Question size={16} color="#90caf9" weight="fill" />
