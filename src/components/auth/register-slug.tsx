@@ -15,7 +15,7 @@ import { ClipboardText } from "@phosphor-icons/react/dist/ssr/ClipboardText";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { Info } from "@phosphor-icons/react";
 import { Logo } from "../core/logo";
-import Button from '../CommonComponents/Button';
+import Button from '../CommonComponents/button-comp';
 
 
 // ── Eager imports (small chunks, instantly adjacent to login page) ───────────
@@ -231,7 +231,7 @@ const MainSection = memo(function MainSection() {
                       height: { xs: 56, sm: 70, md: 80 },
                       flexShrink: 0,
                       // bgcolor: "white",
-                      borderRadius:"0",
+                      borderRadius: "0",
                       "& img": {
                         objectFit: "contain",
                         // padding: "6px", // optional

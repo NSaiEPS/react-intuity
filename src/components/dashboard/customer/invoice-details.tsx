@@ -11,10 +11,10 @@ import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { useSearchParams } from "react-router";
 
-import Button from '@/components/CommonComponents/Button';
+import Button from '@/components/CommonComponents/button-comp';
 import { useLoading } from '@/components/core/skeleton-context';
 
-import { InvoiceMainDetails } from './Invoice-main-details-new';
+import { InvoiceMainDetails } from './InvoiceMainDetailsNew';
 
 export default function InvoiceDetails() {
   const dispatch = useDispatch();

@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { useLoading } from "@/components/core/skeleton-context";
 import PhoneModal from "@/components/auth/confirm-phone-modal";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 import EmailDialog from "@/components/auth/confirm-email-modal";
 import { ContactMethodsSection, type ContactMethod } from "./contact-methods-section";
@@ -163,7 +163,7 @@ function NotificationsSettings() {
       setContacts([
         {
           type: "email",
-          value: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails?.email,
+          value: notificationPreferenceDetails?.email || "",
           verified: notificationPreferenceDetails?.email_updated_date == 1,
         },
         {
@@ -183,7 +183,7 @@ function NotificationsSettings() {
         reminders: TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.reminders?.selected] || "1",
         biller_announcements:
           BILLER_TEXT_TO_VALUE_FORMAT[notificationPreferenceDetails?.biller_announcements?.selected] || "1",
-        email: notificationPreferenceDetails?.updated_email ?? notificationPreferenceDetails.email,
+        email: notificationPreferenceDetails?.email || "",
         email_updated_date: notificationPreferenceDetails?.email_updated_date,
         is_phone_verified: notificationPreferenceDetails?.is_phone_verified,
         phone_no:
@@ -253,11 +253,11 @@ function NotificationsSettings() {
       payment_confirmation: TEXT_TO_VALUE_FORMAT[res?.payment_confirmation?.selected] || "1",
       reminders: TEXT_TO_VALUE_FORMAT[res?.reminders?.selected] || "1",
       biller_announcements: BILLER_TEXT_TO_VALUE_FORMAT[res?.biller_announcements?.selected] || "1",
-      email: res?.updated_email ?? res?.email,
+      email: res?.email || "",
       email_updated_date: res?.email_updated_date,
       is_phone_verified: res?.is_phone_verified,
       phone_no: res?.phone_no && res?.phone_no != 0 ? res?.phone_no : "",
-      updated_email: res?.updated_email,
+      updated_email: res?.updated_email || "",
     };
     setPreferences(nextPrefs);
     setSavedPreferences(nextPrefs);
@@ -269,7 +269,7 @@ function NotificationsSettings() {
       },
       {
         type: "email",
-        value: res?.updated_email ?? res?.email,
+        value: res?.email || "",
         verified: res?.email_updated_date == 1,
       },
     ]);

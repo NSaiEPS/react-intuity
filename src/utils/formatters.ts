@@ -42,3 +42,25 @@ export const boarderRadius = {
   "3xl": "40px",
   card: "8px",
 };
+
+// format currency in this format "xx,xxx.xx"
+export const formatCurrency = (
+  value: string | number | null | undefined
+): string => {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  const cleanValue = String(value).replace(/,/g, "");
+
+  const numberValue = Number(cleanValue);
+
+  if (Number.isNaN(numberValue)) {
+    return String(value);
+  }
+
+  return numberValue.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};

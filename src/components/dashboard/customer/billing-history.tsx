@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 
 import InvoiceTransactionTabs from "./billing-history-tabs";
 import { boarderRadius } from "@/utils";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 
 export interface Customer {
@@ -43,7 +43,7 @@ export function BillingHistory({ rows = [] }: CustomersTableProps): React.JSX.El
   const years = Array.from({ length: 15 }, (_, index) => currentYear - index);
   const [selectedYear, setSelectedYear] = React.useState(years[0]);
 
-  const handleChange = (event:  SelectChangeEvent<string>) => {
+  const handleChange = (event: SelectChangeEvent<string>) => {
     const year = Number(event.target.value);
     setSelectedYear(year);
     filterByYear(event.target.value);

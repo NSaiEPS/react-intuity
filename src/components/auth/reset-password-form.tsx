@@ -19,7 +19,7 @@ import { authClient } from "@/lib/auth/client";
 
 import { UpdatePasswordModal } from "../dashboard/account/update-password-modal";
 import { paths } from "@/utils/paths";
-import Button from '../CommonComponents/Button';
+import Button from '../CommonComponents/button-comp';
 
 import { Link } from "react-router";
 import { Button as MUIButton } from "@mui/material";
@@ -72,10 +72,10 @@ export function ResetPasswordForm(): React.JSX.Element {
     },
     [setError]
   );
-const [emailFocused, setEmailFocused] = React.useState(false);
+  const [emailFocused, setEmailFocused] = React.useState(false);
   return (
     <Stack spacing={4}>
-       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         <Box
           sx={{
             width: 64,
@@ -112,39 +112,39 @@ const [emailFocused, setEmailFocused] = React.useState(false);
         </Typography>
 
         <Stack spacing={2}>
-      <Controller
-  control={control}
-  name="email"
-  render={({ field }) => (
-    <FormControl fullWidth error={Boolean(errors.email)}>
-      <InputLabel
-        shrink={emailFocused || Boolean(field.value)}
-        sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
-      >
-        Enter login username
-      </InputLabel>
-      <OutlinedInput
-        {...field}
-        notched={emailFocused || Boolean(field.value)}
-        label="Enter login username"
-        type="text"
-        onFocus={() => setEmailFocused(true)}
-        onBlur={() => { field.onBlur(); setEmailFocused(false); }}
-        startAdornment={
-          <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
-        }
-      />
-      {errors.email && (
-        <FormHelperText>{errors.email.message}</FormHelperText>
-      )}
-    </FormControl>
-  )}
-/>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormControl fullWidth error={Boolean(errors.email)}>
+                <InputLabel
+                  shrink={emailFocused || Boolean(field.value)}
+                  sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+                >
+                  Enter login username
+                </InputLabel>
+                <OutlinedInput
+                  {...field}
+                  notched={emailFocused || Boolean(field.value)}
+                  label="Enter login username"
+                  type="text"
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => { field.onBlur(); setEmailFocused(false); }}
+                  startAdornment={
+                    <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+                  }
+                />
+                {errors.email && (
+                  <FormHelperText>{errors.email.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
           {errors.root ? (
             <Alert color="error">{errors.root.message}</Alert>
           ) : null}
 
-        {/* <Box
+          {/* <Box
           sx={{
             display: "flex",
             alignItems: "flex-start",
@@ -180,57 +180,58 @@ const [emailFocused, setEmailFocused] = React.useState(false);
           </Box>
         </Box> */}
 
-      
-
-        {/* Buttons */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1 ,
-    flexWrap: { xs: "wrap", sm: "nowrap" },
-    gap: 1.5,
 
 
-        }}
-  
-        >
-          <MUIButton
-            component={Link}
-            to={paths.auth.newLogin(companyInfo?.company?.alias)}
-            variant="outlined"
-            startIcon={<ArrowLeft size={18} />}
-            sx={{
-              textTransform: "none",
-              borderRadius: "12px",
-              height: "44px",
-              px: 3,
-              color: colors.blue,
-              borderColor: colors.blue,
-              backgroundColor: "#fff",
-              fontWeight: 600,
-            }}
+          {/* Buttons */}
+          <Box sx={{
+            display: "flex", justifyContent: "space-between", pt: 1,
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+            gap: 1.5,
+
+
+          }}
+
           >
-            Back to Login
-          </MUIButton>
+            <MUIButton
+              component={Link}
+              to={paths.auth.newLogin(companyInfo?.company?.alias)}
+              variant="outlined"
+              startIcon={<ArrowLeft size={18} />}
+              sx={{
+                textTransform: "none",
+                borderRadius: "12px",
+                height: "44px",
+                px: 3,
+                color: colors.blue,
+                borderColor: colors.blue,
+                backgroundColor: "#fff",
+                fontWeight: 600,
+              }}
+            >
+              Back to Login
+            </MUIButton>
 
-          <Button
-            disabled={isPending}
-            loading={isPending}
-            type="submit"
-            variant="contained"
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{
-              borderRadius: "12px",
-              height: "44px",
-              paddingLeft: "24px",
-              paddingRight: "24px",
-              fontWeight: 600,
-            }}
-          >
-            <PaperPlaneTilt size={18} style={{ marginRight: 8 }} weight="regular" />
-            Send Recovery Link
-          </Button>
-        </Box>
+            <Button
+              disabled={isPending}
+              loading={isPending}
+              type="submit"
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{
+                borderRadius: "12px",
+                height: "44px",
+                paddingLeft: "24px",
+                paddingRight: "24px",
+                fontWeight: 600,
+              }}
+            >
+              <PaperPlaneTilt size={18} style={{ marginRight: 8 }} weight="regular" />
+              Send Recovery Link
+            </Button>
+          </Box>
 
         </Stack>
       </form>

@@ -27,7 +27,7 @@ import { z as zod } from "zod";
 import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/hooks/use-user";
 
-import Button from '../CommonComponents/Button';
+import Button from '../CommonComponents/button-comp';
 
 
 import { Link, useLocation, useNavigate } from "react-router";
@@ -56,7 +56,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
   const location = useLocation();
   const pathname = location.pathname;
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
-  console.log(companyInfo,'successCallBack')
+  console.log(companyInfo, 'successCallBack')
   const [showPassword, setShowPassword] = React.useState<boolean>();
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
@@ -78,12 +78,12 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
   // const alias = slug?.split('login-');
 
   const rawSlug = pathname?.split("/")[1];
-const alias = rawSlug
-  ?.replace("login-", "")
-  ?.replace("register-", "")
-  ?.replace("reset-password-", "")
-  ?.replace("onetime-payment-", "")
-  ?.replace("forgot-login-", "");
+  const alias = rawSlug
+    ?.replace("login-", "")
+    ?.replace("register-", "")
+    ?.replace("reset-password-", "")
+    ?.replace("onetime-payment-", "")
+    ?.replace("forgot-login-", "");
 
   const handleRegisterClick = async () => {
     const slug = pathname?.split("/")[1];
@@ -113,7 +113,7 @@ const alias = rawSlug
       try {
         const { error } = await authClient.signInWithPassword(
           values,
-          (res)=>successCallBack(res,companyInfo)
+          (res) => successCallBack(res, companyInfo)
         );
 
         if (error) {
@@ -134,7 +134,7 @@ const alias = rawSlug
         setIsPending(false);
       }
     },
-    [checkSession, setError,companyInfo]
+    [checkSession, setError, companyInfo]
   );
 
   const dispatch = useDispatch();
@@ -143,18 +143,18 @@ const alias = rawSlug
     body?: {
       alias?: string;
       is_verified?: number;
-      is_two_fa_required?:boolean;
-      number_of_days_for_confirmation?:number
+      is_two_fa_required?: boolean;
+      number_of_days_for_confirmation?: number
     };
   };
 
-  const successCallBack = async (res: AuthResponse,companyInfo: CompanyInfoBody | null) => {
-    console.log(pathname,res,companyInfo,'successCallBack')
+  const successCallBack = async (res: AuthResponse, companyInfo: CompanyInfoBody | null) => {
+    console.log(pathname, res, companyInfo, 'successCallBack')
     dispatch(setUserInfo(res));
     if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
 
       setLocalStorage("alias-details", companyInfo?.company);
-      
+
     } else {
       setLocalStorage("alias-details", null);
 
@@ -169,7 +169,7 @@ const alias = rawSlug
         navigate(`/${companyAlias}/dashboard`);
       }
     } else {
-      
+
       navigate(paths.auth.confirmInfo(companyAlias));
     }
   };
@@ -334,7 +334,7 @@ const alias = rawSlug
 
           {/* Register Now */}
           {/* {alias?.[1] && ( */}
-          {alias && alias!=='login' && (
+          {alias && alias !== 'login' && (
             <Typography variant="body2" sx={{ mb: 2 }}>
               Don't have an account?{" "}
               <span
@@ -391,12 +391,12 @@ const alias = rawSlug
               Forgot password?
             </Link>
             {
-              alias && alias!=='login' &&
+              alias && alias !== 'login' &&
 
               <Typography variant="body2" color="text.secondary">
                 |
               </Typography>}
-            {alias && alias!=='login' &&
+            {alias && alias !== 'login' &&
 
               <Link
                 to={paths.auth.forgotLogin(

@@ -15,7 +15,8 @@ import { CurrencyDollar as CurrencyDollarIcon } from "@phosphor-icons/react/dist
 import { useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
-import { IconCards } from '@/components/dashboard/overview/Icon-cards';
+import { IconCards } from '@/components/dashboard/overview/IconCards';
+import { formatCurrency } from "@/utils/formatters";
 
 
 export interface BudgetProps {
@@ -126,7 +127,7 @@ export function Budget({
                     fontWeight: 700,
                   }}
                 >
-                  {/* {last_bill?.balance_due} */}${balance}
+                  {/* {last_bill?.balance_due} */}${formatCurrency(balance)}
                 </Typography>
               </Stack>
               <Stack spacing={1}>

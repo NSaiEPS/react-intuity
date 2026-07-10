@@ -3,7 +3,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { CustomerDetailsForm } from "@/components/dashboard/service/customer-service";
 import { Card } from "@mui/material";
 import { boarderRadius } from "@/utils";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 import { useLoading } from "@/components/core/skeleton-context";
 import { ServiceSkeleton } from "@/components/dashboard/skeletons";

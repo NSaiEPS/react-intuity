@@ -9,7 +9,7 @@ import Stack from "@mui/material/Stack";
 import type { SxProps } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import { useSelector } from "react-redux";
-import { IconCards } from '@/components/dashboard/overview/Icon-cards';
+import { IconCards } from '@/components/dashboard/overview/IconCards';
 
 
 import { paths } from "@/utils/paths";
@@ -88,8 +88,8 @@ export function TotalProfit({
             {value === "BillDue"
               ? "Bill Due Date"
               : value === "CustomerService"
-              ? "Customer Service"
-              : "Remaining days until late fees or penalties may be assessed"}
+                ? "Customer Service"
+                : "Remaining days until late fees or penalties may be assessed"}
           </Typography>
 
           {value === "CustomerService" ? (
@@ -131,8 +131,8 @@ export function TotalProfit({
             </Stack>
           ) : (
             <Typography variant="h4" fontWeight={700} mt="auto">
-              {balance >0 ?  formatToMMDDYYYY(due_date, false, true) ??"-":"-"}
-             
+              {balance > 0 ? formatToMMDDYYYY(due_date, false, true) ?? "-" : "-"}
+
             </Typography>
           )}
         </Stack>

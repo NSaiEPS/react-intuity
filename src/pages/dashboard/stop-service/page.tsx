@@ -10,7 +10,7 @@ import { RootState } from "@/state/store";
 import { StopServiceSkeleton } from "@/components/dashboard/skeletons";
 import { boarderRadius } from "@/utils";
 import { Card } from "@mui/material";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 
 export default function StopTransferServicePage(): React.JSX.Element {

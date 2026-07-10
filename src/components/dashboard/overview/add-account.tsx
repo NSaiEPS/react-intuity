@@ -11,7 +11,7 @@ import { useDispatch } from "@/hooks/redux";
 import { z } from "zod";
 
 import { paths } from "@/utils/paths";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 import { AddAccountStepOne } from "./add-account-step-one";

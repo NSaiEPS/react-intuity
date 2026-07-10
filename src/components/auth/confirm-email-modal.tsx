@@ -20,7 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "@/hooks/redux";
 import { z as zod } from "zod";
 
-import Button from '../CommonComponents/Button';
+import Button from '../CommonComponents/button-comp';
 
 
 // Zod schema
@@ -31,9 +31,9 @@ const schema = zod.object({
     .email("Enter a valid email address"),
 });
 
-export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }: { 
-  open: boolean; 
-  onClose: () => void; 
+export default function EmailDialog({ open, onClose, clickedDetails, onSuccess }: {
+  open: boolean;
+  onClose: () => void;
   clickedDetails: any;
   onSuccess?: () => void; // 👈 ? makes it optional
 }) {
@@ -132,7 +132,7 @@ export default function EmailDialog({ open, onClose, clickedDetails,onSuccess }:
             color: colors.blue,
             borderColor: colors.blue,
             borderRadius: "12px",
-            backgroundColor:"white",
+            backgroundColor: "white",
             height: "41px",
           }}
         >

@@ -52,13 +52,13 @@ import AddBankAccountModal from '../add-bank-modal';
 import AddCardModal from '../add-card-modal';
 
 import { useDispatch, useSelector } from '@/hooks/redux';
-import { RootState } from '@/state/store';
+import { RootState, store } from '@/state/store';
 import { getLocalStorage, IntuityUser, updateLocalStorageValue } from '@/utils/auth';
 import { getPaymentProcessorDetails, getConvenienceFee, getPaymentDetails, updatePaperLessInfo } from '@/state/features/accountSlice';
 import { colors, CustomerInfo } from '@/utils';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { tooltipSx } from '@/utils/config';
-import { CardDetails, PaymentMethods } from '../payment-methods';
+import { PaymentMethods } from '../payment-methods';
 import { getCardLast4, renderCardBrand } from '../../account/payment-details';
 
 /* ------------------------------------------------------------------ *
@@ -75,6 +75,32 @@ interface PaymentMethod {
 }
 
 type ViewName = 'dashboard' | 'enroll-choose' | 'review' | 'deactivate';
+
+interface CardInfo {
+  card_type?: string;
+  account_type?: string;
+  card_number?: string;
+  bank_account_number?: string;
+  date_used?: string | number | Date | Dayjs;
+  [key: string]: unknown;
+}
+
+interface CardDetails {
+  card?: CardInfo;
+  token?: string;
+  date_used?: string | number | Date | Dayjs;
+  account_type?: string;
+  card_number?: string;
+  bank_account_number?: string;
+  card_type?: string;
+  card_token?: string;
+  id?: string;
+  last4?: string;
+  brand?: string;
+  expMonth?: number;
+  expYear?: number;
+  [key: string]: unknown;
+}
 
 /* ------------------------------------------------------------------ *
  *  Dummy vs. real payment capture
@@ -137,6 +163,8 @@ function AccountBanner({
   amountDue: string;
   dueDate: string;
 }) {
+
+  console.log(amountDue, "ammmmmmmmm")
   const rows: Array<[string, string]> = [
     ['Account No.', accountNo],
     ['Bill Amount Due', amountDue],
@@ -448,7 +476,7 @@ function PaymentMethodSelector({
             },
           }}
         >
-          Add/Remove
+          Manage
         </ButtonComp>
       </Box>
 
@@ -717,6 +745,7 @@ function ReviewConfirm({
   amountDue: string;
   dueDate: string;
   userInfo: CustomerInfo;
+  setisAutoPay: React.Dispatch<React.SetStateAction<boolean>>;
   isAutoPay: boolean;
   accountLoading: boolean;
   selectedCardDetails: CardDetails | null;
@@ -738,7 +767,7 @@ function ReviewConfirm({
         Confirm the payment method you'd like to use for AutoPay.
       </Typography>
 
-      <Card variant="none" sx={{ p: 1, borderRadius: 0 }}>
+      <Card variant="outlined" sx={{ p: 1, borderRadius: 0, border: "none" }}>
         <AccountBanner accountNo={accountNo} amountDue={amountDue} dueDate={dueDate} />
         <StepRail step={2} />
         <PaymentMethodSelector
@@ -749,7 +778,7 @@ function ReviewConfirm({
           onOpenManage={() => setOpenPaymentModal(true)}
         />
 
-        <Card variant='none' sx={{ py: 1.75, my: 2.25 }}>
+        <Card variant='outlined' sx={{ py: 1.75, my: 2.25, border: "none" }}>
           <FormControlLabel
             sx={{ alignItems: 'flex-start' }}
             control={
@@ -817,11 +846,13 @@ function ReviewConfirm({
           open={openPaymentModal}
           scroll="paper"
           fullWidth
-          maxWidth={false} // ✅ disable preset sizes
+          // maxWidth="95%"// ✅ disable preset sizes
           PaperProps={{
             sx: {
-              maxHeight: '90vh',
-              width: '830px', // ✅ custom fixed width
+              maxHeight: { xs: '95vh', sm: "90vh" },
+              maxWidth: "95%",
+              margin: 0,
+              width: { xs: '95%', sm: "830px" }, // ✅ custom fixed width
               borderRadius: '12px',
             },
           }}
@@ -1172,7 +1203,7 @@ function DeactivatePage({
         You are about to deactivate AutoPay for the account below.
       </Typography>
 
-      <Card variant="none" sx={{ py: 2.5, borderColor: palette.line }}>
+      <Card variant="outlined" sx={{ py: 2.5, borderColor: palette.line, border: "none" }}>
         <Box sx={{
           backgroundColor: '#EAF6FF',
           boxShadow: '0 4px 14px rgba(23, 45, 86, 0.16)',
@@ -1363,23 +1394,24 @@ export default function AutoPayPrototype() {
   const dispatch = useDispatch();
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
-  const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
+  // const userInfo: IntuityUser = getLocalStorage('intuity-customerInfo') as IntuityUser;
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
 
-  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
+  const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
+  const raw = getLocalStorage('intuity-user');
   const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
 
-  const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
-    ? (dashBoardInfo?.body?.customer as unknown as CustomerInfo)
-    : (getLocalStorage('intuity-customerInfo') as CustomerInfo | null);
+  // const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
+  //   ? (dashBoardInfo?.body?.customer as unknown as CustomerInfo)
+  //   : (getLocalStorage('intuity-customerInfo') as CustomerInfo | null);
 
-  const myCustomerDetails = userInfo?.body as any;
+  const myCustomerDetails = stored?.body as any;
   const billAmountDueValue =
-    paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? CustomerInfo?.balance ?? 0;
+    paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? userInfo?.balance ?? 0;
   const billAmountDueNumber = Number(String(billAmountDueValue).replace(/[^0-9.-]/g, ''));
   const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${billAmountDueNumber.toFixed(2)}` : '$0.00';
 
-  const customerInfoDetails = CustomerInfo as any;
+  const customerInfoDetails = userInfo as any;
   const billDueDate =
     paymentDetailsInfo?.customer?.last_bill?.due_date ??
     customerInfoDetails?.last_bill?.due_date ??
@@ -1402,10 +1434,10 @@ export default function AutoPayPrototype() {
     '-';
 
   React.useEffect(() => {
-    if (CustomerInfo?.company_id) {
+    if (userInfo?.company_id) {
       const formdata = new FormData();
       formdata.append('acl_role_id', stored?.body?.acl_role_id || '');
-      formdata.append('company_id', CustomerInfo?.company_id);
+      formdata.append('company_id', userInfo?.company_id);
       dispatch(getPaymentProcessorDetails(formdata, false));
 
       const convenienceFeeFormdata = new FormData();
@@ -1418,7 +1450,7 @@ export default function AutoPayPrototype() {
       paymentDetailsFormdata.append('customer_id', stored?.body?.customer_id || '');
       dispatch(getPaymentDetails(paymentDetailsFormdata));
     }
-  }, [CustomerInfo, stored, dispatch]);
+  }, [userInfo, stored, dispatch]);
 
   // seed data toggles — flip these to try different starting scenarios
   const [methods, setMethods] = useState<PaymentMethod[]>([
@@ -1628,7 +1660,7 @@ export default function AutoPayPrototype() {
   // On Mount
 
   React.useEffect(() => {
-    setisAutoPay(CustomerInfo?.autopay === 1 ? true : false);
+    setisAutoPay(userInfo?.autopay === 1 ? true : false);
 
     const formData = new FormData();
 
@@ -1638,7 +1670,7 @@ export default function AutoPayPrototype() {
     dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true,
       setAutoPaySettings,
       false));
-  }, [CustomerInfo?.autopay]);
+  }, [userInfo?.autopay]);
 
   /* ---------------- Render ---------------- */
   return (

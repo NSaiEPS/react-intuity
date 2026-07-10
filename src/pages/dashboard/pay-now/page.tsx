@@ -10,7 +10,7 @@ import { PayNowSkeleton } from "@/components/dashboard/skeletons";
 import { LastBill } from "@/components/dashboard/customer/last-bill-box";
 import { Card, Divider } from "@mui/material";
 import { boarderRadius } from "@/utils";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 
 export default function PayNowPage(): React.JSX.Element {

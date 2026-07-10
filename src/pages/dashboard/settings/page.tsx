@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
 import { Card } from "@mui/material";
 import { boarderRadius } from "@/utils";
-import Header from '@/components/CommonComponents/Header';
+import Header from '@/components/CommonComponents/header-common';
 
 
 export default function SettingsPage(): React.JSX.Element {

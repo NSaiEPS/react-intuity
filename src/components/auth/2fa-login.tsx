@@ -156,7 +156,7 @@ export default function TwoFAModal({
           alignItems="center"
         >
           <Typography variant="h5" fontWeight={600}>
-            2FA Login (Account No. {customerData?.acctnum ?? ""})
+            Two Step Verification Login <br />(Account No. {customerData?.acctnum ?? ""})
           </Typography>
           {/* <IconButton aria-label="close" onClick={onClose}>
             <X size={24} color={colors.blue} />

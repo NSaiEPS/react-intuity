@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 
 import UtilityList from "./last-bill-item-info";
 import { PaymentModal } from "./paymnet-modal";
+import { formatCurrency } from "@/utils/formatters";
 
 const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
 
@@ -318,7 +319,7 @@ const handlePreviewInvoice = async () => {
             Total Account Balance
           </Typography>
           <Typography variant="h3" color={colors.blue} fontWeight="bold">
-            ${Number(lastBillInfo?.customer?.balance ?? 0).toFixed(2)}
+            ${formatCurrency(Number(lastBillInfo?.customer?.balance ?? 0).toFixed(2))}
           </Typography>
 
           {!lastBillInfo?.last_bill?.id ? (

@@ -60,6 +60,7 @@ import { ConfirmDialog } from '@/styles/theme/components/ConfirmDialog';
 import { PaymentMethods } from '../customer/payment-methods';
 import PaymentSummaryModal from '../overview/payment-summary-modal';
 import { useLoading } from '@/components/core/skeleton-context';
+import { formatCurrency } from '@/utils/formatters';
 
 // Register plugins
 dayjs.extend(utc);
@@ -706,7 +707,7 @@ const PaymentForm = () => {
   const billAmountDueValue =
     paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? CustomerInfo?.balance ?? 0;
   const billAmountDueNumber = Number(String(billAmountDueValue).replace(/[^0-9.-]/g, ''));
-  const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${billAmountDueNumber.toFixed(2)}` : '$0.00';
+  const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${formatCurrency(billAmountDueNumber.toFixed(2))}` : '$0.00';
   const customerInfoDetails = CustomerInfo as
     | (CustomerInfo & {
       account_number?: string | number;
@@ -1053,7 +1054,7 @@ const PaymentForm = () => {
                   pr: { xs: 2, sm: 6 },
                 }}
               >
-                ${((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)).toFixed(2)}
+                ${formatCurrency(((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)).toFixed(2))}
               </Typography>
             </Box>
           </Box>

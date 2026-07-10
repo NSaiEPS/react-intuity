@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { paths } from "@/utils/paths";
-import Button from '../../CommonComponents/Button';
+import Button from '../../CommonComponents/button-comp';
 
 import { Button as MUIButton } from "@mui/material";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
@@ -30,15 +30,15 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
 const schema = z
   .object({
-  
 
-          new_password: z
-            .string()
-            .min(6, "Minimum 6 characters")
-            .regex(
-              /^(?=.*[0-9]).{6,}$/,
-              "Must be at least 6 characters and include 1 number"
-            ),
+
+    new_password: z
+      .string()
+      .min(6, "Minimum 6 characters")
+      .regex(
+        /^(?=.*[0-9]).{6,}$/,
+        "Must be at least 6 characters and include 1 number"
+      ),
     repassword: z.string(),
   })
   .refine((data) => data.new_password === data.repassword, {
@@ -189,7 +189,7 @@ export function UpdatePasswordScreen(): React.JSX.Element {
 
           {/* Confirm Password */}
           <Controller
-          
+
             control={control}
             name="repassword"
             render={({ field }) => (
@@ -253,16 +253,16 @@ export function UpdatePasswordScreen(): React.JSX.Element {
             </Alert>
           )}
 
-        <Box
-  sx={{
-    display: "flex",
+          <Box
+            sx={{
+              display: "flex",
 
-    gap: 2,
-    mt: 2,
-    justifyContent:"space-between"
-  }}
->
-     <MUIButton
+              gap: 2,
+              mt: 2,
+              justifyContent: "space-between"
+            }}
+          >
+            <MUIButton
               component={Link}
               to={paths.auth.newLogin()}
               variant="outlined"
@@ -281,27 +281,27 @@ export function UpdatePasswordScreen(): React.JSX.Element {
               Back to Login
             </MUIButton>
 
-  <Button
-    disabled={accountLoading}
-    loading={accountLoading}
-    type="submit"
-    variant="contained"
-    textTransform="none"
-    bgColor={colors.blue}
-    hoverBackgroundColor={colors["blue.3"]}
-    hoverColor="white"
-    style={{
-      borderRadius: "12px",
-      height: "44px",
-      minWidth: "160px",
-      fontWeight: 600,
-      fontSize: "1rem",
-    }}
-  >
-    <Lock size={18} style={{ marginRight: 8 }} />
-    Update Password
-  </Button>
-</Box>
+            <Button
+              disabled={accountLoading}
+              loading={accountLoading}
+              type="submit"
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{
+                borderRadius: "12px",
+                height: "44px",
+                minWidth: "160px",
+                fontWeight: 600,
+                fontSize: "1rem",
+              }}
+            >
+              <Lock size={18} style={{ marginRight: 8 }} />
+              Update Password
+            </Button>
+          </Box>
         </Stack>
       </form>
     </Stack>

@@ -19,7 +19,7 @@ import { authClient } from "@/lib/auth/client";
 
 import { UpdatePasswordModal } from "../dashboard/account/update-password-modal";
 import { paths } from "@/utils/paths";
-import Button from '../CommonComponents/Button';
+import Button from '../CommonComponents/button-comp';
 
 import { Link } from "react-router";
 import { Button as MUIButton } from "@mui/material";
@@ -55,11 +55,11 @@ export function ForgotLoginForm(): React.JSX.Element {
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
-       const formData = new FormData();
-          formData.append("company", companyInfo?.company?.id);
-          formData.append("account", values.email);
+      const formData = new FormData();
+      formData.append("company", companyInfo?.company?.id);
+      formData.append("account", values.email);
 
-      
+
 
       // @ts-ignore
       const { error } = await authClient.resetUserName(formData, companyInfo?.company?.alias);
@@ -83,49 +83,49 @@ export function ForgotLoginForm(): React.JSX.Element {
   return (
     <Stack spacing={4}>
 
- <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-  <Box
-    sx={{
-      width: 64,
-      height: 64,
-      borderRadius: "50%",
-      backgroundColor: "#e8f0fb",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexShrink: 0,
-      position: "relative",
-    }}
-  >
-    <User size={30} color={colors.blue} weight="regular" />
-    {/* Small lock badge */}
-    <Box
-      sx={{
-        position: "absolute",
-        bottom: 4,
-        right: 4,
-        width: 20,
-        height: 20,
-        borderRadius: "50%",
-        backgroundColor: "#e8f0fb",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Lock size={12} color={colors.blue} weight="fill" />
-    </Box>
-  </Box>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            backgroundColor: "#e8f0fb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            position: "relative",
+          }}
+        >
+          <User size={30} color={colors.blue} weight="regular" />
+          {/* Small lock badge */}
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 4,
+              right: 4,
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              backgroundColor: "#e8f0fb",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Lock size={12} color={colors.blue} weight="fill" />
+          </Box>
+        </Box>
 
-  <Box>
-    <Typography variant="h5" fontWeight={700}>
-      Forgot Your Username?
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      Enter your account number and we'll send your login username to the email associated with your account.
-    </Typography>
-  </Box>
-</Box>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Forgot Your Username?
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Enter your account number and we'll send your login username to the email associated with your account.
+          </Typography>
+        </Box>
+      </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Typography
           variant="body1"
@@ -139,43 +139,44 @@ export function ForgotLoginForm(): React.JSX.Element {
         </Typography>
 
         <Stack spacing={2}>
-        <Controller
-  control={control}
-  name="email"
-  render={({ field }) => (
-    <FormControl fullWidth error={Boolean(errors.email)}>
-      <InputLabel
-        shrink={accountFocused || Boolean(field.value)}
-        sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
-      >
-        Account Number *
-      </InputLabel>
-      <OutlinedInput
-        {...field}
-        notched={accountFocused || Boolean(field.value)}
-        label="Account Number *"
-        type="text"
-        onFocus={() => setAccountFocused(true)}
-        onBlur={() => { field.onBlur(); setAccountFocused(false); }}
-        startAdornment={
-          <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
-        }
-      />
-      {errors.email && (
-        <FormHelperText>{errors.email.message}</FormHelperText>
-      )}
-    </FormControl>
-  )}
-/>
-         {errors.root && (
+          <Controller
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormControl fullWidth error={Boolean(errors.email)}>
+                <InputLabel
+                  shrink={accountFocused || Boolean(field.value)}
+                  sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+                >
+                  Account Number *
+                </InputLabel>
+                <OutlinedInput
+                  {...field}
+                  notched={accountFocused || Boolean(field.value)}
+                  label="Account Number *"
+                  type="text"
+                  onFocus={() => setAccountFocused(true)}
+                  onBlur={() => { field.onBlur(); setAccountFocused(false); }}
+                  startAdornment={
+                    <CreditCard size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+                  }
+                />
+                {errors.email && (
+                  <FormHelperText>{errors.email.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+          {errors.root && (
             <Alert color="error">{errors.root.message}</Alert>
           )}
-       
-          <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1,
-   flexWrap: { xs: "wrap", sm: "nowrap" },
-    gap: 1.5,
 
-           }}>
+          <Box sx={{
+            display: "flex", justifyContent: "space-between", pt: 1,
+            flexWrap: { xs: "wrap", sm: "nowrap" },
+            gap: 1.5,
+
+          }}>
             <MUIButton
               component={Link}
               to={paths.auth.newLogin(companyInfo?.company?.alias)}
