@@ -6,6 +6,7 @@ import {
   Box,
   CardHeader,
   Chip,
+  Divider,
   Grid,
   Typography,
   useMediaQuery,
@@ -65,8 +66,8 @@ function UsageHeader() {
           py={1}
         >
           {/* Left: Title + Usage Alerts */}
-          <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-            <Typography variant={isMobile ? "h6" : "h5"}>
+          <Box display="flex" alignItems="center" gap={2} flexWrap="wrap" pt={2} pb={2}>
+            <Typography  variant={isMobile ? "h6" : "h5"}>
               Usage History
             </Typography>
 
@@ -94,6 +95,7 @@ function UsageHeader() {
             </Box>
           </Box>
 
+
           {/* Right: Account No & Name */}
           <Box display="flex" flexDirection="column" mt={isMobile ? 1 : 0}>
             <Typography variant={isMobile ? "body1" : "h6"}>
@@ -104,6 +106,7 @@ function UsageHeader() {
             </Typography>
           </Box>
         </Box>
+          <Divider/>
       </Grid>
     </Grid>
   );

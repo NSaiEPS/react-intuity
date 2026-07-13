@@ -346,9 +346,9 @@ function NotificationsSettings() {
   return (
     <>
       <Box sx={{ pt: 0 }}>
-        <Header fontWeight={600} title="Notification Settings" description="Choose how you'd like to hear from us. Your contact details are shown below." />
+        <Header  title="Notification Settings" description="Choose how you'd like to hear from us. Your contact details are shown below." />
 
-        {/* <Divider /> */}
+        <Divider  />
 
         <ContactMethodsSection
           contacts={contacts}

@@ -3,7 +3,7 @@ import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
-import { Card, FormControl, Grid, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Card, Divider, FormControl, Grid, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
 
@@ -81,9 +81,11 @@ export function BillingHistory({ rows = [] }: CustomersTableProps): React.JSX.El
       }}
     >
       <Header title="Payment & billing history" />
+
+      <Divider/>
       <Grid
         item
-        sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}
+        sx={{ width: "100%", display: "flex", justifyContent: "flex-end", pt: "8px" }}
       >
         <FormControl>
           <Select

@@ -570,7 +570,16 @@ export const PaymentMethods = ({
 
   return (
     <SkeletonWrapper>
-      <Box sx={{ width: isModal ? "100%" : { xs: "95%", md: "70%" }, mx: 'auto' }}>
+      <Box
+  sx={{
+    border: "1px solid #E5E7EB",
+    borderRadius: 3,
+    bgcolor: "#fff",
+    overflow: "hidden",
+  }}
+>
+
+      <Box sx={{ width: isModal ? "100%" : { xs: "95%", md: "70%" }, mx: 'auto', my : '24px' }}>
         <Card
           sx={{
             borderRadius: boarderRadius.card,
@@ -848,6 +857,8 @@ export const PaymentMethods = ({
           </CustomBackdrop>
         </Card>
       </Box>
+</Box>
+
     </SkeletonWrapper >
   );
 };

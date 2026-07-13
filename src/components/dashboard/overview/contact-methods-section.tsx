@@ -59,7 +59,7 @@ export function ContactMethodsSection({
   console.log(contacts, "contacts");
 
   return (
-    <Grid container border="1px solid #DCDFE4" borderRadius={1} mx={2} width="calc(100% - 32px)" overflow="hidden">
+    <Grid container border="1px solid #DCDFE4" borderRadius={1} mx={2} mt={2} width="calc(100% - 32px)" overflow="hidden">
       {contacts.map((contact, index) => {
         const empty = !contact.value || contact.value === "0";
         const label = contact.type === "phone" ? "Mobile" : "Email";

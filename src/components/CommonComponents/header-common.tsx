@@ -34,7 +34,7 @@ function Header({
         }
         subheader={
           description ? (
-            <Typography ml={1} variant="h6">
+            <Typography ml={1} variant="h6" fontWeight={400} fontSize={16} maxWidth={"460px"}>
               {description}
             </Typography>
           ) : undefined

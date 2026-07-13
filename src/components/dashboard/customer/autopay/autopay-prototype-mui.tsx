@@ -60,6 +60,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { tooltipSx } from '@/utils/config';
 import { PaymentMethods } from '../payment-methods';
 import { getCardLast4, renderCardBrand } from '../../account/payment-details';
+import Header from '@/components/CommonComponents/header-common';
 
 /* ------------------------------------------------------------------ *
  *  Types
@@ -164,7 +165,6 @@ function AccountBanner({
   dueDate: string;
 }) {
 
-  console.log(amountDue, "ammmmmmmmm")
   const rows: Array<[string, string]> = [
     ['Account No.', accountNo],
     ['Bill Amount Due', amountDue],
@@ -1305,31 +1305,32 @@ function Dashboard({
 }) {
   return (
     <Box sx={{ maxWidth: "100%", mx: 'auto' }}>
-      <Card variant="outlined" sx={{ borderColor: palette.line }}>
-        <Box sx={{ p: 2.5 }}>
-          <Stack
+      <Card variant="outlined" sx={{ borderColor: palette.line, borderRadius:1, width:"100%" }}>
+        <Box sx={{ pt:0 }}>
+          {/* <Stack
             direction={{ xs: 'column', sm: 'row' }}
             justifyContent="space-between"
-            alignItems={{ xs: 'flex-start', sm: 'flex-start' }}
+            alignItems={{ xs: 'center' }}
+            width={"100%"}
             spacing={1}
-          >
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: palette.ink, lineHeight: 1.2 }}>
+          > */}
+              {/* <Typography variant="h5" sx={{  color: palette.ink, lineHeight: 1.2 }}>
                 AutoPay Settings
               </Typography>
               <Typography variant="body2" sx={{ color: palette.gray, mt: 0.25 }}>
                 Current Autopay Method
-              </Typography>
-            </Box>
-            <Box sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+              </Typography> */}
+              <Header  title="AutoPay Settings" description="Current Autopay Method" />
+            
+            {/* <Box sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
               <Typography variant="body2" sx={{ color: palette.ink }}>
                 Account No: {accountNo}
               </Typography>
               <Typography variant="body2" sx={{ color: palette.ink }}>
                 Name: {name}
               </Typography>
-            </Box>
-          </Stack>
+            </Box> */}
+          {/* </Stack> */}
         </Box>
 
         <Divider />
@@ -1674,7 +1675,7 @@ export default function AutoPayPrototype() {
 
   /* ---------------- Render ---------------- */
   return (
-    <Box sx={{ minHeight: '100%', p: { xs: 2, sm: 3.5 } }}>
+    <Box sx={{ minHeight: '100%'}}>
       {view === 'dashboard' && (
         <Dashboard
           autopayEnabled={autopayEnabled}
