@@ -8,6 +8,7 @@ import {
   Button,
   Card,
   CardActions,
+  CardHeader,
   Checkbox,
   DialogActions,
   Divider,
@@ -258,6 +259,73 @@ function getCardIconSrc(cardType?: string | null): string {
   return `/assets/cards/${matchedFileName}`;
 }
 
+const dummyCardRows: CardDetails[] = [
+  {
+    id: 1,
+    card_token: 100001,
+    card_type: 'Visa',
+    number: '4111111111111234',
+    expiration_month: 8,
+    expiration_year: 26, // valid, far out
+    createdAt: '2024-01-15T10:00:00Z',
+  },
+  {
+    id: 2,
+    card_token: 100002,
+    card_type: 'Mastercard',
+    number: '5555555555554444',
+    expiration_month: 7,
+    expiration_year: 26, // expiring soon (within 60 days of July 13, 2026)
+    createdAt: '2024-03-10T10:00:00Z',
+  },
+  {
+    id: 3,
+    card_token: 100003,
+    card_type: 'Amex',
+    number: '378282246310005',
+    expiration_month: 5,
+    expiration_year: 26, // already expired
+    createdAt: '2023-11-05T10:00:00Z',
+  },
+  {
+    id: 4,
+    card_token: 100004,
+    card_type: 'Discover',
+    number: '6011111111111117',
+    expiration_month: 1,
+    expiration_year: 25, // expired long ago
+    createdAt: '2023-05-20T10:00:00Z',
+  },
+  {
+    id: 5,
+    card_token: 100005,
+    card_type: 'Visa',
+    number: '4000056655665556',
+    expiration_month: 12,
+    expiration_year: 27, // valid, well in the future
+    createdAt: '2024-06-01T10:00:00Z',
+  },
+  {
+    id: 6,
+    card_token: 0,
+    card_type: '', // bank account — no card_type
+    account_type: 'Checking',
+    number: '000123456789',
+    expiration_month: null,
+    expiration_year: null, // banks have no expiry
+    createdAt: '2024-02-14T10:00:00Z',
+  },
+  {
+    id: 7,
+    card_token: 100007,
+    card_type: 'Visa',
+    number: '4242424242424242',
+    expiration_month: 9,
+    expiration_year: 2026, // 4-digit year variant, tests your padStart/slice logic
+    createdAt: '2024-04-18T10:00:00Z',
+  },
+];
+
 const CardRow = React.memo(function CardRow({
   row,
   isSelected,
@@ -269,18 +337,6 @@ const CardRow = React.memo(function CardRow({
   onSelect: (data: { card_token: number; id: number }) => void;
   onDelete: (row: CardDetails) => void;
 }) {
-  const handleCheckboxChange = React.useCallback(() => {
-    onSelect({ card_token: Number(row.card_token), id: row.id });
-  }, [onSelect, row.card_token, row.id]);
-
-  const handleDeleteClick = React.useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      onDelete(row);
-    },
-    [onDelete, row]
-  );
-
   const isCard = !!row.card_type;
   const decryptedNumber = decryptFunction(row.number);
   const last4 = String(decryptedNumber).slice(-4);
@@ -298,48 +354,112 @@ const CardRow = React.memo(function CardRow({
     return '—';
   }, [isCard, row.expiration_month, row.expiration_year]);
 
-  return (
-    <TableRow hover key={row.id} selected={isSelected} sx={{ '&:last-child td': { borderBottom: 0 } }}>
-      {/* Default — centered */}
-      <TableCell sx={{ py: { xs: 0.75, sm: 1.5 }, px: { xs: 0.5, sm: 2 }, textAlign: 'center' }}>
-        <Radio
-          checked={isSelected}
-          onChange={handleCheckboxChange}
-          size="small"
-          sx={{
-            color: '#D1D5DB',
-            p: 0.5,
-            '&.Mui-checked': { color: colors.blue },
-          }}
-        />
-      </TableCell>
+  const expiryStatus = React.useMemo<'expired' | 'expiring' | 'ok' | null>(() => {
+    if (!isCard) return null;
+    const month = row.expiration_month;
+    const year = row.expiration_year;
+    if (!month || !year) return null;
 
-      {/* Payment Method — left aligned, image-style layout */}
-      <TableCell sx={{ py: { xs: 1, sm: 2 }, px: { xs: 0.75, sm: 2 } }}>
-        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
+    const fullYear = String(year).length === 2 ? Number(`20${year}`) : Number(year);
+    const expiryDate = dayjs(`${fullYear}-${String(month).padStart(2, '0')}-01`).endOf('month');
+    const now = dayjs();
+
+    if (expiryDate.isBefore(now, 'day')) return 'expired';
+    if (expiryDate.diff(now, 'day') <= 60) return 'expiring';
+    return 'ok';
+  }, [isCard, row.expiration_month, row.expiration_year]);
+
+  const isExpired = expiryStatus === 'expired';
+  const isExpiring = expiryStatus === 'expiring';
+
+  const handleCheckboxChange = React.useCallback(() => {
+    if (isExpired) return;
+    onSelect({ card_token: Number(row.card_token), id: row.id });
+  }, [onSelect, row.card_token, row.id, isExpired]);
+
+  const handleDeleteClick = React.useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      onDelete(row);
+    },
+    [onDelete, row]
+  );
+
+  // ---- Color tokens (status-driven) ----
+  const rowBg = isExpired ? '#FEF2F2' : isExpiring ? '#FFFBEB' : isSelected ? '#EFF6FF' : 'transparent';
+  const rowHoverBg = isExpired ? '#FEF2F2' : isExpiring ? '#FFF7E0' : '#F8FAFC';
+  const leftBorderColor = isExpired ? '#DC2626' : isExpiring ? '#D97706' : 'transparent';
+  const statusTextColor = isExpired ? '#B91C1C' : isExpiring ? '#B45309' : 'text.primary';
+  const statusChipBg = isExpired ? '#FEE2E2' : '#FEF3C7';
+  const statusChipColor = isExpired ? '#B91C1C' : '#92400E';
+
+  return (
+    <TableRow
+      hover={!isExpired}
+      key={row.id}
+      selected={isSelected}
+      onClick={handleCheckboxChange}
+      sx={{
+        '&:last-child td': { borderBottom: 0 },
+        bgcolor: rowBg,
+        borderLeft: '3px solid',
+        borderLeftColor: leftBorderColor,
+        cursor: "pointer",
+        transition: 'background-color 0.15s ease',
+        '&:hover': {
+          bgcolor: rowHoverBg,
+        },
+        '&.Mui-selected': {
+          bgcolor: isExpiring ? '#FFFBEB' : '#EFF6FF',
+        },
+        '&.Mui-selected:hover': {
+          bgcolor: isExpiring ? '#FFF7E0' : '#E0EDFF',
+        },
+        // '@media (max-width:600px)': {
+        //   paddingX: 3,
+        // },
+      }}
+    >
+      <TableCell
+        sx={{
+          display: { xs: 'table-cell', sm: 'none' },
+          py: 1,
+          px: 1,
+        }}
+      >
+        <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} >
+          <Radio
+            checked={isSelected && !isExpired}
+            disabled={isExpired}
+            size="small"
+            sx={{
+              color: '#CBD5E1',
+              py: 0.5,
+              flexShrink: 0,
+              '& svg': { width: 14, height: 14 },
+            }}
+          />
+
           <Box
             sx={{
-              width: { xs: 40, sm: 60, md: 80 },
-              height: { xs: 26, sm: 36, md: 44 },
-              borderRadius: 0.5,
+              width: 50,
+              height: 36,
+              borderRadius: 0.3,
               bgcolor: '#FFFFFF',
-              border: '1px solid #909090ff',
+              border: '1px solid #E2E8F0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
               flexShrink: 0,
+              filter: isExpired ? 'grayscale(70%)' : 'none',
+              opacity: isExpired ? 0.6 : 1,
             }}
           >
-            {/* <img
-              src={iconSrc}
-              alt={isCard ? row.card_type : 'Bank Account'}
-              style={{ maxWidth: '80%', width: 'auto', height: '80%', objectFit: 'contain' }}
-            /> */}
             <img
               src={iconSrc}
               alt={isCard ? row.card_type : 'Bank Account'}
-              style={{ maxWidth: '80%', width: 'auto', height: '80%', objectFit: 'contain' }}
+              style={{ maxWidth: '80%', width: 'auto', height: '90%', objectFit: 'contain' }}
               onError={(e) => {
                 const fallback = isCard ? DEFAULT_CARD_ICON : BANK_ACCOUNT_ICON;
                 if (e.currentTarget.src.indexOf(fallback) === -1) {
@@ -349,7 +469,144 @@ const CardRow = React.memo(function CardRow({
             />
           </Box>
 
-          <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box sx={{ minWidth: 0, flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+            <Typography
+              fontWeight={700}
+              sx={{
+                fontSize: '0.72rem',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                color: isExpired ? '#6B7280' : 'text.primary',
+              }}
+            >
+              {isCard ? row.card_type : 'Bank'} •••• {last4}
+            </Typography>
+
+            {!isCard && (
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.62rem' }}>
+                {row.account_type}
+              </Typography>
+            )}
+
+            {expiryDisplay && (
+              <Stack direction="row" alignItems="center" spacing={0.5} flexWrap="wrap">
+                <Typography
+                  sx={{
+                    fontSize: '0.65rem',
+                    color: isExpired || isExpiring ? statusTextColor : 'text.secondary',
+                    fontWeight: isExpired || isExpiring ? 600 : 400,
+                  }}
+                >
+                  {expiryDisplay}
+                </Typography>
+
+                <Typography sx={{ fontSize: '0.62rem', color: 'text.secondary', lineHeight: "0.6rem" }}>
+                  ({dayjs.tz(row.createdAt, 'America/Chicago').tz(dayjs.tz.guess()).format('MMM D, YYYY')})
+                </Typography>
+
+                {(isExpired || isExpiring) && (
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: '0.58rem',
+                      fontWeight: 600,
+                      lineHeight: 1,
+                      px: 0.75,
+                      py: 0.4,
+                      borderRadius: '999px',
+                      bgcolor: statusChipBg,
+                      color: statusChipColor,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isExpired ? 'Expired' : 'Expiring'}
+                  </Box>
+                )}
+
+
+              </Stack>
+            )}
+
+          </Box>
+
+          <Button
+            size="small"
+            onClick={handleDeleteClick}
+            sx={{
+              minWidth: 0,
+              width: 32,
+              height: 32,
+              p: 0,
+              flexShrink: 0,
+              borderRadius: 1.5,
+              color: '#4B5563',
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                borderColor: '#FCA5A5',
+                color: '#DC2626',
+                backgroundColor: '#FEF2F2',
+              },
+            }}
+          >
+            <Trash size={14} />
+          </Button>
+        </Stack>
+      </TableCell>
+
+      {/* Default — centered */}
+      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, py: { xs: 0.75, sm: 1.5 }, px: { xs: 0.5, sm: 2 }, textAlign: 'center' }}>
+        <Radio
+          checked={isSelected && !isExpired}
+          // onChange={handleCheckboxChange}
+          disabled={isExpired}
+          size="small"
+          sx={{
+            color: '#CBD5E1',
+            p: 0.5,
+            '& svg': {
+              width: { xs: 14, sm: 20 },
+              height: { xs: 14, sm: 20 },
+            },
+          }}
+        />
+      </TableCell>
+
+      {/* Payment Method — left aligned, image-style layout */}
+      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, py: { xs: 1, sm: 2 }, px: { xs: 0.75, sm: 2 } }}>
+        <Stack direction="row" alignItems="center" spacing={{ xs: 1, sm: 2 }}>
+          <Box
+            sx={{
+              width: { xs: 50, sm: 60, md: 80 },
+              height: { xs: 36, sm: 36, md: 44 },
+              borderRadius: { xs: .3, sm: 1 },
+              bgcolor: '#FFFFFF',
+              border: '1px solid #E2E8F0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              flexShrink: 0,
+              filter: isExpired ? 'grayscale(70%)' : 'none',
+              opacity: isExpired ? 0.6 : 1,
+            }}
+          >
+            <img
+              src={iconSrc}
+              alt={isCard ? row.card_type : 'Bank Account'}
+              style={{ maxWidth: '80%', width: 'auto', height: '90%', objectFit: 'contain' }}
+              onError={(e) => {
+                const fallback = isCard ? DEFAULT_CARD_ICON : BANK_ACCOUNT_ICON;
+                if (e.currentTarget.src.indexOf(fallback) === -1) {
+                  e.currentTarget.src = fallback;
+                }
+              }}
+            />
+          </Box>
+
+          <Box sx={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.25 }}>
             <Typography
               fontWeight={700}
               sx={{
@@ -357,6 +614,7 @@ const CardRow = React.memo(function CardRow({
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
+                color: isExpired ? '#6B7280' : 'text.primary',
               }}
             >
               {isCard ? row.card_type : 'Bank'} •••• {last4}
@@ -373,46 +631,82 @@ const CardRow = React.memo(function CardRow({
             )}
 
             {expiryDisplay && (
-              <Typography sx={{ fontSize: { xs: '0.65rem', sm: '0.78rem', md: '0.82rem' } }}>
-                {expiryDisplay}
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={0.75}>
+                <Typography
+                  sx={{
+                    fontSize: { xs: '0.65rem', sm: '0.78rem', md: '0.82rem' },
+                    color: isExpired || isExpiring ? statusTextColor : 'text.secondary',
+                    fontWeight: isExpired || isExpiring ? 600 : 400,
+                  }}
+                >
+                  {expiryDisplay}
+                </Typography>
+
+                {(isExpired || isExpiring) && (
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: { xs: '0.58rem', sm: '0.65rem' },
+                      fontWeight: 600,
+                      lineHeight: 1,
+                      px: 0.75,
+                      py: 0.4,
+                      borderRadius: '999px',
+                      bgcolor: statusChipBg,
+                      color: statusChipColor,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isExpired ? 'Expired' : 'Expiring soon'}
+                  </Box>
+                )}
+              </Stack>
             )}
           </Box>
         </Stack>
       </TableCell>
 
       {/* Date Added — centered */}
-      <TableCell sx={{ py: { xs: 0.75, sm: 1.5 }, px: { xs: 0.5, sm: 2 }, textAlign: 'center' }}>
-        <Typography sx={{ fontSize: { xs: '0.68rem', sm: '0.78rem', md: '0.82rem' }, whiteSpace: 'nowrap' }}>
+      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, py: { xs: 0.75, sm: 1.5 }, px: { xs: 0.5, sm: 2 }, textAlign: 'center' }}>
+        <Typography
+          sx={{
+            fontSize: { xs: '0.68rem', sm: '0.78rem', md: '0.82rem' },
+            whiteSpace: 'nowrap',
+            color: 'text.secondary',
+          }}
+        >
           {dayjs.tz(row.createdAt, 'America/Chicago').tz(dayjs.tz.guess()).format('MMM D, YYYY')}
         </Typography>
       </TableCell>
 
       {/* Action — centered */}
-      <TableCell sx={{ py: { xs: 0.75, sm: 1.5 }, px: { xs: 0.5, sm: 2 }, textAlign: 'center' }}>
+      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, py: { xs: 0.75, sm: 1.5 }, px: { xs: 0.5, sm: 2 }, textAlign: 'center' }}>
         <Button
           size="small"
           startIcon={<Trash size={14} style={{ margin: 0, width: 'fit-content' }} />}
           variant="outlined"
           onClick={handleDeleteClick}
           sx={{
-            color: '#374151',
-            borderColor: '#D1D5DB',
+            color: '#4B5563',
+            borderColor: '#E2E8F0',
+            bgcolor: '#FFFFFF',
             whiteSpace: 'nowrap',
             fontSize: { xs: '0.68rem', sm: '0.78rem' },
             py: 0.5,
-            px: { xs: 0.75, sm: 1 },
+            px: { xs: 0.75, sm: 1.5 },
             maxWidth: 'fit-content',
             minWidth: 0,
-            '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 } },
+            borderRadius: 1.5,
+            textTransform: 'none',
+            '& .MuiButton-startIcon': { mr: { xs: 0, sm: .5 } },
+            transition: 'all 0.15s ease',
             '&:hover': {
-              borderColor: '#EF4444',
-              color: '#EF4444',
+              borderColor: '#FCA5A5',
+              color: '#DC2626',
               backgroundColor: '#FEF2F2',
             },
           }}
         >
-          {/* Text hidden on very small screens to keep the row within viewport width */}
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
             Remove
           </Box>
@@ -421,6 +715,223 @@ const CardRow = React.memo(function CardRow({
     </TableRow>
   );
 });
+
+function PaymentMethodSummary({ details }: { details: CardDetails }) {
+  const isCard = !!details.card_type;
+  const decryptedNumber = decryptFunction(details.number);
+  const last4 = String(decryptedNumber).slice(-4);
+  const iconSrc = getCardIconSrc(details.card_type);
+
+  const expiryDisplay = React.useMemo(() => {
+    if (!isCard) return '';
+    const month = details.expiration_month;
+    const year = details.expiration_year;
+    if (month && year) {
+      const mm = String(month).padStart(2, '0');
+      const yy = String(year).length === 4 ? String(year).slice(-2) : String(year).padStart(2, '0');
+      return `${mm}/${yy}`;
+    }
+    return '';
+  }, [isCard, details.expiration_month, details.expiration_year]);
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={1.5}
+      sx={{
+        p: 1.5,
+        borderRadius: 1.5,
+        border: '1px solid #E2E8F0',
+        bgcolor: '#F8FAFC',
+      }}
+    >
+      <Box
+        sx={{
+          width: 52,
+          height: 34,
+          borderRadius: 1,
+          bgcolor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        <img
+          src={iconSrc}
+          alt={isCard ? details.card_type : 'Bank Account'}
+          style={{ maxWidth: '80%', width: 'auto', height: '80%', objectFit: 'contain' }}
+          onError={(e) => {
+            const fallback = isCard ? DEFAULT_CARD_ICON : BANK_ACCOUNT_ICON;
+            if (e.currentTarget.src.indexOf(fallback) === -1) {
+              e.currentTarget.src = fallback;
+            }
+          }}
+        />
+      </Box>
+
+      <Box sx={{ minWidth: 0 }}>
+        <Typography fontWeight={700} sx={{ fontSize: '0.85rem' }}>
+          {isCard ? details.card_type : 'Bank'} •••• {last4}
+        </Typography>
+        {!isCard && details.account_type && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+            {details.account_type}
+          </Typography>
+        )}
+        {expiryDisplay && (
+          <Typography sx={{ fontSize: '0.78rem' }} color="text.secondary">
+            Expires {expiryDisplay}
+          </Typography>
+        )}
+      </Box>
+    </Stack>
+  );
+}
+
+const HeaderComp = ({
+  anchorEl,
+  setAnchorEl,
+  openPopover,
+  setCardModalOpen,
+  setBankModalOpen,
+  onClose,
+  isModal
+}: {
+  anchorEl: HTMLButtonElement | null;
+  setAnchorEl: (anchorEl: HTMLButtonElement | null) => void;
+  openPopover: boolean;
+  setCardModalOpen: (openModal: boolean) => void;
+  setBankModalOpen: (openModal: boolean) => void;
+  isModal: boolean;
+  onClose: () => void;
+}) => {
+  return (
+    <Box sx={{ position: "relative", display: "flex", flexWrap: "wrap", alignItems: "end", p: { xs: 1.5, sm: 2 }, pb: { xs: 0, sm: 2 }, gap: { xs: 1, sm: 2 }, }}>
+      <Box>
+        <Typography variant="h5" sx={{
+          '@media (max-width:600px)': {
+            fontSize: "1.2rem",
+          },
+        }}>
+          Payment Methods
+        </Typography>
+
+        <Typography
+          variant="h6"
+          fontWeight={400}
+          fontSize={16}
+          sx={{
+            '@media (max-width:600px)': {
+              fontSize: "0.9rem",
+            },
+          }}
+        >
+          Manage your saved payment methods. The default method is your preferred payment method
+        </Typography>
+
+      </Box>
+
+      <Box ml={"auto"} >
+        <Button
+          variant='outlined'
+          size='small'
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget)}
+          sx={{
+            color: colors.blue,
+            borderColor: colors.blue,
+            '@media (max-width:600px)': {
+              paddingX: 2,
+              paddingY: 0.5,
+              fontSize: "0.7rem",
+              marginBottom: 1
+            },
+          }}
+          startIcon={
+            <Box
+              sx={{
+                display: 'flex',
+                '& svg': {
+                  width: { xs: 10, md: 14 },
+                  height: { xs: 10, md: 14 },
+                },
+              }}
+            >
+              <Plus weight="bold" />
+            </Box>
+          }
+        >
+          {/* <Plus size={{ xs: 14, md: 16 }} weight="bold" /> */}
+          Add a payment method
+        </Button>
+
+        {/* Dropdown Popover */}
+        <Popover
+          open={openPopover}
+          anchorEl={anchorEl}
+          onClose={() => setAnchorEl(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          PaperProps={{
+            sx: {
+              mt: 1,
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+              overflow: 'hidden',
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 180 }}>
+            <Button
+              onClick={() => {
+                setAnchorEl(null);
+                setCardModalOpen(true);
+              }}
+              startIcon={<CreditCard size={16} />}
+              sx={{
+                justifyContent: 'flex-start',
+                px: 2,
+                py: 1.2,
+                color: '#374151',
+                borderRadius: 0,
+                '&:hover': { backgroundColor: '#F3F4F6' },
+              }}
+            >
+              New Card
+            </Button>
+            <Divider />
+            <Button
+              onClick={() => {
+                setAnchorEl(null);
+                setBankModalOpen(true);
+              }}
+              startIcon={<Bank size={16} />}
+              sx={{
+                justifyContent: 'flex-start',
+                px: 2,
+                py: 1.2,
+                color: '#374151',
+                borderRadius: 0,
+                '&:hover': { backgroundColor: '#F3F4F6' },
+              }}
+            >
+              New Bank Account
+            </Button>
+          </Box>
+        </Popover>
+      </Box>
+
+      {isModal && (
+        <IconButton onClick={onClose} size="small" sx={{ position: "absolute", right: { xs: 5, sm: 8 }, padding: "3px", top: { xs: 8, sm: 10 } }}>
+          <X size={20} color={colors.blue} />
+        </IconButton>
+      )}
+    </Box >
+  )
+}
 
 
 export const PaymentMethods = ({
@@ -443,7 +954,6 @@ export const PaymentMethods = ({
   const [cardModalOpen, setCardModalOpen] = React.useState(false);
   const [bankModalOpen, setBankModalOpen] = React.useState(false);
   const [openConfirm, setOpenConfirm] = React.useState(false);
-  const [removeSaveDetails, setRemoveSaveDetails] = React.useState(false);
   const [deleCardDetails, setDeleteCardDetails] = React.useState<CardDetails | null>(null);
 
   type IntuityUser = {
@@ -571,293 +1081,216 @@ export const PaymentMethods = ({
   return (
     <SkeletonWrapper>
       <Box
-  sx={{
-    border: "1px solid #E5E7EB",
-    borderRadius: 3,
-    bgcolor: "#fff",
-    overflow: "hidden",
-  }}
->
-
-      <Box sx={{ width: isModal ? "100%" : { xs: "95%", md: "70%" }, mx: 'auto', my : '24px' }}>
-        <Card
-          sx={{
-            borderRadius: boarderRadius.card,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            width: "100%"
-          }}
-        >
-          {/* ── Header ── */}
-          <Box sx={{ px: { xs: 1.3, sm: 3 }, pt: { xs: 1.3, sm: 2.5 }, pb: { xs: 0.5, sm: 1.5 } }}>
-            <Stack direction="row" alignItems="flex-start" position="relative" justifyContent="space-between">
-              <Box width={"100%"}>
-                <Typography variant="h6" fontWeight={700} fontSize="1.05rem" color={colors.blue}>
-                  Payment Methods
-                </Typography>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap={"wrap"} gap={1} mt={0.4}>
-                  <Typography variant="body2" color="text.secondary" fontSize="0.82rem">
-                    Manage your saved payment methods. The default method is your preferred payment method
-                  </Typography>
-                  {/* Add a payment method with popover */}
-                  <Box >
-                    <Link
-                      component="button"
-                      underline="none"
-                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget)}
-                      sx={{
-                        color: colors.blue,
-                        fontWeight: 600,
-                        fontSize: '0.82rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        '&:hover': { opacity: 0.8 },
-                      }}
-                    >
-                      <Plus size={14} weight="bold" />
-                      Add a payment method
-                    </Link>
-
-                    {/* Dropdown Popover */}
-                    <Popover
-                      open={openPopover}
-                      anchorEl={anchorEl}
-                      onClose={() => setAnchorEl(null)}
-                      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                      PaperProps={{
-                        sx: {
-                          mt: 1,
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                          overflow: 'hidden',
-                        },
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 180 }}>
-                        <Button
-                          onClick={() => {
-                            setAnchorEl(null);
-                            setCardModalOpen(true);
-                          }}
-                          startIcon={<CreditCard size={16} />}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            px: 2,
-                            py: 1.2,
-                            color: '#374151',
-                            borderRadius: 0,
-                            '&:hover': { backgroundColor: '#F3F4F6' },
-                          }}
-                        >
-                          New Card
-                        </Button>
-                        <Divider />
-                        <Button
-                          onClick={() => {
-                            setAnchorEl(null);
-                            setBankModalOpen(true);
-                          }}
-                          startIcon={<Bank size={16} />}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            px: 2,
-                            py: 1.2,
-                            color: '#374151',
-                            borderRadius: 0,
-                            '&:hover': { backgroundColor: '#F3F4F6' },
-                          }}
-                        >
-                          New Bank Account
-                        </Button>
-                      </Box>
-                    </Popover>
-                  </Box>
-                </Stack>
-              </Box>
-              {isModal && (
-                <IconButton onClick={onClose} size="small" sx={{ position: "absolute", right: 0, padding: "3px", top: "-2px" }}>
-                  <X size={20} color={colors.blue} />
-                </IconButton>
-              )}
-            </Stack>
-          </Box>
-
+        sx={{
+          border: "1px solid #E5E7EB",
+          borderRadius: "8px",
+          bgcolor: "#fff",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* ── Header ── */}
+        <Box sx={{ display: isModal ? "none" : { xs: "none", sm: "block" } }}>
+          <HeaderComp
+            anchorEl={anchorEl}
+            setAnchorEl={setAnchorEl}
+            openPopover={openPopover}
+            setCardModalOpen={setCardModalOpen}
+            setBankModalOpen={setBankModalOpen}
+            isModal={isModal}
+            onClose={onClose}
+          />
           <Divider />
+        </Box>
 
-          {/* ── Table ── */}
-          <Box
+        <Box sx={{ width: isModal ? "100%" : { xs: "95%", md: "60%" }, mx: 'auto', my: isModal ? 0 : { xs: "8px", sm: '24px' } }}>
+          <Card
             sx={{
-              width: '100%',
-              overflowX: 'auto', // safety net only — sizing below is tuned to avoid needing it
-              overflowY: 'auto',
-              maxHeight: {
-                xs: "60vh",
-                sm: isModal ? 'calc(90vh - 220px)' : '520px'
-              },
-              flex: 1,
+              borderRadius: boarderRadius.card,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              width: "100%"
             }}
           >
-            <Table stickyHeader size="small" sx={{ tableLayout: 'auto', width: '100%' }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ ...stickyHeaderCellSx, px: { xs: 0.5, sm: 2 } }}>
-                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-                      <Tooltip
-                        title="We'll make this your default payment method for your future utility payments."
-                        placement="top"
-                        arrow
-                        enterTouchDelay={0}
-                        leaveTouchDelay={3000}
-                        componentsProps={{ tooltip: { sx: tooltipSx } }}
-                      >
-                        <IconButton size="small" sx={{ p: 0.2 }}>
-                          <Question size={16} color="#90caf9" weight="fill" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
+            {/* ── Header ── */}
+            <Box sx={{ display: isModal ? "block" : { xs: "block", sm: "none" } }}>
+              <HeaderComp
+                anchorEl={anchorEl}
+                setAnchorEl={setAnchorEl}
+                openPopover={openPopover}
+                setCardModalOpen={setCardModalOpen}
+                setBankModalOpen={setBankModalOpen}
+                isModal={isModal}
+                onClose={onClose}
+              />
+              <Divider />
+            </Box>
 
-                  <TableCell
-                    sx={{
-                      ...stickyHeaderCellSx,
-                      textAlign: 'left',
-                      px: { xs: 0.75, sm: 2 },
-                      fontSize: { xs: '0.72rem', sm: '0.85rem' },
-                    }}
-                  >
-                    Payment Method
-                  </TableCell>
 
-                  <TableCell
-                    sx={{
-                      ...stickyHeaderCellSx,
-                      px: { xs: 0.5, sm: 2 },
-                      fontSize: { xs: '0.68rem', sm: '0.85rem' },
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Date Added
-                  </TableCell>
-
-                  <TableCell
-                    sx={{
-                      ...stickyHeaderCellSx,
-                      px: { xs: 0.5, sm: 2 },
-                      fontSize: { xs: '0.68rem', sm: '0.85rem' },
-                    }}
-                  >
-                    Action
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {myCards?.length > 0 ? (
-                  memoizedCardRows
-                ) : (
+            {/* ── Table ── */}
+            <Box
+              sx={{
+                width: '100%',
+                overflowX: 'auto', // safety net only — sizing below is tuned to avoid needing it
+                overflowY: 'auto',
+                maxHeight: {
+                  xs: isModal ? "60vh" : "50vh",
+                  sm: isModal ? 'calc(90vh - 220px)' : '520px'
+                },
+                flex: 1,
+              }}
+            >
+              <Table stickyHeader size="small" sx={{ tableLayout: 'auto', width: '100%' }}>
+                <TableHead sx={{ display: { xs: "none", sm: "table-header-group" } }}>
                   <TableRow>
-                    <TableCell colSpan={4} align="center">
-                      No payment methods found.
+                    <TableCell sx={{ ...stickyHeaderCellSx, px: { xs: 0.5, sm: 2 } }}>
+                      <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
+                        <Tooltip
+                          title="We'll make this your default payment method for your future utility payments."
+                          placement="top"
+                          arrow
+                          enterTouchDelay={0}
+                          leaveTouchDelay={3000}
+                          componentsProps={{ tooltip: { sx: tooltipSx } }}
+                        >
+                          <IconButton size="small" sx={{ p: 0.2 }}>
+                            <Question size={16} color="#90caf9" weight="fill" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        ...stickyHeaderCellSx,
+                        textAlign: 'left',
+                        px: { xs: 0.75, sm: 2 },
+                        fontSize: { xs: '0.72rem', sm: '0.85rem' },
+                      }}
+                    >
+                      Payment Method
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        ...stickyHeaderCellSx,
+                        px: { xs: 0.5, sm: 2 },
+                        fontSize: { xs: '0.68rem', sm: '0.85rem' },
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Date Added
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        ...stickyHeaderCellSx,
+                        px: { xs: 0.5, sm: 2 },
+                        fontSize: { xs: '0.68rem', sm: '0.85rem' },
+                      }}
+                    >
+                      Action
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Box>
+                </TableHead>
 
-          <Divider />
+                <TableBody>
+                  {myCards?.length > 0 ? (
+                    memoizedCardRows
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        No payment methods found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Box>
 
-          {/* ── Footer ── */}
-          <Box sx={{ px: { xs: 1.3, sm: 3 }, py: { xs: 0.5, sm: 1.5 } }}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="caption" color="text.secondary" fontStyle="italic" fontSize="0.75rem">
-                {/* If credit card expires, or you need to edit a payment method, please select Remove then add your card.   {isPaymentMethodsPage */}
-                {isPaymentMethodsPage ? "If card expires, or you need to edit a payment method, please select Remove then add your card."
-                  : "If credit card expires, or you need to edit a payment method, please select Remove then add your card."}              </Typography>
+            <Divider />
 
-            </Stack>
-          </Box>
-          <Grid item>
-            <CardActions sx={{ justifyContent: 'flex-end' }}>
-              <Button
-                onClick={() => setRemoveSaveDetails(true)}
-                variant="outlined"
-                disabled={!selectedId}
-                size="small"
-                sx={{
-                  color: colors.blue,
-                  borderColor: colors.blue,
-                  '@media (max-width:600px)': {
-                    paddingX: 1,
-                    paddingY: 0.3,
-                    fontSize: "0.6rem"
-                  },
-                }}
-              >
-                Remove
-              </Button>
-              <Button
-                onClick={handleSaveDetails}
-                variant="contained"
-                disabled={!selectedId}
-                size='small'
-                sx={{
-                  backgroundColor: colors.blue,
-                  '&:hover': { backgroundColor: colors['blue.3'] },
-                  '@media (max-width:600px)': {
-                    paddingX: 1,
-                    paddingY: 0.3,
-                    fontSize: "0.6rem"
-                  },
-                }}
-              >
-                Save details
-              </Button>
-            </CardActions>
-          </Grid>
+            {/* ── Footer ── */}
+            <Box sx={{ px: { xs: 1.3, sm: 3 }, py: { xs: 0.5, sm: 1.5 } }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Typography variant="caption" color="text.secondary" fontStyle="italic" fontSize="0.75rem">
+                  {/* If credit card expires, or you need to edit a payment method, please select Remove then add your card.   {isPaymentMethodsPage */}
+                  {isPaymentMethodsPage ? "If card expires, or you need to edit a payment method, please select Remove then add your card."
+                    : "If credit card expires, or you need to edit a payment method, please select Remove then add your card."}              </Typography>
 
-          {/* ── Modals ── */}
-          {cardModalOpen && (
-            <AddCardModal
-              open={cardModalOpen}
-              onClose={() => setCardModalOpen(false)}
-              onSuccess={() => setCardModalOpen(false)}
-            />
-          )}
-          {bankModalOpen && <AddBankAccountModal open={bankModalOpen} onClose={() => setBankModalOpen(false)} />}
+              </Stack>
+            </Box>
+            <Grid item>
+              <CardActions sx={{ justifyContent: 'flex-end' }}>
+                <Button
+                  onClick={() => setSelectedId(null)}
+                  variant="outlined"
+                  disabled={!selectedId}
+                  size="small"
+                  sx={{
+                    color: colors.blue,
+                    borderColor: colors.blue,
+                    '@media (max-width:600px)': {
+                      paddingX: 1,
+                      paddingY: 0.3,
+                      fontSize: "0.6rem"
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveDetails}
+                  variant="contained"
+                  disabled={!selectedId}
+                  size='small'
+                  sx={{
+                    backgroundColor: colors.blue,
+                    '&:hover': { backgroundColor: colors['blue.3'] },
+                    '@media (max-width:600px)': {
+                      paddingX: 1,
+                      paddingY: 0.3,
+                      fontSize: "0.6rem"
+                    },
+                  }}
+                >
+                  Save details
+                </Button>
+              </CardActions>
+            </Grid>
 
-          <ConfirmDialog
-            open={openConfirm || removeSaveDetails}
-            title={removeSaveDetails ? 'Warning' : deleCardDetails?.card_type ? 'Card' : 'Bank Account'}
-            message={
-              removeSaveDetails
-                ? ' You are removing your Primary payment method. No Primary payment method will be assigned after this payment method is removed.'
-                : `Are you sure want to Delete this ${deleCardDetails?.card_type ? 'Card' : 'Bank Account'}?`
-            }
-            confirmLabel="Yes, Confirm"
-            cancelLabel="Cancel"
-            onConfirm={() => {
-              if (removeSaveDetails) {
-                setSelectedId(null);
-                setRemoveSaveDetails(false);
-              } else {
-                handleConfirm();
+            {/* ── Modals ── */}
+            {cardModalOpen && (
+              <AddCardModal
+                open={cardModalOpen}
+                onClose={() => setCardModalOpen(false)}
+                onSuccess={() => setCardModalOpen(false)}
+              />
+            )}
+            {bankModalOpen && <AddBankAccountModal open={bankModalOpen} onClose={() => setBankModalOpen(false)} />}
+
+            <ConfirmDialog
+              open={openConfirm}
+              title={deleCardDetails?.card_type ? 'Card' : 'Bank Account'}
+              message={`Are you sure want to Delete this ${deleCardDetails?.card_type ? 'Card' : 'Bank Account'}?`
               }
-            }}
-            onCancel={() => (removeSaveDetails ? setRemoveSaveDetails(false) : setOpenConfirm(false))}
-            loader={accountLoading}
-          />
+              details={deleCardDetails ? <PaymentMethodSummary details={deleCardDetails} /> : undefined}
 
-          <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
-            <Loader />
-          </CustomBackdrop>
-        </Card>
+              confirmLabel="Yes, Confirm"
+              cancelLabel="Cancel"
+              onConfirm={handleConfirm}
+              onCancel={() => (setOpenConfirm(false))}
+              loader={accountLoading}
+            />
+
+            <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
+              <Loader />
+            </CustomBackdrop>
+          </Card>
+        </Box>
       </Box>
-</Box>
 
     </SkeletonWrapper >
   );

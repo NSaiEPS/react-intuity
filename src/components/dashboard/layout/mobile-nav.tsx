@@ -7,8 +7,7 @@ import Drawer from "@mui/material/Drawer";
 
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-// import CloseIcon from '@mui/icons-material/Close';
-import { X } from "@phosphor-icons/react/dist/ssr";
+import { X, CaretDown, CaretRight } from "@phosphor-icons/react/dist/ssr";
 
 import type { NavItemConfig } from "@/types/nav";
 
@@ -31,29 +30,23 @@ export interface MobileNavProps {
   items?: NavItemConfig[];
 }
 
-export function MobileNav({
-  open,
-  onClose,
-}: MobileNavProps): React.JSX.Element {
+export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element {
   const location = useLocation();
   const pathname = location.pathname;
-  const dashBoardInfo = useSelector(
-    (state: RootState) => state?.DashBoard?.dashBoardInfo
-  );
+  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
 
-    interface AliasUser {
-  logo?: string;
-}
-  const aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
+  interface AliasUser {
+    logo?: string;
+  }
+  const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
 
   interface CompanyDetails {
-  allow_auto_payment?: number | string;
-}
+    allow_auto_payment?: number | string;
+  }
 
   const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
 
-  const { allow_auto_payment } =
-    dashBoardInfo?.body?.company || companyDetails || {};
+  const { allow_auto_payment } = dashBoardInfo?.body?.company || companyDetails || {};
 
   return (
     <>
@@ -68,9 +61,9 @@ export function MobileNav({
             "--NavItem-active-color": "var(--mui-palette-primary-contrastText)",
             "--NavItem-disabled-color": "var(--mui-palette-neutral-500)",
             "--NavItem-icon-color": "var(--mui-palette-neutral-400)",
-            "--NavItem-icon-active-color":
-              "var(--mui-palette-primary-contrastText)",
+            "--NavItem-icon-active-color": "var(--mui-palette-primary-contrastText)",
             "--NavItem-icon-disabled-color": "var(--mui-palette-neutral-600)",
+            "--NavItem-group-active-background": "rgba(255, 255, 255, 0.08)",
             bgcolor: "var(--MobileNav-background)",
             color: "var(--MobileNav-color)",
             display: "flex",
@@ -96,33 +89,18 @@ export function MobileNav({
             borderRightColor: "var(--mui-palette-divider)",
           }}
         >
-          <Box
-            component={RouterLink}
-            to={paths.dashboard.overview()}
-            sx={{ display: "inline-flex" }}
-          >
+          <Box component={RouterLink} to={paths.dashboard.overview()} sx={{ display: "inline-flex" }}>
             {aliasUser ? (
-              <Avatar
-                src={aliasUser?.logo}
-                sx={{ width: 70, height: 70, mr: 1.5 }}
-              />
+              <Avatar src={aliasUser?.logo} sx={{ width: 70, height: 70, mr: 1.5 }} />
             ) : (
-              <Logo
-                color="dark"
-                height={50}
-                width={140}
-                src={aliasUser ? aliasUser?.logo : null}
-              />
+              <Logo color="dark" height={50} width={140} src={aliasUser ? aliasUser?.logo : null} />
             )}
           </Box>
         </Stack>
 
         <Divider sx={{ borderColor: "var(--mui-palette-neutral-700)" }} />
 
-        <Box
-          component="nav"
-          sx={{ flex: "1 1 auto", p: "10px", paddingLeft: "0px", mt: 1 }}
-        >
+        <Box component="nav" sx={{ flex: "1 1 auto", p: "10px", paddingLeft: "0px", mt: 1 }}>
           {renderNavItems({
             pathname,
             items: navItems,
@@ -142,7 +120,7 @@ export function MobileNav({
             position: "fixed",
             top: 2,
             left: "var(--MobileNav-width)",
-            zIndex: (theme) => theme.zIndex.drawer + 10, // ⬅️ make sure it's above the drawer
+            zIndex: (theme) => theme.zIndex.drawer + 10,
             bgcolor: "#fff",
             borderRadius: "50%",
             boxShadow: 3,
@@ -160,6 +138,22 @@ export function MobileNav({
   );
 }
 
+// ----- helper: does this item (or any descendant) match the current pathname? -----
+function isItemOrDescendantActive(item: NavItemConfig, pathname: string): boolean {
+  if (
+    isNavItemActive({
+      disabled: item.disabled,
+      external: item.external,
+      href: item.href,
+      matcher: item.matcher,
+      pathname,
+    })
+  ) {
+    return true;
+  }
+  return (item.items ?? []).some((child) => isItemOrDescendantActive(child, pathname));
+}
+
 function renderNavItems({
   items = [],
   pathname,
@@ -171,20 +165,23 @@ function renderNavItems({
   onClose?: () => void;
   allow_auto_payment: number | string;
 }): React.JSX.Element {
-  const children = items.reduce(
-    (acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
-      const { key, ...item } = curr;
-      // if key is "auto-pay then show if allow_auto_payment is 1
+  const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
+    const { key, items: subItems, ...item } = curr;
 
-      if (key !== "auto-pay" || allow_auto_payment === 1) {
-        acc.push(
-          <NavItem key={key} pathname={pathname} {...item} onClose={onClose} />
-        );
-      }
+    if (key === "auto-pay" && allow_auto_payment !== 1) {
       return acc;
-    },
-    []
-  );
+    }
+
+    if (subItems && subItems.length > 0) {
+      const filteredSubItems = subItems.filter((sub) => sub.key !== "auto-pay" || allow_auto_payment === 1);
+      acc.push(
+        <NavGroup key={key} pathname={pathname} groupKey={key} onClose={onClose} {...item} items={filteredSubItems} />
+      );
+    } else {
+      acc.push(<NavItem key={key} pathname={pathname} {...item} onClose={onClose} />);
+    }
+    return acc;
+  }, []);
 
   return (
     <Stack component="ul" spacing={1} sx={{ listStyle: "none", m: 0, p: 0 }}>
@@ -193,28 +190,121 @@ function renderNavItems({
   );
 }
 
-interface NavItemProps extends Omit<NavItemConfig, "items"> {
+// =====================================================================
+// NavGroup — expandable parent (Billing & Payments, My Account, Customer Service)
+// =====================================================================
+
+interface NavGroupProps extends Omit<NavItemConfig, "items"> {
   pathname: string;
+  groupKey: string;
+  items: NavItemConfig[];
   onClose?: () => void;
 }
 
+function NavGroup({ groupKey, icon, items, pathname, title, onClose }: NavGroupProps): React.JSX.Element {
+  const hasActiveChild = React.useMemo(
+    () => items.some((child) => isItemOrDescendantActive(child, pathname)),
+    [items, pathname]
+  );
+
+  const [open, setOpen] = React.useState(hasActiveChild);
+
+  React.useEffect(() => {
+    if (hasActiveChild) setOpen(true);
+  }, [hasActiveChild]);
+
+  const Icon = icon ? navIcons[icon] : null;
+
+  const handleToggle = () => {
+    setOpen((prev) => !prev);
+  };
+
+  return (
+    <li>
+      <Box
+        role="button"
+        onClick={handleToggle}
+        aria-expanded={open}
+        sx={{
+          alignItems: "center",
+          borderTopRightRadius: "5px",
+          borderBottomRightRadius: "5px",
+          color: "var(--NavItem-color)",
+          cursor: "pointer",
+          display: "flex",
+          flex: "0 0 auto",
+          gap: 1,
+          p: "6px 16px",
+          position: "relative",
+          textDecoration: "none",
+          whiteSpace: "nowrap",
+          // "&:hover": { bgcolor: "var(--NavItem-hover-background)" },
+          ...(hasActiveChild &&
+          {
+            bgcolor: "var(--NavItem-group-active-background)",
+            color: "var(--NavItem-active-color)",
+          }),
+          "&:hover": {
+            bgcolor: hasActiveChild ? "var(--NavItem-group-active-background)" : "var(--NavItem-hover-background)",
+          },
+        }}
+      >
+        <Box sx={{ alignItems: "center", display: "flex", justifyContent: "center", flex: "0 0 auto" }}>
+          {Icon ? (
+            <Icon
+              fill={hasActiveChild ? "var(--NavItem-icon-active-color)" : "var(--NavItem-icon-color)"}
+              fontSize="var(--icon-fontSize-md)"
+              weight={hasActiveChild ? "fill" : undefined}
+            />
+          ) : null}
+        </Box>
+        <Box sx={{ flex: "1 1 auto" }}>
+          <Typography
+            component="span"
+            sx={{ color: "inherit", fontSize: "0.875rem", fontWeight: 500, lineHeight: "28px" }}
+          >
+            {title}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", flex: "0 0 auto" }}>
+          {open ? <CaretDown size={16} weight="bold" /> : <CaretRight size={16} weight="bold" />}
+        </Box>
+      </Box>
+
+      {open && (
+        <Stack component="ul" spacing={0.5} sx={{ listStyle: "none", m: 0, mt: 0.5, p: 0 }}>
+          {items.map((child) => (
+            <NavItem key={child.key} pathname={pathname} {...child} onClose={onClose} nested />
+          ))}
+        </Stack>
+      )}
+    </li>
+  );
+}
+
+// =====================================================================
+// NavItem — leaf item (top-level, or nested inside a NavGroup)
+// =====================================================================
+
+interface NavItemProps extends Omit<NavItemConfig, "items"> {
+  pathname: string;
+  onClose?: () => void;
+  nested?: boolean;
+}
+
 function NavItem({
+  description,
   disabled,
   external,
   href,
   icon,
   matcher,
+  nested = false,
   pathname,
   title,
   onClose,
 }: NavItemProps): React.JSX.Element {
-  const active = isNavItemActive({
-    disabled,
-    external,
-    href,
-    matcher,
-    pathname,
-  });
+  const active = isNavItemActive({ disabled, external, href, matcher, pathname });
   const Icon = icon ? navIcons[icon] : null;
   const location = useLocation();
   const pathnames = location.pathname;
@@ -235,26 +325,18 @@ function NavItem({
     if (hrefs && !external) {
       navigate(hrefs);
     } else if (hrefs && external) {
-      window.open(hrefs, "_blank"); // ✅ external link
+      window.open(hrefs, "_blank");
     }
-    onClose();
+    onClose?.();
   };
+
   return (
     <li>
       <Box
-        // onClick={}
-        // {...(href
-        //   ? {
-        //       component: external ? 'a' : RouterLink,
-        //       href,
-        //       target: external ? '_blank' : undefined,
-        //       rel: external ? 'noreferrer' : undefined,
-        //     }
-        //   : { role: 'button' })}
         role="button"
         onClick={handleClick}
         sx={{
-          alignItems: "center",
+          alignItems: "flex-start",
           borderTopRightRadius: "5px",
           borderBottomRightRadius: "5px",
           color: "var(--NavItem-color)",
@@ -262,7 +344,7 @@ function NavItem({
           display: "flex",
           flex: "0 0 auto",
           gap: 1,
-          p: "6px 16px",
+          p: nested ? "8px 16px 8px 40px" : "6px 16px",
           position: "relative",
           textDecoration: "none",
           whiteSpace: "nowrap",
@@ -275,6 +357,10 @@ function NavItem({
             bgcolor: "var(--NavItem-active-background)",
             color: "var(--NavItem-active-color)",
           }),
+          ...(!active &&
+            !disabled && {
+            "&:hover": { bgcolor: "var(--NavItem-hover-background)" },
+          }),
         }}
       >
         <Box
@@ -283,32 +369,45 @@ function NavItem({
             display: "flex",
             justifyContent: "center",
             flex: "0 0 auto",
+            pt: "2px",
           }}
         >
           {Icon ? (
             <Icon
-              fill={
-                active
-                  ? "var(--NavItem-icon-active-color)"
-                  : "var(--NavItem-icon-color)"
-              }
+              fill={active ? "var(--NavItem-icon-active-color)" : "var(--NavItem-icon-color)"}
               fontSize="var(--icon-fontSize-md)"
               weight={active ? "fill" : undefined}
             />
           ) : null}
         </Box>
-        <Box sx={{ flex: "1 1 auto" }}>
+        <Box sx={{ flex: "1 1 auto", whiteSpace: description ? "normal" : "nowrap" }}>
           <Typography
             component="span"
             sx={{
+              display: "block",
               color: "inherit",
               fontSize: "0.875rem",
               fontWeight: 500,
-              lineHeight: "28px",
+              lineHeight: description ? "20px" : "28px",
             }}
           >
             {title}
           </Typography>
+          {description && (
+            <Typography
+              component="span"
+              sx={{
+                display: "block",
+                color: active ? "var(--NavItem-active-color)" : "var(--mui-palette-neutral-400)",
+                fontSize: "0.75rem",
+                lineHeight: "16px",
+                mt: "2px",
+                whiteSpace: "normal",
+              }}
+            >
+              {description}
+            </Typography>
+          )}
         </Box>
       </Box>
     </li>

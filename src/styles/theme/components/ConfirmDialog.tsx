@@ -10,6 +10,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { Button } from "nsaicomponents";
+import { Box } from "@mui/system";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -21,6 +22,7 @@ type ConfirmDialogProps = {
   onCancel: () => void;
   loader?: boolean;
   checkBox?: boolean;
+  details?: React.ReactNode;
 };
 
 export function ConfirmDialog({
@@ -33,6 +35,7 @@ export function ConfirmDialog({
   onCancel,
   loader = false,
   checkBox = false,
+  details,
 }: ConfirmDialogProps): React.JSX.Element {
   const [checked, setChecked] = React.useState(false);
 
@@ -49,6 +52,9 @@ export function ConfirmDialog({
           minWidth: "400px",
         }}
       >
+        {/* NEW — payment method summary, only rendered when details is passed */}
+        {details && <Box sx={{ mb: 2 }}>{details}</Box>}
+
         {checkBox ? (
           <FormControlLabel
             control={
@@ -67,8 +73,8 @@ export function ConfirmDialog({
       </DialogContent>
       <DialogActions
         sx={{
-          px: 3, // padding left and right (3 * 8 = 24px)
-          py: 2, // padding top and bottom (2 * 8 = 16px)
+          px: 3,
+          py: 2,
         }}
       >
         <Button
@@ -81,7 +87,7 @@ export function ConfirmDialog({
             borderColor: colors.blue,
             borderRadius: "12px",
             height: "41px",
-            background:"white"
+            background: "white"
           }}
           disabled={loader}
         >

@@ -13,4 +13,6 @@ export interface NavItemConfig {
   // If you need to match multiple paths,
   // can extend it to accept multiple matchers.
   matcher?: { type: 'startsWith' | 'equals'; href: string };
+  items?: NavItemConfig[];      // NEW — child items for expandable groups
+  description?: string;    // NEW — optional subtext shown under a child's title
 }
