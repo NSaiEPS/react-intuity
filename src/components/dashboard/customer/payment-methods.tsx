@@ -404,7 +404,7 @@ const CardRow = React.memo(function CardRow({
         bgcolor: rowBg,
         borderLeft: '3px solid',
         borderLeftColor: leftBorderColor,
-        cursor: "pointer",
+        cursor: isExpired ? "not-allowed" : "pointer",
         transition: 'background-color 0.15s ease',
         '&:hover': {
           bgcolor: rowHoverBg,

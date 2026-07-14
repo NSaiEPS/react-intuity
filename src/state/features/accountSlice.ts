@@ -31,7 +31,7 @@ import {
 import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
 import secureLocalStorage from "react-secure-storage";
-
+import { toast as toastNotification } from "react-toastify";
 import { toast } from "@/lib/custom-toast";
 import { toast as simpleToast } from "react-toastify";
 import type { AppDispatch } from "@/state/store";
@@ -292,9 +292,9 @@ export const updateAccountInfo = (
 
     if (res.status) {
       if (reduxNeeded) dispatch(setNotificationPreferenceDetails(res?.body));
-      if (res?.body?.otp) toast.success("OTP sent successfully.");
+      if (res?.body?.otp) toastNotification.success("OTP sent successfully.");
       if (!dataRequired) {
-        toast.success(
+        toastNotification.success(
           res?.status == 200
             ? res?.data
             : res?.message
