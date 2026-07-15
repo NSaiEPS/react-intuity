@@ -64,11 +64,11 @@ export function ConfirmDialog({
                 color="primary"
               />
             }
-            label={<DialogContentText>{message}</DialogContentText>}
+            label={<DialogContentText  sx={{ whiteSpace: "pre-line" }}>{message}</DialogContentText>}
             sx={{ alignItems: "flex-start", mt: 1 }}
           />
         ) : (
-          <DialogContentText>{message}</DialogContentText>
+          <DialogContentText  sx={{ whiteSpace: "pre-line" }}>{message}</DialogContentText>
         )}
       </DialogContent>
       <DialogActions

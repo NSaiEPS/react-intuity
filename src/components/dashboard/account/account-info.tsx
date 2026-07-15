@@ -25,6 +25,7 @@ export function AccountInfo(): React.JSX.Element {
         border: "1px solid #EAEAEA",
         boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
         backgroundColor: "#fff",
+        
       }}
     >
       <CardContent>

@@ -204,16 +204,16 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ mt: 3, borderRadius: boarderRadius.card }}>
+      <Card sx={{ m: 3, borderRadius: boarderRadius.card }}>
         <CardHeader title="Send Final bill to" />
         <Divider />
 
         <CardContent>
           <Grid container spacing={3}>
             <Grid md={6} xs={12}>
-              <FormControl fullWidth required error={!!errors.name}>
+              <FormControl fullWidth size="small" required error={!!errors.name}>
                 <InputLabel>Contact Name</InputLabel>
-                <OutlinedInput label="Contact Name" {...register("name")} />
+                <OutlinedInput label="Contact Name" {...register("name")}  />
                 {errors.name && (
                   <FormHelperText>{errors.name.message}</FormHelperText>
                 )}
@@ -221,7 +221,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth required error={!!errors.phone}>
+              <FormControl fullWidth size="small" required error={!!errors.phone}>
                 <InputLabel>Contact Phone</InputLabel>
                 {/* <OutlinedInput
                   label="Contact Phone"
@@ -266,6 +266,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Controller
                   name="requestedStopDate"
+                  
                   control={control}
                   render={({ field }) => (
                     <DatePicker
@@ -278,8 +279,10 @@ export function SendBillDetailsForm(): React.JSX.Element {
                       }
                       renderInput={(params) => (
                         <TextField
+
                           {...params}
                           fullWidth
+                        size="small"
                           required
                           error={!!errors.requestedStopDate}
                           helperText={errors.requestedStopDate?.message}
@@ -297,7 +300,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth error={!!errors.reading}>
+              <FormControl fullWidth size="small" error={!!errors.reading}>
                 <InputLabel>Final Meter Reading</InputLabel>
                 <OutlinedInput
                   type="number"
@@ -312,7 +315,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth required error={!!errors.address}>
+              <FormControl fullWidth size="small" required error={!!errors.address}>
                 <InputLabel>Street Address</InputLabel>
                 <OutlinedInput
                   label="Street Address"
@@ -325,7 +328,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth>
+              <FormControl fullWidth size="small">
                 <InputLabel>Street Address 2</InputLabel>
                 <OutlinedInput
                   label="Street Address 2"
@@ -335,14 +338,14 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth>
+              <FormControl fullWidth size="small">
                 <InputLabel>Apartment/Unit</InputLabel>
                 <OutlinedInput label="Apartment/Unit" {...register("unit")} />
               </FormControl>
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth required error={!!errors.city}>
+              <FormControl fullWidth size="small" required error={!!errors.city}>
                 <InputLabel>City</InputLabel>
                 <OutlinedInput label="City" {...register("city")} />
                 {errors.city && (
@@ -352,7 +355,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth required error={!!errors.zip}>
+              <FormControl fullWidth size="small" required error={!!errors.zip}>
                 <InputLabel>Zip Code</InputLabel>
                 <OutlinedInput label="Zip Code" {...register("zip")} />
                 {errors.zip && (
@@ -362,7 +365,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth required error={!!errors.state}>
+              <FormControl fullWidth size="small" required error={!!errors.state}>
                 <InputLabel>State</InputLabel>
                 <OutlinedInput label="State" {...register("state")} />
                 {errors.state && (
@@ -372,7 +375,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid md={6} xs={12}>
-              <FormControl fullWidth error={!!errors.applicableField}>
+              <FormControl fullWidth size="small" error={!!errors.applicableField}>
                 <InputLabel shrink>
                   If applicable, enter the closing attorney’s contact details
                   (name, phone, email)

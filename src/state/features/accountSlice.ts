@@ -292,18 +292,21 @@ export const updateAccountInfo = (
 
     if (res.status) {
       if (reduxNeeded) dispatch(setNotificationPreferenceDetails(res?.body));
-      if (res?.body?.otp) toastNotification.success("OTP sent successfully.");
-      if (!dataRequired) {
-        toastNotification.success(
-          res?.status == 200
-            ? res?.data
-            : res?.message
-              ? res?.body?.notification_email_message ?? res?.message
-              : profile
-                ? "Updated User Info"
-                : "Updated Password!"
-        );
-      }
+      if (res?.body?.otp)
+        if (!dataRequired) {
+          toastNotification.success(
+            res?.status == 200
+              ? res?.data
+              : res?.message
+                ? res?.body?.notification_email_message ?? res?.message
+                : profile
+                  ? "Updated User Info"
+                  : "Updated Password!",
+            {
+              autoClose: 1500,
+            }
+          );
+        }
       if (successCallBack) {
         dataRequired ? successCallBack(res?.body) : successCallBack();
       }
@@ -386,6 +389,7 @@ export const getPaymentDetails = (
   dispatch(setAccountLoading(true));
   try {
     const res = await getPaymentDetailsApi({ formData });
+
     if (res?.status) {
       if (successCallBack) successCallBack(res?.body?.customer);
       if (!isPost) {

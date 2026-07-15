@@ -49,8 +49,11 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={customer_name}
                     // onChange={handleChange}
                     name="firstName"
-                   
+
                     label="Account name"
+                    sx={{
+                      height: 44,
+                    }}
                   />
                 </FormControl>
               </Grid>
@@ -64,8 +67,11 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={acctnum}
                     // onChange={handleChange}
                     name="firstName"
-                   
+
                     label="Account #"
+                    sx={{
+                      height: 44,
+                    }}
                   />
                 </FormControl>
               </Grid>
@@ -79,8 +85,11 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={meterNumber}
                     // onChange={handleChange}
                     name="Meter"
-                   
+
                     label="Meter"
+                    sx={{
+                      height: 44,
+                    }}
                   />
                 </FormControl>
               </Grid>
@@ -94,8 +103,11 @@ export function TransferDetailsForm(): React.JSX.Element {
                     value={service_address}
                     // onChange={handleChange}
                     name="service"
-                   
+
                     label="Service Address"
+                    sx={{
+                      height: 44,
+                    }}
                   />
                 </FormControl>
               </Grid>

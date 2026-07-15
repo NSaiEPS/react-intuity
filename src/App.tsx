@@ -65,7 +65,7 @@ const NotFound = React.lazy(() => import("./pages/not-found"));
 
 import { LoaderFallback } from "@/components/core/protectedRoute";
 
-  console.log("version 1.1.35")
+console.log("version 1.1.35")
 
 const withSuspense = (element: React.ReactNode) => {
   return (
@@ -80,7 +80,7 @@ export const router = createBrowserRouter([
     path: "/login",
     element: LoginSuspense(
       <Authorization>
-        
+
         <SignInPage />
       </Authorization>
     ),
@@ -102,21 +102,21 @@ export const router = createBrowserRouter([
     ),
   },
   {
-  path: "/register-:alias",
-  element: LoginSuspense(
-    <Authorization>
-      <SignInPage />
-    </Authorization>
-  ),
-},
-{
-  path: "/onetime-payment-:alias",
-  element: LoginSuspense(
-    <Authorization>
-      <SignInPage />
-    </Authorization>
-  ),
-},
+    path: "/register-:alias",
+    element: LoginSuspense(
+      <Authorization>
+        <SignInPage />
+      </Authorization>
+    ),
+  },
+  {
+    path: "/onetime-payment-:alias",
+    element: LoginSuspense(
+      <Authorization>
+        <SignInPage />
+      </Authorization>
+    ),
+  },
   {
     path: "/reset-password",
     element: LoginSuspense(
@@ -125,7 +125,7 @@ export const router = createBrowserRouter([
       </Authorization>
     ),
   },
-   {
+  {
     path: "/update-password",
     element: LoginSuspense(
       <Authorization>
@@ -133,7 +133,7 @@ export const router = createBrowserRouter([
       </Authorization>
     ),
   },
-    {
+  {
     path: "/forgot-login",
     element: LoginSuspense(
       <Authorization>
@@ -149,10 +149,10 @@ export const router = createBrowserRouter([
       </Authorization>
     ),
   },
-     {
+  {
     path: "/register-success-:alias",
     element:
-        withSuspense(<RegisterSuccess />),
+      withSuspense(<RegisterSuccess />),
 
 
     errorElement: <RouteErrorBoundary />,

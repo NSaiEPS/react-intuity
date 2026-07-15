@@ -1,4 +1,5 @@
 import React from "react";
+import "./utils/toast";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";

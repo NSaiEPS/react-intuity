@@ -138,11 +138,12 @@ export function NotificationPreferenceRow({
                     disabled={isDisabled}
                     sx={{
                       color: "#CBD5E1",
+                      
                       // "&.Mui-checked": {
                       //   color: "#0B57D0",
                       // },
                       "&.Mui-disabled": {
-                        color: "#F1F5F9",
+                        color: "#CBD5E1",
                       },
                     }}
                   />

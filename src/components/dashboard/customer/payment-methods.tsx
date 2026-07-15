@@ -41,6 +41,7 @@ import AddBankAccountModal from './add-bank-modal';
 import AddCardModal from './add-card-modal';
 import { useLoading } from '@/components/core/skeleton-context';
 import { tooltipSx } from '@/utils/config';
+import { PaymentCard } from '@/types/domain';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -268,6 +269,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: 8,
     expiration_year: 26, // valid, far out
     createdAt: '2024-01-15T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
   {
     id: 2,
@@ -277,6 +281,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: 7,
     expiration_year: 26, // expiring soon (within 60 days of July 13, 2026)
     createdAt: '2024-03-10T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
   {
     id: 3,
@@ -286,6 +293,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: 5,
     expiration_year: 26, // already expired
     createdAt: '2023-11-05T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
   {
     id: 4,
@@ -295,6 +305,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: 1,
     expiration_year: 25, // expired long ago
     createdAt: '2023-05-20T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
   {
     id: 5,
@@ -304,6 +317,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: 12,
     expiration_year: 27, // valid, well in the future
     createdAt: '2024-06-01T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
   {
     id: 6,
@@ -314,6 +330,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: null,
     expiration_year: null, // banks have no expiry
     createdAt: '2024-02-14T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
   {
     id: 7,
@@ -323,6 +342,9 @@ const dummyCardRows: CardDetails[] = [
     expiration_month: 9,
     expiration_year: 2026, // 4-digit year variant, tests your padStart/slice logic
     createdAt: '2024-04-18T10:00:00Z',
+    name: '',
+    type: '',
+    isBank: false
   },
 ];
 
@@ -341,6 +363,12 @@ const CardRow = React.memo(function CardRow({
   const decryptedNumber = decryptFunction(row.number);
   const last4 = String(decryptedNumber).slice(-4);
   const iconSrc = getCardIconSrc(row.card_type);
+  const selectedCardInfo = useSelector(
+    (state: RootState) => state.Account.selectedCardInfo
+  );
+
+  console.log(selectedCardInfo, 'selectedCardInfo');
+
 
   const expiryDisplay = React.useMemo(() => {
     if (!isCard) return '';
@@ -353,6 +381,7 @@ const CardRow = React.memo(function CardRow({
     }
     return '—';
   }, [isCard, row.expiration_month, row.expiration_year]);
+
 
   const expiryStatus = React.useMemo<'expired' | 'expiring' | 'ok' | null>(() => {
     if (!isCard) return null;
@@ -722,6 +751,7 @@ function PaymentMethodSummary({ details }: { details: CardDetails }) {
   const last4 = String(decryptedNumber).slice(-4);
   const iconSrc = getCardIconSrc(details.card_type);
 
+
   const expiryDisplay = React.useMemo(() => {
     if (!isCard) return '';
     const month = details.expiration_month;
@@ -841,14 +871,20 @@ const HeaderComp = ({
           size='small'
           onClick={(e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget)}
           sx={{
-            color: colors.blue,
+            color: colors.white,
             borderColor: colors.blue,
-            '@media (max-width:600px)': {
-              paddingX: 2,
-              paddingY: 0.5,
-              fontSize: "0.7rem",
-              marginBottom: 1
-            },
+            background: colors.blue,
+            "&:hover": {
+      backgroundColor: colors.blue,
+      borderColor: colors.blue,
+      opacity: 0.85, // adjust as needed (0.8 - 0.95)
+    },
+            // '@media (max-width:600px)': {
+            //   paddingX: 2,
+            //   paddingY: 0.5,
+            //   fontSize: "0.7rem",
+            //   marginBottom: 1
+            // },
           }}
           startIcon={
             <Box
@@ -941,6 +977,8 @@ export const PaymentMethods = ({
   autoPayDetails,
   paymentDetailsPage = false,
 }: CustomersTableProps): React.JSX.Element => {
+  console.log('autoPayDetails', autoPayDetails);
+
   const { setContextLoading } = useLoading();
 
   React.useLayoutEffect(() => {
@@ -955,6 +993,20 @@ export const PaymentMethods = ({
   const [bankModalOpen, setBankModalOpen] = React.useState(false);
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [deleCardDetails, setDeleteCardDetails] = React.useState<CardDetails | null>(null);
+  const selectedCardInfo = useSelector(
+    (state: RootState) => state.Account.selectedCardInfo
+  );
+  const [selectedCard, setSelectedCard] = React.useState<PaymentCard | CardDetails | null>(null);
+
+  React.useEffect(() => {
+    if (selectedCardInfo) {
+      setSelectedCard(selectedCardInfo);
+      setSelectedId({
+        id: selectedCardInfo.id,
+        card_token: Number(selectedCardInfo.card_token),
+      });
+    }
+  }, [selectedCardInfo]);
 
   type IntuityUser = {
     body?: { acl_role_id?: string; customer_id?: string; token?: string };
@@ -997,6 +1049,11 @@ export const PaymentMethods = ({
       };
     });
   }, [paymentMethodInfoCards]);
+
+
+
+  console.log(paymentMethodInfoCards, 'paymentMethodInfoCards');
+
 
   const selectOne = React.useCallback((data: { card_token: number; id: number }) => {
     setSelectedId((prev) => (prev?.id === data.id ? null : data));
@@ -1070,13 +1127,25 @@ export const PaymentMethods = ({
         <CardRow
           key={row.id}
           row={row}
-          isSelected={selectedId?.id === row.id}
-          onSelect={selectOne}
+          // isSelected={selectedId?.id === row.id}
+          isSelected={selectedCard?.id === row.id}
+          // onSelect={selectOne}
+          onSelect={(data) => {
+            setSelectedId(data);
+
+            const card = myCards.find((item) => item.id === data.id);
+            if (card) {
+              setSelectedCard(card);
+            }
+          }}
           onDelete={handleDelete}
         />
       )),
-    [myCards, selectedId, selectOne, handleDelete]
+    [myCards, selectedId, selectedCard, handleDelete]
   );
+
+  const isDeletingPrimaryCard =
+    !!selectedCardInfo && deleCardDetails?.id === selectedCardInfo.id;
 
   return (
     <SkeletonWrapper>
@@ -1274,7 +1343,15 @@ export const PaymentMethods = ({
             <ConfirmDialog
               open={openConfirm}
               title={deleCardDetails?.card_type ? 'Card' : 'Bank Account'}
-              message={`Are you sure want to Delete this ${deleCardDetails?.card_type ? 'Card' : 'Bank Account'}?`
+              // message={`Are you sure want to Delete this ${deleCardDetails?.card_type ? 'Card' : 'Bank Account'}?`
+              // }
+
+              message={
+                `Are you sure you want to delete this ${deleCardDetails?.card_type ? "Card" : "Bank Account"
+                }?` +
+                (isDeletingPrimaryCard
+                  ? "\n\nWarning: You are removing your Primary payment method. No Primary payment method will be assigned after this payment method is removed."
+                  : "")
               }
               details={deleCardDetails ? <PaymentMethodSummary details={deleCardDetails} /> : undefined}
 

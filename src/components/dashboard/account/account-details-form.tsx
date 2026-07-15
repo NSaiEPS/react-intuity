@@ -201,6 +201,8 @@ export function AccountDetailsForm(): React.JSX.Element {
                 sx={{
                   color: colors.blue,
                   borderColor: colors.blue,
+                  marginRight:"7px",
+                  
                   "&:hover": {
                     borderColor: colors["blue.3"],
                   },
@@ -230,6 +232,7 @@ export function AccountDetailsForm(): React.JSX.Element {
                     render={({ field }) => (
                       <FormControl
                         fullWidth
+                        size="small"
                         error={!!errors[name as keyof FormSchema]}
                       >
                         <InputLabel>{label}</InputLabel>
@@ -256,6 +259,7 @@ export function AccountDetailsForm(): React.JSX.Element {
                             value = value.replace(/[^0-9-]/g, "");
 
                             field.onChange(value);
+                            
                           }}
                         />
                         {errors[name as keyof FormSchema] ? (
@@ -303,7 +307,7 @@ export function AccountDetailsForm(): React.JSX.Element {
                 name="comment"
                 control={control}
                 render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.comment}>
+                  <FormControl fullWidth size="small" error={!!errors.comment}>
                     <InputLabel>Comment *</InputLabel>
                     <OutlinedInput
                       {...field}
@@ -320,7 +324,7 @@ export function AccountDetailsForm(): React.JSX.Element {
             </Grid>
           </CardContent>
           <Divider />
-          <CardActions sx={{ justifyContent: "flex-end" }}>
+          <CardActions sx={{ justifyContent: "flex-end", border: "none" }}>
             <Button
               type="button"
               disabled={!isEditEnable}

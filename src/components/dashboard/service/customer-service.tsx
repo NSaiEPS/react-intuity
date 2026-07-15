@@ -242,6 +242,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormControl
                       variant="outlined"
                       fullWidth
+                      size="small"
                       disabled
                       required
                       error={!!errors.accountName}
@@ -261,6 +262,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormControl
                       disabled
                       fullWidth
+                      size="small"
                       required
                       error={!!errors.accountNumber}
                     >
@@ -279,6 +281,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormControl
                       disabled
                       fullWidth
+                      size="small"
                       error={!!errors.masterNumber}
                     >
                       <InputLabel>Meter #</InputLabel>
@@ -298,6 +301,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormControl
                       disabled
                       fullWidth
+                      size="small"
                       required
                       error={!!errors.serviceAddress}
                     >
@@ -316,6 +320,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormControl
                       disabled
                       fullWidth
+                      size="small"
                       required
                       error={!!errors.billingAddress}
                     >
@@ -331,7 +336,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   name="phone"
                   control={control}
                   render={({ field }) => (
-                    <FormControl disabled fullWidth>
+                    <FormControl disabled fullWidth size="small">
                       <InputLabel>Primary Phone</InputLabel>
                       <OutlinedInput
                         label="Primary Phone"
@@ -350,7 +355,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   control={control}
                   disabled
                   render={({ field }) => (
-                    <FormControl fullWidth>
+                    <FormControl fullWidth size="small">
                       <InputLabel>Alt Phone</InputLabel>
                       <OutlinedInput
                         label="Alt Phone"
@@ -369,7 +374,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   disabled
                   control={control}
                   render={({ field }) => (
-                    <FormControl fullWidth disabled error={!!errors.email}>
+                    <FormControl fullWidth size="small" disabled error={!!errors.email}>
                       <InputLabel>Email</InputLabel>
                       <OutlinedInput label="Email" type="email" {...field} />
                     </FormControl>

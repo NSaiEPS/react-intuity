@@ -240,7 +240,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-
+          paddingBottom: '16px',
           width: '100%', // full width
         }}
       >

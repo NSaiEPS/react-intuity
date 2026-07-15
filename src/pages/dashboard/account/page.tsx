@@ -36,11 +36,11 @@ export default function AccountPage(): React.JSX.Element {
       <Card sx={{ borderRadius: boarderRadius.card, display: contextLoading ? 'none' : 'block' }}>
         <Header title="Account" />
         <Divider sx={{ borderColor: "rgba(0,0,0,0.08)", borderBottomWidth: 1 }} />
-        <Grid container spacing={3} mt={2}>
-          <Grid lg={6} md={6} xs={12}>
+        <Grid container spacing={3} mt={2} marginLeft={2}>
+          <Grid lg={6} md={6} xs={12} >
             <AccountInfo />
           </Grid>
-          <Grid lg={12} md={6} xs={12}>
+          <Grid lg={12} md={6} xs={12} mt={2} mr={3} mb={2}>
             <AccountDetailsForm />
           </Grid>
         </Grid>

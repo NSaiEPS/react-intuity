@@ -61,6 +61,7 @@ import { tooltipSx } from '@/utils/config';
 import { PaymentMethods } from '../payment-methods';
 import { getCardLast4, renderCardBrand } from '../../account/payment-details';
 import Header from '@/components/CommonComponents/header-common';
+import { formatCurrency } from '@/utils/formatters';
 
 /* ------------------------------------------------------------------ *
  *  Types
@@ -167,7 +168,7 @@ function AccountBanner({
 
   const rows: Array<[string, string]> = [
     ['Account No.', accountNo],
-    ['Bill Amount Due', amountDue],
+    ['Bill Amount Due', `${formatCurrency(amountDue)}`],
     ['Due Date', dueDate],
   ];
   return (
@@ -768,7 +769,7 @@ function ReviewConfirm({
       </Typography>
 
       <Card variant="outlined" sx={{ p: 1, borderRadius: 0, border: "none" }}>
-        <AccountBanner accountNo={accountNo} amountDue={amountDue} dueDate={dueDate} />
+        <AccountBanner accountNo={accountNo} amountDue={formatCurrency(amountDue)} dueDate={dueDate} />
         <StepRail step={2} />
         <PaymentMethodSelector
           methods={methods}
@@ -922,17 +923,28 @@ function EnrollChoose({
 
   const canContinue = mode === 'existing' ? !!pickedExistingId : false;
 
+  // function handleSelectNewType(type: MethodType) {
+  //   setMode('new');
+  //   setNewType(type);
+  //   if (USE_DUMMY_PAYMENT_FLOW) {
+  //     setShowDummyIframe(true);
+  //   } else if (type === 'card') {
+  //     setCardModalOpen(true);
+  //   } else {
+  //     setBankModalOpen(true);
+  //   }
+  // }
+
   function handleSelectNewType(type: MethodType) {
-    setMode('new');
-    setNewType(type);
-    if (USE_DUMMY_PAYMENT_FLOW) {
-      setShowDummyIframe(true);
-    } else if (type === 'card') {
-      setCardModalOpen(true);
-    } else {
-      setBankModalOpen(true);
-    }
+  setMode("new");
+  setNewType(type);
+
+  if (type === "card") {
+    setCardModalOpen(true);
+  } else {
+    setBankModalOpen(true);
   }
+}
 
   function closeDummyDialog() {
     setShowDummyIframe(false);
@@ -951,7 +963,7 @@ function EnrollChoose({
   // before this can be wired up for real (their onSuccess is currently
   // commented out below because their signature doesn't hand back a
   // PaymentMethod yet).
-  function handleRealModalSuccess(method: PaymentMethod) {
+  function handleRealModalSuccess(method: any) {
     setCardModalOpen(false);
     setBankModalOpen(false);
     onNewMethodContinue(method);
@@ -1135,7 +1147,7 @@ function EnrollChoose({
       </Card>
 
       {/* Dummy simulation — active while USE_DUMMY_PAYMENT_FLOW is true. */}
-      {showDummyIframe && (
+      {/* {showDummyIframe && (
         <Dialog open={showDummyIframe} onClose={closeDummyDialog} maxWidth="xs" fullWidth>
           <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: palette.navy, fontWeight: 800 }}>
             {newType === 'card' ? 'Add Credit Card' : 'Add Bank Account'}
@@ -1147,7 +1159,7 @@ function EnrollChoose({
             <PaymentIframe type={newType!} onContinue={handleDummyContinue} />
           </DialogContent>
         </Dialog>
-      )}
+      )} */}
 
       {/* Real API modals — active once USE_DUMMY_PAYMENT_FLOW is false. */}
       {cardModalOpen && (
@@ -1157,6 +1169,22 @@ function EnrollChoose({
         // onSuccess={handleRealModalSuccess}
         />
       )}
+{/* 
+      {cardModalOpen && (
+  <Dialog
+    open={cardModalOpen}
+    onClose={() => setCardModalOpen(false)}
+    maxWidth="md"
+    fullWidth
+  >
+    <DialogContent>
+      <PaymentIframe
+        type="card"
+        onContinue={handleRealModalSuccess}
+      />
+    </DialogContent>
+  </Dialog>
+)} */}
 
       {bankModalOpen && (
         <AddBankAccountModal
@@ -1165,6 +1193,22 @@ function EnrollChoose({
         // onSuccess={handleRealModalSuccess}
         />
       )}
+
+      {/* {bankModalOpen && (
+  <Dialog
+    open={bankModalOpen}
+    onClose={() => setBankModalOpen(false)}
+    maxWidth="md"
+    fullWidth
+  >
+    <DialogContent>
+      <PaymentIframe
+        type="bank"
+        onContinue={handleRealModalSuccess}
+      />
+    </DialogContent>
+  </Dialog>
+)} */}
     </Box>
   );
 }
