@@ -45,74 +45,118 @@ export function ConfirmDialog({
   }, [open]);
 
   return (
-    <Dialog open={open}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent
+    <Dialog
+      open={open}
+      PaperProps={{
+        sx: {
+          m: { xs: 0, sm: 4 },
+          width: { xs: "95%", sm: "auto" },
+          maxWidth: { xs: "100%", sm: "40%" },
+        },
+      }}
+    >
+      <DialogTitle
         sx={{
-          minWidth: "400px",
+          fontSize: { xs: "1rem", sm: "1.25rem" },
+          p: 2,
+          pb: { xs: 1, sm: 2 },
         }}
       >
-        {/* NEW — payment method summary, only rendered when details is passed */}
+        {title}
+      </DialogTitle>
+
+      <DialogContent sx={{
+        minWidth: { sm: "400px" },
+        px: 2,
+        py: 0,
+        m: 0,
+        wordBreak: "break-word"
+      }}>
         {details && <Box sx={{ mb: 2 }}>{details}</Box>}
 
         {checkBox ? (
           <FormControlLabel
+            style={{ margin: 0 }}
             control={
               <Checkbox
                 checked={checked}
                 onChange={(e) => setChecked(e.target.checked)}
                 color="primary"
+                size="small"
+                sx={{ m: 0 }}
               />
             }
-            label={<DialogContentText  sx={{ whiteSpace: "pre-line" }}>{message}</DialogContentText>}
-            sx={{ alignItems: "flex-start", mt: 1 }}
+            label={
+              <DialogContentText
+                sx={{
+                  whiteSpace: "pre-line",
+                  fontSize: { xs: "0.85rem", sm: "1rem" },
+                }}
+              >
+                {message}
+              </DialogContentText>
+            }
+            sx={{
+              alignItems: "flex-start",
+              mt: 1,
+            }}
           />
         ) : (
-          <DialogContentText  sx={{ whiteSpace: "pre-line" }}>{message}</DialogContentText>
+          <DialogContentText
+            sx={{
+              whiteSpace: "pre-line",
+              fontSize: { xs: "0.85rem", sm: "1rem" },
+            }}
+          >
+            {message}
+          </DialogContentText>
         )}
       </DialogContent>
+
       <DialogActions
         sx={{
-          px: 3,
-          py: 2,
+          p: 2,
+          gap: 1,
         }}
       >
         <Button
           onClick={onCancel}
           color="inherit"
           variant="outlined"
+          size="small"
           textTransform="none"
+          disabled={loader}
           style={{
             color: colors.blue,
             borderColor: colors.blue,
             borderRadius: "12px",
-            height: "41px",
-            background: "white"
+            // height: "41px",
+            background: "white",
           }}
-          disabled={loader}
         >
           {cancelLabel}
         </Button>
+
         <Button
           onClick={onConfirm}
           disabled={loader || (checkBox && !checked)}
           loading={loader}
           variant="contained"
+          size="small"
           textTransform="none"
           bgColor={colors.blue}
           hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
           style={{
             borderRadius: "12px",
-            height: "41px",
+            // height: "41px",
             backgroundColor: colors.blue,
             color: "white",
-            // backgroundColor: 'red',
           }}
         >
           {confirmLabel}
         </Button>
       </DialogActions>
-    </Dialog>
+    </Dialog >
   );
 }

@@ -367,9 +367,6 @@ const CardRow = React.memo(function CardRow({
     (state: RootState) => state.Account.selectedCardInfo
   );
 
-  console.log(selectedCardInfo, 'selectedCardInfo');
-
-
   const expiryDisplay = React.useMemo(() => {
     if (!isCard) return '';
     const month = row.expiration_month;
@@ -403,7 +400,7 @@ const CardRow = React.memo(function CardRow({
 
   const handleCheckboxChange = React.useCallback(() => {
     if (isExpired) return;
-    onSelect({ card_token: Number(row.card_token), id: row.id });
+    onSelect({ card_token: (row.card_token), id: row.id });
   }, [onSelect, row.card_token, row.id, isExpired]);
 
   const handleDeleteClick = React.useCallback(
@@ -875,16 +872,16 @@ const HeaderComp = ({
             borderColor: colors.blue,
             background: colors.blue,
             "&:hover": {
-      backgroundColor: colors.blue,
-      borderColor: colors.blue,
-      opacity: 0.85, // adjust as needed (0.8 - 0.95)
-    },
-            // '@media (max-width:600px)': {
-            //   paddingX: 2,
-            //   paddingY: 0.5,
-            //   fontSize: "0.7rem",
-            //   marginBottom: 1
-            // },
+              backgroundColor: colors.blue,
+              borderColor: colors.blue,
+              opacity: 0.85, // adjust as needed (0.8 - 0.95)
+            },
+            '@media (max-width:600px)': {
+              paddingX: 2,
+              paddingY: 0.5,
+              fontSize: "0.7rem",
+              marginBottom: 1
+            },
           }}
           startIcon={
             <Box
@@ -1051,10 +1048,6 @@ export const PaymentMethods = ({
   }, [paymentMethodInfoCards]);
 
 
-
-  console.log(paymentMethodInfoCards, 'paymentMethodInfoCards');
-
-
   const selectOne = React.useCallback((data: { card_token: number; id: number }) => {
     setSelectedId((prev) => (prev?.id === data.id ? null : data));
   }, []);
@@ -1206,7 +1199,7 @@ export const PaymentMethods = ({
                 overflowY: 'auto',
                 maxHeight: {
                   xs: isModal ? "60vh" : "50vh",
-                  sm: isModal ? 'calc(90vh - 220px)' : '520px'
+                  sm: isModal ? 'calc(80vh - 220px)' : '520px'
                 },
                 flex: 1,
               }}

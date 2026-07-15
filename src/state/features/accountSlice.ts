@@ -805,7 +805,7 @@ export const saveAcknowledgeForRecurringPayment = (
   try {
     const res = await saveAcknowledgeForRecurringPaymentApi({ formData });
     if (res.status) {
-      toast.success(res?.message ? res?.message : " Acknowledgement Saved !!");
+      // toast.success(res?.message ? res?.message : " Acknowledgement Saved !!");
       if (successCallBack) successCallBack();
     } else {
       navigateTo("/login", { replace: true }, res?.message);

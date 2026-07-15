@@ -107,7 +107,8 @@ const ScheduleSkeleton = () => (
 
 // Skeleton for Sales chart
 const ChartSkeleton = () => (
-  <Box sx={{ width: '100%', minHeight: 300, borderRadius: 2, backgroundColor: '#f0f4f8', flexGrow: 1,
+  <Box sx={{
+    width: '100%', minHeight: 300, borderRadius: 2, backgroundColor: '#f0f4f8', flexGrow: 1,
     animation: 'pulse 1.5s ease-in-out infinite',
     '@keyframes pulse': { '0%': { opacity: 1 }, '50%': { opacity: 0.5 }, '100%': { opacity: 1 } }
   }} />

@@ -18,6 +18,7 @@ import { Button } from 'nsaicomponents';
 
 interface PaymentSummaryModalProps {
   open: boolean;
+  payText?: string;
   onClose: () => void;
   onPay: () => void;
   amount: number;
@@ -31,6 +32,7 @@ interface PaymentSummaryModalProps {
 
 export default function PaymentSummaryModal({
   open,
+  payText = "Pay Now",
   onClose,
   onPay,
   amount,
@@ -218,7 +220,7 @@ export default function PaymentSummaryModal({
                 height: '41px',
               }}
             >
-              Pay Now
+              {payText}
             </Button>
           </CardActions>
         </Box>
