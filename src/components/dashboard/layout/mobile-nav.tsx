@@ -36,6 +36,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
 
   interface AliasUser {
+    company_name: string;
     logo?: string;
   }
   const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
@@ -89,9 +90,17 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
             borderRightColor: "var(--mui-palette-divider)",
           }}
         >
-          <Box component={RouterLink} to={paths.dashboard.overview()} sx={{ display: "inline-flex" }}>
+          <Box component={RouterLink} to={paths.dashboard.overview()} sx={{
+            display: "inline-flex",
+            textDecoration: "none",
+            color: "black",
+            "&:hover": { textDecoration: "none" },
+          }}>
             {aliasUser ? (
-              <Avatar src={aliasUser?.logo} sx={{ width: 70, height: 70, mr: 1.5 }} />
+              <>
+                <Avatar src={aliasUser?.logo} sx={{ width: 70, height: 70, mr: 1.5 }} />
+                <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none" }}>{aliasUser?.company_name}</Typography>
+              </>
             ) : (
               <Logo color="dark" height={50} width={140} src={aliasUser ? aliasUser?.logo : null} />
             )}

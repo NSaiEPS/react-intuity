@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -87,6 +87,8 @@ export default function TwoFAModal({
     (s: RootState) => s?.Account
   );
 
+  const [otpMessage, setOtpMessage] = useState<string>("")
+
   const raw = getLocalStorage("intuity-user");
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
@@ -121,8 +123,10 @@ export default function TwoFAModal({
     }
 
     dispatch(
-      updateAccountInfo(formData, true, () =>
-        dispatchLocal({ type: "OPEN_VERIFY_MODAL" }), "2fa"
+      updateAccountInfo(formData, true, (data) => {
+        setOtpMessage(data?.message)
+        dispatchLocal({ type: "OPEN_VERIFY_MODAL" })
+      }, "2fa"
       )
     );
   };
@@ -227,6 +231,7 @@ export default function TwoFAModal({
         open={state.isVerifyModalOpen}
         onClose={() => dispatchLocal({ type: "CLOSE_VERIFY_MODAL" })}
         onVerify={onVerifyText}
+        verificationMessage={otpMessage}
         customerData={customerData}
         selectedVal={state.method}
         onClose2Fa={onClose}

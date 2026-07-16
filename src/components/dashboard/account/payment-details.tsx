@@ -731,6 +731,9 @@ const PaymentForm = () => {
     paymentDetailsInfo?.customer?.account_number ??
     '-';
 
+    console.log(CustomerInfo?.autopay,'CustomerInfo');
+    
+
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 720, mx: 'auto', p: { xs: 2, sm: 3 } }}>
@@ -847,6 +850,9 @@ const PaymentForm = () => {
               </Button>
             )}
 
+            {CustomerInfo?.autopay === 0 &&(
+
+            
             <Button
               variant="contained"
               onClick={() => navigate(paths.dashboard.autoPay())}
@@ -861,8 +867,10 @@ const PaymentForm = () => {
               }}
             >
               Enroll in AutoPay
+            
             </Button>
-          </Box>
+       )}
+       </Box>
 
           {/* Name & Email */}
           <Box sx={{}}>

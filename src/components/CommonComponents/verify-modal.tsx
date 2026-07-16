@@ -1,11 +1,11 @@
 import * as React from "react";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
   Box,
+  Stack,
   Typography,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
@@ -17,13 +17,15 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { updateAccountInfo } from "@/state/features/accountSlice";
+import { CheckCircle } from "@phosphor-icons/react";
 
 // ✅ Zod schema
 const schema = z.object({
   code: z
     .string()
     .min(4, "Authorization code must be at least 4 characters")
-    .max(12, "Authorization code must not exceed 12 characters"),
+    .max(12, "Authorization code must not exceed 12 characters")
+    .regex(/^\d+$/, "Authorization code must contain numbers only"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -47,7 +49,49 @@ type AuthCodeModalProps = {
   onVerify: (code: string) => void;
   customerData: CustomerInfo | null;
   onClose2Fa: () => void;
+  /**
+   * Message coming back from the API, e.g.
+   * "We've sent a verification code to m****@gmail.com."
+   * Any masked-email-looking substring inside it is auto-highlighted.
+   */
+  verificationMessage?: string;
+  /** Static helper copy shown under the message. Overridable if the API drives it too. */
+  helperText?: string;
 };
+
+// Highlights an email-like substring (e.g. "m****@gmail.com") inside the API message
+// so it renders like the underlined blue text in the mock, without needing a separate prop.
+// Masks the local part of an email, keeping only the first character, e.g.
+// "michael@gmail.com" -> "m****@gmail.com". Leaves already-masked emails alone.
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!domain) return email;
+  if (local.includes("*")) return email;
+  const firstChar = local.charAt(0);
+  return `${firstChar}****@${domain}`;
+}
+
+function renderMessageWithEmailHighlight(message: string): React.ReactNode {
+  const emailPattern = /[a-zA-Z0-9*._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  const parts = message.split(emailPattern);
+  const matches = message.match(emailPattern) ?? [];
+
+  return parts.reduce<React.ReactNode[]>((acc, part, i) => {
+    acc.push(<React.Fragment key={`t-${i}`}>{part}</React.Fragment>);
+    if (matches[i]) {
+      acc.push(
+        <Box
+          key={`e-${i}`}
+          component="span"
+          sx={{ color: colors.blue, textDecoration: "underline", fontWeight: 500 }}
+        >
+          {maskEmail(matches[i])}
+        </Box>
+      );
+    }
+    return acc;
+  }, []);
+}
 
 export default function AuthCodeModal({
   open,
@@ -55,7 +99,9 @@ export default function AuthCodeModal({
   onClose,
   onVerify,
   customerData,
-  onClose2Fa
+  onClose2Fa,
+  verificationMessage = "We've sent a verification code to your registered contact.",
+  helperText = "Enter the verification code below to continue signing in.",
 }: AuthCodeModalProps) {
   const {
     register,
@@ -66,7 +112,6 @@ export default function AuthCodeModal({
     resolver: zodResolver(schema),
   });
 
-  const customerInfo = customerData;
   const { otpLoading } = useSelector(
     (state: RootState) => state?.Account
   );
@@ -79,15 +124,6 @@ export default function AuthCodeModal({
 
   const handleSendCode = (data: FormValues) => {
     onVerify(data.code);
-
-    // id:810
-    // 2fa:1
-    // phone_no:(194) 920-0811
-    // model_open:13
-    // acl_role_id:4
-    // customer_id:810
-    // country_code:1
-    // selected_value:method
 
     const userId = stored?.body?.customer_id;
 
@@ -103,15 +139,6 @@ export default function AuthCodeModal({
     formData.append("phone_no", "0");
     formData.append("otp", data.code);
     formData.append("selected_value", selectedVal);
-
-    // "id:810
-    // 2fa:1
-    // phone_no:0
-    // model_open:14
-    // acl_role_id:4
-    // customer_id:810
-    // country_code:1
-    // otp:553871"
 
     dispatch(
       updateAccountInfo(
@@ -130,42 +157,69 @@ export default function AuthCodeModal({
   const onSubmit = async (_data: FormValues) => {
     reset();
     onClose();
-    onClose2Fa()
+    onClose2Fa();
   };
+
   return (
     <Dialog
       open={open}
-      // onClose={onClose}
       maxWidth="xs"
       fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: "20px",
+          px: 1,
+        },
+      }}
     >
-      <DialogTitle>
-        <Typography variant="h6" fontWeight={500}>
-          Enter the authorization code you received: (Account No.{" "}
-          {customerInfo?.acctnum})
-        </Typography>
-      </DialogTitle>
-
       <form onSubmit={handleSubmit(handleSendCode)} noValidate>
-        <DialogContent>
-          <Box mt={1}>
-            <TextField
-              fullWidth
-              placeholder="Authorization Code"
-              {...register("code")}
-              error={!!errors.code}
-              helperText={errors.code?.message}
-              sx={{
-                "& .MuiInputBase-input::placeholder": {
-                  color: "rgba(0,0,0,0.6) !important", // gray placeholder
-                  opacity: 1,
-                },
-              }}
-            />
-          </Box>
+        <DialogContent sx={{ pt: 4, pb: 1 }}>
+          <Stack alignItems="center" spacing={2.5} textAlign="center">
+            <CheckCircle size={64} color="#1FAA59" weight="fill" />
+
+            <Box>
+              <Typography sx={{ fontWeight: 700, fontSize: "1.1rem", mb: 0.5 }}>
+                Check Your Email
+              </Typography>
+              <Typography sx={{ fontSize: "0.9rem", color: "text.secondary" }}>
+                {renderMessageWithEmailHighlight(verificationMessage)}
+              </Typography>
+            </Box>
+
+            <Typography sx={{ fontSize: "0.9rem", color: "text.secondary" }}>
+              {helperText}
+            </Typography>
+
+            <Box sx={{ width: "100%" }}>
+              <Typography sx={{ fontWeight: 600, fontSize: "0.9rem", mb: 1 }}>
+                Verification Code
+              </Typography>
+              <TextField
+                {...register("code", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, "");
+                  },
+                })}
+                error={!!errors.code}
+                helperText={errors.code?.message}
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                  maxLength: 6,
+                  style: { textAlign: "center" },
+                }}
+                sx={{
+                  width: 160,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "10px",
+                  },
+                }}
+              />
+            </Box>
+          </Stack>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 2 }}>
+        <DialogActions sx={{ px: 3, pb: 4, pt: 2, justifyContent: "center", gap: 1.5 }}>
           <Button
             onClick={onClose}
             variant="outlined"
@@ -174,8 +228,9 @@ export default function AuthCodeModal({
               color: colors.blue,
               borderColor: colors.blue,
               backgroundColor: "white",
-              borderRadius: "12px",
+              borderRadius: "24px",
               height: "41px",
+              minWidth: "120px",
             }}
           >
             Cancel
@@ -184,19 +239,18 @@ export default function AuthCodeModal({
             loading={otpLoading}
             disabled={otpLoading}
             type="submit"
-            //   onClick={handleVerify}
             variant="contained"
             textTransform="none"
             bgColor={colors.blue}
             hoverBackgroundColor={colors["blue.3"]}
             hoverColor="white"
             style={{
-              borderRadius: "12px",
+              borderRadius: "24px",
               height: "41px",
-              // backgroundColor: 'red',
+              minWidth: "120px",
             }}
           >
-            Verify
+            VERIFY
           </Button>
         </DialogActions>
       </form>

@@ -41,12 +41,14 @@ export function MainNav(): React.JSX.Element {
   );
 
   interface AliasUser {
-  logo?: string;
-}
+    company_name?: string;
+    logo?: string;
+  }
 
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo") as Record<string, any> | null;
-  const aliasUser: AliasUser | null = getLocalStorage("alias-details")  as AliasUser | null;
+  const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
+
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 
@@ -59,22 +61,22 @@ export function MainNav(): React.JSX.Element {
     return parts[0].charAt(0).toUpperCase() + parts[1].charAt(0).toUpperCase();
   };
   const routeChecker = useSelector(
-      (state: RootState) => state?.DashBoard?.routeChecker
-    );
+    (state: RootState) => state?.DashBoard?.routeChecker
+  );
 
 
-  const handleLogoClickPath = ()=>{
+  const handleLogoClickPath = () => {
     if (routeChecker) {
-        const confirmLeave = window.confirm(
-          "You have unsaved changes. Are you sure you want to leave this page?"
-        );
-        if (confirmLeave) {
-          return navigate(paths.dashboard.overview())
-        }
+      const confirmLeave = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave this page?"
+      );
+      if (confirmLeave) {
+        return navigate(paths.dashboard.overview())
       }
-      else{
-        navigate(paths.dashboard.overview())
-      }
+    }
+    else {
+      navigate(paths.dashboard.overview())
+    }
   }
 
   return (
@@ -125,26 +127,30 @@ export function MainNav(): React.JSX.Element {
                 //   }}
                 // />
 
-                <Avatar
-  src={aliasUser?.logo}
-  sx={{
-    width:  "max-content",
-    height: { xs: 50, sm: 60, md: 70 },
-    mr: { xs: 1, sm: 1.5 },
-    cursor: "pointer",
-    flexShrink: 0,
-    bgcolor: "#fff",
-    // border: "1px solid #e0e0e0",
-    borderRadius:"0",
+                <>
 
-    "& img": {
-      objectFit: "contain",
-      // width: "100%",
-      // height: "100%",
-      // padding: "4px",
-    },
-  }}
-/>
+                  <Avatar
+                    src={aliasUser?.logo}
+                    sx={{
+                      width: "max-content",
+                      height: { xs: 50, sm: 60, md: 70 },
+                      mr: { xs: 1, sm: 1.5 },
+                      cursor: "pointer",
+                      flexShrink: 0,
+                      bgcolor: "#fff",
+                      // border: "1px solid #e0e0e0",
+                      borderRadius: "0",
+
+                      "& img": {
+                        objectFit: "contain",
+                        // width: "100%",
+                        // height: "100%",
+                        // padding: "4px",
+                      },
+                    }}
+                  />
+                  <Typography sx={{fontSize:"22px", my:"auto", fontWeight:600}}>{aliasUser?.company_name}</Typography>
+                </>
               ) : (
                 <Logo
                   color="dark"
