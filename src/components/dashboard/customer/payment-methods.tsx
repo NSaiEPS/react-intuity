@@ -42,6 +42,7 @@ import AddCardModal from './add-card-modal';
 import { useLoading } from '@/components/core/skeleton-context';
 import { tooltipSx } from '@/utils/config';
 import { PaymentCard } from '@/types/domain';
+import { RemovePaymentMethodDialog } from '@/styles/theme/components/RemovePaymentMethodDialog';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -1287,17 +1288,18 @@ export const PaymentMethods = ({
             <Grid item>
               <CardActions sx={{ justifyContent: 'flex-end' }}>
                 <Button
-                  onClick={() => setSelectedId(null)}
+                  onClick={() => setSelectedCard(selectedCardInfo)}
                   variant="outlined"
-                  disabled={!selectedId}
+                  disabled={selectedCard?.id === selectedCardInfo?.id}
                   size="small"
                   sx={{
                     color: colors.blue,
                     borderColor: colors.blue,
+                    borderRadius:1.2,
                     '@media (max-width:600px)': {
                       paddingX: 1,
                       paddingY: 0.3,
-                      fontSize: "0.6rem"
+                      fontSize: "0.8rem"
                     },
                   }}
                 >
@@ -1306,15 +1308,16 @@ export const PaymentMethods = ({
                 <Button
                   onClick={handleSaveDetails}
                   variant="contained"
-                  disabled={!selectedId}
+                  disabled={selectedCard?.id === selectedCardInfo?.id}
                   size='small'
                   sx={{
                     backgroundColor: colors.blue,
+                    borderRadius:1,
                     '&:hover': { backgroundColor: colors['blue.3'] },
                     '@media (max-width:600px)': {
                       paddingX: 1,
                       paddingY: 0.3,
-                      fontSize: "0.6rem"
+                      fontSize: "0.8rem"
                     },
                   }}
                 >
@@ -1332,7 +1335,7 @@ export const PaymentMethods = ({
               />
             )}
             {bankModalOpen && <AddBankAccountModal open={bankModalOpen} onClose={() => setBankModalOpen(false)} />}
-
+            {/* 
             <ConfirmDialog
               open={openConfirm}
               title={deleCardDetails?.card_type ? 'Card' : 'Bank Account'}
@@ -1352,6 +1355,15 @@ export const PaymentMethods = ({
               cancelLabel="Cancel"
               onConfirm={handleConfirm}
               onCancel={() => (setOpenConfirm(false))}
+              loader={accountLoading}
+            /> */}
+
+            <RemovePaymentMethodDialog
+              open={openConfirm}
+              details={deleCardDetails}
+              isPrimary={isDeletingPrimaryCard}
+              onConfirm={handleConfirm}
+              onCancel={() => setOpenConfirm(false)}
               loader={accountLoading}
             />
 

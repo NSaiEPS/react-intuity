@@ -292,9 +292,9 @@ export const updateAccountInfo = (
 
     if (res.status) {
       if (reduxNeeded) dispatch(setNotificationPreferenceDetails(res?.body));
-      if (res?.body?.otp)
+      if (res?.body?.otp) toast.success("OTP sent successfully.");
         if (!dataRequired) {
-          toastNotification.success(
+          toast.success(
             res?.status == 200
               ? res?.data
               : res?.message
@@ -302,9 +302,7 @@ export const updateAccountInfo = (
                 : profile
                   ? "Updated User Info"
                   : "Updated Password!",
-            {
-              autoClose: 1500,
-            }
+           
           );
         }
       if (successCallBack) {

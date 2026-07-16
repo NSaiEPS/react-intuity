@@ -51,7 +51,7 @@ export function ConfirmDialog({
         sx: {
           m: { xs: 0, sm: 4 },
           width: { xs: "95%", sm: "auto" },
-          maxWidth: { xs: "100%", sm: "40%" },
+          maxWidth: { xs: "100%", sm: "70%", md:"50%", lg:"35%" },
         },
       }}
     >

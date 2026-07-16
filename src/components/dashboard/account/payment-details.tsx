@@ -867,7 +867,7 @@ const PaymentForm = () => {
           {/* Name & Email */}
           <Box sx={{}}>
             <Box flex={1}>
-              <Typography fontWeight={600}>Name</Typography>
+              <Typography fontWeight={600}>Name for Payment Receipt</Typography>
               <Controller
                 name="name"
                 control={control}
@@ -884,7 +884,7 @@ const PaymentForm = () => {
             </Box>
 
             <Box flex={1} sx={{ mt: 1 }}>
-              <Typography fontWeight={600}>Email</Typography>
+              <Typography fontWeight={600}>Email for Payment Receipt</Typography>
               <Controller
                 name="email"
                 control={control}
@@ -956,7 +956,7 @@ const PaymentForm = () => {
                       // startAdornment: <span style={{ marginRight: 0, flexShrink: 0 }}>$</span>,
                       sx: {
                         justifyContent: 'flex-end',
-                        pr: { xs: 2, sm: 4 },
+                        pr: 0 ,
                       },
                     }}
                     inputProps={{
@@ -1025,13 +1025,13 @@ const PaymentForm = () => {
                 alignItems: 'center',
               }}
             >
-              <Typography sx={{ fontSize: { xs: 16, sm: 18 }, color: 'black' }}>Convenience Fee</Typography>
+              <Typography sx={{ fontSize: 16, color: 'black' }}>Convenience Fee</Typography>
               <Typography
                 sx={{
-                  fontSize: { xs: 16, sm: 18 },
+                  fontSize: 16,
                   color: 'black',
                   textAlign: 'right',
-                  pr: { xs: 2, sm: 6 },
+                  pr: "14px",
                 }}
               >
                 ${Number(watch('convenienceFee') || 0).toFixed(2)}
@@ -1044,7 +1044,7 @@ const PaymentForm = () => {
                 }}
               />
 
-              <Typography fontWeight={700} color="black">
+              <Typography fontWeight={700} color="black" mb={1}>
                 Total Payment
               </Typography>
               <Typography
@@ -1054,7 +1054,7 @@ const PaymentForm = () => {
                   textAlign: 'right',
                   minWidth: 0,
                   overflowWrap: 'anywhere',
-                  pr: { xs: 2, sm: 6 },
+                  pr: "14px",
                 }}
               >
                 ${formatCurrency(((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)).toFixed(2))}
@@ -1100,12 +1100,12 @@ const PaymentForm = () => {
                 </Grid>
 
                 {/* Right side: Texts */}
-                <Grid item xs={12} md={6}>
-                  <Box display="flex" flexDirection="column" gap={1}>
+                {/* <Grid item xs={12} md={6}>
+                  <Box display="flex" flexDirection="column" alignItems={"start"} justifyContent={"flex-start"}>
                     <Typography fontWeight={600}>Due Date</Typography>
                     <Typography fontWeight={600}>{dueDate}</Typography>
                   </Box>
-                </Grid>
+                </Grid> */}
               </Grid>
             </Box>
           )}
@@ -1684,7 +1684,7 @@ const PaymentForm = () => {
               open={recurringAckownledgeModal}
               title={'Customer Acknowledgement'}
               message={customer_acknowledgement_text}
-              confirmLabel="Yes, Confirm"
+              confirmLabel="Ok"
               cancelLabel="Cancel"
               onConfirm={onCustomerAckowledge}
               onCancel={() => {
