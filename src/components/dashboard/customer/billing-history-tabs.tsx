@@ -24,6 +24,7 @@ import utc from "dayjs/plugin/utc";
 
 import { paths } from "@/utils/paths";
 import { colors } from "@/utils";
+import { formatCurrency } from "@/utils/formatters";
 
 // Register plugins
 dayjs.extend(utc);
@@ -166,9 +167,9 @@ export default function InvoiceTransactionTabs({
                     {currentTab === "invoice"
                       ? dayjs(item?.billing_date).format("MMM D, YYYY")
                       : dayjs
-                          .tz(item.transaction_date, "America/Chicago") // or whichever US timezone server uses
-                          .tz(dayjs.tz.guess()) // convert to user's local time
-                          .format("YYYY-MM-DD hh:mm A z")}
+                        .tz(item.transaction_date, "America/Chicago") // or whichever US timezone server uses
+                        .tz(dayjs.tz.guess()) // convert to user's local time
+                        .format("YYYY-MM-DD hh:mm A")}
                     {/* // dayjs(item?.transaction_date).format('MMM D, YYYY')} */}
                   </TableCell>
                   {/* {currentTab !== 'invoice' && <TableCell>{item?.acctnum}</TableCell>} */}
@@ -201,9 +202,10 @@ export default function InvoiceTransactionTabs({
                   </TableCell>
                   <TableCell>
                     {/* ${item?.amount} */}
-                    {item?.amount < 0
+                    {/* {item?.amount < 0
                       ? `($${Math.abs(parseFloat(item.amount)).toFixed(2)})`
-                      : `$${item?.amount}`}
+                      : `$${item?.amount}`} */}
+                    {formatCurrency(item?.amount)}
                   </TableCell>
 
                   <TableCell>
@@ -214,12 +216,14 @@ export default function InvoiceTransactionTabs({
                         justifyContent: "space-between",
                       }}
                     >
-                      {/* ${item?.balance_due} */}$
-                      {item?.balance_due < 0
+                      {/* ${item?.balance_due} */}
+                      {/* {item?.balance_due < 0
                         ? `(${Math.abs(parseFloat(item.balance_due)).toFixed(
-                            2
-                          )})`
-                        : item?.balance_due}
+                          2
+                        )})`
+                        : item?.balance_due} */}
+
+                      {formatCurrency(item?.balance_due)}
                       {currentTab === "invoice" && (
                         <Box
                           // onClick={() => setPdfModal(true)}
@@ -269,12 +273,12 @@ export default function InvoiceTransactionTabs({
                         {row.status == 1
                           ? "Success"
                           : row.status == 0
-                          ? "Declined"
-                          : row.status == 2
-                          ? "Pending"
-                          : row.status == 3
-                          ? "Authorization"
-                          : ""}
+                            ? "Declined"
+                            : row.status == 2
+                              ? "Pending"
+                              : row.status == 3
+                                ? "Authorization"
+                                : ""}
                       </TableCell>
                       <TableCell>${row.amount}</TableCell>
                       <TableCell>${row.balance_due}</TableCell>

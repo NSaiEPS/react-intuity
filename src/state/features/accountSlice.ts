@@ -293,8 +293,8 @@ export const updateAccountInfo = (
     if (res.status) {
       if (reduxNeeded) dispatch(setNotificationPreferenceDetails(res?.body));
       // if (res?.body?.otp) toast.success("OTP sent successfully.");
-        if (!dataRequired) {
-          if(typeOfLoading !="2fa")
+      if (!dataRequired) {
+        if (typeOfLoading != "2fa")
           toastNotification.success(
             res?.status == 200
               ? res?.data
@@ -303,9 +303,9 @@ export const updateAccountInfo = (
                 : profile
                   ? "Updated User Info"
                   : "Updated Password!",
-           
+
           );
-        }
+      }
       if (successCallBack) {
         dataRequired ? successCallBack(res?.body) : successCallBack(res);
       }
@@ -383,7 +383,8 @@ export const getPaymentDetails = (
   formData: FormData,
   isPost = false,
   successCallBack?: (customer: any) => void,
-  setContextLoading?: SetLoadingFn
+  setContextLoading?: SetLoadingFn,
+  onReturnCard?: (data: any) => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
@@ -391,6 +392,9 @@ export const getPaymentDetails = (
 
     if (res?.status) {
       if (successCallBack) successCallBack(res?.body?.customer);
+      if (onReturnCard) {
+        onReturnCard(res?.body)
+      }
       if (!isPost) {
         dispatch(setPaymentMethodInfo(res?.body?.mycards));
         dispatch(setSelectedCardInfo(res?.body?.selected_card));

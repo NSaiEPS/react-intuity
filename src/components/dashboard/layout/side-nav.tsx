@@ -34,10 +34,14 @@ function renderNavItems({
   items = [],
   pathname,
   allow_auto_payment,
+  openGroupKey,
+  onGroupToggle,
 }: {
   items?: NavItemConfig[];
   pathname: string;
   allow_auto_payment: string | number;
+  openGroupKey: string | null;
+  onGroupToggle: (key: string) => void;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig) => {
     const { key, items: subItems, ...item } = curr;
@@ -50,7 +54,15 @@ function renderNavItems({
     if (subItems && subItems.length > 0) {
       const filteredSubItems = subItems.filter((sub) => sub.key !== "auto-pay" || allow_auto_payment === 1);
       acc.push(
-        <NavGroup key={key} pathname={pathname} groupKey={key} {...item} items={filteredSubItems} />
+        <NavGroup
+          key={key}
+          pathname={pathname}
+          groupKey={key}
+          {...item}
+          items={filteredSubItems}
+          open={openGroupKey === key}
+          onToggle={onGroupToggle}
+        />
       );
     } else {
       acc.push(<NavItem key={key} pathname={pathname} {...item} />);
@@ -78,6 +90,31 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
       allow_auto_payment: dashBoardInfo?.body?.company?.allow_auto_payment ?? companyDetails?.allow_auto_payment,
     };
   }, [dashBoardInfo?.body?.company?.allow_auto_payment]); // ← only re-runs when company data changes
+
+  // ----- accordion state: which top-level group is currently expanded -----
+  // Only one dropdown should be open at a time.
+  const activeGroupKey = React.useMemo(() => {
+    for (const item of navItems) {
+      if (item.items && item.items.length > 0) {
+        if (item.items.some((child) => isItemOrDescendantActive(child, pathname))) {
+          return item.key;
+        }
+      }
+    }
+    return null;
+  }, [pathname]);
+
+  const [openGroupKey, setOpenGroupKey] = React.useState<string | null>(activeGroupKey);
+
+  // Whenever navigation lands on a route inside a group, auto-expand that group
+  // (and implicitly collapse whatever else was open, since only one key is tracked).
+  React.useEffect(() => {
+    if (activeGroupKey) setOpenGroupKey(activeGroupKey);
+  }, [activeGroupKey]);
+
+  const handleGroupToggle = React.useCallback((key: string) => {
+    setOpenGroupKey((prev) => (prev === key ? null : key));
+  }, []);
 
   return (
     <Box
@@ -112,7 +149,13 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
     >
       <Divider sx={{ borderColor: "var(--mui-palette-neutral-700)" }} />
       <Box component="nav" sx={{ flex: "1 1 auto", p: "10px", paddingLeft: "0px", mt: 1 }}>
-        {renderNavItems({ pathname, items: navItems, allow_auto_payment })}
+        {renderNavItems({
+          pathname,
+          items: navItems,
+          allow_auto_payment,
+          openGroupKey,
+          onGroupToggle: handleGroupToggle,
+        })}
       </Box>
       <Divider sx={{ borderColor: "var(--mui-palette-neutral-700)" }} />
     </Box>
@@ -126,6 +169,8 @@ interface NavGroupProps extends Omit<NavItemConfig, "items"> {
   pathname: string;
   groupKey: string;
   items: NavItemConfig[];
+  open: boolean;
+  onToggle: (key: string) => void;
 }
 
 const NavGroup = React.memo(function NavGroup({
@@ -134,23 +179,21 @@ const NavGroup = React.memo(function NavGroup({
   items,
   pathname,
   title,
+  open,
+  onToggle,
 }: NavGroupProps): React.JSX.Element {
   const hasActiveChild = React.useMemo(
     () => items.some((child) => isItemOrDescendantActive(child, pathname)),
     [items, pathname]
   );
 
-  const [open, setOpen] = React.useState(hasActiveChild);
-
-  React.useEffect(() => {
-    if (hasActiveChild) setOpen(true);
-  }, [hasActiveChild]);
-
   const Icon = icon ? navIcons[icon] : null;
 
+  // Toggling this group closes whatever other group was open, since
+  // openGroupKey in the parent only ever holds a single key at a time.
   const handleToggle = React.useCallback(() => {
-    setOpen((prev) => !prev);
-  }, []);
+    onToggle(groupKey);
+  }, [onToggle, groupKey]);
 
   return (
     <li>

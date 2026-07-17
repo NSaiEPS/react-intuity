@@ -92,38 +92,38 @@ export function LastBill(): React.JSX.Element {
     // totalAmount computed for potential future balance display
   }, [lastBillInfo?.billing_list]);
 
-const handlePreviewInvoice = async () => {
-  if (!invoiceDetails) return;
+  const handlePreviewInvoice = async () => {
+    if (!invoiceDetails) return;
 
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  if (isMobile) {
-    try {
-      const [{ pdf }, { default: InvoicePdfDocument }] = await Promise.all([
-        import("@react-pdf/renderer"),
-        import("../layout/invoice-pdf-view"),
-      ]);
+    if (isMobile) {
+      try {
+        const [{ pdf }, { default: InvoicePdfDocument }] = await Promise.all([
+          import("@react-pdf/renderer"),
+          import("../layout/invoice-pdf-view"),
+        ]);
 
-      const blob = await pdf(
-        <InvoicePdfDocument invoiceDetails={invoiceDetails} />
-      ).toBlob();
+        const blob = await pdf(
+          <InvoicePdfDocument invoiceDetails={invoiceDetails} />
+        ).toBlob();
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `invoice-${lastBillInfo?.last_bill?.invoice_number || "file"}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("PDF Download Error:", error);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `invoice-${lastBillInfo?.last_bill?.invoice_number || "file"}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("PDF Download Error:", error);
+      }
+      return;
     }
-    return;
-  }
 
-  setPdfPreviewInvocie(true);
-};
+    setPdfPreviewInvocie(true);
+  };
 
 
   const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? "";
@@ -175,28 +175,28 @@ const handlePreviewInvoice = async () => {
             <UtilityList data={lastBillInfo?.billing_list ?? {}} />
 
             {
-              invoiceDetails?.extra_params?.map((item)=>{
-                return(
- <Box
-              sx={{
-                backgroundColor: "#e7f0f7",
-                px: 2,
-                py: 1,
-                borderRadius: 1,
+              invoiceDetails?.extra_params?.map((item) => {
+                return (
+                  <Box
+                    sx={{
+                      backgroundColor: "#e7f0f7",
+                      px: 2,
+                      py: 1,
+                      borderRadius: 1,
 
-              }}
-            >
-              <Grid container justifyContent="space-between">
-                <Typography fontWeight="bold">{item?.product_id}</Typography>
-                <Typography fontWeight="medium">${Number(item?.amount).toFixed(2)}</Typography>
-              </Grid>
-            </Box>
+                    }}
+                  >
+                    <Grid container justifyContent="space-between">
+                      <Typography fontWeight="bold">{item?.product_id}</Typography>
+                      <Typography fontWeight="medium">{formatCurrency(item?.amount)}</Typography>
+                    </Grid>
+                  </Box>
                 )
               })
             }
 
-           
-           
+
+
 
             <Grid container mt={2} spacing={2} alignItems="stretch">
               <Grid item xs={6} sx={{ display: "flex", flexDirection: "column" }}>
@@ -239,9 +239,10 @@ const handlePreviewInvoice = async () => {
                   }}
                 >
                   <Typography variant="h6" fontWeight="bold">
-                    {Number(lastBillInfo?.last_bill?.amount) < 0
+                    {/* {Number(lastBillInfo?.last_bill?.amount) < 0
                       ? `-$${Math.abs(Number(lastBillInfo?.last_bill?.amount)).toFixed(2)}`
-                      : `$${Number(lastBillInfo?.last_bill?.amount ?? 0).toFixed(2)}`}
+                      : `$${Number(lastBillInfo?.last_bill?.amount ?? 0).toFixed(2)}`} */}
+                    {formatCurrency(lastBillInfo?.last_bill?.amount)}
                   </Typography>
                 </Box>
               </Grid>
@@ -265,7 +266,8 @@ const handlePreviewInvoice = async () => {
                     : ""}
                 </Typography>
                 <Typography fontWeight="bold" color="red">
-                  ${Number(lastBillInfo?.last_bill?.late_date_amount ?? 0).toFixed(2)}
+                  {/* ${Number(lastBillInfo?.last_bill?.late_date_amount ?? 0).toFixed(2)} */}
+                  {formatCurrency(lastBillInfo?.last_bill?.late_date_amount)}
                 </Typography>
               </Grid>
             </Box>
@@ -285,10 +287,11 @@ const handlePreviewInvoice = async () => {
                   Total invoice amount plus new late fee
                 </Typography>
                 <Typography fontWeight="bold">
-                  ${(
+                  {/* ${(
                     Number(lastBillInfo?.last_bill?.amount ?? 0) +
                     Number(lastBillInfo?.last_bill?.late_date_amount ?? 0)
-                  ).toFixed(2)}
+                  ).toFixed(2)} */}
+                  {formatCurrency(Number(lastBillInfo?.last_bill?.amount ?? 0) + Number(lastBillInfo?.last_bill?.late_date_amount ?? 0))}
                 </Typography>
               </Grid>
             </Box>
@@ -319,7 +322,7 @@ const handlePreviewInvoice = async () => {
             Total Account Balance
           </Typography>
           <Typography variant="h3" color={colors.blue} fontWeight="bold">
-            ${formatCurrency(Number(lastBillInfo?.customer?.balance ?? 0).toFixed(2))}
+            {formatCurrency(Number(lastBillInfo?.customer?.balance ?? 0))}
           </Typography>
 
           {!lastBillInfo?.last_bill?.id ? (
@@ -371,7 +374,7 @@ const handlePreviewInvoice = async () => {
           >
             {lastBillInfo?.payment_pending}
           </Typography>
-          
+
         </Grid>
       </Grid>
 

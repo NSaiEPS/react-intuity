@@ -96,7 +96,7 @@ interface CardDetails {
   bank_account_number?: string;
   card_type?: string;
   card_token?: string;
-  id?: string;
+  id?: string | number;
   last4?: string;
   brand?: string;
   expMonth?: number;
@@ -730,6 +730,8 @@ function ReviewConfirm({
   accountLoading,
   selectedCardDetails,
   setSelectedCardDetails,
+  openPaymentModal,
+  setOpenPaymentModal,
 }: {
   methods: PaymentMethod[];
   autopayMethodId: string;
@@ -751,11 +753,10 @@ function ReviewConfirm({
   accountLoading: boolean;
   selectedCardDetails: CardDetails | null;
   setSelectedCardDetails: React.Dispatch<React.SetStateAction<CardDetails | null>>;
+  openPaymentModal: boolean;
+  setOpenPaymentModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   // const [manageOpen, setManageOpen] = useState(false);
-
-  const [openPaymentModal, setOpenPaymentModal] = useState(false);
-
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
@@ -769,7 +770,7 @@ function ReviewConfirm({
       </Typography>
 
       <Card variant="outlined" sx={{ p: 1, borderRadius: 0, border: "none" }}>
-        <AccountBanner accountNo={accountNo} amountDue={formatCurrency(amountDue)} dueDate={dueDate} />
+        <AccountBanner accountNo={accountNo} amountDue={amountDue} dueDate={dueDate} />
         <StepRail step={2} />
         <PaymentMethodSelector
           methods={methods}
@@ -842,44 +843,7 @@ function ReviewConfirm({
         </Stack>
       </Card>
 
-      {openPaymentModal && (
-        <Dialog
-          open={openPaymentModal}
-          scroll="paper"
-          fullWidth
-          // maxWidth="95%"// ✅ disable preset sizes
-          PaperProps={{
-            sx: {
-              maxHeight: { xs: '95vh', sm: "90vh" },
-              maxWidth: "95%",
-              margin: 0,
-              width: { xs: '95%', sm: "830px" }, // ✅ custom fixed width
-              borderRadius: '12px',
-            },
-          }}
-        >
-          <PaymentMethods
-            onClose={() => {
-              setOpenPaymentModal(false);
-            }}
-            isModal={true}
-            count={10}
-            page={1}
-            rows={[]}
-            rowsPerPage={10}
-            onSaveCardDetails={(data: any) => {
-              try {
-                setSelectedCardDetails(data);
-                setOpenPaymentModal(false);
-                // setOpenConfirm(true);
-              } catch {
-                console.error('Failed to parse card details');
-              }
-            }}
-            paymentDetailsPage={true}
-          />
-        </Dialog>
-      )}
+
     </Box>
   );
 }
@@ -889,6 +853,12 @@ function ReviewConfirm({
  * ------------------------------------------------------------------ */
 function EnrollChoose({
   methods,
+  setOpenPaymentModal,
+  setCardModalOpen,
+  setBankModalOpen,
+  paymentType,
+  setPaymentType,
+  selectedCardDetails,
   onContinueExisting,
   onNewMethodContinue,
   onCancel,
@@ -897,6 +867,12 @@ function EnrollChoose({
   dueDate,
 }: {
   methods: PaymentMethod[];
+  setOpenPaymentModal: (value: boolean) => void;
+  setCardModalOpen: (value: boolean) => void;
+  setBankModalOpen: (value: boolean) => void;
+  setPaymentType: (type: 'saved' | 'no-save') => void;
+  paymentType: 'saved' | 'no-save';
+  selectedCardDetails: CardDetails;
   onContinueExisting: (id: string) => void;
   onNewMethodContinue: (method: PaymentMethod) => void;
   onCancel: () => void;
@@ -917,9 +893,7 @@ function EnrollChoose({
   // capture modal, depending on USE_DUMMY_PAYMENT_FLOW.
   const [newType, setNewType] = useState<MethodType | null>(null);
 
-  const [showDummyIframe, setShowDummyIframe] = useState(false);
-  const [cardModalOpen, setCardModalOpen] = useState(false);
-  const [bankModalOpen, setBankModalOpen] = useState(false);
+  const [showDummyIframe, setShowDummyIframe] = useState(false)
 
   const canContinue = mode === 'existing' ? !!pickedExistingId : false;
 
@@ -936,15 +910,15 @@ function EnrollChoose({
   // }
 
   function handleSelectNewType(type: MethodType) {
-  setMode("new");
-  setNewType(type);
+    setMode("new");
+    setNewType(type);
 
-  if (type === "card") {
-    setCardModalOpen(true);
-  } else {
-    setBankModalOpen(true);
+    if (type === "card") {
+      setCardModalOpen(true);
+    } else {
+      setBankModalOpen(true);
+    }
   }
-}
 
   function closeDummyDialog() {
     setShowDummyIframe(false);
@@ -986,135 +960,136 @@ function EnrollChoose({
         <AccountBanner accountNo={accountNo} amountDue={amountDue} dueDate={dueDate} />
         <StepRail step={1} />
       </Box>
+      < Box
+        sx={{
+          border: '1.5px solid #2A72B9',
+          borderRadius: '16px',
+          p: 3,
+          mb: 3,
+          backgroundColor: '#ffffff',
+        }}
+      >
+        <Typography sx={{ fontWeight: 'bold', fontSize: '18px', color: '#172D56', mb: 2 }}>
+          Payment Method
+        </Typography>
 
-      <Card variant="outlined" sx={{ p: 2.5, borderColor: palette.line }}>
-        {hasSaved && (
-          <Typography variant="overline" sx={{ color: palette.gray, fontWeight: 800, letterSpacing: '.04em' }}>
-            Payment Method
-          </Typography>
-        )}
+        <RadioGroup
+          value={paymentType}
+          onChange={(e) => {
+            const val = e.target.value as 'saved' | 'no-save';
+            setPaymentType(val);
+          }}
+        >
+          {/* Option 1: Saved Payment Method */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
+            <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} />
 
-        <Stack spacing={1} sx={{ mt: 1, mb: 1 }}>
-          {/* Scenarios 2 & 3: at least one saved method exists. */}
-          {hasSaved && (
-            <>
-              {methods.map((m) => (
-                <Card
-                  key={m.id}
-                  variant="outlined"
-                  onClick={() => {
-                    setMode('existing');
-                    setPickedExistingId(m.id);
-                  }}
-                  sx={{
-                    cursor: 'pointer',
-                    borderColor: mode === 'existing' && pickedExistingId === m.id ? palette.blue : palette.line,
-                    bgcolor: mode === 'existing' && pickedExistingId === m.id ? palette.blueLight : 'transparent',
-                  }}
-                >
-                  <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: 1.25 }}>
-                    <Radio checked={mode === 'existing' && pickedExistingId === m.id} size="small" />
-                    <MethodIcon type={m.type} />
-                    <Typography sx={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{methodLabel(m)}</Typography>
-                    <DefaultChip isDefault={m.isDefault} />
-                  </Stack>
-                </Card>
-              ))}
+            {/* Saved payment details box */}
+            <Box
+              onClick={() => {
+                setPaymentType('saved');
+              }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #D6DBDF',
+                borderRadius: '8px',
+                p: '6px 12px',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
+                '&:hover': {
+                  borderColor: '#A6ACAF',
+                },
+                gap: 1.5,
+              }}
+            >
+              {renderCardBrand(selectedCardDetails?.card_type ?? selectedCardDetails?.account_type)}
 
-              {/* Scenario 3: "Add a new payment method" — expands into a
-                  nested Credit Card / Bank Account radio choice. */}
-              <Card
-                variant="outlined"
+              <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+                {selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Card'} ending in{' '}
+                {getCardLast4(selectedCardDetails)}
+              </Typography>
+
+              {/* Default Badge */}
+              <Box
+                onClick={() => {
+                  setOpenPaymentModal(true);
+                }}
                 sx={{
-                  borderColor: mode === 'new' ? palette.blue : palette.line,
-                  bgcolor: mode === 'new' ? palette.blueLight : 'transparent',
+                  backgroundColor: '#E8F8F5',
+                  color: '#117A65',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  px: 1,
+                  py: 0.2,
+                  borderRadius: '4px',
                 }}
               >
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  spacing={1.5}
-                  onClick={() => setMode('new')}
-                  sx={{ p: 1.25, cursor: 'pointer' }}
-                >
-                  <Radio checked={mode === 'new'} size="small" />
-                  <Typography sx={{ fontWeight: 700, fontSize: 14 }}>Add a new payment method</Typography>
-                </Stack>
+                Default
+              </Box>
 
-                {mode === 'new' && (
-                  <Box sx={{ pl: 4.5, pb: 1.5, pr: 1.5 }}>
-                    <Stack spacing={1}>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={1}
-                        sx={{ cursor: 'pointer' }}
-                        onClick={() => handleSelectNewType('card')}
-                      >
-                        <ArrowBendDownRight size={14} color={palette.grayLight} style={{ flexShrink: 0 }} />
-                        <Radio checked={newType === 'card'} size="small" />
-                        <Typography sx={{ fontWeight: 700, fontSize: 14 }}>Credit Card</Typography>
-                      </Stack>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={1}
-                        sx={{ cursor: 'pointer' }}
-                        onClick={() => handleSelectNewType('bank')}
-                      >
-                        <ArrowBendDownRight size={14} color={palette.grayLight} style={{ flexShrink: 0 }} />
-                        <Radio checked={newType === 'bank'} size="small" />
-                        <Typography sx={{ fontWeight: 700, fontSize: 14 }}>Bank Account</Typography>
-                      </Stack>
-                    </Stack>
+              {/* Caret/Chevron Icon */}
+              <Box
+                sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
+                onClick={() => {
+                  setOpenPaymentModal(true);
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Option 2: Pay this bill only */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <FormControlLabel
+              value="no-save"
+              control={<Radio color="primary" />}
+              label={
+                <Box sx={{ ml: 0.5, mt: -0.25 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography sx={{ fontWeight: 'bold', fontSize: '15px' }}>
+                      Add a new payment method
+                    </Typography>
                   </Box>
-                )}
-              </Card>
-            </>
-          )}
+                </Box>
+              }
+            />
+          </Box>
+        </RadioGroup>
 
-          {/* Scenario 1: no saved methods yet — Credit Card / Bank Account
-              are the only, top-level choice. */}
-          {!hasSaved && (
-            <Stack direction="row" spacing={3} sx={{ mb: 0.5 }}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={0.5}
-                sx={{ cursor: 'pointer' }}
-                onClick={() => handleSelectNewType('card')}
-              >
-                <Radio checked={newType === 'card'} size="small" />
-                <Typography sx={{ fontWeight: 700, fontSize: 14 }}>Credit Card</Typography>
-              </Stack>
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={0.5}
-                sx={{ cursor: 'pointer' }}
-                onClick={() => handleSelectNewType('bank')}
-              >
-                <Radio checked={newType === 'bank'} size="small" />
-                <Typography sx={{ fontWeight: 700, fontSize: 14 }}>Bank Account</Typography>
-                <Tooltip title={
-                  <span style={{ fontSize: "14px", lineHeight: 1.4 }}>A checking or savings account used for ACH/direct-debit payments.</span>}
-
-                  placement="top"
-                  arrow
-                  enterTouchDelay={0}
-                  leaveTouchDelay={3000}
-                  componentsProps={{ tooltip: { sx: tooltipSx } }}
-                >
-                  <IconButton size="small" sx={{ mr: 1 }}>
-                    <Question size={20} color="#90caf9" weight="fill" />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Stack>
-          )}
-        </Stack>
-
-        {mode === 'existing' && (
+        {paymentType === "no-save" && (
+          <Box
+            sx={{ px: 4 }}>
+            <RadioGroup
+              row
+            // value={debitType}
+            // onChange={(e) => setDebitType(e.target.value as 'card' | 'bank_account')}
+            >
+              <FormControlLabel value="card" control={<Radio />} label="Credit Card" onClick={() => setCardModalOpen(true)} />
+              <FormControlLabel
+                value="bank_account"
+                control={<Radio />}
+                label="Bank Account"
+                onClick={() => setBankModalOpen(true)}
+              />
+            </RadioGroup>
+          </Box>
+        )}
+      </Box >
+      {
+        mode === 'existing' && (
           <Stack direction="row"
             spacing={1.5} sx={{ mt: 2 }}>
             <Button variant="outlined" fullWidth onClick={onCancel} style={{
@@ -1143,73 +1118,9 @@ function EnrollChoose({
               Continue
             </Button>
           </Stack>
-        )}
-      </Card>
-
-      {/* Dummy simulation — active while USE_DUMMY_PAYMENT_FLOW is true. */}
-      {/* {showDummyIframe && (
-        <Dialog open={showDummyIframe} onClose={closeDummyDialog} maxWidth="xs" fullWidth>
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: palette.navy, fontWeight: 800 }}>
-            {newType === 'card' ? 'Add Credit Card' : 'Add Bank Account'}
-            <IconButton size="small" onClick={closeDummyDialog}>
-              <X size={16} />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent dividers>
-            <PaymentIframe type={newType!} onContinue={handleDummyContinue} />
-          </DialogContent>
-        </Dialog>
-      )} */}
-
-      {/* Real API modals — active once USE_DUMMY_PAYMENT_FLOW is false. */}
-      {cardModalOpen && (
-        <AddCardModal
-          open={cardModalOpen}
-          onClose={() => setCardModalOpen(false)}
-        // onSuccess={handleRealModalSuccess}
-        />
-      )}
-{/* 
-      {cardModalOpen && (
-  <Dialog
-    open={cardModalOpen}
-    onClose={() => setCardModalOpen(false)}
-    maxWidth="md"
-    fullWidth
-  >
-    <DialogContent>
-      <PaymentIframe
-        type="card"
-        onContinue={handleRealModalSuccess}
-      />
-    </DialogContent>
-  </Dialog>
-)} */}
-
-      {bankModalOpen && (
-        <AddBankAccountModal
-          open={bankModalOpen}
-          onClose={() => setBankModalOpen(false)}
-        // onSuccess={handleRealModalSuccess}
-        />
-      )}
-
-      {/* {bankModalOpen && (
-  <Dialog
-    open={bankModalOpen}
-    onClose={() => setBankModalOpen(false)}
-    maxWidth="md"
-    fullWidth
-  >
-    <DialogContent>
-      <PaymentIframe
-        type="bank"
-        onContinue={handleRealModalSuccess}
-      />
-    </DialogContent>
-  </Dialog>
-)} */}
-    </Box>
+        )
+      }
+    </Box >
   );
 }
 
@@ -1349,32 +1260,12 @@ function Dashboard({
 }) {
   return (
     <Box sx={{ maxWidth: "100%", mx: 'auto' }}>
-      <Card variant="outlined" sx={{ borderColor: palette.line, borderRadius:1, width:"100%" }}>
-        <Box sx={{ pt:0 }}>
-          {/* <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            justifyContent="space-between"
-            alignItems={{ xs: 'center' }}
-            width={"100%"}
-            spacing={1}
-          > */}
-              {/* <Typography variant="h5" sx={{  color: palette.ink, lineHeight: 1.2 }}>
-                AutoPay Settings
-              </Typography>
-              <Typography variant="body2" sx={{ color: palette.gray, mt: 0.25 }}>
-                Current Autopay Method
-              </Typography> */}
-              <Header  title="AutoPay Settings" description="Current Autopay Method" />
-            
-            {/* <Box sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
-              <Typography variant="body2" sx={{ color: palette.ink }}>
-                Account No: {accountNo}
-              </Typography>
-              <Typography variant="body2" sx={{ color: palette.ink }}>
-                Name: {name}
-              </Typography>
-            </Box> */}
-          {/* </Stack> */}
+      <Card variant="outlined" sx={{ borderColor: palette.line, borderRadius: 1, width: "100%" }}>
+        <Box sx={{ pt: 0 }}>
+
+          <Header title="AutoPay Settings" description="Current Autopay Method" />
+
+
         </Box>
 
         <Divider />
@@ -1454,7 +1345,7 @@ export default function AutoPayPrototype() {
   const billAmountDueValue =
     paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? userInfo?.balance ?? 0;
   const billAmountDueNumber = Number(String(billAmountDueValue).replace(/[^0-9.-]/g, ''));
-  const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${billAmountDueNumber.toFixed(2)}` : '$0.00';
+  const billAmountDue = Number.isFinite(billAmountDueNumber) ? `${formatCurrency(billAmountDueNumber)}` : '$0.00';
 
   const customerInfoDetails = userInfo as any;
   const billDueDate =
@@ -1499,11 +1390,45 @@ export default function AutoPayPrototype() {
 
   // seed data toggles — flip these to try different starting scenarios
   const [methods, setMethods] = useState<PaymentMethod[]>([
+    {
+      id: 6700,
+      company_id: 2,
+      user_id: 469,
+      card_token: "6a7eab3df8f94411a0f41a062abddbf9",
+      card_type: "Visa",
+      card_number: "************1111",
+      date_used: "2025-10-10 06:33:04",
+      expired: 0,
+      is_icheck_card: 1,
+      is_elavon_card: 0,
+      bank_account_number: null,
+      routing_number: null,
+      account_type: null,
+      is_bank_account: 0,
+      is_worldpay_card: 0,
+      expiration_month: "11",
+      expiration_year: "34",
+      is_nacha_ach: 0,
+      is_achworks_ach: 0,
+      status: 1,
+      nacha_ppd_auth: 0,
+      deleted_at: null,
+      is_elavon_ach: 0,
+      elavon_company_name: null,
+      approval_code: null,
+      token_id: null,
+      is_verified: null,
+      date_time_add: null,
+      return_code_verification: null,
+      effective_date: null,
+      settlement_date: null,
+      days_diff: 0
+    }
     // start with ZERO saved methods to exercise Scenario 1.
     // Try seeding one method below to exercise Scenarios 2 & 3 instead:
     // { id: "seed1", type: "card", brand: "Visa", last4: "1111", isDefault: true },
   ]);
-
+  const [paymentType, setPaymentType] = useState<'saved' | 'no-save'>('saved');
   const [autopayEnabled, setAutopayEnabled] = useState(false);
   const [everEnrolled, setEverEnrolled] = useState(false);
   const [autopayMethodId, setAutopayMethodId] = useState<string | null>(null);
@@ -1606,7 +1531,44 @@ export default function AutoPayPrototype() {
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>(null);
+  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({
+    id: 6700,
+    company_id: 2,
+    user_id: 469,
+    card_token: "6a7eab3df8f94411a0f41a062abddbf9",
+    card_type: "Visa",
+    card_number: "************1111",
+    date_used: "2025-10-10 06:33:04",
+    expired: 0,
+    is_icheck_card: 1,
+    is_elavon_card: 0,
+    bank_account_number: null,
+    routing_number: null,
+    account_type: null,
+    is_bank_account: 0,
+    is_worldpay_card: 0,
+    expiration_month: "11",
+    expiration_year: "34",
+    is_nacha_ach: 0,
+    is_achworks_ach: 0,
+    status: 1,
+    nacha_ppd_auth: 0,
+    deleted_at: null,
+    is_elavon_ach: 0,
+    elavon_company_name: null,
+    approval_code: null,
+    token_id: null,
+    is_verified: null,
+    date_time_add: null,
+    return_code_verification: null,
+    effective_date: null,
+    settlement_date: null,
+    days_diff: 0
+  });
+
+  const [openPaymentModal, setOpenPaymentModal] = useState(false);
+  const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [bankModalOpen, setBankModalOpen] = useState(false);
   const [isAutoPay, setisAutoPay] = React.useState(false);
   const [autoPayDetails, setAutoPayDetails] = React.useState(null);
 
@@ -1719,7 +1681,74 @@ export default function AutoPayPrototype() {
 
   /* ---------------- Render ---------------- */
   return (
-    <Box sx={{ minHeight: '100%'}}>
+    <Box sx={{ minHeight: '100%' }}>
+
+      {openPaymentModal && (
+        <Dialog
+          open={openPaymentModal}
+          scroll="paper"
+          fullWidth
+          // maxWidth="95%"// ✅ disable preset sizes
+          PaperProps={{
+            sx: {
+              maxHeight: { xs: '95vh', sm: "90vh" },
+              maxWidth: "95%",
+              margin: 0,
+              width: { xs: '95%', sm: "830px" }, // ✅ custom fixed width
+              borderRadius: '12px',
+            },
+          }}
+        >
+          <PaymentMethods
+            onClose={() => {
+              setOpenPaymentModal(false);
+            }}
+            isModal={true}
+            count={10}
+            page={1}
+            rows={[]}
+            rowsPerPage={10}
+            onSaveCardDetails={(data: any) => {
+              try {
+                setSelectedCardDetails(data);
+                setOpenPaymentModal(false);
+                // setOpenConfirm(true);
+              } catch {
+                console.error('Failed to parse card details');
+              }
+            }}
+            paymentDetailsPage={true}
+          />
+        </Dialog>
+      )}
+
+      {bankModalOpen && (
+        <AddBankAccountModal
+          open={bankModalOpen}
+          onClose={() => setBankModalOpen(false)}
+        // onSuccess={handleRealModalSuccess}
+        // onReturnCard={(card) => {
+        //   setSelectedCardDetails(card)
+        //   setView('review')
+        // }}
+        />
+      )}
+
+      {cardModalOpen && (
+        <AddCardModal
+          open={cardModalOpen}
+          onClose={() => setCardModalOpen(false)}
+          onSuccess={(card) => setSelectedCardDetails(card)}
+          onReturnCard={(card) => {
+            setSelectedCardDetails(card)
+            setView('review')
+            setAuthChecked(false)
+            setMethods((prev) => [...prev, card])
+            setAutopayMethodId(card?.id)
+          }}
+        />
+      )}
+
       {view === 'dashboard' && (
         <Dashboard
           autopayEnabled={autopayEnabled}
@@ -1734,8 +1763,14 @@ export default function AutoPayPrototype() {
       {view === 'enroll-choose' && (
         <EnrollChoose
           methods={methods}
+          setCardModalOpen={setCardModalOpen}
+          setBankModalOpen={setBankModalOpen}
+          setOpenPaymentModal={setOpenPaymentModal}
+          paymentType={paymentType}
+          setPaymentType={setPaymentType}
           onContinueExisting={handleContinueExisting}
           onNewMethodContinue={handleNewMethodFromEnroll}
+          selectedCardDetails={selectedCardDetails}
           onCancel={() => setView('dashboard')}
           accountNo={accountNumber}
           amountDue={billAmountDue}
@@ -1765,6 +1800,8 @@ export default function AutoPayPrototype() {
           userInfo={userInfo}
           isAutoPay={isAutoPay}
           setisAutoPay={setisAutoPay}
+          setOpenPaymentModal={setOpenPaymentModal}
+          openPaymentModal={openPaymentModal}
         />
       )}
 

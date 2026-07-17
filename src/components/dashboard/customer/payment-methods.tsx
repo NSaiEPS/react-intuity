@@ -241,7 +241,7 @@ const stickyHeaderCellSx = {
 const CARD_TYPE_ICON_MAP: Record<string, string> = {
   VISA: 'visa.png',
   // MC: 'master-card.png',
-  // MASTERCARD: 'master-card.png',
+  MASTERCARD: 'master-camaster-card.pngrd.png',
   DISC: 'discover.png',
   DISCOVER: 'discover.png',
   AMEX: 'american-express.png',
@@ -975,8 +975,6 @@ export const PaymentMethods = ({
   autoPayDetails,
   paymentDetailsPage = false,
 }: CustomersTableProps): React.JSX.Element => {
-  console.log('autoPayDetails', autoPayDetails);
-
   const { setContextLoading } = useLoading();
 
   React.useLayoutEffect(() => {
@@ -1295,7 +1293,7 @@ export const PaymentMethods = ({
                   sx={{
                     color: colors.blue,
                     borderColor: colors.blue,
-                    borderRadius:1.2,
+                    borderRadius: 1.2,
                     '@media (max-width:600px)': {
                       paddingX: 1,
                       paddingY: 0.3,
@@ -1312,7 +1310,7 @@ export const PaymentMethods = ({
                   size='small'
                   sx={{
                     backgroundColor: colors.blue,
-                    borderRadius:1,
+                    borderRadius: 1,
                     '&:hover': { backgroundColor: colors['blue.3'] },
                     '@media (max-width:600px)': {
                       paddingX: 1,

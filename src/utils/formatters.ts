@@ -51,15 +51,33 @@ export const formatCurrency = (
     return "";
   }
 
-  const cleanValue = String(value).replace(/,/g, "");
+  const stringValue = String(value).trim();
 
-  const numberValue = Number(cleanValue);
+  // detect negativity from a minus sign anywhere in the string
+  // (handles "-31257", "$-31257", "31257-", etc.)
+  const isNegative = /-/.test(stringValue);
+
+  // strip everything except digits and the decimal point
+  // (removes "$", ",", "-", whitespace, etc.)
+  const numericString = stringValue.replace(/[^0-9.]/g, "");
+
+  if (numericString === "") {
+    return String(value);
+  }
+
+  let numberValue = Number(numericString);
 
   if (Number.isNaN(numberValue)) {
     return String(value);
   }
 
+  if (isNegative) {
+    numberValue = -Math.abs(numberValue);
+  }
+
   return numberValue.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

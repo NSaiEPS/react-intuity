@@ -23,8 +23,8 @@ import { CheckCircle } from "@phosphor-icons/react";
 const schema = z.object({
   code: z
     .string()
-    .min(4, "Authorization code must be at least 4 characters")
-    .max(12, "Authorization code must not exceed 12 characters")
+    .length(6, "Authorization code must be 6 digits")
+    // .max(6, "Authorization code must be 6 digits")
     .regex(/^\d+$/, "Authorization code must contain numbers only"),
 });
 
@@ -201,11 +201,12 @@ export default function AuthCodeModal({
                   },
                 })}
                 error={!!errors.code}
-                helperText={errors.code?.message}
+                helperText={""}
                 inputProps={{
                   inputMode: "numeric",
                   pattern: "[0-9]*",
                   maxLength: 6,
+                  minLength: 6,
                   style: { textAlign: "center" },
                 }}
                 sx={{
@@ -215,6 +216,22 @@ export default function AuthCodeModal({
                   },
                 }}
               />
+
+              {errors.code && (
+                <Typography
+                  color="error"
+                  variant="caption"
+                  sx={{
+                    mt: 1,
+                    width: { md: 280 },
+                    mx: "auto",
+                    textAlign: "center",
+                    display: "block",
+                  }}
+                >
+                  {errors.code.message}
+                </Typography>
+              )}
             </Box>
           </Stack>
         </DialogContent>

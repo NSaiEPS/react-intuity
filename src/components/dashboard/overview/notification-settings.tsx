@@ -346,9 +346,9 @@ function NotificationsSettings() {
   return (
     <>
       <Box sx={{ pt: 0 }}>
-        <Header  title="Notification Settings" description="Choose how you'd like to hear from us. Your contact details are shown below." />
+        <Header title="Notification Settings" description="Choose how you'd like to hear from us. Your contact details are shown below." />
 
-        <Divider  />
+        <Divider />
 
         <ContactMethodsSection
           contacts={contacts}
@@ -407,85 +407,90 @@ function NotificationsSettings() {
           </Box>
         )} */}
 
-        <TableContainer sx={{ border: "1px solid #E2E8F0", borderRadius: "12px", overflowX: "auto", overflowY: "hidden", mt: 2, mx: 2, width: "calc(100% - 32px)", boxShadow: "none", WebkitOverflowScrolling: "touch" }}>
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead sx={{ backgroundColor: "#F8FAFC" }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, px: 3, borderBottom: "1px solid #E2E8F0" }}>
-                  Notification Type
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
-                  EMAIL
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
-                  TEXT
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
-                  BOTH
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", py: 2, borderBottom: "1px solid #E2E8F0", width: "12%" }}>
-                  NONE
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody sx={{ overflow: "auto" }}>
-              <NotificationPreferenceRow
-                label="New Bill"
-                icon={<FileText size={20} />}
-                iconBgColor="#EBF3FF"
-                iconColor="#1A73E8"
-                badge="Required"
-                description="Sent when your bill is ready to view & pay."
-                value={preferences.new_bill}
-                options={phoneGatedOptions("2", "3")}
-                onChange={(value) => handleChange("new_bill", value)}
-                phoneVerified={phoneVerified}
-              />
-              <NotificationPreferenceRow
-                label="Payment Confirmation"
-                icon={<CreditCard size={20} />}
-                iconBgColor="#E6F4EA"
-                iconColor="#1E8E3E"
-                badge="Required"
-                description="Receipt sent after each payment is processed."
-                value={preferences.payment_confirmation}
-                options={phoneGatedOptions("2", "3")}
-                onChange={(value) => handleChange("payment_confirmation", value)}
-                phoneVerified={phoneVerified}
-              />
-              <NotificationPreferenceRow
-                label="Due Date Reminder"
-                icon={<Calendar size={20} />}
-                iconBgColor="#F3E8FF"
-                iconColor="#9333EA"
-                badge="Optional"
-                description="Bill due date, upcoming autopay, etc. reminders."
-                value={preferences.reminders}
-                options={[...phoneGatedOptions("2", "3"), { label: "None", value: "4" }]}
-                onChange={(value) => handleChange("reminders", value)}
-                phoneVerified={phoneVerified}
-                tooltip="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
-              />
-              <NotificationPreferenceRow
-                label="Biller Announcements"
-                icon={<Megaphone size={20} />}
-                iconBgColor="#FFF4E5"
-                iconColor="#F2994A"
-                badge="Required"
-                description="Service alerts, outages, emergencies, etc."
-                value={preferences.biller_announcements}
-                options={[
-                  { label: "Text", value: "1", requiresVerifiedPhone: true },
-                  { label: "Email", value: "0" },
-                  { label: "Both", value: "2", requiresVerifiedPhone: true },
-                ]}
-                onChange={(value) => handleChange("biller_announcements", value)}
-                phoneVerified={phoneVerified}
-                tooltip="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
-              />
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Box
+          sx={{
+            border: "1px solid #E2E8F0",
+            borderRadius: "12px",
+            mt: 2,
+            mx: 2,
+            overflow: "hidden",
+          }}
+        >
+          {/* Header row - hidden on mobile since label sits above each dropdown */}
+          <Box
+            sx={{
+              display: { xs: "none", sm: "flex" },
+              justifyContent: "space-between",
+              backgroundColor: "#F8FAFC",
+              px: 3,
+              py: 2,
+              borderBottom: "1px solid #E2E8F0",
+            }}
+          >
+            <Typography sx={{ fontWeight: 600, color: "#475569", fontSize: "14px" }}>
+              Notification Type
+            </Typography>
+            <Typography sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", width: 220 }}>
+              Notify Me Via
+            </Typography>
+          </Box>
+
+          <NotificationPreferenceRow
+            label="New Bill"
+            icon={<FileText size={20} />}
+            iconBgColor="#EBF3FF"
+            iconColor="#1A73E8"
+            badge="Required"
+            description="Sent when your bill is ready to view & pay."
+            value={preferences.new_bill}
+            options={phoneGatedOptions("2", "3")}
+            onChange={(value) => handleChange("new_bill", value)}
+            phoneVerified={phoneVerified}
+          />
+          <NotificationPreferenceRow
+            label="Payment Confirmation"
+            icon={<CreditCard size={20} />}
+            iconBgColor="#E6F4EA"
+            iconColor="#1E8E3E"
+            badge="Required"
+            description="Receipt sent after each payment is processed."
+            value={preferences.payment_confirmation}
+            options={phoneGatedOptions("2", "3")}
+            onChange={(value) => handleChange("payment_confirmation", value)}
+            phoneVerified={phoneVerified}
+          />
+          <NotificationPreferenceRow
+            label="Due Date Reminder"
+            icon={<Calendar size={20} />}
+            iconBgColor="#F3E8FF"
+            iconColor="#9333EA"
+            badge="Optional"
+            description="Bill due date, upcoming autopay, etc. reminders."
+            value={preferences.reminders}
+            options={[...phoneGatedOptions("2", "3"), { label: "None", value: "4" }]}
+            onChange={(value) => handleChange("reminders", value)}
+            phoneVerified={phoneVerified}
+            tooltip="Bill due reminders are sent 5 days prior to the due date. Scheduled and autopayment reminders are sent the day before they are scheduled."
+          />
+          <NotificationPreferenceRow
+            label="Biller Announcements"
+            icon={<Megaphone size={20} />}
+            iconBgColor="#FFF4E5"
+            iconColor="#F2994A"
+            badge="Required"
+            description="Service alerts, outages, emergencies, etc."
+            value={preferences.biller_announcements}
+            options={[
+              { label: "Text", value: "1", requiresVerifiedPhone: true },
+              { label: "Email", value: "0" },
+              { label: "Both", value: "2", requiresVerifiedPhone: true },
+            ]}
+            onChange={(value) => handleChange("biller_announcements", value)}
+            phoneVerified={phoneVerified}
+            tooltip="Biller announcements are typically service outages, emergency notices, conservation notices or general broadcast messages."
+            isLast
+          />
+        </Box>
 
         <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
           <Button

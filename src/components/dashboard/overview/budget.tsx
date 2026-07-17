@@ -127,7 +127,7 @@ export function Budget({
                     fontWeight: 700,
                   }}
                 >
-                  {/* {last_bill?.balance_due} */}${formatCurrency(balance)}
+                  {/* {last_bill?.balance_due} */}{formatCurrency(balance)}
                 </Typography>
               </Stack>
               <Stack spacing={1}>

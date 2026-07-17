@@ -242,7 +242,7 @@ const PaymentForm = () => {
   });
 
   const [paymentType, setPaymentType] = useState<'saved' | 'no-save'>('saved');
-
+  const [isAmountFocused, setIsAmountFocused] = React.useState(false);
   const [debitType, setDebitType] = useState<'card' | 'bank_account'>('card');
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
@@ -710,7 +710,7 @@ const PaymentForm = () => {
   const billAmountDueValue =
     paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? CustomerInfo?.balance ?? 0;
   const billAmountDueNumber = Number(String(billAmountDueValue).replace(/[^0-9.-]/g, ''));
-  const billAmountDue = Number.isFinite(billAmountDueNumber) ? `$${formatCurrency(billAmountDueNumber.toFixed(2))}` : '$0.00';
+  const billAmountDue = Number.isFinite(billAmountDueNumber) ? formatCurrency(billAmountDueNumber) : '$0.00';
   const customerInfoDetails = CustomerInfo as
     | (CustomerInfo & {
       account_number?: string | number;
@@ -731,8 +731,8 @@ const PaymentForm = () => {
     paymentDetailsInfo?.customer?.account_number ??
     '-';
 
-    console.log(CustomerInfo?.autopay,'CustomerInfo');
-    
+  console.log(CustomerInfo?.autopay, 'CustomerInfo');
+
 
   return (
     <SkeletonWrapper>
@@ -850,27 +850,27 @@ const PaymentForm = () => {
               </Button>
             )}
 
-            {CustomerInfo?.autopay === 0 &&(
+            {CustomerInfo?.autopay === 0 && (
 
-            
-            <Button
-              variant="contained"
-              onClick={() => navigate(paths.dashboard.autoPay())}
-              sx={{
-                width: { xs: '100%', sm: 240 },
-                backgroundColor: colors.blue,
-                fontWeight: 700,
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: colors['blue.3'],
-                },
-              }}
-            >
-              Enroll in AutoPay
-            
-            </Button>
-       )}
-       </Box>
+
+              <Button
+                variant="contained"
+                onClick={() => navigate(paths.dashboard.autoPay())}
+                sx={{
+                  width: { xs: '100%', sm: 240 },
+                  backgroundColor: colors.blue,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: colors['blue.3'],
+                  },
+                }}
+              >
+                Enroll in AutoPay
+
+              </Button>
+            )}
+          </Box>
 
           {/* Name & Email */}
           <Box sx={{}}>
@@ -961,10 +961,9 @@ const PaymentForm = () => {
                     error={!!errors.amount}
                     helperText={errors.amount?.message}
                     InputProps={{
-                      // startAdornment: <span style={{ marginRight: 0, flexShrink: 0 }}>$</span>,
                       sx: {
                         justifyContent: 'flex-end',
-                        pr: 0 ,
+                        pr: 0,
                       },
                     }}
                     inputProps={{
@@ -972,19 +971,34 @@ const PaymentForm = () => {
                       style: {
                         flex: '0 0 auto',
                         minWidth: '6ch',
-                        width: `${Math.min(Math.max(String(field.value ?? '').length + 1, 6), 30)}ch`,
-
-                        // maxWidth: 'calc(100% - 18px)',
                         textAlign: 'right',
                       },
                     }}
-                    value={field.value ? `$${field.value}` : ''}
+                    value={
+                      field.value
+                        ? isAmountFocused
+                          ? `$${field.value}` // raw, editable while typing
+                          : formatCurrency(field.value) // pretty once user leaves the field
+                        : ''
+                    }
                     placeholder="$0.00"
                     disabled={
                       (paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
                         paymentDetailsInfo?.company?.allow_overpayments == 0) ||
                       paymentDetailsInfo?.customer?.is_payments_blocked == 1
                     }
+                    onFocus={(e) => {
+                      setIsAmountFocused(true);
+                      // put cursor at the end so they don't land in the middle of "$3.40"
+                      requestAnimationFrame(() => {
+                        const len = e.target.value.length;
+                        e.target.setSelectionRange(len, len);
+                      });
+                    }}
+                    onBlur={() => {
+                      setIsAmountFocused(false);
+                      field.onBlur(); // keep RHF's blur/touched tracking intact
+                    }}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^\d.]/g, '');
                       const sanitizedValue = value.replace(/(\..*)\./g, '$1').replace(/^(\d+\.?\d{0,2}).*$/, '$1');
@@ -1012,6 +1026,7 @@ const PaymentForm = () => {
 
                       field.onChange(sanitizedValue);
                     }}
+
                   // onBlur={(e) => {
                   //   // Also enforce on blur (in case user clears and leaves field)
                   //   if (!e.target.value || Number(e.target.value) <= 0) {
@@ -1042,7 +1057,8 @@ const PaymentForm = () => {
                   pr: "14px",
                 }}
               >
-                ${Number(watch('convenienceFee') || 0).toFixed(2)}
+                {/* ${Number(watch('convenienceFee') || 0).toFixed(2)} */}
+                {formatCurrency(Number(watch('convenienceFee') || 0))}
               </Typography>
 
               <Box
@@ -1065,7 +1081,7 @@ const PaymentForm = () => {
                   pr: "14px",
                 }}
               >
-                ${formatCurrency(((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)).toFixed(2))}
+                {formatCurrency(((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)))}
               </Typography>
             </Box>
           </Box>
@@ -1242,29 +1258,32 @@ const PaymentForm = () => {
               </Box>
 
               {/* Option 2: Pay this bill only */}
-              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormControlLabel
-                  value="no-save"
-                  control={<Radio color="primary" />}
-                  label={
-                    <Box sx={{ ml: 0.5, mt: -0.25 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography sx={{ fontWeight: 'bold', fontSize: '15px', color: '#E67E22' }}>
-                          Pay this bill only &ndash; don't save payment method
-                        </Typography>
-                        {/* <Typography
+              {!isSchedule && (
+
+                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <FormControlLabel
+                    value="no-save"
+                    control={<Radio color="primary" />}
+                    label={
+                      <Box sx={{ ml: 0.5, mt: -0.25 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography sx={{ fontWeight: 'bold', fontSize: '15px', color: '#E67E22' }}>
+                            Pay this bill only &ndash; don't save payment method
+                          </Typography>
+                          {/* <Typography
                               sx={{ fontStyle: 'italic', fontSize: '13px', color: '#E67E22', fontWeight: 600 }}
                             >
                               not saved
                             </Typography> */}
+                        </Box>
+                        <Typography sx={{ fontSize: '13px', color: '#7F8C8D', mt: 0.5 }}>
+                          Enter payment details for this transaction only.
+                        </Typography>
                       </Box>
-                      <Typography sx={{ fontSize: '13px', color: '#7F8C8D', mt: 0.5 }}>
-                        Enter payment details for this transaction only.
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </Box>
+                    }
+                  />
+                </Box>
+              )}
             </RadioGroup>
           </Box>
 

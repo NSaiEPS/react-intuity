@@ -21,10 +21,11 @@ import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
 interface AddCardModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (card?: any) => void;
+  onReturnCard?: (data: any) => void;
 }
 
-const AddCardModal: FC<AddCardModalProps> = ({ open, onClose,onSuccess }) => {
+const AddCardModal: FC<AddCardModalProps> = ({ open, onClose, onSuccess, onReturnCard }) => {
   const [cardNumber, setCardNumber] = useState<string>("");
   const [cvv, setCvv] = useState<string>("");
   const [expiryMonth, setExpiryMonth] = useState<string>("");
@@ -111,8 +112,11 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose,onSuccess }) => {
           getPaymentDetails(formdata)
         );
         onSuccess?.();
-      onClose();
-      })
+        onClose();
+      },
+        null,
+        onReturnCard
+      )
     );
 
     //       acl_role_id:4
