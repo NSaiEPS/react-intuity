@@ -6,6 +6,7 @@ import { colors } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -139,7 +140,7 @@ setPasswordLoading(false)
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ borderRadius: 0 }}>
+      <Card sx={{ borderRadius: 1 }}>
         <CardHeader subheader="Change Password" title="Password" />
         <Divider />
         <CardContent>
@@ -243,8 +244,8 @@ setPasswordLoading(false)
 
           </Stack>
         </CardContent>
-        <Divider />
-        <CardActions sx={{ justifyContent: "flex-end" }}>
+        {/* <Divider /> */}
+        <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
           <Button
             variant="outlined"
             textTransform="none"
@@ -275,7 +276,7 @@ setPasswordLoading(false)
           >
             Update
           </Button>
-        </CardActions>
+        </Box>
       </Card>
     </form>
   );

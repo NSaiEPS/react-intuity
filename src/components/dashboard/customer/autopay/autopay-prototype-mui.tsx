@@ -42,6 +42,7 @@ import {
   CheckCircle,
   Info,
   Question,
+  CurrencyDollar,
 } from '@phosphor-icons/react';
 
 /* ------------------------------------------------------------------ *
@@ -183,10 +184,10 @@ function AccountBanner({
     >
       {rows.map(([label, val]) => (
         <Stack key={label} direction="row" justifyContent="space-between" sx={{ py: 0.3 }}>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          <Typography fontWeight={500} color="black">
             {label}
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
             {val}
           </Typography>
         </Stack>
@@ -946,8 +947,26 @@ function EnrollChoose({
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-        <Typography sx={{ fontSize: 20 }}>$</Typography>
-        <Typography variant="h6" sx={{ fontWeight: 800, color: palette.navy }}>
+        {/* <Typography sx={{ fontSize: 20 }}>$</Typography> */}
+         <Box
+                      sx={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: '50%',
+                        border: '2px solid #4A79D8',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <CurrencyDollar size={24} weight="bold" color="#4A79D8" />
+                    </Box>
+        <Typography sx={{
+                color: '#2F66B3',
+                fontWeight: 700,
+                fontSize: { xs: '1.5rem', sm: '2rem' },
+                lineHeight: 1,
+              }}>
           Enroll in AutoPay
         </Typography>
       </Stack>
@@ -1379,7 +1398,7 @@ export default function AutoPayPrototype() {
       const convenienceFeeFormdata = new FormData();
       convenienceFeeFormdata.append('acl_role_id', stored?.body?.acl_role_id || '');
       convenienceFeeFormdata.append('customer_id', stored?.body?.customer_id || '');
-      dispatch(getConvenienceFee(convenienceFeeFormdata));
+      // dispatch(getConvenienceFee(convenienceFeeFormdata));
 
       const paymentDetailsFormdata = new FormData();
       paymentDetailsFormdata.append('acl_role_id', stored?.body?.acl_role_id || '');

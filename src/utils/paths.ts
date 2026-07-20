@@ -119,11 +119,20 @@ export const paths = {
         ? `/${slug}/dashboard/invoice-details?id=${id ?? ""}`
         : `/intuityfe/dashboard/invoice-details?id=${id ?? ""}`;
     },
+    // paymentDetails: (id: string, company?: string) => {
+    //   const slug = company ?? getCurrentCompanySlug();
+    //   return slug
+    //     ? `/${slug}/dashboard/payment-details?id=${id ?? ""}`
+    //     : `/intuityfe/dashboard/payment-details?id=${id ?? ""}`;
+    // },
     paymentDetails: (id: string, company?: string) => {
       const slug = company ?? getCurrentCompanySlug();
+
+      const encryptedId = btoa(encodeURIComponent(id ?? ""));
+
       return slug
-        ? `/${slug}/dashboard/payment-details?id=${id ?? ""}`
-        : `/intuityfe/dashboard/payment-details?id=${id ?? ""}`;
+        ? `/${slug}/dashboard/payment-details?id=${encodeURIComponent(encryptedId)}`
+        : `/intuityfe/dashboard/payment-details?id=${encodeURIComponent(encryptedId)}`;
     },
   },
   errors: {

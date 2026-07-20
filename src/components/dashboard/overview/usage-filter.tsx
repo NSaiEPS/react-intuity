@@ -264,107 +264,170 @@ function UsageFilter() {
     dispatch(usageMonthlyGraph(formData));
   };
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography
-        variant="h6"
-        fontWeight="bold"
-        mb={2}
-        display="flex"
-        alignItems="center"
-      >
-        <span role="img" aria-label="icon" style={{ marginRight: 8 }}>
-          📊
-        </span>{" "}
-        MONTHLY USAGE
-      </Typography>
+  <Box sx={{ p: 2 }}>
+    <Typography
+      variant="h6"
+      fontWeight="bold"
+      mb={2}
+      display="flex"
+      alignItems="center"
+    >
+      <span role="img" aria-label="icon" style={{ marginRight: 8 }}>
+        📊
+      </span>
+      MONTHLY USAGE
+    </Typography>
 
-      <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <Typography>Utility Type:</Typography>
-        </Grid>
-        <Grid item>
-          <FormControl>
+    <Grid
+      container
+      spacing={2}
+      alignItems={{ xs: "stretch", sm: "flex-end" }}
+    >
+      {/* Utility Type */}
+      <Grid item xs={12} sm="auto">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
+          <Typography fontWeight={500}>Utility Type</Typography>
+
+          <FormControl
+            fullWidth
+            sx={{
+              minWidth: { xs: "100%", sm: 180 },
+            }}
+          >
             <Select
               value={utilityType}
-              defaultValue=""
-              onChange={(e) => {
-                setUtilityType(e.target.value);
-              }}
+              onChange={(e) => setUtilityType(e.target.value)}
               sx={{ height: 40 }}
             >
               {filterList.type?.map((item) => (
-                <MenuItem value={item?.value}>{item?.label}</MenuItem>
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
               ))}
-              {/* not using now */}
-              {/* <MenuItem value="ELECTRIC">ELECTRIC</MenuItem>
-              <MenuItem value="GAS">GAS</MenuItem> */}
             </Select>
           </FormControl>
-        </Grid>
+        </Box>
+      </Grid>
 
-        <Grid item>
-          <Typography>Utility UM:</Typography>
-        </Grid>
-        <Grid item>
-          <FormControl>
+      {/* Utility UM */}
+      <Grid item xs={12} sm="auto">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
+          <Typography fontWeight={500}>Utility UM</Typography>
+
+          <FormControl
+            fullWidth
+            sx={{
+              minWidth: { xs: "100%", sm: 180 },
+            }}
+          >
             <Select
               value={unitMeasure}
-              defaultValue=""
-              onChange={(e) => {
-                setUnitMeasure(e.target.value);
-              }}
+              onChange={(e) => setUnitMeasure(e.target.value)}
               sx={{ height: 40 }}
             >
-              {/* <MenuItem value="gallons">gallons</MenuItem>
-              <MenuItem value="myunit">myunit</MenuItem>
-              <MenuItem value="Cubic-Mtr">Cubic-Mtr</MenuItem>
-              <MenuItem value="Cubic-Ft">Cubic-Ft</MenuItem>
-              <MenuItem value="ML">ML</MenuItem> */}
               {filterList.ums?.map((item) => (
-                <MenuItem value={item?.value}>{item?.label}</MenuItem>
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Grid>
+        </Box>
+      </Grid>
 
-        <Grid item>
-          <Typography>Meter No:</Typography>
-        </Grid>
-        <Grid item>
-          <FormControl>
+      {/* Meter No */}
+      <Grid item xs={12} sm="auto">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
+          <Typography fontWeight={500}>Meter No</Typography>
+
+          <FormControl
+            fullWidth
+            sx={{
+              minWidth: { xs: "100%", sm: 170 },
+            }}
+          >
             <Select
               value={meterNo || ""}
-              onChange={(e) => {
-                setMeterNo(e.target.value);
-              }}
-              sx={{ height: 40, width: 170 }}
+              onChange={(e) => setMeterNo(e.target.value)}
+              sx={{ height: 40 }}
             >
               {filterList.meterNum?.map((item) => (
-                <MenuItem value={item?.value}>{item?.label}</MenuItem>
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
               ))}
-              {/* <MenuItem value="48699537">48699537</MenuItem>
-              <MenuItem value="mt-no">Select Meter No</MenuItem> */}
             </Select>
           </FormControl>
-        </Grid>
-
-        <DateRangeSelector onSubmit={(start, end) => onSubmit(start, end)} />
-        <Grid item>
-          <Button
-            sx={{
-              backgroundColor: colors.blue,
-              "&:hover": {
-                backgroundColor: colors["blue.3"], // or other hover color
-              },
-            }}
-            variant="contained"
-            onClick={() => onSubmit()}
-          >
-            SHOW
-          </Button>
-        </Grid>
+        </Box>
       </Grid>
-    </Box>
+
+      {/* Date Range */}
+      <Grid item xs={12} sm="auto">
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            width: "100%",
+          }}
+        >
+          {/* <Typography
+            sx={{
+              visibility: {
+                xs: "visible",
+                sm: "hidden",
+              },
+              fontWeight: 500,
+            }}
+          >
+            Date Range
+          </Typography> */}
+
+          <DateRangeSelector
+            onSubmit={(start, end) => onSubmit(start, end)}
+          />
+        </Box>
+      </Grid>
+
+      {/* Show Button */}
+      <Grid item xs={12} sm="auto">
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={() => onSubmit()}
+          sx={{
+            height: 40,
+            backgroundColor: colors.blue,
+            minWidth: { sm: 110 },
+            "&:hover": {
+              backgroundColor: colors["blue.3"],
+            },
+          }}
+        >
+          SHOW
+        </Button>
+      </Grid>
+    </Grid>
+  </Box>
+
   );
 }
 

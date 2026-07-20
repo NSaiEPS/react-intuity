@@ -4,7 +4,7 @@ import { UpdatePasswordForm } from "@/components/dashboard/settings/update-passw
 import { SettingsSkeleton } from "@/components/dashboard/skeletons";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
-import { Card } from "@mui/material";
+import { Box, Card, Divider } from "@mui/material";
 import { boarderRadius } from "@/utils";
 import Header from '@/components/CommonComponents/header-common';
 
@@ -18,11 +18,31 @@ export default function SettingsPage(): React.JSX.Element {
   return (
     <>
       {showSkeleton && <SettingsSkeleton />}
-      <Card sx={{ borderRadius: boarderRadius.card, display: showSkeleton ? 'none' : 'block' }}>
+      {/* <Card sx={{ borderRadius: boarderRadius.card, display: showSkeleton ? 'none' : 'block' }}>
         <Header title="Update Account Details and Password" />
         <AccountSettingsForm />
         <UpdatePasswordForm />
-      </Card>
+      </Card> */}
+
+      <Card
+  sx={{
+    borderRadius: boarderRadius.card,
+    display: showSkeleton ? "none" : "block",
+    overflow: "hidden",
+  }}
+>
+  <Header title="Update Account Details and Password" />
+
+  <Divider/>
+
+  <Box sx={{ p: 2 }}>
+    <AccountSettingsForm />
+  </Box>
+
+  <Box sx={{ p: 2, pt: 0 }}>
+    <UpdatePasswordForm />
+  </Box>
+</Card>
     </>
   );
 }

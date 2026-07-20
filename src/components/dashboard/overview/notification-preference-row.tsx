@@ -148,7 +148,7 @@ export function NotificationPreferenceRow({
       <FormControl
         size="small"
         sx={{
-          width: { xs: "100%", sm: "50%" },
+          width: { xs: "100%", sm: "30%" },
           flexShrink: 0,
         }}
       >

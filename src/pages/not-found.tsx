@@ -5,12 +5,21 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { ArrowLeft as ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { paths } from "@/utils/paths";
 
 export default function NotFound(): React.JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const title =
+    location.state?.title ?? "404: The page you are looking for isn't here";
+
+  const description =
+    location.state?.description ??
+    "The page you are looking for does not exist.";
+
   return (
     <Box
       component="main"
@@ -36,7 +45,15 @@ export default function NotFound(): React.JSX.Element {
           />
         </Box>
         <Typography variant="h3" sx={{ textAlign: "center" }}>
-          404: The page you are looking for isn&apos;t here
+          {title}
+        </Typography>
+
+        <Typography
+          color="text.secondary"
+          variant="body1"
+          sx={{ textAlign: "center" }}
+        >
+          {description}
         </Typography>
         {/* <Typography color="text.secondary" variant="body1" sx={{ textAlign: 'center' }}>
           You either tried some shady route or you came here by mistake. Whichever it is, try using the navigation

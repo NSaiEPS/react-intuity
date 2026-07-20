@@ -280,8 +280,8 @@ export default function InvoiceTransactionTabs({
                                 ? "Authorization"
                                 : ""}
                       </TableCell>
-                      <TableCell>${row.amount}</TableCell>
-                      <TableCell>${row.balance_due}</TableCell>
+                      <TableCell>{formatCurrency(row.amount)}</TableCell>
+                      <TableCell>{formatCurrency(row.balance_due)}</TableCell>
                     </TableRow>
                   ))}
               </TableBody>

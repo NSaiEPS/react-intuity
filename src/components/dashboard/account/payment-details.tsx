@@ -342,7 +342,34 @@ const PaymentForm = () => {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
 
-  const id = searchParams.get('id');
+  // const encryptedId = searchParams.get("id");
+  // const id = encryptedId
+  // ? decodeURIComponent(atob(decodeURIComponent(encryptedId)))
+  // : "";
+
+  const encryptedId = searchParams.get("id");
+
+  let id = "";
+
+  try {
+    if (!encryptedId) {
+      throw new Error("Missing id");
+    }
+
+    id = decodeURIComponent(
+      atob(decodeURIComponent(encryptedId))
+    );
+  } catch (err) {
+    navigate("/errors/not-found", {
+      replace: true,
+      state: {
+        title: "Invalid URL",
+        description: "Please use a valid payment link.",
+      },
+    });
+    return;
+  }
+
   const transId = searchParams.get('transId');
   // //console.log(transId, id, "transId");
 

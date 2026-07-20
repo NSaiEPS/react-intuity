@@ -6,6 +6,7 @@ import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -116,7 +117,7 @@ export function AccountSettingsForm(): React.JSX.Element {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ borderRadius: 0 }}>
+      <Card sx={{ borderRadius: 1 }}>
         <CardHeader subheader="Manage account settings" title="Account Settings" />
         <Divider />
         <CardContent>
@@ -152,8 +153,8 @@ export function AccountSettingsForm(): React.JSX.Element {
 
           </Stack>
         </CardContent>
-        <Divider />
-        <CardActions sx={{ justifyContent: "flex-end" }}>
+        {/* <Divider /> */}
+          <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
           <Button
             variant="outlined"
             textTransform="none"
@@ -185,7 +186,7 @@ export function AccountSettingsForm(): React.JSX.Element {
           >
             Update
           </Button>
-        </CardActions>
+          </Box>
       </Card>
     </form>
   );
