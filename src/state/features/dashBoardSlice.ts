@@ -220,7 +220,7 @@ export const getNotificationList = (
       if (res?.message !== "You are not authorised to use this api") {
         toast.error(res?.message ?? "Something went wrong!");
       }
-      navigateTo("/login", { replace: true }, res?.message);
+      // navigateTo("/login", { replace: true }, res?.message);
     }
   } catch (e: any) {
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
