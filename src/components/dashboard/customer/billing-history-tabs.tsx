@@ -161,7 +161,7 @@ export default function InvoiceTransactionTabs({
           justifyContent: "space-between",
           alignItems: { xs: "stretch", sm: "center" },
           gap: 2,
-          borderBottom: {xs:"none", md:"1px solid #E5E7EB"},
+          borderBottom: { xs: "none", md: "1px solid #E5E7EB" },
           mb: 2,
         }}
       >
@@ -169,39 +169,7 @@ export default function InvoiceTransactionTabs({
           value={currentTab}
           onChange={(_, tab) => setCurrentTab(tab)}
           sx={{
-            // borderBottom: "1px solid #e5e7eb",
-            // "& .MuiTab-root": {
-            //   // fontWeight: 500,
-            //   // textTransform: "none",
-            //   // minWidth: 120,
-            //   // padding: "12px 20px",
-            //   // transition: "all 0.3s ease",
-            //   // borderRadius: "10px 10px 0 0",
-            //   // position: "relative",
-            //   // backgroundColor: "white",
-            //   color: colors.blue,
-            //   fontWeight: 500,
-            //   textTransform: "none",
-            //   minWidth: 120,
-            //   px: 3,
-            //   py: 1.5,
-            //   border: "1px solid #D9E2EC",
-            //   borderBottom: "none",
-            //   borderRadius: "10px 10px 0 0",
-            //   background: "#fff",
-            //   mr: 1,
 
-            // },
-            // "& .MuiTab-root.Mui-selected": {
-            //   color: colors.white,
-            //   background: colors.blue,
-            //   borderColor: colors.blue,
-            // },
-            // "& .MuiTabs-indicator": {
-            //   height: "4px",
-            //   borderRadius: "4px 4px 0 0",
-            //   background: "transparent",
-            // },
             width: { xs: "100%", sm: "auto" },
             borderBottom: "1px solid #E5E7EB",
 
@@ -241,10 +209,10 @@ export default function InvoiceTransactionTabs({
           ))}
         </Tabs>
 
-        <FormControl size="small"  sx={{
-    width: { xs: "100%", sm: 120 },
-    alignSelf: { xs: "stretch", sm: "flex-start" },
-  }}>
+        <FormControl size="small" sx={{
+          width: { xs: "100%", sm: 120 },
+          alignSelf: { xs: "stretch", sm: "flex-start" },
+        }}>
           <Select
             value={selectedYear.toString()}
             onChange={handleYearChange}
@@ -329,7 +297,31 @@ export default function InvoiceTransactionTabs({
                           spacing={1}
                           alignItems="center"
                         >
-                          {currentTab === "invoice" && (
+                          <Box
+                            sx={{
+                              width: 16,          // same width as IconButton
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              mr: 0.5,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {currentTab === "invoice" && (
+                              <IconButton
+                                size="small"
+                                onClick={() => handleInvoiceToggle(item.id)}
+                                sx={{ p: 0 }}
+                              >
+                                {expanded ? (
+                                  <CaretDown size={14} weight="bold" />
+                                ) : (
+                                  <CaretRight size={14} weight="bold" />
+                                )}
+                              </IconButton>
+                            )}
+                          </Box>
+                          {/* {currentTab === "invoice" && (
                             <IconButton
                               size="small"
                               onClick={() => handleInvoiceToggle(item.id)}
@@ -344,7 +336,7 @@ export default function InvoiceTransactionTabs({
                                 <CaretRight size={14} weight="bold" />
                               )}
                             </IconButton>
-                          )}
+                          )} */}
                           {/* <Typography variant="subtitle2">
                             {currentTab === "invoice" ? "Invoice" : item?.type}
                           </Typography> */}
