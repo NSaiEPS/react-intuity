@@ -277,6 +277,7 @@ export default function InvoiceTransactionTabs({
                       ? rows.filter((r) => r.invoice_id === item.id)
                       : [];
 
+                const hasAssociatedTransactions = associatedTransactions.length > 0;
                 if (expanded && associatedTransactions.length === 0) {
                   // eslint-disable-next-line no-console
                   console.warn(
@@ -310,8 +311,14 @@ export default function InvoiceTransactionTabs({
                             {currentTab === "invoice" && (
                               <IconButton
                                 size="small"
+                                disabled={!hasAssociatedTransactions}
                                 onClick={() => handleInvoiceToggle(item.id)}
-                                sx={{ p: 0 }}
+                                sx={{
+                                  "&.Mui-disabled": {
+                                    cursor: "not-allowed",
+                                    pointerEvents: "auto",
+                                  },
+                                }}
                               >
                                 {expanded ? (
                                   <CaretDown size={14} weight="bold" />
@@ -502,11 +509,11 @@ export default function InvoiceTransactionTabs({
                               >
 
                                 <colgroup>
-                                  <col style={{ width: "20%" }} />
                                   <col style={{ width: "18%" }} />
+                                  <col style={{ width: "17%" }} />
                                   <col style={{ width: "16%" }} />
                                   <col style={{ width: "16%" }} />
-                                  <col style={{ width: "20%" }} />
+                                  <col style={{ width: "19%" }} />
                                 </colgroup>
                                 <TableBody>
 
@@ -514,7 +521,7 @@ export default function InvoiceTransactionTabs({
 
                                     <TableRow key={row.id}>
 
-                                      <TableCell sx={{ pl: 4 }}>
+                                      <TableCell sx={{ pl: 3 }}>
                                         {row.type}
                                       </TableCell>
 
@@ -527,7 +534,7 @@ export default function InvoiceTransactionTabs({
                                       </TableCell>
 
                                       <TableCell>
-                                        <Typography fontWeight={600}>
+                                        <Typography fontWeight={600} sx={{ pl: 2 }}>
                                           {formatCurrency(row.amount)}
                                         </Typography>
                                       </TableCell>
