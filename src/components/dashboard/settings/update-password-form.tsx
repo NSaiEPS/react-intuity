@@ -156,6 +156,11 @@ setPasswordLoading(false)
                 notched={!!watchedValues.password}
                 type={show.password ? "text" : "password"}
                 {...register("password")}
+                 sx={{
+                  "& input": {
+                    padding: "13px 13px",
+                  },
+                }}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton onClick={() => toggleVisibility("password")} edge="end">
@@ -179,6 +184,11 @@ setPasswordLoading(false)
                 notched={!!watchedValues.new_password}
                 type={show.new_password ? "text" : "password"}
                 {...register("new_password")}
+                 sx={{
+                  "& input": {
+                    padding: "13px 13px",
+                  },
+                }}
                 endAdornment={
                   <InputAdornment position="end">
                     <Tooltip
@@ -229,6 +239,11 @@ setPasswordLoading(false)
                 notched={!!watchedValues.repassword}
                 type={show.repassword ? "text" : "password"}
                 {...register("repassword")}
+                 sx={{
+                  "& input": {
+                    padding: "13px 13px",
+                  },
+                }}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton onClick={() => toggleVisibility("repassword")} edge="end">

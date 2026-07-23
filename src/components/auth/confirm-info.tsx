@@ -72,6 +72,9 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   ] = useReducer(reducer, initialState);
     const location = useLocation();
 
+    console.log(twoFAModalVisible,'twoFAModalVisible');
+    
+
 const two_fa_status = location.state?.two_fa_status ?? false;
   const { accountLoading:loading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
@@ -87,6 +90,9 @@ const two_fa_status = location.state?.two_fa_status ?? false;
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const user_id = stored?.body?.customer_id;
+
+  // const skip2FARef = React.useRef(false);
+  const suppress2FAModalRef = React.useRef(false);
 
   const reqCustomer = (): CustomerAccount | undefined => {
     if (Array.isArray(confirmInfo?.customers)) {
@@ -110,8 +116,11 @@ const two_fa_status = location.state?.two_fa_status ?? false;
   };
 
   const refreshData = () => {
+      suppress2FAModalRef.current = true;
+
     const role_id = stored?.body?.acl_role_id;
     const formData = new FormData();
+    console.log("refreshData");
 
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", user_id);
@@ -131,6 +140,14 @@ const two_fa_status = location.state?.two_fa_status ?? false;
   };
 
   useEffect(() => {
+   if (suppress2FAModalRef.current) {
+    console.log("Effect Fired", suppress2FAModalRef.current);
+  setTimeout(() => {
+    suppress2FAModalRef.current = false;
+  }, 0);
+  return;
+}
+  
     if (
       confirmInfo?.company?.require_2fa == 1 &&
       reqCustomer()?.is_phone_verified == 1 && !two_fa_status

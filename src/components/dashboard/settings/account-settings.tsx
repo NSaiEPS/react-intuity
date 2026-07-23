@@ -131,6 +131,12 @@ export function AccountSettingsForm(): React.JSX.Element {
                 type="text"
                 notched={!!watchedValues.name}
                 {...register("name")}
+                sx={{
+                  height: 42,
+                  "& input": {
+                    padding: "10px 14px",
+                  },
+                }}
               />
               {errors.name && (
                 <FormHelperText>{errors.name.message}</FormHelperText>
@@ -145,6 +151,12 @@ export function AccountSettingsForm(): React.JSX.Element {
                 type="text"
                 notched={!!watchedValues.email}
                 {...register("email")}
+                 sx={{
+                  height: 42,
+                  "& input": {
+                    padding: "10px 14px",
+                  },
+                }}
               />
               {errors.email && (
                 <FormHelperText>{errors.email.message}</FormHelperText>
@@ -154,7 +166,7 @@ export function AccountSettingsForm(): React.JSX.Element {
           </Stack>
         </CardContent>
         {/* <Divider /> */}
-          <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
+        <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
           <Button
             variant="outlined"
             textTransform="none"
@@ -186,7 +198,7 @@ export function AccountSettingsForm(): React.JSX.Element {
           >
             Update
           </Button>
-          </Box>
+        </Box>
       </Card>
     </form>
   );

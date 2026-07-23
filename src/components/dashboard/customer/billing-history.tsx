@@ -83,7 +83,7 @@ export function BillingHistory({ rows = [] }: CustomersTableProps): React.JSX.El
       <Header title="Payment & billing history" />
 
       <Divider/>
-      <Grid
+      {/* <Grid
         item
         sx={{ width: "100%", display: "flex", justifyContent: "flex-end", pt: "8px" }}
       >
@@ -100,12 +100,15 @@ export function BillingHistory({ rows = [] }: CustomersTableProps): React.JSX.El
             ))}
           </Select>
         </FormControl>
-      </Grid>
+      </Grid> */}
       <InvoiceTransactionTabs
         handleInvoiceToggle={handleInvoiceToggle}
         dummyInvoice={lastBillInfo}
         rows={rows}
         isInvoice={isInvoice}
+         years={years}
+  selectedYear={selectedYear}
+  handleYearChange={handleChange}
       />
       <CustomBackdrop
         open={paymentLoader}

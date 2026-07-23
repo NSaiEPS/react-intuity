@@ -1,6 +1,7 @@
 // import { getCurrentCompanySlug } from './utils';
 
 import { getCurrentCompanySlug } from ".";
+import { encrypt } from "./crypto";
 
 export const paths = {
   home: (company?: string) =>
@@ -125,15 +126,24 @@ export const paths = {
     //     ? `/${slug}/dashboard/payment-details?id=${id ?? ""}`
     //     : `/intuityfe/dashboard/payment-details?id=${id ?? ""}`;
     // },
-    paymentDetails: (id: string, company?: string) => {
-      const slug = company ?? getCurrentCompanySlug();
+//    paymentDetails: (id: string, company?: string) => {
+//   const slug = company ?? getCurrentCompanySlug();
 
-      const encryptedId = btoa(encodeURIComponent(id ?? ""));
+//   const encryptedId = btoa(encodeURIComponent(id ?? ""));
 
-      return slug
-        ? `/${slug}/dashboard/payment-details?id=${encodeURIComponent(encryptedId)}`
-        : `/intuityfe/dashboard/payment-details?id=${encodeURIComponent(encryptedId)}`;
-    },
+//   return slug
+//     ? `/${slug}/dashboard/payment-details/${encodeURIComponent(encryptedId)}`
+//     : `/intuityfe/dashboard/payment-details/${encodeURIComponent(encryptedId)}`;
+// },
+paymentDetails: (id: string | number, company?: string) => {
+  const slug = company ?? getCurrentCompanySlug();
+
+  const encryptedId = encrypt(String(id ?? ""));
+
+  return slug
+    ? `/${slug}/dashboard/payment-details/${encryptedId}`
+    : `/intuityfe/dashboard/payment-details/${encryptedId}`;
+},
   },
   errors: {
     notFound: () => "/errors/not-found",

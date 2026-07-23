@@ -311,8 +311,16 @@ export const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
+          // {
+          //   path: "payment-details",
+          //   element: withSuspense(
+          //     <ProtectedRoute title="Payment Details">
+          //       <PaymentDetailsPage />
+          //     </ProtectedRoute>
+          //   ),
+          // },
           {
-            path: "payment-details",
+            path: "payment-details/:id",
             element: withSuspense(
               <ProtectedRoute title="Payment Details">
                 <PaymentDetailsPage />

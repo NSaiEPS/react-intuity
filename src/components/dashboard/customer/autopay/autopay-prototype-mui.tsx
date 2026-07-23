@@ -70,11 +70,57 @@ import { formatCurrency } from '@/utils/formatters';
 type MethodType = 'card' | 'bank';
 
 interface PaymentMethod {
-  id: string;
+  id: string | number;
   type: MethodType;
   brand: string;
   last4: string;
   isDefault: boolean;
+
+  company_id: number;
+  user_id: number;
+
+  card_token: string;
+  card_type: string;
+  card_number: string;
+
+  date_used: string;
+
+  expired: number;
+  is_icheck_card: number;
+  is_elavon_card: number;
+
+  bank_account_number: string | null;
+  routing_number: string | null;
+  account_type: string | null;
+
+  is_bank_account: number;
+  is_worldpay_card: number;
+
+  expiration_month: string;
+  expiration_year: string;
+
+  is_nacha_ach: number;
+  is_achworks_ach: number;
+
+  status: number;
+  nacha_ppd_auth: number;
+
+  deleted_at: string | null;
+
+  is_elavon_ach: number;
+  elavon_company_name: string | null;
+
+  approval_code: string | null;
+  token_id: string | null;
+
+  is_verified: number | null;
+
+  date_time_add: string | null;
+  return_code_verification: string | null;
+  effective_date: string | null;
+  settlement_date: string | null;
+
+  days_diff: number;
 }
 
 type ViewName = 'dashboard' | 'enroll-choose' | 'review' | 'deactivate';
@@ -268,7 +314,7 @@ function PaymentIframe({
   const handleContinue = () => {
     if (clicked) return;
     setClicked(true);
-    const method: PaymentMethod =
+    const method: PaymentMethod | any =
       type === 'card'
         ? {
           id: uid(),
@@ -411,7 +457,7 @@ function PaymentMethodSelector({
 
               <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
                 {selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Card'} ending in{' '}
-                {getCardLast4(selectedCardDetails)}
+                {getCardLast4(selectedCardDetails as any)}
               </Typography>
 
               {/* Default Badge */}
@@ -508,7 +554,7 @@ function PaymentMethodSelector({
             key={m.id}
             selected={m.id === selectedId}
             onClick={() => {
-              onSelect(m.id);
+              onSelect(String(m.id));
               setAnchorEl(null);
             }}
           >
@@ -886,7 +932,7 @@ function EnrollChoose({
 
   const [mode, setMode] = useState<'existing' | 'new'>(hasSaved ? 'existing' : 'new');
   const [pickedExistingId, setPickedExistingId] = useState<string | null>(
-    defaultMethod ? defaultMethod.id : null
+    defaultMethod ? String(defaultMethod.id) : null
   );
   // Which "new payment method" type is selected — used for both Scenario 1
   // (top-level radios) and Scenario 3 (nested radios under "Add a new
@@ -1026,7 +1072,7 @@ function EnrollChoose({
 
               <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
                 {selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Card'} ending in{' '}
-                {getCardLast4(selectedCardDetails)}
+                {getCardLast4(selectedCardDetails as any)}
               </Typography>
 
               {/* Default Badge */}
@@ -1441,7 +1487,11 @@ export default function AutoPayPrototype() {
       return_code_verification: null,
       effective_date: null,
       settlement_date: null,
-      days_diff: 0
+      days_diff: 0,
+      type: 'card',
+      brand: '',
+      last4: '',
+      isDefault: false
     }
     // start with ZERO saved methods to exercise Scenario 1.
     // Try seeding one method below to exercise Scenarios 2 & 3 instead:
@@ -1450,7 +1500,7 @@ export default function AutoPayPrototype() {
   const [paymentType, setPaymentType] = useState<'saved' | 'no-save'>('saved');
   const [autopayEnabled, setAutopayEnabled] = useState(false);
   const [everEnrolled, setEverEnrolled] = useState(false);
-  const [autopayMethodId, setAutopayMethodId] = useState<string | null>(null);
+  const [autopayMethodId, setAutopayMethodId] = useState<string | number | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
   const [view, setView] = useState<ViewName>('dashboard');
@@ -1502,7 +1552,7 @@ export default function AutoPayPrototype() {
     } else {
       // default exists -> ask
       setMethods((prev) => [...prev, { ...method, isDefault: false }]);
-      setPendingDefaultModal(method.id);
+      setPendingDefaultModal(String(method.id));
     }
   }
 

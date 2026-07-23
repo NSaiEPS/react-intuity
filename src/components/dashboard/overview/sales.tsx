@@ -12,6 +12,10 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -56,6 +60,25 @@ export function Sales({
     (state: RootState) => state?.DashBoard?.dashboardLoading
   );
   // const dashBoardInfo = input;
+
+  const meterOptions = [
+    {
+      id: "1",
+      label: "Meter # 10023456",
+    },
+    {
+      id: "2",
+      label: "Meter # 10023457",
+    },
+    {
+      id: "3",
+      label: "Meter # 10023458",
+    },
+  ];
+
+  const [selectedMeter, setSelectedMeter] = React.useState(
+    meterOptions[0].id
+  );
 
   const ratesSet = new Set<string>();
   const rateToDataMap: Record<string, number[]> = {};
@@ -143,7 +166,7 @@ export function Sales({
       getBarChartData(monthlyUsageGraph?.slice(1));
     }
   }, [monthlyUsageGraph]);
-  const chartData:any = {
+  const chartData: any = {
     series: [
       {
         name: "Gallons",
@@ -230,46 +253,113 @@ export function Sales({
         //     </Box>
         //   </Box>
         // }
+        // action={
+        //   <Box display="flex" flexDirection="row">
+        //     {dashboard && (
+        //       <Box display="flex" flexDirection="column" alignItems="center">
+        //         <Box display="flex" alignItems="center" mb={0.5}>
+        //           <Typography variant="body1" mr={1}>
+        //             {
+        //               dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[0]
+        //                 ?.rate
+        //             }
+        //           </Typography>
+        //           <Box width={12} height={20} bgcolor={colors.blue} />
+        //         </Box>
+        //         <Box display="flex" alignItems="center">
+        //           <Typography variant="body1" mr={1}>
+        //             {
+        //               dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[1]
+        //                 ?.rate
+        //             }
+        //           </Typography>
+        //           <Box
+        //             width={12}
+        //             height={20}
+        //             bgcolor={alpha(colors.blue, 0.5)}
+        //           />{" "}
+        //           {/* Deep purple */}
+        //         </Box>
+        //       </Box>
+        //     )}
+        //     <Button
+        //       color="inherit"
+        //       size="small"
+        //       startIcon={
+        //         <ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />
+        //       }
+        //     >
+        //       Sync
+        //     </Button>
+        //   </Box>
+        // }
         action={
-          <Box display="flex" flexDirection="row">
-            {dashboard && (
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <Box display="flex" alignItems="center" mb={0.5}>
-                  <Typography variant="body1" mr={1}>
-                    {
-                      dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[0]
-                        ?.rate
-                    }
-                  </Typography>
-                  <Box width={12} height={20} bgcolor={colors.blue} />
-                </Box>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="body1" mr={1}>
-                    {
-                      dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[1]
-                        ?.rate
-                    }
-                  </Typography>
-                  <Box
-                    width={12}
-                    height={20}
-                    bgcolor={alpha(colors.blue, 0.5)}
-                  />{" "}
-                  {/* Deep purple */}
-                </Box>
-              </Box>
-            )}
-            <Button
-              color="inherit"
-              size="small"
-              startIcon={
-                <ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />
-              }
-            >
-              Sync
-            </Button>
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 3,
+      flexWrap: "wrap",
+    }}
+  >
+    {/* Meter Dropdown */}
+    <FormControl
+      size="small"
+      sx={{
+    minWidth: 220,
+    "& .MuiOutlinedInput-root": {
+      height: 40,
+    },
+  }}
+    >
+      <Select
+        value={selectedMeter}
+        onChange={(e) => setSelectedMeter(e.target.value)}
+        displayEmpty
+      >
+        {meterOptions.map((meter) => (
+          <MenuItem key={meter.id} value={meter.id}>
+            {meter.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+
+    {/* Legend + Sync */}
+    <Box display="flex" flexDirection="row">
+      {dashboard && (
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Box display="flex" alignItems="center" mb={0.5}>
+            <Typography variant="body1" mr={1}>
+              {dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[0]?.rate}
+            </Typography>
+            <Box width={12} height={20} bgcolor={colors.blue} />
           </Box>
-        }
+
+          <Box display="flex" alignItems="center">
+            <Typography variant="body1" mr={1}>
+              {dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[1]?.rate}
+            </Typography>
+
+            <Box
+              width={12}
+              height={20}
+              bgcolor={alpha(colors.blue, 0.5)}
+            />
+          </Box>
+        </Box>
+      )}
+
+      <Button
+        color="inherit"
+        size="small"
+        startIcon={<ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />}
+      >
+        Sync
+      </Button>
+    </Box>
+  </Box>
+}
         title={
           <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600}>
             {dashboard ? "Usage" : "Usage / month"}
@@ -277,6 +367,7 @@ export function Sales({
         }
       />
       <CardContent sx={{ px: isMobile ? 2 : 3, py: isMobile ? 1.5 : 2.5 }}>
+  
         {dashboard ? (
           <Chart
             height={isMobile ? 240 : 350}

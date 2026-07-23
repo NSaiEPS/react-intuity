@@ -65,6 +65,7 @@ export default function EmailDialog({ open, onClose, clickedDetails, onSuccess }
 
     formData.append("acl_role_id", role_id);
     formData.append("customer_id", user_id);
+    return;
     dispatch(getConfirmInfo(formData));
   };
 
@@ -118,6 +119,12 @@ export default function EmailDialog({ open, onClose, clickedDetails, onSuccess }
               label="Notification Email Address"
               error={!!errors.email}
               helperText={errors.email?.message}
+              sx={{
+                  // height: 42,
+                  "& input": {
+                    padding: "14px",
+                  },
+                }}
             />
           )}
         />

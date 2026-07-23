@@ -31,6 +31,11 @@ export function AddAccountStepOne({ control, errors, loading, onNext }: AddAccou
             variant="outlined"
             fullWidth
             error={!!errors.accountNumber}
+            sx={{
+              "& input": {
+                padding: "13px 13px",
+              },
+            }}
             helperText={typeof errors.accountNumber?.message === "string" ? errors.accountNumber.message : ""}
             inputProps={{
               inputMode: "decimal",
@@ -46,8 +51,12 @@ export function AddAccountStepOne({ control, errors, loading, onNext }: AddAccou
         defaultValue=""
         render={({ field }) => (
           <FormControl fullWidth error={!!errors.authenticationType}>
-            <InputLabel>Authentication *</InputLabel>
-            <Select {...field} label="Authentication *">
+            <InputLabel >Authentication *</InputLabel>
+            <Select {...field}  sx={{
+              "& input": {
+                padding: "13px 13px",
+              },
+            }} label="Authentication *">
               <MenuItem value="last_name">Last Name</MenuItem>
               <MenuItem value="billing_street_name">Billing Street Name</MenuItem>
               <MenuItem value="pin">PIN</MenuItem>
@@ -69,6 +78,11 @@ export function AddAccountStepOne({ control, errors, loading, onNext }: AddAccou
             label="Answer *"
             variant="outlined"
             fullWidth
+             sx={{
+              "& input": {
+                padding: "13px 13px",
+              },
+            }}
             error={!!errors.answer}
             helperText={typeof errors.answer?.message == "string" ? errors.answer?.message : ""}
           />

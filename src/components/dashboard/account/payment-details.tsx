@@ -46,7 +46,7 @@ import { CustomBackdrop, Loader } from 'nsaicomponents';
 import { Controller, useForm } from 'react-hook-form';
 // const PaymentMethods = React.lazy(() => import("../customer/payment-methods"));
 
-import { useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
 import { z as zod } from 'zod';
 
 import { toast } from '@/lib/custom-toast';
@@ -61,6 +61,7 @@ import { PaymentMethods } from '../customer/payment-methods';
 import PaymentSummaryModal from '../overview/payment-summary-modal';
 import { useLoading } from '@/components/core/skeleton-context';
 import { formatCurrency } from '@/utils/formatters';
+import { decrypt } from '@/utils/crypto';
 
 // Register plugins
 dayjs.extend(utc);
@@ -347,29 +348,50 @@ const PaymentForm = () => {
   // ? decodeURIComponent(atob(decodeURIComponent(encryptedId)))
   // : "";
 
-  const encryptedId = searchParams.get("id");
+  // const { id: encryptedId } = useParams();
 
-  let id = "";
+  // let id = "";
 
-  try {
-    if (!encryptedId) {
-      throw new Error("Missing id");
-    }
+  // try {
+  //   if (!encryptedId) {
+  //     throw new Error("Missing id");
+  //   }
 
-    id = decodeURIComponent(
-      atob(decodeURIComponent(encryptedId))
-    );
-  } catch (err) {
-    navigate("/errors/not-found", {
-      replace: true,
-      state: {
-        title: "Invalid URL",
-        description: "Please use a valid payment link.",
-      },
-    });
-    return;
+  //   id = decodeURIComponent(
+  //     atob(decodeURIComponent(encryptedId))
+  //   );
+  // } catch (err) {
+  //   navigate("/errors/not-found", {
+  //     replace: true,
+  //     state: {
+  //       title: "Invalid URL",
+  //       description: "Please use a valid payment link.",
+  //     },
+  //   });
+  //   return;
+  // }
+
+
+const { id: encryptedId } = useParams();
+
+let id = "";
+
+try {
+  if (!encryptedId || typeof encryptedId !== "string") {
+    throw new Error("Missing id");
   }
 
+  id = decrypt(encryptedId);
+} catch (err) {
+  navigate("/errors/not-found", {
+    replace: true,
+    state: {
+      title: "Invalid URL",
+      description: "Please use a valid payment link.",
+    },
+  });
+  return;
+}
   const transId = searchParams.get('transId');
   // //console.log(transId, id, "transId");
 

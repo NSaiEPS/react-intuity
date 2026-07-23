@@ -66,7 +66,7 @@ export default function AutoPayDetails(): React.JSX.Element {
     bank_account_number?: string;
     card_type?: string;
     card_token?: string;
-    id?: string;
+    id?: any;
     last4?: string;
     brand?: string;
     expMonth?: number;
