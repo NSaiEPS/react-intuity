@@ -1242,6 +1242,7 @@ export default function AutoPayPrototype() {
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
   // const userInfo: IntuityUser = getLocalStorage('intuity-customerInfo') as IntuityUser;
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
+  const paymentMethodInfo = useSelector((state: RootState) => state?.Account?.paymentMethodInfo);
 
   const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
   const raw = getLocalStorage('intuity-user');
@@ -1355,6 +1356,31 @@ export default function AutoPayPrototype() {
   const [showDeactivated, setShowDeactivated] = useState(false);
   const [newCardSelected, setNewCardSelected] = useState(false);
 
+  const myCards = useMemo(() => {
+    if (Array.isArray(paymentMethodInfo) && paymentMethodInfo.length > 0) {
+      return paymentMethodInfo;
+    }
+    if (Array.isArray(paymentDetailsInfo?.customer?.mycards) && paymentDetailsInfo.customer.mycards.length > 0) {
+      return paymentDetailsInfo.customer.mycards;
+    }
+    if (Array.isArray(paymentDetailsInfo?.mycards) && paymentDetailsInfo.mycards.length > 0) {
+      return paymentDetailsInfo.mycards;
+    }
+    if (Array.isArray((dashBoardInfo?.body?.customer as any)?.mycards) && (dashBoardInfo?.body?.customer as any).mycards.length > 0) {
+      return (dashBoardInfo?.body?.customer as any).mycards;
+    }
+    if (Array.isArray((dashBoardInfo?.body as any)?.mycards) && (dashBoardInfo?.body as any).mycards.length > 0) {
+      return (dashBoardInfo?.body as any).mycards;
+    }
+    return [];
+  }, [paymentMethodInfo, paymentDetailsInfo, dashBoardInfo]);
+
+  React.useEffect(() => {
+    if (Array.isArray(myCards) && myCards.length > 0) {
+      setMethods(myCards);
+    }
+  }, [myCards]);
+
   /* ---------------- State Sync from Home API ---------------- */
   React.useEffect(() => {
     const cardFromHome = dashBoardInfo?.body?.autopay_card;
@@ -1381,14 +1407,23 @@ export default function AutoPayPrototype() {
   function handleToggle() {
     if (!autopayEnabled) {
       // OFF -> ON
-      if ((everEnrolled || autopayMethodInfo) && (autopayMethodInfo || autopayMethodId)) {
+      const hasSavedAutopayCard = Boolean(
+        autopayMethodInfo?.id ||
+        autopayMethodInfo?.card_token ||
+        autopayMethodInfo?.token ||
+        autopayMethodInfo?.card_number ||
+        autopayMethodInfo?.bank_account_number
+      );
+      const hasCards = (Array.isArray(myCards) && myCards.length > 0) || hasSavedAutopayCard;
+
+      if (hasSavedAutopayCard && (everEnrolled || autopayMethodInfo) && (autopayMethodInfo || autopayMethodId)) {
         // Previously enrolled or has saved card -> straight to Review & Confirm
         setAuthChecked(false); // must reselect
         setView('review');
       } else {
-        // Go through enrollment choose step
+        // No saved payment method -> redirect to enroll in autopay screen
         setNewCardSelected(false);
-        setPaymentType(autopayMethodInfo ? 'saved' : '');
+        setPaymentType(hasSavedAutopayCard ? 'saved' : '');
         setView('enroll-choose');
       }
     } else {
@@ -1643,7 +1678,11 @@ export default function AutoPayPrototype() {
             rowsPerPage={10}
             onSaveCardDetails={(data: any) => {
               try {
-                setAutopayMethodInfo(data);
+                if (data) {
+                  setAutopayMethodInfo(data);
+                  if (data?.id) setAutopayMethodId(data.id);
+                }
+                setPaymentType('saved');
                 setOpenPaymentModal(false);
                 setNewCardSelected(true);
                 // setOpenConfirm(true);

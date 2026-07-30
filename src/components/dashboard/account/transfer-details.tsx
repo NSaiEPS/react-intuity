@@ -68,7 +68,17 @@ export function TransferDetailsForm(): React.JSX.Element {
             border: "none",
           }}
         >
-          <CardContent sx={{ boxShadow: "none" }}>
+          <CardContent
+            sx={{
+              boxShadow: "none",
+              pt: 2,
+              pb: 1,
+              px: 3,
+              "&:last-child": {
+                pb: 1,
+              },
+            }}
+          >
             <Grid container spacing={3}>
               {fields.map(({ label, value, icon: Icon }) => (
                 <Grid xs={12} md={6} key={label}>

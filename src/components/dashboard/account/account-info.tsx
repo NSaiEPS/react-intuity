@@ -104,14 +104,22 @@ export function AccountInfo(): React.JSX.Element {
 
       <Divider />
 
-     
+
 
       {/* <Divider sx={{
         width: "96%",
         mx: "auto",
       }} /> */}
       {/* <Card sx={{ borderRadius: 1 }}> */}
-      <CardContent sx={{ pt: 2.5 }}>
+      <CardContent
+        sx={{
+          pt: 2.5,
+          pb: 2,
+          "&:last-child": {
+            pb: 2,
+          },
+        }}
+      >
 
 
         {/* <Grid container spacing={2}>
@@ -153,7 +161,7 @@ export function AccountInfo(): React.JSX.Element {
                   alignItems: "center",
                   justifyContent: "flex-start",
                   gap: 2,
-                  pb: 2,
+                  pb: 1,
                   // borderBottom: "1px solid #ECECEC",
                 }}
               >

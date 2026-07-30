@@ -46,6 +46,12 @@ export function PaymentModal({
     (state: RootState) => state?.Payment?.paymentLoader
   );
 
+  React.useEffect(() => {
+    if (open) {
+      setPaymentOption("payNow");
+    }
+  }, [open]);
+
   const navigate = useNavigate();
 
   const handleProceed = (): void => {
@@ -118,18 +124,12 @@ export function PaymentModal({
       })
     );
   };
-  const getAutoPayInfo = (option) => {
-    return lastBillInfo?.company?.allow_auto_payment == 1
-      ? true
-      : option.value != "autopay"
-        ? true
-        : false;
-  };
+
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle>When would you like to pay?</DialogTitle>
       <DialogContent>
-        <FormControl component="fieldset" sx={{ width: "100%", pl: 1 }}>
+        <FormControl component="fieldset" sx={{ width: "100%" }}>
           <RadioGroup value={paymentOption} onChange={handleChange}>
             {(lastBillInfo?.recurring_payment_msg1 ||
               lastBillInfo?.customer?.is_payment_schedule ||
@@ -217,55 +217,89 @@ export function PaymentModal({
                     lastBillInfo?.schedule_payment_text ??
                     "Make a single scheduled payment - that's it!",
                 },
-                {
-                  value: "autopay",
-                  title: "Sign up for Autopay",
-                  description:
-                    lastBillInfo?.text_autopay_billing ??
-                    "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
-                },
-              ]
-            ).map(
-              (option) =>
-                getAutoPayInfo(option) && (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio />}
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      border: "1px solid",
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      p: 2,
-                      pr: 0,
-                      mr: 0,
-                      mb: 2,
-                      transition: "border-color 0.2s, box-shadow 0.2s",
-                      "&:hover": {
-                        borderColor: "primary.main",
+                ...(lastBillInfo?.company?.allow_auto_payment == 1 &&
+                Number(lastBillInfo?.customer?.autopay) !== 1
+                  ? [
+                      {
+                        value: "autopay",
+                        title: "Sign up for Autopay",
+                        description:
+                          lastBillInfo?.text_autopay_billing ??
+                          "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
                       },
-                    }}
-                    label={
-                      <Box>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {option.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          mt={0.5}
-                        >
-                          {option.description}
-                        </Typography>
-                        {option.extraInfo}
-                      </Box>
-                    }
-                  />
-                )
-            )}
+                    ]
+                  : []),
+              ]
+            ).map((option) => (
+              <FormControlLabel
+                key={option.value}
+                value={option.value}
+                control={<Radio />}
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  p: 2,
+                  ml: 0,
+                  mr: 0,
+                  width: "100%",
+                  mb: 2,
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+                  "&:hover": {
+                    borderColor: "primary.main",
+                  },
+                }}
+                label={
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {option.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      mt={0.5}
+                    >
+                      {option.description}
+                    </Typography>
+                    {option.extraInfo}
+                  </Box>
+                }
+              />
+            ))}
           </RadioGroup>
+
+          {!(
+            lastBillInfo?.recurring_payment_msg1 ||
+            lastBillInfo?.customer?.is_payment_schedule ||
+            lastBillInfo?.customer?.is_recurring_payment
+          ) &&
+            lastBillInfo?.company?.allow_auto_payment == 1 &&
+            Number(lastBillInfo?.customer?.autopay) === 1 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  p: 2,
+                  ml: 0,
+                  mr: 0,
+                  width: "100%",
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="bold"
+                  color="text.primary"
+                >
+                  • Autopay is enabled.
+                </Typography>
+              </Box>
+            )}
         </FormControl>
 
         {lastBillInfo?.autopay_text && (
@@ -275,19 +309,6 @@ export function PaymentModal({
             </Typography>
           </Box>
         )}
-        {/* //{" "}
-        <Box mt={2}>
-          //{" "}
-          <Typography variant="body2">
-            //{" "}
-            <strong>
-              // • Autopay Is //{" "}
-              {lastBillInfo?.customer?.autopay ? "Enabled" : " Not Enabled"} //{" "}
-            </strong>
-            //{" "}
-          </Typography>
-          //{" "} */}
-        {/* </Box> */}
       </DialogContent>
 
       <DialogActions

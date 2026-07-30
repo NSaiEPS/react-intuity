@@ -61,7 +61,7 @@ const MainSection = memo(function MainSection() {
     } else if (pathname.includes("update-password")) {
       title = "Update Password";
     } else if (pathname.includes("onetime-payment")) {
-      title = "One Time Payment";
+      title = "Pay as Guest";
     }
 
     document.title = title;

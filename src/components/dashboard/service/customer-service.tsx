@@ -314,7 +314,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                           display: "flex",
                           alignItems: "center",
                           gap: 2,
-                          px: { xs: 0, md: 3 },
+                          px: 0,
                         }}
                       >
                         <Avatar

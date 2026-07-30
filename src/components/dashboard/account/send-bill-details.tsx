@@ -204,7 +204,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Card sx={{ m: 3, borderRadius: boarderRadius.card }}>
+      <Card sx={{ mx: 3, mb: 3, mt: 1.5, borderRadius: boarderRadius.card }}>
         <CardHeader sx={{ pt: 2, pb: 2 }} title="Send Final bill to" />
         <Divider />
 

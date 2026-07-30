@@ -6,9 +6,22 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { MainNav } from "@/components/dashboard/layout/main-nav";
 import { SideNav } from "@/components/dashboard/layout/side-nav";
+import { useDispatch } from "@/hooks/redux";
+import { getDashboardInfo } from "@/state/features/dashBoardSlice";
+import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { Outlet } from "react-router";
 
 export default function DashboardLayout(): React.JSX.Element {
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    const raw = getLocalStorage("intuity-user");
+    const stored: IntuityUser | null = typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+    if (stored?.body?.acl_role_id && stored?.body?.customer_id) {
+      dispatch(getDashboardInfo(stored.body.acl_role_id, stored.body.customer_id));
+    }
+  }, [dispatch]);
+
   return (
     <AuthGuard>
       <GlobalStyles

@@ -10,6 +10,7 @@ import { getDashboardInfo } from '@/state/features/dashBoardSlice';
 // ✅ eager — above fold, user sees these first
 import { Budget } from '@/components/dashboard/overview/budget';
 import { TotalProfit } from '@/components/dashboard/overview/total-profit';
+import { useLocation } from 'react-router-dom';
 
 // ✅ lazy — below fold or heavy
 const Sales = React.lazy(() =>
@@ -169,13 +170,37 @@ export default function DashBoardPage(): React.JSX.Element {
   const isLargeUp = useMediaQuery(theme.breakpoints.up('lg'));
   const dispatch = useDispatch();
   const { dashBoardInfo, dashboardLoading } = useSelector((state: RootState) => state?.DashBoard);
+  const refreshRef=React.useRef(false)
 
-  // Fetch dashboard data once — owned here so Budget never needs to call it
-  React.useEffect(() => {
-    const raw = getLocalStorage('intuity-user');
-    const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
-    dispatch(getDashboardInfo(stored?.body?.acl_role_id, stored?.body?.customer_id));
-  }, []);
+  // React.useEffect(() => {
+   
+  //   const raw = getLocalStorage('intuity-user');
+  //   const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+  //   dispatch(getDashboardInfo(stored?.body?.acl_role_id, stored?.body?.customer_id));
+  // }, []);
+
+  const isFirstVisit = React.useRef(true);
+const location = useLocation();
+
+React.useEffect(() => {
+  if (isFirstVisit.current) {
+    isFirstVisit.current = false;
+    return; // Skip first visit after login
+  }
+
+  const raw = getLocalStorage("intuity-user");
+  const stored =
+    typeof raw === "object" && raw !== null
+      ? (raw as IntuityUser)
+      : null;
+
+  dispatch(
+    getDashboardInfo(
+      stored?.body?.acl_role_id,
+      stored?.body?.customer_id
+    )
+  );
+}, [location.pathname]);
 
   // Start downloading lazy chunks immediately after first paint
   React.useEffect(() => {
