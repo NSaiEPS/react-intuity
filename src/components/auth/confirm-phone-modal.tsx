@@ -237,7 +237,7 @@ export default function PhoneModal({
       isOtpModal ? phoneNumber : toUSPhoneFormat(data.phone)
     );
     formData.append("id", clickedDetails?.id);
-    formData.append("country_code", data?.countryCode);
+    formData.append("country_code", data?.countryCode ?? "1");
 
     dispatch(
       getNotificationList(

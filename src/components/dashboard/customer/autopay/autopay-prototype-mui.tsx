@@ -663,10 +663,7 @@ function ReviewConfirm({
             disabled={
               !authChecked ||
               accountLoading ||
-              (autopayMethodInfo ? false :
-                (userInfo?.autopay === 1 && isAutoPay) ||
-                (userInfo?.autopay !== 1 && !isAutoPay)
-              )
+              !autopayMethodInfo
             }
             loading={accountLoading}
             onClick={handleEnrollSave}
@@ -950,6 +947,7 @@ function EnrollChoose({
         <Button
           variant="outlined"
           // fullWidth
+          textTransform="none"
           onClick={onCancel}
           style={{
             color: colors.blue,
@@ -996,7 +994,7 @@ function DeactivatePage({
   amountDue,
   dueDate,
 }: {
-  method: PaymentMethod;
+  method: CardDetails | PaymentMethod | null;
   onKeep: () => void;
   onDeactivate: () => void;
   accountLoading: boolean;
@@ -1137,7 +1135,7 @@ function Dashboard({
   name,
 }: {
   autopayEnabled: boolean;
-  autopayMethodInfo: PaymentMethod | null;
+  autopayMethodInfo: CardDetails | PaymentMethod | null;
   onToggle: () => void;
   onChangeMethod: () => void;
   accountNo: string;
@@ -1196,7 +1194,7 @@ function Dashboard({
             <>
               <Divider sx={{ my: 2 }} />
               <Stack direction="row" alignItems="center" spacing={1.5}>
-                <MethodIcon type={autopayMethodInfo.type} />
+                <MethodIcon type={((autopayMethodInfo as any)?.type || (autopayMethodInfo?.is_bank_account ? 'bank' : 'card')) as MethodType} />
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography variant="body1" sx={{ color: palette.gray, fontWeight: 700, display: 'block' }}>
                     Paying with
@@ -1357,19 +1355,40 @@ export default function AutoPayPrototype() {
   const [showDeactivated, setShowDeactivated] = useState(false);
   const [newCardSelected, setNewCardSelected] = useState(false);
 
+  /* ---------------- State Sync from Home API ---------------- */
+  React.useEffect(() => {
+    const cardFromHome = dashBoardInfo?.body?.autopay_card;
+    const autopayStatusFromHome = dashBoardInfo?.body?.customer?.autopay;
+
+    if (cardFromHome) {
+      setAutopayMethodInfo(cardFromHome);
+      if (cardFromHome?.id) {
+        setAutopayMethodId(cardFromHome.id);
+      }
+    }
+
+    if (autopayStatusFromHome !== undefined && autopayStatusFromHome !== null) {
+      const isEnabled = Number(autopayStatusFromHome) === 1;
+      setAutopayEnabled(isEnabled);
+      setisAutoPay(isEnabled);
+      if (isEnabled) {
+        setEverEnrolled(true);
+      }
+    }
+  }, [dashBoardInfo]);
+
   /* ---------------- Dashboard toggle ---------------- */
   function handleToggle() {
     if (!autopayEnabled) {
       // OFF -> ON
-      if (everEnrolled && autopayMethodId) {
-        // Previously enrolled, currently disabled -> straight to Review & Confirm
+      if ((everEnrolled || autopayMethodInfo) && (autopayMethodInfo || autopayMethodId)) {
+        // Previously enrolled or has saved card -> straight to Review & Confirm
         setAuthChecked(false); // must reselect
         setView('review');
       } else {
-        // Never enrolled -> go through enrollment choose step
-        // (works whether or not there are saved methods)
+        // Go through enrollment choose step
         setNewCardSelected(false);
-        setPaymentType('');
+        setPaymentType(autopayMethodInfo ? 'saved' : '');
         setView('enroll-choose');
       }
     } else {
@@ -1459,7 +1478,7 @@ export default function AutoPayPrototype() {
   const [cardModalOpen, setCardModalOpen] = useState(false);
   const [bankModalOpen, setBankModalOpen] = useState(false);
   const [isAutoPay, setisAutoPay] = React.useState(false);
-  const [autoPaySettings, setAutoPaySettings] = React.useState(null);
+  const [autoPaySettings, setAutoPaySettings] = React.useState<any>(null);
 
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
@@ -1473,16 +1492,16 @@ export default function AutoPayPrototype() {
       formData.append('payment_method_id_model', autopayMethodInfo?.card_token || autopayMethodInfo?.token || '');
 
       formData.append('is_form', '1');
-      formData.append('auto_pay', isAutoPay ? '1' : '0');
+      formData.append('auto_pay', '1');
 
-      formData.append('id_select_card', String(autopayMethodInfo?.id) ?? '');
+      formData.append('id_select_card', String(autopayMethodInfo?.id ?? autoPaySettings?.id ?? ''));
       formData.append('auto_pay_model_save_card', '0');
       dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
         undefined,
         false));
       return;
     }
-    formData.append('auto_pay', isAutoPay ? '1' : '0');
+    formData.append('auto_pay', '1');
 
     formData.append('payment_method_id', userInfo?.payment_method_id);
     dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
@@ -1492,7 +1511,10 @@ export default function AutoPayPrototype() {
 
   const successCallBack = () => {
     setShowSuccess(true);
-    updateLocalStorageValue('intuity-customerInfo', 'autopay', isAutoPay ? 1 : 0);
+    setisAutoPay(true);
+    setAutopayEnabled(true);
+    setEverEnrolled(true);
+    updateLocalStorageValue('intuity-customerInfo', 'autopay', 1);
   };
 
   function finishEnrollment() {
@@ -1516,7 +1538,7 @@ export default function AutoPayPrototype() {
       formData.append('is_form', '1');
       formData.append('auto_pay', '0');
 
-      formData.append('id_select_card', autoPaySettings?.id ?? '');
+      formData.append('id_select_card', String(autopayMethodInfo?.id ?? autoPaySettings?.id ?? ''));
       formData.append('auto_pay_model_save_card', '0');
       dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate, false,
         undefined,
@@ -1529,15 +1551,17 @@ export default function AutoPayPrototype() {
     dispatch(updatePaperLessInfo(formData, 'autopay', successCallBackDeactivate, false,
       undefined,
       false));
-    setShowDeactivated(true);
   }
 
   const successCallBackDeactivate = () => {
     setAutopayEnabled(false);
+    setisAutoPay(false);
+    updateLocalStorageValue('intuity-customerInfo', 'autopay', 0);
     setView('dashboard');
     setShowDeactivated(true);
   }
   function finishDeactivation() {
+    handleHomeApi();
     setShowDeactivated(false);
     setAutopayEnabled(false);
     setView('dashboard');
@@ -1572,7 +1596,10 @@ export default function AutoPayPrototype() {
     formData.append('customer_id', userId);
 
     dispatch(updatePaperLessInfo(formData, 'autopay', (data: any) => {
-      // setAutoPayDetails(data);
+      if (data) {
+        setAutopayMethodInfo(data);
+        if (data?.id) setAutopayMethodId(data.id);
+      }
       setContextLoading(false);
       // Mark first-load done — clear the skeleton once autopay-setting resolves
     }, true,
@@ -1727,7 +1754,7 @@ export default function AutoPayPrototype() {
           />
         )}
 
-        {view === 'review' && (autopayMethodInfo) && (
+        {view === 'review' && (
           <ReviewConfirm
             methods={methods}
             autopayMethodId={autopayMethodId as string}
@@ -1754,7 +1781,7 @@ export default function AutoPayPrototype() {
           />
         )}
 
-        {view === 'deactivate' && (autopayMethodInfo) && (
+        {view === 'deactivate' && (
           <DeactivatePage
             method={autopayMethodInfo}
             onKeep={handleKeepAutopay}

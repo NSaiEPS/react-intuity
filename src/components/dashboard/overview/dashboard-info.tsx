@@ -362,24 +362,30 @@ export function DashboardInfo({
               component="button"
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.stopPropagation();
+                if (type === "autoPay") {
+                  navigate(paths.dashboard.autoPay());
+                  return;
+                }
                 setClickedState(!clickedState);
                 setOpenConfirm(true);
               }} // 👈 prevent the card click
               sx={{
                 all: "unset", // Reset button styles
                 display: "flex",
-
                 width: "70px",
+                cursor: "pointer",
               }}
-            // onChange={handleChange}
-            // disabled={type === 'notification'}
             >
               <IOSSwitch
                 checked={checked}
+                // disabled={type === "autoPay"}
                 onChange={handleChange}
-                onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  e.stopPropagation()
-                } // 👈 prevent the card click
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  if (type === "autoPay") {
+                    navigate(paths.dashboard.autoPay());
+                  }
+                }} // 👈 prevent the card click
               />
             </Stack>
           </Stack>
