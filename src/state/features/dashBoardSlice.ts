@@ -21,6 +21,7 @@ import type {
   SetLoadingFn,
   UsageGraphBody,
 } from "@/types/domain";
+import { getCustomerServiceTabsFromCustomer, setCustomerServiceTabs } from "./sideNavSlice";
 
 interface DashBoardState {
   dashBoardInfo: DashboardResponse & Record<string, any>;
@@ -122,6 +123,10 @@ export const getDashboardInfo = (
       secureLocalStorage.setItem("linked-customerInfo", res?.body?.linked_customers);
       secureLocalStorage.setItem("intuity-meterDetails", res?.body?.meterDetails);
       dispatch(setDashboardInfo(res));
+      const companyData = res?.body?.company ?? {};
+      const customerData = res?.body?.customer ?? {};
+      const mergedData = { ...companyData, ...customerData };
+      dispatch(setCustomerServiceTabs(getCustomerServiceTabsFromCustomer(mergedData)));
     } else {
       navigateTo("/login", { replace: true }, res?.message);
       if (res?.message !== "You are not authorised to use this api") {

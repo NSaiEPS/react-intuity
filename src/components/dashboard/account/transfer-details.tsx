@@ -10,6 +10,13 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Grid from "@mui/material/Unstable_Grid2";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useSelector } from "@/hooks/redux";
+import { Box, Typography, Avatar } from "@mui/material";
+import {
+  User,
+  IdentificationCard,
+  Gauge,
+  MapPin,
+} from "@phosphor-icons/react";
 
 export function TransferDetailsForm(): React.JSX.Element {
   const { transferInfo, accountLoading } = useSelector(
@@ -23,99 +30,90 @@ export function TransferDetailsForm(): React.JSX.Element {
     meterNumber = "",
   } = transferInfo?.customer_data?.[0] || {};
 
+  const fields = [
+    {
+      label: "Account Name",
+      value: customer_name,
+      icon: User,
+    },
+    {
+      label: "Service Address",
+      value: service_address,
+      icon: MapPin,
+    },
+    {
+      label: "Account #",
+      value: acctnum,
+      icon: IdentificationCard,
+    },
+    {
+      label: "Meter #",
+      value: meterNumber,
+      icon: Gauge,
+    },
+
+  ];
+
 
   //console.log(transferInfo,'transferInfo');
   return (
     <>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-        }}
-      >
+      <Box>
         <Card
+          elevation={0}
+
           sx={{
             borderRadius: 0,
+            // boxShadow: "none",
+            border: "none",
           }}
         >
-          <CardContent>
+          <CardContent sx={{ boxShadow: "none" }}>
             <Grid container spacing={3}>
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth required variant="outlined">
-                  <InputLabel>Account name</InputLabel>
-
-                  <OutlinedInput
-                    disabled={true}
-                    id="account-name"
-                    value={customer_name}
-                    // onChange={handleChange}
-                    name="firstName"
-
-                    label="Account name"
+              {fields.map(({ label, value, icon: Icon }) => (
+                <Grid xs={12} md={6} key={label}>
+                  <Box
                     sx={{
-                      height: 44,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      py: 1,
+                      boxShadow: "none",
+                      border: "none",
                     }}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth required>
-                  <InputLabel>Account #</InputLabel>
-                  {/* <OutlinedInput id="account-#" disabled label="Account #" name="lastName" value={acctnum} /> */}
-                  <OutlinedInput
-                    disabled={true}
-                    id="account-#"
-                    value={acctnum}
-                    // onChange={handleChange}
-                    name="firstName"
+                  >
+                    <Avatar
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: "#EEF4FF",
+                        color: "#2563EB",
+                      }}
+                    >
+                      <Icon size={22} weight="regular" />
+                    </Avatar>
 
-                    label="Account #"
-                    sx={{
-                      height: 44,
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth required>
-                  <InputLabel>Meter #</InputLabel>
-                  {/* <OutlinedInput disabled value={meterNumber} label="Meter #" name="Meter" /> */}
-                  <OutlinedInput
-                    disabled={true}
-                    id="Meter-#"
-                    value={meterNumber}
-                    // onChange={handleChange}
-                    name="Meter"
+                    <Box flex={1}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 0.3 }}
+                      >
+                        {label}
+                      </Typography>
 
-                    label="Meter"
-                    sx={{
-                      height: 44,
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid md={6} xs={12}>
-                <FormControl fullWidth required variant="outlined">
-                  <InputLabel>Service Address</InputLabel>
-                  {/* <OutlinedInput value={service_address} disabled name="service" label="Service Address" /> */}
-                  <OutlinedInput
-                    disabled={true}
-                    id="Service-Address"
-                    value={service_address}
-                    // onChange={handleChange}
-                    name="service"
-
-                    label="Service Address"
-                    sx={{
-                      height: 44,
-                    }}
-                  />
-                </FormControl>
-              </Grid>
+                      <Typography variant="body1" fontWeight={600}>
+                        {value || "-"}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+              ))}
             </Grid>
           </CardContent>
-          <Divider />
+          {/* <Divider /> */}
         </Card>
-      </form>
+      </Box>
       <CustomBackdrop
         open={accountLoading}
         style={{ zIndex: 1300, color: "#fff" }}

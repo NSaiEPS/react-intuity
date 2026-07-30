@@ -226,64 +226,64 @@ export function AccountDetailsForm(): React.JSX.Element {
   };
 
 
- const InfoBox = ({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | number;
-}) => (
-  <Box
-    sx={{
-      border: "1px solid #E5E7EB",
-      borderRadius: 1,
-      px: 2,
-      py: 1,
-      minHeight: 48, // instead of height: 100%
-      backgroundColor: "#fff",
-    }}
-  >
-    <Typography
-      fontSize={15}
-      fontWeight={600}
-      sx={{ lineHeight: 1, mb:0.25 }}
+  const InfoBox = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value?: string | number;
+  }) => (
+    <Box
+      sx={{
+        border: "1px solid #E5E7EB",
+        borderRadius: 1,
+        px: 2,
+        py: 1,
+        minHeight: 48, // instead of height: 100%
+        backgroundColor: "#fff",
+      }}
     >
-      {label}
-    </Typography>
+      <Typography
+        fontSize={15}
+        fontWeight={600}
+        sx={{ lineHeight: 1, mb: 0.25 }}
+      >
+        {label}
+      </Typography>
 
-    <Typography
-      fontSize={14}
-      color="text.secondary"
-      sx={{ display: "block", }}
-    >
-      {value || "-"}
-    </Typography>
-  </Box>
-);
+      <Typography
+        fontSize={14}
+        color="text.secondary"
+        sx={{ display: "block", }}
+      >
+        {value || "-"}
+      </Typography>
+    </Box>
+  );
 
-const fields = [
-  {
-    label: "Meter #",
-    value: accountInfo?.customer_data?.[0]?.meterNumber,
-  },
-  {
-    label: "Service Address",
-    value: accountInfo?.customer_data?.[0]?.service_address,
-  },
-
-  {
-    label: "Primary Phone",
-    value: accountInfo?.customer_data?.[0]?.phone,
-  },
-  {
-    label: "Alt Phone",
-    value: accountInfo?.customer_data?.[0]?.phone2,
-  },
+  const fields = [
     {
-    label: "Email",
-    value: accountInfo?.customer_data?.[0]?.email,
-  },
-];
+      label: "Meter #",
+      value: accountInfo?.customer_data?.[0]?.meterNumber,
+    },
+    {
+      label: "Service Address",
+      value: accountInfo?.customer_data?.[0]?.service_address,
+    },
+
+    {
+      label: "Primary Phone",
+      value: accountInfo?.customer_data?.[0]?.phone,
+    },
+    {
+      label: "Alt Phone",
+      value: accountInfo?.customer_data?.[0]?.phone2,
+    },
+    {
+      label: "Email",
+      value: accountInfo?.customer_data?.[0]?.email,
+    },
+  ];
 
 
 
@@ -388,10 +388,10 @@ const fields = [
 
 
       <form>
-        <Card sx={{ borderRadius: 1,  }}>
+        <Card sx={{ borderRadius: 1, }}>
           <CardHeader
             title="New Information"
-            sx={{pt:2,pb:2}}
+            sx={{ pt: 2, pb: 2 }}
           />
           <Divider />
           <CardContent>
@@ -407,143 +407,102 @@ const fields = [
                 { label: "Alt Phone ", name: "alt_phone", phone: true },
               ].map(({ label, name, phone }) => (
                 <>
-                <Grid item xs={12} md={6} key={name}>
-                  {/* <Controller
+                  <Grid item xs={12} md={6} key={name}>
+                    {/* <Controller
                     name={name as keyof FormSchema}
                     control={control}
                     render={({ field }) => ( */}
-                  <FormControl
-                    fullWidth
-                    size="small"
-                  // error={!!errors[name as keyof FormSchema]}
-                  >
-                    <InputLabel>{label}</InputLabel>
-                    <OutlinedInput
-                      value={newInfo[name]}
-                      onChange={(e) =>
-                        setNewInfo((prev) => ({
-                          ...prev,
-                          [name]: e.target.value,
-                        }))
-                      }
-                      label={label}
-                      type={phone ? "tel" : "text"}
-                      inputProps={
-                        phone
-                          ? { inputMode: "decimal" } // mobile numeric keyboard
-                          : undefined
-                      }
-                    // onChange={(e) => {
-                    //   let value = e.target.value;
+                    <FormControl
+                      fullWidth
+                      size="small"
+                    // error={!!errors[name as keyof FormSchema]}
+                    >
+                      <InputLabel>{label}</InputLabel>
+                      <OutlinedInput
+                        value={newInfo[name]}
+                        onChange={(e) =>
+                          setNewInfo((prev) => ({
+                            ...prev,
+                            [name]: e.target.value,
+                          }))
+                        }
+                        label={label}
+                        type={phone ? "tel" : "text"}
+                        inputProps={
+                          phone
+                            ? { inputMode: "decimal" } // mobile numeric keyboard
+                            : undefined
+                        }
+                      // onChange={(e) => {
+                      //   let value = e.target.value;
 
-                    //   // 🔹 Normal input for non-phone fields
-                    //   if (!phone) {
-                    //     field.onChange(value);
-                    //     return;
-                    //   }
+                      //   // 🔹 Normal input for non-phone fields
+                      //   if (!phone) {
+                      //     field.onChange(value);
+                      //     return;
+                      //   }
 
-                    //   // ✅ Allow ONLY digits and hyphen
-                    //   value = value.replace(/[^0-9-]/g, "");
+                      //   // ✅ Allow ONLY digits and hyphen
+                      //   value = value.replace(/[^0-9-]/g, "");
 
-                    //   field.onChange(value);
+                      //   field.onChange(value);
 
-                    // }}
-                    />
-                    {errors[name as keyof FormSchema] ? (
-                      <FormHelperText>
-                        {errors[name as keyof FormSchema].message}
-                      </FormHelperText>
-                    ) : null}
-                  </FormControl>
-                  {/* )}
+                      // }}
+                      />
+                      {errors[name as keyof FormSchema] ? (
+                        <FormHelperText>
+                          {errors[name as keyof FormSchema].message}
+                        </FormHelperText>
+                      ) : null}
+                    </FormControl>
+                    {/* )}
                   /> */}
-                </Grid>
-                
-</>
-                
+                  </Grid>
+
+                </>
+
               ))}
               <Grid item xs={12} md={6}>
-  <Box
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      height: "100%",
-      gap: 2,
-      paddingLeft:1.4,
-      flexWrap: "wrap",
-    }}
-  >
-    <Typography>
-      I am the *
-    </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    height: "100%",
+                    gap: 2,
+                    paddingLeft: 1.4,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography>
+                    I am the *
+                  </Typography>
 
-    <RadioGroup
-      row
-      value={newInfo.role}
-      onChange={(e) =>
-        setNewInfo((prev) => ({
-          ...prev,
-          role: e.target.value,
-        }))
-      }
-    >
-      <FormControlLabel
-        value="owner"
-        control={<Radio />}
-        label="Owner"
-      />
-      <FormControlLabel
-        value="tenant"
-        control={<Radio />}
-        label="Tenant"
-      />
-    </RadioGroup>
-  </Box>
-</Grid>
+                  <RadioGroup
+                    row
+                    value={newInfo.role}
+                    onChange={(e) =>
+                      setNewInfo((prev) => ({
+                        ...prev,
+                        role: e.target.value,
+                      }))
+                    }
+                  >
+                    <FormControlLabel
+                      value="owner"
+                      control={<Radio />}
+                      label="Owner"
+                    />
+                    <FormControlLabel
+                      value="tenant"
+                      control={<Radio />}
+                      label="Tenant"
+                    />
+                  </RadioGroup>
+                </Box>
+              </Grid>
             </Grid>
 
-            {/* <Grid container
-              spacing={2}
-              sx={{ mt: 1 }}>
-              <Grid item xs={12} sm={6}>
-                <Box
-  sx={{
-    display: "flex",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 2,
-  }}
->
-  <Typography variant="body1" fontWeight={600}>
-    I am the *
-  </Typography>
-
-  <RadioGroup
-    row
-    value={newInfo.role}
-    onChange={(e) =>
-      setNewInfo((prev) => ({
-        ...prev,
-        role: e.target.value,
-      }))
-    }
-    sx={{ m: 0 }}
-  >
-    <FormControlLabel
-      value="owner"
-      control={<Radio />}
-      label="Owner"
-    />
-
-    <FormControlLabel
-      value="tenant"
-      control={<Radio />}
-      label="Tenant"
-    />
-  </RadioGroup>
-</Box>
-              </Grid>
-            </Grid> */}
+         
 
             <Grid item xs={12} sx={{ pt: 3 }}>
               <FormControl fullWidth size="small" error={!!errors.comment}>
@@ -565,11 +524,11 @@ const fields = [
                   <FormHelperText>{errors.comment.message}</FormHelperText>
                 ) : null}
               </FormControl>
-             
+
             </Grid>
           </CardContent>
           <Divider />
-          <CardActions sx={{ justifyContent: "flex-end", border: "none", px:3.2, py:2 }}>
+          <CardActions sx={{ justifyContent: "flex-end", border: "none", px: 3.2, py: 2 }}>
             <Button
               type="button"
               onClick={() => {

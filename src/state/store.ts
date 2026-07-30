@@ -4,12 +4,14 @@ import { ThunkAction } from "redux-thunk";
 import accountSlice from "./features/accountSlice";
 import dashBoardSlice from "./features/dashBoardSlice";
 import paymentSlice from "./features/paymentSlice";
+import sideNavSlice from "./features/sideNavSlice";
 
 export const store = configureStore({
   reducer: {
     DashBoard: dashBoardSlice,
     Account: accountSlice,
     Payment: paymentSlice,
+    SideNav: sideNavSlice,
   },
   // middleware: [...getDefaultMiddleware(), thunk],
 });

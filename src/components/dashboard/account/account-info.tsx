@@ -37,44 +37,37 @@ export function AccountInfo(): React.JSX.Element {
   const { company_logo }: { company_logo?: string } =
     (typeof CustomerInfo === "object" && CustomerInfo) || {};
 
-  // const fields = [
-  //   {
-  //     label: "Meter #",
-  //     value: accountInfo?.customer_data?.[0]?.meterNumber,
-  //   },
-  //   {
-  //     label: "Email",
-  //     value: accountInfo?.customer_data?.[0]?.email,
-  //   },
-  //   {
-  //     label: "Primary Phone",
-  //     value: accountInfo?.customer_data?.[0]?.phone,
-  //   },
-  //   {
-  //     label: "Alt Phone",
-  //     value: accountInfo?.customer_data?.[0]?.phone2,
-  //   },
-
-  //     {
-  //     label: "Service Address",
-  //     value: accountInfo?.customer_data?.[0]?.service_address,
-  //   },
-  // ];
-
   const fields = [
-
     {
-      label: "Meter #",
-      value: accountInfo?.customer_data?.[0]?.meterNumber,
-      icon: Gauge,
+      label: "Account Name",
+      value: customer_name,
+      icon: User,
     },
     {
       label: "Email",
       value: accountInfo?.customer_data?.[0]?.email,
       icon: EnvelopeSimple,
     },
-
-
+    {
+      label: "Account Number",
+      value: acctnum,
+      icon: IdentificationCard,
+    },
+    {
+      label: "Meter #",
+      value: accountInfo?.customer_data?.[0]?.meterNumber,
+      icon: Gauge,
+    },
+    {
+      label: "Service Address",
+      value: accountInfo?.customer_data?.[0]?.service_address,
+      icon: MapPin,
+    },
+    {
+      label: "Billing Address",
+      value: address,
+      icon: House,
+    },
     {
       label: "Primary Phone",
       value: accountInfo?.customer_data?.[0]?.phone,
@@ -86,11 +79,10 @@ export function AccountInfo(): React.JSX.Element {
       icon: DeviceMobile,
     },
     {
-      label: "Service Address",
-      value: accountInfo?.customer_data?.[0]?.service_address,
-      icon: MapPin,
+      label: "I am the",
+      value: role || "Owner",
+      icon: UserCircle,
     },
-
 
   ];
 
@@ -111,206 +103,13 @@ export function AccountInfo(): React.JSX.Element {
       />
 
       <Divider />
-      {/* <CardContent>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
-          <Avatar src={company_logo} sx={{ height: "80px", width: "max-content", borderRadius: "0" }} />
-        
-          <Box >
 
+     
 
-            <Typography variant="h6">
-              {customer_name}
-            </Typography>
-
-
-
-
-            <Typography >
-              {address}
-            </Typography>
-          </Box>
-
-           <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: { xs: "flex-start", md: "flex-end" },
-      gap: 0.5,
-    }}
-  >
-    <Typography variant="body2" color="text.secondary">
-      Account Number
-    </Typography>
-
-    <Typography fontWeight={600}>
-      {acctnum}
-    </Typography>
-
-  </Box>
-
-  <Box>
-     <Typography variant="body2">
-      I am the <strong>{role || "Owner"}</strong>
-    </Typography>
-  </Box>
-        </Stack>
-      </CardContent> */}
-      <CardContent>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={3}
-        >
-          {/* Logo */}
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              width: { xs: "100%", md: "auto" },
-              alignItems: "center",
-            }}
-          >
-
-
-            <Avatar
-              src={company_logo}
-              sx={{
-                width: { xs: 100, md: 120 },
-                height: { xs: 70, md: 80 },
-                borderRadius: 0,
-              }}
-            />
-
-          </Box>
-
-          {/* Details */}
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            divider={
-              <Divider
-                orientation="vertical"
-                flexItem
-                sx={{ display: { xs: "none", md: "block" } }}
-              />
-            }
-            sx={{ px: { xs: "0" }, alignItems: { xs: "left", md: "center" } }}
-          >
-            {/* Customer */}
-            <Box
-              sx={{
-                flex: 2,
-                px: { xs: 0, md: 3 },
-                textAlign: { xs: "center", md: "left" },
-              }}
-            >
-              <Typography variant="h6">{customer_name}</Typography>
-
-              <Typography color="text.secondary">
-                {address}
-              </Typography>
-            </Box>
-
-            {/* Mobile Divider */}
-            <Divider sx={{ display: { xs: "block", md: "none" }, my: 2 }} />
-
-            {/* Account */}
-            {/* <Box
-              sx={{
-                flex: 1,
-                px: { xs: 0, md: 3 },
-                textAlign: "center",
-              }}
-            >
-              <Typography variant="h6">Account #</Typography>
-
-              <Typography color="text.secondary">
-                {acctnum}
-              </Typography>
-            </Box> */}
-
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                px: { xs: 0, md: 3 },
-              }}
-            >
-              <Avatar
-                sx={{
-                  bgcolor: "#EEF4FF",
-                  color: "#2563EB",
-                  width: 46,
-                  height: 46,
-                }}
-              >
-                <IdentificationCard size={22} />
-              </Avatar>
-
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Account Number
-                </Typography>
-
-                <Typography fontWeight={600}>
-                  {acctnum}
-                </Typography>
-              </Box>
-            </Box>
-
-            <Divider sx={{ display: { xs: "block", md: "none" }, my: 2 }} />
-
-            {/* Role */}
-            {/* <Box
-              sx={{
-                flex: 1,
-                px: { xs: 0, md: 3 },
-                textAlign: "center",
-              }}
-            >
-              <Typography variant="h6">I am the</Typography>
-
-              <Typography color="text.secondary">
-                {role || "Owner"}
-              </Typography>
-            </Box> */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                px: { xs: 0, md: 3 },
-              }}
-            >
-              <Avatar
-                sx={{
-                  bgcolor: "#ECFDF3",
-                  color: "#16A34A",
-                  width: 46,
-                  height: 46,
-                }}
-              >
-                <UserCircle size={22} />
-              </Avatar>
-
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  I am the
-                </Typography>
-
-                <Typography fontWeight={600}>
-                  {role || "Owner"}
-                </Typography>
-              </Box>
-            </Box>
-          </Stack>
-        </Stack>
-      </CardContent>
-
-      <Divider sx={{
+      {/* <Divider sx={{
         width: "96%",
         mx: "auto",
-      }} />
+      }} /> */}
       {/* <Card sx={{ borderRadius: 1 }}> */}
       <CardContent sx={{ pt: 2.5 }}>
 

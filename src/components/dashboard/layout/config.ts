@@ -17,11 +17,11 @@ export const navItems = [
     icon: "currency",
     items: [
       {
-        key: "pay-now",
-        title: "Pay Now",
+        key: "last-bill",
+        title: "Last Bill",
         icon: "currency",
-        href: paths.dashboard.payNow(getCurrentCompanySlug()),
-        pathFun: paths.dashboard.payNow(),
+        href: paths.dashboard.lastBill(getCurrentCompanySlug()),
+        pathFun: paths.dashboard.lastBill(),
       },
       {
         key: "auto-pay",
@@ -81,7 +81,7 @@ export const navItems = [
       },
       {
         key: "link-account",
-        title: "Linked Accounts",
+        title: "Add Another Account",
         icon: "link-account",
         href: paths.dashboard.linkAccount(),
         pathFun: paths.dashboard.linkAccount(),

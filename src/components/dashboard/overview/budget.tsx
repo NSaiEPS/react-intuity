@@ -153,7 +153,7 @@ export function Budget({
               >
                 <Button
                   onClick={() => {
-                    navigate(paths.dashboard.payNow());
+                    navigate(paths.dashboard.lastBill());
                   }}
                   sx={{
                     width: "100%",

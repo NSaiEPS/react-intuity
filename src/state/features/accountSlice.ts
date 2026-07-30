@@ -401,6 +401,12 @@ export const getPaymentDetails = (
         dispatch(setPaymentDetailsInfo(res?.body));
         dispatch(setPaymentRequiredKeyDetails(res?.body?.worldpay_transaction_set_up_id));
       } else {
+        if (res?.body?.selected_card) {
+          dispatch(setSelectedCardInfo(res?.body?.selected_card));
+        }
+        if (res?.body?.mycards) {
+          dispatch(setPaymentMethodInfo(res?.body?.mycards));
+        }
         toast.success(res?.message ? res?.message : "Payment method saved!");
       }
     } else {

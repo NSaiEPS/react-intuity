@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useLayoutEffect } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import ButtonComp from '@mui/material/Button';
@@ -52,6 +52,7 @@ import {
 import AddBankAccountModal from '../add-bank-modal';
 import AddCardModal from '../add-card-modal';
 
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from '@/hooks/redux';
 import { RootState, store } from '@/state/store';
 import { getLocalStorage, IntuityUser, updateLocalStorageValue } from '@/utils/auth';
@@ -63,6 +64,9 @@ import { PaymentMethods } from '../payment-methods';
 import { getCardLast4, renderCardBrand } from '../../account/payment-details';
 import Header from '@/components/CommonComponents/header-common';
 import { formatCurrency } from '@/utils/formatters';
+import { useLoading } from '@/components/core/skeleton-context';
+import { AutoPaySkeleton } from '@/components/dashboard/skeletons';
+import { getDashboardInfo } from '@/state/features/dashBoardSlice';
 
 /* ------------------------------------------------------------------ *
  *  Types
@@ -150,22 +154,6 @@ interface CardDetails {
   expYear?: number;
   [key: string]: unknown;
 }
-
-/* ------------------------------------------------------------------ *
- *  Dummy vs. real payment capture
- *
- *  While AddCardModal / AddBankAccountModal's success wiring is still
- *  being finished, every "Credit Card" / "Bank Account" radio in the
- *  enrollment screen falls back to a dummy in-memory simulation
- *  (PaymentIframe) so the rest of the flow (Review & Confirm, default
- *  handling, etc.) can be exercised end-to-end without a real API call.
- *
- *  Flip this to `false` once you're ready to go live with the real
- *  modals — no other UI changes are needed. See the notes above
- *  `handleRealModalSuccess` in EnrollChoose for what still needs
- *  wiring on the modal side.
- * ------------------------------------------------------------------ */
-const USE_DUMMY_PAYMENT_FLOW = true;
 
 /* ------------------------------------------------------------------ *
  *  Palette
@@ -281,7 +269,7 @@ function MethodIcon({ type }: { type: MethodType }) {
 
 function methodLabel(method: PaymentMethod): string {
   return method.type === 'card'
-    ? `${method.brand} ending in ${method.last4}`
+    ? `${method.card_type} ending in ${method.last4}`
     : `${method.brand}${method.last4 ? ' ••• ' + method.last4 : ''}`;
 }
 
@@ -300,106 +288,6 @@ function DefaultChip({ isDefault }: { isDefault: boolean }) {
 }
 
 /* ------------------------------------------------------------------ *
- *  Payment capture "iFrame" simulation
- * ------------------------------------------------------------------ */
-function PaymentIframe({
-  type,
-  onContinue,
-}: {
-  type: MethodType;
-  onContinue: (method: PaymentMethod) => void;
-}) {
-  const [clicked, setClicked] = useState(false);
-
-  const handleContinue = () => {
-    if (clicked) return;
-    setClicked(true);
-    const method: PaymentMethod | any =
-      type === 'card'
-        ? {
-          id: uid(),
-          type: 'card',
-          brand: ['Visa', 'Mastercard', 'Amex'][Math.floor(Math.random() * 3)],
-          last4: String(Math.floor(1000 + Math.random() * 9000)),
-          isDefault: false,
-        }
-        : {
-          id: uid(),
-          type: 'bank',
-          brand: 'Checking',
-          last4: String(Math.floor(1000 + Math.random() * 9000)),
-          isDefault: false,
-        };
-    onContinue(method);
-  };
-
-  return (
-    <Box
-      sx={{
-        border: `1.5px dashed ${palette.grayLight}`,
-        borderRadius: 2,
-        p: 2,
-        bgcolor: palette.canvas,
-        my: 1,
-      }}
-    >
-      <Typography
-        variant="overline"
-        sx={{ color: palette.grayLight, fontWeight: 800, letterSpacing: '.06em', display: 'block', mb: 1 }}
-      >
-        Secure payment form
-      </Typography>
-
-      {type === 'card' ? (
-        <Stack spacing={1.5} sx={{ mb: 1 }}>
-          <Stack direction="row" spacing={1.5}>
-            <TextField label="Card Number" placeholder="•••• •••• •••• ••••" size="small" fullWidth />
-            <TextField label="CVV" placeholder="•••" size="small" sx={{ maxWidth: 100 }} />
-          </Stack>
-          <TextField label="Expiration" placeholder="MM / YY" size="small" sx={{ maxWidth: 160 }} />
-        </Stack>
-      ) : (
-        <Stack spacing={1.5} sx={{ mb: 1 }}>
-          <TextField label="Routing Number" placeholder="123456789" size="small" fullWidth />
-          <TextField label="Account Number" placeholder="00001234567" size="small" fullWidth />
-          <TextField label="Account Type" select size="small" defaultValue="checking" fullWidth>
-            <MenuItem value="checking">Checking</MenuItem>
-            <MenuItem value="savings">Savings</MenuItem>
-          </TextField>
-        </Stack>
-      )}
-
-      <FormControlLabel
-        control={<Checkbox size="small" defaultChecked />}
-        label={
-          <Typography variant="caption" sx={{ color: palette.gray }}>
-            I authorize this form to store and enroll the payment method indicated for one-time and/or auto
-            recurring transactions on or before the due date.
-          </Typography>
-        }
-        sx={{ alignItems: 'flex-start', mt: 0.5 }}
-      />
-      <FormControlLabel
-        control={<Checkbox size="small" defaultChecked />}
-        label={<Typography variant="caption" sx={{ color: palette.gray }}>I'm not a robot</Typography>}
-        sx={{ alignItems: 'flex-start', display: 'block' }}
-      />
-
-      {!clicked && (
-        <Stack direction="row" spacing={0.75} alignItems="center" sx={{ color: palette.red, fontWeight: 700, fontSize: 12, my: 1 }}>
-          <Warning size={14} weight="bold" />
-          <span>Only click Continue once!</span>
-        </Stack>
-      )}
-
-      <Button variant="contained" fullWidth onClick={handleContinue} disabled={clicked} sx={{ mt: 1 }}>
-        {clicked ? 'Processing…' : 'Continue'}
-      </Button>
-    </Box>
-  );
-}
-
-/* ------------------------------------------------------------------ *
  *  Payment method row (used in Review & Confirm)
  * ------------------------------------------------------------------ */
 function PaymentMethodSelector({
@@ -407,13 +295,13 @@ function PaymentMethodSelector({
   selectedId,
   onSelect,
   onOpenManage,
-  selectedCardDetails,
+  autopayMethodInfo,
 }: {
   methods: PaymentMethod[];
   selectedId: string;
   onSelect: (id: string) => void;
   onOpenManage: () => void;
-  selectedCardDetails?: CardDetails;
+  autopayMethodInfo?: CardDetails;
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const selected = methods.find((m) => m.id === selectedId) as PaymentMethod;
@@ -434,7 +322,7 @@ function PaymentMethodSelector({
 
         {/* Saved payment details box */}
         {
-          selectedCardDetails?.id && (
+          autopayMethodInfo?.id && (
             <Box
               // onClick={() => {
               //   setPaymentType('saved');
@@ -453,11 +341,11 @@ function PaymentMethodSelector({
                 gap: 1.5,
               }}
             >
-              {renderCardBrand(selectedCardDetails?.card_type ?? selectedCardDetails?.account_type)}
+              {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type)}
 
               <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                {selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Card'} ending in{' '}
-                {getCardLast4(selectedCardDetails as any)}
+                {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || 'Card'} ending in{' '}
+                {getCardLast4(autopayMethodInfo as any)}
               </Typography>
 
               {/* Default Badge */}
@@ -528,26 +416,6 @@ function PaymentMethodSelector({
         </ButtonComp>
       </Box>
 
-
-
-      {/* <Stack direction="row" spacing={1.5} sx={{ mt: 1 }}>
-        <Card
-          variant="outlined"
-          onClick={(e) => setAnchorEl(e.currentTarget)}
-          sx={{ flex: 1, cursor: 'pointer', borderColor: palette.line }}
-        >
-          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ px: 1.5, py: 1 }}>
-            <MethodIcon type={selected.type} />
-            <Typography sx={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{methodLabel(selected)}</Typography>
-            <DefaultChip isDefault={selected.isDefault} />
-            <CaretDown size={16} color={palette.gray} />
-          </Stack>
-        </Card>
-        <Button variant="contained" size="small" onClick={onOpenManage} sx={{ flexShrink: 0 }}>
-          Add/Remove
-        </Button>
-      </Stack> */}
-
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
         {methods.map((m) => (
           <MenuItem
@@ -569,99 +437,6 @@ function PaymentMethodSelector({
     </Box>
   );
 }
-
-/* ------------------------------------------------------------------ *
- *  Manage payment methods modal (Add/Remove)
- * ------------------------------------------------------------------ */
-// function ManageMethodsModal({
-//   methods,
-//   autopayMethodId,
-//   onClose,
-//   onRemove,
-//   onSetDefault,
-//   onAddNew,
-// }: {
-//   methods: PaymentMethod[];
-//   autopayMethodId: string;
-//   onClose: () => void;
-//   onRemove: (id: string) => void;
-//   onSetDefault: (id: string) => void;
-//   onAddNew: (method: PaymentMethod) => void;
-// }) {
-//   const [adding, setAdding] = useState(false);
-//   const [addType, setAddType] = useState<MethodType | null>(null);
-
-//   return (
-//     <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
-//       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: palette.navy, fontWeight: 800 }}>
-//         Payment Methods
-//         <IconButton size="small" onClick={onClose}>
-//           <X size={16} />
-//         </IconButton>
-//       </DialogTitle>
-//       <DialogContent dividers>
-//         {!adding && (
-//           <Stack spacing={1}>
-//             {methods.map((m) => (
-//               <Card key={m.id} variant="outlined" sx={{ borderColor: palette.line }}>
-//                 <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: 1.25 }}>
-//                   <MethodIcon type={m.type} />
-//                   <Box sx={{ flex: 1 }}>
-//                     <Typography sx={{ fontWeight: 700, fontSize: 13.5 }}>{methodLabel(m)}</Typography>
-//                     <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
-//                       {m.isDefault ? (
-//                         <DefaultChip isDefault />
-//                       ) : (
-//                         <Button size="small" onClick={() => onSetDefault(m.id)} sx={{ p: 0, minWidth: 0, textTransform: 'none' }}>
-//                           Make default
-//                         </Button>
-//                       )}
-//                       {m.id === autopayMethodId && <Chip size="small" label="Used for AutoPay" />}
-//                     </Stack>
-//                   </Box>
-//                   <IconButton
-//                     size="small"
-//                     onClick={() => onRemove(m.id)}
-//                     disabled={m.id === autopayMethodId || methods.length === 1}
-//                     title={m.id === autopayMethodId ? "Can't remove the method used for AutoPay" : 'Remove'}
-//                   >
-//                     <Trash size={16} />
-//                   </IconButton>
-//                 </Stack>
-//               </Card>
-//             ))}
-//             <Button variant="outlined" startIcon={<Plus size={15} />} onClick={() => setAdding(true)}>
-//               Add a new payment method
-//             </Button>
-//           </Stack>
-//         )}
-
-//         {adding && !addType && (
-//           <Stack spacing={1}>
-//             <RadioGroup value={addType ?? ''}>
-//               <FormControlLabel value="card" control={<Radio onClick={() => setAddType('card')} />} label="Credit Card" />
-//               <FormControlLabel value="bank" control={<Radio onClick={() => setAddType('bank')} />} label="Bank Account (ACH)" />
-//             </RadioGroup>
-//             <Button variant="outlined" onClick={() => setAdding(false)}>
-//               Cancel
-//             </Button>
-//           </Stack>
-//         )}
-
-//         {adding && addType && (
-//           <PaymentIframe
-//             type={addType}
-//             onContinue={(method) => {
-//               onAddNew(method);
-//               setAdding(false);
-//               setAddType(null);
-//             }}
-//           />
-//         )}
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
 
 /* ------------------------------------------------------------------ *
  *  Make-default confirmation modal
@@ -775,8 +550,8 @@ function ReviewConfirm({
   isAutoPay,
   setisAutoPay,
   accountLoading,
-  selectedCardDetails,
-  setSelectedCardDetails,
+  autopayMethodInfo,
+  setAutopayMethodInfo,
   openPaymentModal,
   setOpenPaymentModal,
 }: {
@@ -798,17 +573,37 @@ function ReviewConfirm({
   setisAutoPay: React.Dispatch<React.SetStateAction<boolean>>;
   isAutoPay: boolean;
   accountLoading: boolean;
-  selectedCardDetails: CardDetails | null;
-  setSelectedCardDetails: React.Dispatch<React.SetStateAction<CardDetails | null>>;
+  autopayMethodInfo: CardDetails | null;
+  setAutopayMethodInfo: React.Dispatch<React.SetStateAction<CardDetails | null>>;
   openPaymentModal: boolean;
   setOpenPaymentModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  // const [manageOpen, setManageOpen] = useState(false);
+  const { company: companyParam } = useParams<{ company?: string }>();
+  const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
+
+  const companyName = React.useMemo(() => {
+    const companyDetails = getLocalStorage('intuity-company') as any;
+    const aliasDetails = getLocalStorage('alias-details') as any;
+    return (
+      dashBoardInfo?.body?.company?.company_name ||
+      companyDetails?.company_name ||
+      aliasDetails?.company_name ||
+      paymentDetailsInfo?.company?.company_name ||
+      companyParam ||
+      'Company'
+    );
+  }, [dashBoardInfo, paymentDetailsInfo, companyParam]);
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
         <ShieldCheck size={20} color={palette.navy} />
-        <Typography variant="h6" sx={{ fontWeight: 800, color: palette.navy }}>
+        <Typography sx={{
+          color: '#2F66B3',
+          fontWeight: 700,
+          fontSize: { xs: '1.5rem', sm: '2rem' },
+          lineHeight: 1,
+        }}>
           Review &amp; Confirm
         </Typography>
       </Stack>
@@ -823,23 +618,23 @@ function ReviewConfirm({
           methods={methods}
           selectedId={autopayMethodId}
           onSelect={setAutopayMethodId}
-          selectedCardDetails={selectedCardDetails}
+          autopayMethodInfo={autopayMethodInfo}
           onOpenManage={() => setOpenPaymentModal(true)}
         />
 
-        <Card variant='outlined' sx={{ py: 1.75, my: 2.25, border: "none" }}>
+        <Card variant='outlined' sx={{ py: 1.75, my: 2.25, mx: 0, border: "none" }}>
           <FormControlLabel
-            sx={{ alignItems: 'flex-start' }}
+            sx={{ alignItems: 'flex-start', mx: 0 }}
             control={
               <Checkbox
                 checked={authChecked}
                 onChange={(e) => setAuthChecked(e.target.checked)}
-                sx={{ pt: 0 }}
+
               />
             }
             label={
               <Typography variant="body2" sx={{ fontSize: 12.5, lineHeight: 1.55 }}>
-                I authorize [Company Name] to automatically charge my selected payment method for the total amount
+                I authorize {companyName} to automatically charge my selected payment method for the total amount
                 due for my utility account each billing period. Payment will be processed on the due date displayed
                 on my utility portal. This authorization will remain in effect until I cancel my AutoPay enrollment.
               </Typography>
@@ -855,19 +650,20 @@ function ReviewConfirm({
               borderColor: colors.blue,
               backgroundColor: "white",
               borderRadius: '12px',
+              padding: "0 24px",
               height: '41px',
             }}
             onClick={() => {
               setisAutoPay(userInfo?.autopay === 1);
               onBack()
             }}>
-            Back
+            <ArrowLeft size={16} style={{ marginRight: 2 }} />  Back
           </Button>
           <Button
             disabled={
               !authChecked ||
               accountLoading ||
-              (selectedCardDetails ? false :
+              (autopayMethodInfo ? false :
                 (userInfo?.autopay === 1 && isAutoPay) ||
                 (userInfo?.autopay !== 1 && !isAutoPay)
               )
@@ -882,6 +678,7 @@ function ReviewConfirm({
             style={{
               borderRadius: '12px',
               height: '41px',
+              padding: "0 24px",
               width: "fit-content"
             }}
           >
@@ -905,7 +702,8 @@ function EnrollChoose({
   setBankModalOpen,
   paymentType,
   setPaymentType,
-  selectedCardDetails,
+  autopayMethodInfo,
+  newCardSelected,
   onContinueExisting,
   onNewMethodContinue,
   onCancel,
@@ -917,9 +715,10 @@ function EnrollChoose({
   setOpenPaymentModal: (value: boolean) => void;
   setCardModalOpen: (value: boolean) => void;
   setBankModalOpen: (value: boolean) => void;
-  setPaymentType: (type: 'saved' | 'no-save') => void;
-  paymentType: 'saved' | 'no-save';
-  selectedCardDetails: CardDetails;
+  setPaymentType: (type: 'saved' | 'no-save' | '') => void;
+  paymentType: 'saved' | 'no-save' | '';
+  autopayMethodInfo: CardDetails;
+  newCardSelected: boolean;
   onContinueExisting: (id: string) => void;
   onNewMethodContinue: (method: PaymentMethod) => void;
   onCancel: () => void;
@@ -930,89 +729,50 @@ function EnrollChoose({
   const hasSaved = methods.length > 0;
   const defaultMethod = methods.find((m) => m.isDefault) || methods[0];
 
-  const [mode, setMode] = useState<'existing' | 'new'>(hasSaved ? 'existing' : 'new');
-  const [pickedExistingId, setPickedExistingId] = useState<string | null>(
-    defaultMethod ? String(defaultMethod.id) : null
+  const [pickedExistingId, setPickedExistingId] = useState<string | number>(
+    defaultMethod ? defaultMethod.id : null
   );
-  // Which "new payment method" type is selected — used for both Scenario 1
-  // (top-level radios) and Scenario 3 (nested radios under "Add a new
-  // payment method"). Drives either the dummy simulation or the real
-  // capture modal, depending on USE_DUMMY_PAYMENT_FLOW.
-  const [newType, setNewType] = useState<MethodType | null>(null);
 
-  const [showDummyIframe, setShowDummyIframe] = useState(false)
+  const hasSavedCard = Boolean(
+    autopayMethodInfo?.id ||
+    autopayMethodInfo?.card_token ||
+    autopayMethodInfo?.token ||
+    autopayMethodInfo?.card_number ||
+    autopayMethodInfo?.bank_account_number ||
+    autopayMethodInfo?.account_type ||
+    autopayMethodInfo?.card_type
+  );
 
-  const canContinue = mode === 'existing' ? !!pickedExistingId : false;
-
-  // function handleSelectNewType(type: MethodType) {
-  //   setMode('new');
-  //   setNewType(type);
-  //   if (USE_DUMMY_PAYMENT_FLOW) {
-  //     setShowDummyIframe(true);
-  //   } else if (type === 'card') {
-  //     setCardModalOpen(true);
-  //   } else {
-  //     setBankModalOpen(true);
-  //   }
-  // }
-
-  function handleSelectNewType(type: MethodType) {
-    setMode("new");
-    setNewType(type);
-
-    if (type === "card") {
-      setCardModalOpen(true);
-    } else {
-      setBankModalOpen(true);
-    }
-  }
-
-  function closeDummyDialog() {
-    setShowDummyIframe(false);
-  }
-
-  // Called by the dummy PaymentIframe simulation on "Continue".
-  function handleDummyContinue(method: PaymentMethod) {
-    setShowDummyIframe(false);
-    onNewMethodContinue(method);
-  }
-
-  // --- Real API path -----------------------------------------------
-  // Called once AddCardModal / AddBankAccountModal actually report a
-  // successful save. See the note above USE_DUMMY_PAYMENT_FLOW at the
-  // top of the file for what still needs to change on the modal side
-  // before this can be wired up for real (their onSuccess is currently
-  // commented out below because their signature doesn't hand back a
-  // PaymentMethod yet).
-  function handleRealModalSuccess(method: any) {
-    setCardModalOpen(false);
-    setBankModalOpen(false);
-    onNewMethodContinue(method);
-  }
+  const canContinue =
+    paymentType === 'saved'
+      ? hasSavedCard
+      : paymentType === 'no-save'
+        ? newCardSelected && hasSavedCard
+        : false;
 
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
         {/* <Typography sx={{ fontSize: 20 }}>$</Typography> */}
-         <Box
-                      sx={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: '50%',
-                        border: '2px solid #4A79D8',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <CurrencyDollar size={24} weight="bold" color="#4A79D8" />
-                    </Box>
+        <Box
+          sx={{
+            width: 42,
+            height: 42,
+            borderRadius: '50%',
+            border: '2px solid #4A79D8',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <CurrencyDollar size={24} weight="bold" color="#4A79D8" />
+        </Box>
         <Typography sx={{
-                color: '#2F66B3',
-                fontWeight: 700,
-                fontSize: { xs: '1.5rem', sm: '2rem' },
-                lineHeight: 1,
-              }}>
+          color: '#2F66B3',
+          fontWeight: 700,
+          fontSize: { xs: '1.5rem', sm: '2rem' },
+          lineHeight: 1,
+        }}>
           Enroll in AutoPay
         </Typography>
       </Stack>
@@ -1050,70 +810,102 @@ function EnrollChoose({
             <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} />
 
             {/* Saved payment details box */}
-            <Box
-              onClick={() => {
-                setPaymentType('saved');
-              }}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                border: '1px solid #D6DBDF',
-                borderRadius: '8px',
-                p: '6px 12px',
-                backgroundColor: '#ffffff',
-                cursor: 'pointer',
-                '&:hover': {
-                  borderColor: '#A6ACAF',
-                },
-                gap: 1.5,
-              }}
-            >
-              {renderCardBrand(selectedCardDetails?.card_type ?? selectedCardDetails?.account_type)}
-
-              <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                {selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Card'} ending in{' '}
-                {getCardLast4(selectedCardDetails as any)}
-              </Typography>
-
-              {/* Default Badge */}
+            {hasSavedCard && (
               <Box
                 onClick={() => {
+                  setPaymentType('saved');
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  border: '1px solid #D6DBDF',
+                  borderRadius: '8px',
+                  p: '6px 12px',
+                  backgroundColor: '#ffffff',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    borderColor: '#A6ACAF',
+                  },
+                  gap: 1.5,
+                }}
+              >
+                {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type)}
+
+                <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+                  {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || 'Card'} ending in{' '}
+                  {getCardLast4(autopayMethodInfo as any)}
+                </Typography>
+
+                {/* Default Badge */}
+                <Box
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenPaymentModal(true);
+                  }}
+                  sx={{
+                    backgroundColor: '#E8F8F5',
+                    color: '#117A65',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    px: 1,
+                    py: 0.2,
+                    borderRadius: '4px',
+                  }}
+                >
+                  Default
+                </Box>
+
+                {/* Caret/Chevron Icon */}
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenPaymentModal(true);
+                  }}
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </Box>
+              </Box>
+            )}
+
+            {/* Manage Button */}
+            {!hasSavedCard && (
+              <ButtonComp
+                variant="contained"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
                   setOpenPaymentModal(true);
                 }}
                 sx={{
-                  backgroundColor: '#E8F8F5',
-                  color: '#117A65',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  px: 1,
-                  py: 0.2,
+                  textTransform: 'none',
+                  backgroundColor: '#1E6091',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  px: 2,
+                  py: 0.5,
                   borderRadius: '4px',
+                  ml: 1,
+                  '&:hover': {
+                    backgroundColor: '#184E77',
+                  },
                 }}
               >
-                Default
-              </Box>
-
-              {/* Caret/Chevron Icon */}
-              <Box
-                sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
-                onClick={() => {
-                  setOpenPaymentModal(true);
-                }}
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </Box>
-            </Box>
+                Manage
+              </ButtonComp>
+            )}
           </Box>
 
           {/* Option 2: Pay this bill only */}
@@ -1153,38 +945,41 @@ function EnrollChoose({
           </Box>
         )}
       </Box >
-      {
-        mode === 'existing' && (
-          <Stack direction="row"
-            spacing={1.5} sx={{ mt: 2 }}>
-            <Button variant="outlined" fullWidth onClick={onCancel} style={{
-              color: colors.blue,
-              borderColor: colors.blue,
-              backgroundColor: "white",
-              borderRadius: '12px',
-              height: '41px',
-            }}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              textTransform="none"
-              bgColor={colors.blue}
-              hoverBackgroundColor={colors['blue.3']}
-              hoverColor="white"
-              fullWidth
-              style={{
-                borderRadius: '12px',
-                height: '41px',
-              }}
-              disabled={!canContinue}
-              onClick={() => onContinueExisting(pickedExistingId as string)}
-            >
-              Continue
-            </Button>
-          </Stack>
-        )
-      }
+
+      <Stack direction="row" spacing={1.5} justifyContent={"space-between"} sx={{ mt: 2 }}>
+        <Button
+          variant="outlined"
+          // fullWidth
+          onClick={onCancel}
+          style={{
+            color: colors.blue,
+            borderColor: colors.blue,
+            backgroundColor: "white",
+            borderRadius: '12px',
+            padding: "0 24px",
+            height: '41px',
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          textTransform="none"
+          bgColor={colors.blue}
+          hoverBackgroundColor={colors['blue.3']}
+          hoverColor="white"
+          // fullWidth
+          style={{
+            borderRadius: '12px',
+            height: '41px',
+            padding: "0 24px",
+          }}
+          disabled={!canContinue}
+          onClick={() => onContinueExisting(String(autopayMethodInfo?.id ?? pickedExistingId ?? ''))}
+        >
+          Continue
+        </Button>
+      </Stack>
     </Box >
   );
 }
@@ -1239,13 +1034,36 @@ function DeactivatePage({
               {accountNo}
             </Typography>
           </Stack>
-          <Stack direction="row" justifyContent="space-between" sx={{ py: 0.3 }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 0.3 }}>
             <Typography variant="body2" sx={{ color: palette.navy, fontWeight: 600 }}>
               Payment Method
             </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            {/* <Typography variant="body2" sx={{ fontWeight: 700 }}>
               {methodLabel(method)}
-            </Typography>
+              {renderCardBrand(method?.card_type ?? method?.account_type)}
+            </Typography> */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #D6DBDF',
+                borderRadius: '8px',
+                p: '6px 12px',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
+                '&:hover': {
+                  borderColor: '#A6ACAF',
+                },
+                gap: 1.5,
+              }}
+            >
+              {renderCardBrand(method?.card_type ?? method?.account_type)}
+
+              <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+                {method?.card_type || method?.account_type || 'Card'} ending in{' '}
+                {getCardLast4(method as any)}
+              </Typography>
+            </Box>
           </Stack>
         </Box>
 
@@ -1262,8 +1080,8 @@ function DeactivatePage({
         </Stack>
 
         <FormControlLabel
-          sx={{ alignItems: 'flex-start', mb: 1 }}
-          control={<Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} sx={{ pt: 0 }} />}
+          sx={{ alignItems: 'flex-start', mb: 1, mx: 0 }}
+          control={<Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />}
           label={
             <Typography variant="body2">
               I understand that AutoPay will be deactivated and I will need to make payments manually.
@@ -1271,8 +1089,8 @@ function DeactivatePage({
           }
         />
 
-        <Stack direction="row" spacing={1.5} sx={{ mt: 1.5 }}>
-          <Button variant="outlined" fullWidth onClick={onKeep}
+        <Stack direction="row" spacing={1.5} justifyContent="space-between" sx={{ mt: 1.5 }}>
+          <Button variant="outlined" onClick={onKeep}
             textTransform="capitalize"
 
             style={{
@@ -1280,6 +1098,7 @@ function DeactivatePage({
               borderColor: colors.blue,
               backgroundColor: "white",
               borderRadius: '12px',
+              padding: "0 24px",
               height: '41px',
             }}>
             Keep AutoPay
@@ -1289,13 +1108,14 @@ function DeactivatePage({
             style={{
               backgroundColor: palette.red,
               borderRadius: '12px',
+              padding: "0 24px",
               height: '41px',
             }}
             textTransform="none"
             hoverBackgroundColor={'white'}
             hoverColor="white"
             loading={accountLoading}
-            fullWidth disabled={!checked} onClick={onDeactivate}>
+            disabled={!checked} onClick={onDeactivate}>
             Deactivate AutoPay
 
           </Button>
@@ -1310,19 +1130,20 @@ function DeactivatePage({
  * ------------------------------------------------------------------ */
 function Dashboard({
   autopayEnabled,
-  autopayMethod,
+  autopayMethodInfo,
   onToggle,
   onChangeMethod,
   accountNo,
   name,
 }: {
   autopayEnabled: boolean;
-  autopayMethod: PaymentMethod | null;
+  autopayMethodInfo: PaymentMethod | null;
   onToggle: () => void;
   onChangeMethod: () => void;
   accountNo: string;
   name: string;
 }) {
+
   return (
     <Box sx={{ maxWidth: "100%", mx: 'auto' }}>
       <Card variant="outlined" sx={{ borderColor: palette.line, borderRadius: 1, width: "100%" }}>
@@ -1371,16 +1192,41 @@ function Dashboard({
             )}
           </Stack>
 
-          {autopayEnabled && autopayMethod && (
+          {autopayEnabled && autopayMethodInfo && (
             <>
               <Divider sx={{ my: 2 }} />
               <Stack direction="row" alignItems="center" spacing={1.5}>
-                <MethodIcon type={autopayMethod.type} />
-                <Box>
-                  <Typography variant="caption" sx={{ color: palette.gray, fontWeight: 700, display: 'block' }}>
+                <MethodIcon type={autopayMethodInfo.type} />
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography variant="body1" sx={{ color: palette.gray, fontWeight: 700, display: 'block' }}>
                     Paying with
                   </Typography>
-                  <Typography sx={{ fontWeight: 700, fontSize: 13.5 }}>{methodLabel(autopayMethod)}</Typography>
+                  {/* <Typography sx={{ fontWeight: 700, fontSize: 13.5 }}>{methodLabel(autopayMethodInfo)}</Typography> */}
+
+                  <Box
+                    // onClick={() => {
+                    //   setPaymentType('saved');
+                    // }}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      border: '1px solid #D6DBDF',
+                      borderRadius: '8px',
+                      p: '6px 12px',
+                      backgroundColor: '#ffffff',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        borderColor: '#A6ACAF',
+                      },
+                      gap: 1.5,
+                    }}
+                  >
+                    {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type)}
+
+                    <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+                      {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || 'Card'} ending in{' '}
+                      {getCardLast4(autopayMethodInfo as any)}
+                    </Typography></Box>
                 </Box>
               </Stack>
             </>
@@ -1393,6 +1239,7 @@ function Dashboard({
 
 export default function AutoPayPrototype() {
   const dispatch = useDispatch();
+  const { contextLoading, setContextLoading } = useLoading();
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
   // const userInfo: IntuityUser = getLocalStorage('intuity-customerInfo') as IntuityUser;
@@ -1455,63 +1302,60 @@ export default function AutoPayPrototype() {
 
   // seed data toggles — flip these to try different starting scenarios
   const [methods, setMethods] = useState<PaymentMethod[]>([
-    {
-      id: 6700,
-      company_id: 2,
-      user_id: 469,
-      card_token: "6a7eab3df8f94411a0f41a062abddbf9",
-      card_type: "Visa",
-      card_number: "************1111",
-      date_used: "2025-10-10 06:33:04",
-      expired: 0,
-      is_icheck_card: 1,
-      is_elavon_card: 0,
-      bank_account_number: null,
-      routing_number: null,
-      account_type: null,
-      is_bank_account: 0,
-      is_worldpay_card: 0,
-      expiration_month: "11",
-      expiration_year: "34",
-      is_nacha_ach: 0,
-      is_achworks_ach: 0,
-      status: 1,
-      nacha_ppd_auth: 0,
-      deleted_at: null,
-      is_elavon_ach: 0,
-      elavon_company_name: null,
-      approval_code: null,
-      token_id: null,
-      is_verified: null,
-      date_time_add: null,
-      return_code_verification: null,
-      effective_date: null,
-      settlement_date: null,
-      days_diff: 0,
-      type: 'card',
-      brand: '',
-      last4: '',
-      isDefault: false
-    }
+    // {
+    //   id: 6700,
+    //   company_id: 2,
+    //   user_id: 469,
+    //   card_token: "6a7eab3df8f94411a0f41a062abddbf9",
+    //   card_type: "Visa",
+    //   card_number: "************1111",
+    //   date_used: "2025-10-10 06:33:04",
+    //   expired: 0,
+    //   is_icheck_card: 1,
+    //   is_elavon_card: 0,
+    //   bank_account_number: null,
+    //   routing_number: null,
+    //   account_type: null,
+    //   is_bank_account: 0,
+    //   is_worldpay_card: 0,
+    //   expiration_month: "11",
+    //   expiration_year: "34",
+    //   is_nacha_ach: 0,
+    //   is_achworks_ach: 0,
+    //   status: 1,
+    //   nacha_ppd_auth: 0,
+    //   deleted_at: null,
+    //   is_elavon_ach: 0,
+    //   elavon_company_name: null,
+    //   approval_code: null,
+    //   token_id: null,
+    //   is_verified: null,
+    //   date_time_add: null,
+    //   return_code_verification: null,
+    //   effective_date: null,
+    //   settlement_date: null,
+    //   days_diff: 0,
+    //   type: 'card',
+    //   brand: '',
+    //   last4: '',
+    //   isDefault: false
+    // }
     // start with ZERO saved methods to exercise Scenario 1.
     // Try seeding one method below to exercise Scenarios 2 & 3 instead:
     // { id: "seed1", type: "card", brand: "Visa", last4: "1111", isDefault: true },
   ]);
-  const [paymentType, setPaymentType] = useState<'saved' | 'no-save'>('saved');
-  const [autopayEnabled, setAutopayEnabled] = useState(false);
+  const [paymentType, setPaymentType] = useState<'saved' | 'no-save' | ''>('');
+  const [autopayEnabled, setAutopayEnabled] = useState(userInfo?.autopay === 1 ? true : false);
   const [everEnrolled, setEverEnrolled] = useState(false);
-  const [autopayMethodId, setAutopayMethodId] = useState<string | number | null>(null);
+  const [autopayMethodInfo, setAutopayMethodInfo] = useState(dashBoardInfo?.body?.autopay_card || null)
+  const [autopayMethodId, setAutopayMethodId] = useState<string | number | null>(dashBoardInfo?.body?.autopay_card?.id || null);
   const [authChecked, setAuthChecked] = useState(false);
 
   const [view, setView] = useState<ViewName>('dashboard');
   const [pendingDefaultModal, setPendingDefaultModal] = useState<string | null>(null); // newly-added method awaiting default decision
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDeactivated, setShowDeactivated] = useState(false);
-
-  const autopayMethod = useMemo<PaymentMethod | null>(
-    () => methods.find((m) => m.id === autopayMethodId) || null,
-    [methods, autopayMethodId]
-  );
+  const [newCardSelected, setNewCardSelected] = useState(false);
 
   /* ---------------- Dashboard toggle ---------------- */
   function handleToggle() {
@@ -1524,6 +1368,8 @@ export default function AutoPayPrototype() {
       } else {
         // Never enrolled -> go through enrollment choose step
         // (works whether or not there are saved methods)
+        setNewCardSelected(false);
+        setPaymentType('');
         setView('enroll-choose');
       }
     } else {
@@ -1591,6 +1437,15 @@ export default function AutoPayPrototype() {
     setMethods((prev) => [...prev, { ...method, isDefault: !hasExistingDefault }]);
   }
 
+  const handleHomeApi = () => {
+    const formData = new FormData();
+
+    formData.append('acl_role_id', roleId);
+    formData.append('customer_id', userId);
+
+    dispatch(getDashboardInfo(roleId, userId));
+  }
+
   /* ---------------- Enrollment completion ---------------- */
   function handleEnroll() {
     setShowSuccess(true);
@@ -1600,47 +1455,10 @@ export default function AutoPayPrototype() {
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({
-    id: 6700,
-    company_id: 2,
-    user_id: 469,
-    card_token: "6a7eab3df8f94411a0f41a062abddbf9",
-    card_type: "Visa",
-    card_number: "************1111",
-    date_used: "2025-10-10 06:33:04",
-    expired: 0,
-    is_icheck_card: 1,
-    is_elavon_card: 0,
-    bank_account_number: null,
-    routing_number: null,
-    account_type: null,
-    is_bank_account: 0,
-    is_worldpay_card: 0,
-    expiration_month: "11",
-    expiration_year: "34",
-    is_nacha_ach: 0,
-    is_achworks_ach: 0,
-    status: 1,
-    nacha_ppd_auth: 0,
-    deleted_at: null,
-    is_elavon_ach: 0,
-    elavon_company_name: null,
-    approval_code: null,
-    token_id: null,
-    is_verified: null,
-    date_time_add: null,
-    return_code_verification: null,
-    effective_date: null,
-    settlement_date: null,
-    days_diff: 0
-  });
-
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [cardModalOpen, setCardModalOpen] = useState(false);
   const [bankModalOpen, setBankModalOpen] = useState(false);
   const [isAutoPay, setisAutoPay] = React.useState(false);
-  const [autoPayDetails, setAutoPayDetails] = React.useState(null);
-
   const [autoPaySettings, setAutoPaySettings] = React.useState(null);
 
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
@@ -1651,13 +1469,13 @@ export default function AutoPayPrototype() {
     formData.append('acl_role_id', roleId);
     formData.append('customer_id', userId);
 
-    if (selectedCardDetails) {
-      formData.append('payment_method_id_model', selectedCardDetails?.card_token || selectedCardDetails?.token || '');
+    if (autopayMethodInfo) {
+      formData.append('payment_method_id_model', autopayMethodInfo?.card_token || autopayMethodInfo?.token || '');
 
       formData.append('is_form', '1');
       formData.append('auto_pay', isAutoPay ? '1' : '0');
 
-      formData.append('id_select_card', autoPaySettings?.id ?? '');
+      formData.append('id_select_card', String(autopayMethodInfo?.id) ?? '');
       formData.append('auto_pay_model_save_card', '0');
       dispatch(updatePaperLessInfo(formData, 'autopay', successCallBack, false,
         undefined,
@@ -1678,6 +1496,7 @@ export default function AutoPayPrototype() {
   };
 
   function finishEnrollment() {
+    handleHomeApi();
     setShowSuccess(false);
     setAutopayEnabled(true);
     setEverEnrolled(true);
@@ -1691,8 +1510,8 @@ export default function AutoPayPrototype() {
     formData.append('acl_role_id', roleId);
     formData.append('customer_id', userId);
 
-    if (selectedCardDetails) {
-      formData.append('payment_method_id_model', selectedCardDetails?.card_token || selectedCardDetails?.token || '');
+    if (autopayMethodInfo) {
+      formData.append('payment_method_id_model', autopayMethodInfo?.card_token || autopayMethodInfo?.token || '');
 
       formData.append('is_form', '1');
       formData.append('auto_pay', '0');
@@ -1735,6 +1554,15 @@ export default function AutoPayPrototype() {
 
   // On Mount
 
+  useLayoutEffect(() => {
+    setContextLoading(true);
+  }, []);
+
+  React.useEffect(() => {
+    handleHomeApi();
+  }, [true]);
+
+
   React.useEffect(() => {
     setisAutoPay(userInfo?.autopay === 1 ? true : false);
 
@@ -1743,7 +1571,11 @@ export default function AutoPayPrototype() {
     formData.append('acl_role_id', roleId);
     formData.append('customer_id', userId);
 
-    dispatch(updatePaperLessInfo(formData, 'autopay', setAutoPayDetails, true,
+    dispatch(updatePaperLessInfo(formData, 'autopay', (data: any) => {
+      // setAutoPayDetails(data);
+      setContextLoading(false);
+      // Mark first-load done — clear the skeleton once autopay-setting resolves
+    }, true,
       setAutoPaySettings,
       false));
   }, [userInfo?.autopay]);
@@ -1751,6 +1583,9 @@ export default function AutoPayPrototype() {
   /* ---------------- Render ---------------- */
   return (
     <Box sx={{ minHeight: '100%' }}>
+
+      {/* Skeleton shown while initial APIs are loading */}
+      {contextLoading && <AutoPaySkeleton />}
 
       {openPaymentModal && (
         <Dialog
@@ -1772,6 +1607,8 @@ export default function AutoPayPrototype() {
             onClose={() => {
               setOpenPaymentModal(false);
             }}
+            defaultAutopayCard={autopayMethodInfo}
+            useAutopayDefault={true}
             isModal={true}
             count={10}
             page={1}
@@ -1779,8 +1616,9 @@ export default function AutoPayPrototype() {
             rowsPerPage={10}
             onSaveCardDetails={(data: any) => {
               try {
-                setSelectedCardDetails(data);
+                setAutopayMethodInfo(data);
                 setOpenPaymentModal(false);
+                setNewCardSelected(true);
                 // setOpenConfirm(true);
               } catch {
                 console.error('Failed to parse card details');
@@ -1795,11 +1633,32 @@ export default function AutoPayPrototype() {
         <AddBankAccountModal
           open={bankModalOpen}
           onClose={() => setBankModalOpen(false)}
-        // onSuccess={handleRealModalSuccess}
-        // onReturnCard={(card) => {
-        //   setSelectedCardDetails(card)
-        //   setView('review')
-        // }}
+          onSuccess={(bank) => {
+            if (bank) {
+              setAutopayMethodInfo(bank);
+              if (bank?.id) setAutopayMethodId(bank.id);
+            }
+            setPaymentType('saved');
+            setBankModalOpen(false);
+            setNewCardSelected(true);
+          }}
+          onReturnCard={(data) => {
+            const newlyAdded =
+              data?.selected_card ||
+              (Array.isArray(data?.mycards) && data.mycards[data.mycards.length - 1]) ||
+              data;
+
+            if (newlyAdded && typeof newlyAdded === 'object') {
+              setAutopayMethodInfo(newlyAdded);
+              if (newlyAdded?.id) setAutopayMethodId(newlyAdded.id);
+            }
+            if (Array.isArray(data?.mycards)) {
+              setMethods(data.mycards);
+            }
+            setPaymentType('saved');
+            setBankModalOpen(false);
+            setNewCardSelected(true);
+          }}
         />
       )}
 
@@ -1807,91 +1666,114 @@ export default function AutoPayPrototype() {
         <AddCardModal
           open={cardModalOpen}
           onClose={() => setCardModalOpen(false)}
-          onSuccess={(card) => setSelectedCardDetails(card)}
-          onReturnCard={(card) => {
-            setSelectedCardDetails(card)
-            setView('review')
-            setAuthChecked(false)
-            setMethods((prev) => [...prev, card])
-            setAutopayMethodId(card?.id)
+          onSuccess={(card) => {
+            if (card) {
+              setAutopayMethodInfo(card);
+              if (card?.id) setAutopayMethodId(card.id);
+            }
+            setPaymentType('saved');
+            setCardModalOpen(false);
+            setNewCardSelected(true);
+          }}
+          onReturnCard={(data) => {
+            const newlyAdded =
+              data?.selected_card ||
+              (Array.isArray(data?.mycards) && data.mycards[data.mycards.length - 1]) ||
+              data;
+
+            if (newlyAdded && typeof newlyAdded === 'object') {
+              setAutopayMethodInfo(newlyAdded);
+              if (newlyAdded?.id) setAutopayMethodId(newlyAdded.id);
+            }
+            if (Array.isArray(data?.mycards)) {
+              setMethods(data.mycards);
+            }
+            setPaymentType('saved');
+            setCardModalOpen(false);
+            setNewCardSelected(true);
           }}
         />
       )}
 
-      {view === 'dashboard' && (
-        <Dashboard
-          autopayEnabled={autopayEnabled}
-          autopayMethod={autopayMethod}
-          onToggle={handleToggle}
-          onChangeMethod={handleChangeMethod}
-          accountNo={accountNumber}
-          name={customerName}
-        />
-      )}
+      {/* View content — hidden while the page is still loading */}
+      <Box sx={{ display: contextLoading ? 'none' : 'block' }}>
+        {view === 'dashboard' && (
+          <Dashboard
+            autopayEnabled={autopayEnabled}
+            autopayMethodInfo={autopayMethodInfo}
+            onToggle={handleToggle}
+            onChangeMethod={handleChangeMethod}
+            accountNo={accountNumber}
+            name={customerName}
+          />
+        )}
 
-      {view === 'enroll-choose' && (
-        <EnrollChoose
-          methods={methods}
-          setCardModalOpen={setCardModalOpen}
-          setBankModalOpen={setBankModalOpen}
-          setOpenPaymentModal={setOpenPaymentModal}
-          paymentType={paymentType}
-          setPaymentType={setPaymentType}
-          onContinueExisting={handleContinueExisting}
-          onNewMethodContinue={handleNewMethodFromEnroll}
-          selectedCardDetails={selectedCardDetails}
-          onCancel={() => setView('dashboard')}
-          accountNo={accountNumber}
-          amountDue={billAmountDue}
-          dueDate={formattedBillDueDate}
-        />
-      )}
+        {view === 'enroll-choose' && (
+          <EnrollChoose
+            methods={methods}
+            setCardModalOpen={setCardModalOpen}
+            setBankModalOpen={setBankModalOpen}
+            setOpenPaymentModal={setOpenPaymentModal}
+            paymentType={paymentType}
+            setPaymentType={setPaymentType}
+            onContinueExisting={handleContinueExisting}
+            onNewMethodContinue={handleNewMethodFromEnroll}
+            autopayMethodInfo={autopayMethodInfo}
+            newCardSelected={newCardSelected}
+            onCancel={() => setView('dashboard')}
+            accountNo={accountNumber}
+            amountDue={billAmountDue}
+            dueDate={formattedBillDueDate}
+          />
+        )}
 
-      {view === 'review' && autopayMethod && (
-        <ReviewConfirm
-          methods={methods}
-          autopayMethodId={autopayMethodId as string}
-          setAutopayMethodId={setAutopayMethodId}
-          authChecked={authChecked}
-          setAuthChecked={setAuthChecked}
-          onBack={() => setView('enroll-choose')}
-          onEnroll={handleEnroll}
-          onRemove={handleRemoveMethod}
-          accountLoading={accountLoading}
-          onSetDefault={handleSetDefault}
-          onAddNew={handleAddNewFromManage}
-          handleEnrollSave={handleEnrollSave}
-          accountNo={accountNumber}
-          amountDue={billAmountDue}
-          dueDate={formattedBillDueDate}
-          selectedCardDetails={selectedCardDetails}
-          setSelectedCardDetails={setSelectedCardDetails}
-          userInfo={userInfo}
-          isAutoPay={isAutoPay}
-          setisAutoPay={setisAutoPay}
-          setOpenPaymentModal={setOpenPaymentModal}
-          openPaymentModal={openPaymentModal}
-        />
-      )}
+        {view === 'review' && (autopayMethodInfo) && (
+          <ReviewConfirm
+            methods={methods}
+            autopayMethodId={autopayMethodId as string}
+            setAutopayMethodId={setAutopayMethodId}
+            authChecked={authChecked}
+            setAuthChecked={setAuthChecked}
+            onBack={() => setView('enroll-choose')}
+            onEnroll={handleEnroll}
+            onRemove={handleRemoveMethod}
+            accountLoading={accountLoading}
+            onSetDefault={handleSetDefault}
+            onAddNew={handleAddNewFromManage}
+            handleEnrollSave={handleEnrollSave}
+            accountNo={accountNumber}
+            amountDue={billAmountDue}
+            dueDate={formattedBillDueDate}
+            autopayMethodInfo={autopayMethodInfo}
+            setAutopayMethodInfo={setAutopayMethodInfo}
+            userInfo={userInfo}
+            isAutoPay={isAutoPay}
+            setisAutoPay={setisAutoPay}
+            setOpenPaymentModal={setOpenPaymentModal}
+            openPaymentModal={openPaymentModal}
+          />
+        )}
 
-      {view === 'deactivate' && autopayMethod && (
-        <DeactivatePage
-          method={autopayMethod}
-          onKeep={handleKeepAutopay}
-          onDeactivate={handleDeactivateConfirm}
-          accountNo={accountNumber}
-          accountLoading={accountLoading}
-          amountDue={billAmountDue}
-          dueDate={formattedBillDueDate}
-        />
-      )}
+        {view === 'deactivate' && (autopayMethodInfo) && (
+          <DeactivatePage
+            method={autopayMethodInfo}
+            onKeep={handleKeepAutopay}
+            onDeactivate={handleDeactivateConfirm}
+            accountNo={accountNumber}
+            accountLoading={accountLoading}
+            amountDue={billAmountDue}
+            dueDate={formattedBillDueDate}
+          />
+        )}
 
-      {pendingDefaultModal && (
-        <MakeDefaultModal onYes={() => resolveMakeDefault(true)} onNo={() => resolveMakeDefault(false)} />
-      )}
+        {pendingDefaultModal && (
+          <MakeDefaultModal onYes={() => resolveMakeDefault(true)} onNo={() => resolveMakeDefault(false)} />
+        )}
 
-      {showSuccess && <SuccessModal onDone={finishEnrollment} />}
-      {showDeactivated && <DeactivatedModal onOk={finishDeactivation} />}
+        {showSuccess && <SuccessModal onDone={finishEnrollment} />}
+        {showDeactivated && <DeactivatedModal onOk={finishDeactivation} />}
+      </Box>
     </Box>
   );
 }
+

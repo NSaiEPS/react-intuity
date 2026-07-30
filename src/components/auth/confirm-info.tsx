@@ -70,13 +70,13 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     { phoneModalOpen, emailModalOpen, clickedDetails, twoFAModalVisible },
     localDispatch,
   ] = useReducer(reducer, initialState);
-    const location = useLocation();
+  const location = useLocation();
 
-    console.log(twoFAModalVisible,'twoFAModalVisible');
-    
+  console.log(twoFAModalVisible, 'twoFAModalVisible');
 
-const two_fa_status = location.state?.two_fa_status ?? false;
-  const { accountLoading:loading, confirmInfo } = useSelector(
+
+  const two_fa_status = location.state?.two_fa_status ?? false;
+  const { accountLoading: loading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
 
@@ -116,7 +116,7 @@ const two_fa_status = location.state?.two_fa_status ?? false;
   };
 
   const refreshData = () => {
-      suppress2FAModalRef.current = true;
+    suppress2FAModalRef.current = true;
 
     const role_id = stored?.body?.acl_role_id;
     const formData = new FormData();
@@ -132,7 +132,7 @@ const two_fa_status = location.state?.two_fa_status ?? false;
   const { checkSession } = useUser();
 
   const successCallBack = async (action?: string) => {
-    if(action){
+    if (action) {
       secureLocalStorage.setItem("is_skipped", action);
     }
     await checkSession?.();
@@ -140,14 +140,14 @@ const two_fa_status = location.state?.two_fa_status ?? false;
   };
 
   useEffect(() => {
-   if (suppress2FAModalRef.current) {
-    console.log("Effect Fired", suppress2FAModalRef.current);
-  setTimeout(() => {
-    suppress2FAModalRef.current = false;
-  }, 0);
-  return;
-}
-  
+    if (suppress2FAModalRef.current) {
+      console.log("Effect Fired", suppress2FAModalRef.current);
+      setTimeout(() => {
+        suppress2FAModalRef.current = false;
+      }, 0);
+      return;
+    }
+
     if (
       confirmInfo?.company?.require_2fa == 1 &&
       reqCustomer()?.is_phone_verified == 1 && !two_fa_status
@@ -155,7 +155,7 @@ const two_fa_status = location.state?.two_fa_status ?? false;
       // setTwoFAModalVisible(true);
       localDispatch({ type: "TWO_FA_MODAL", payload: true });
     }
-  }, [confirmInfo,two_fa_status]);
+  }, [confirmInfo, two_fa_status]);
 
   const isSingleCard = confirmInfo?.customers?.length === 1;
 
@@ -291,13 +291,13 @@ const two_fa_status = location.state?.two_fa_status ?? false;
         ))}
       </Grid>
 
-      <Grid container spacing={2} mt={2} alignItems="center" 
-      sx={
+      <Grid container spacing={2} mt={2} alignItems="center"
+        sx={
           isSingleCard
-            ? { maxWidth: { md: "50%" } } 
+            ? { maxWidth: { md: "50%" } }
             : {}
         }
-        >
+      >
         <Grid item xs={6}>
           {/* <MUILink
             to={paths.dashboard.overview()}

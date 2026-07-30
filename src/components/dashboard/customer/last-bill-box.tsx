@@ -151,27 +151,6 @@ export function LastBill(): React.JSX.Element {
           sx={{ backgroundColor: "#f5f9fc", width: "95%", p: 2 }}
         >
           <Stack spacing={3}>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: "#dceaf7",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "4px",
-                }}
-              >
-                📄
-              </Box>
-              <Typography variant="h6" fontWeight="bold">
-                LAST BILL
-              </Typography>
-            </Box>
-
-            <Divider />
-
             <UtilityList data={lastBillInfo?.billing_list ?? {}} />
 
             {

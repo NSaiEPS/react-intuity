@@ -5,6 +5,8 @@ import { colors } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Avatar,
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -29,6 +31,16 @@ import { z } from "zod";
 
 import { useLoading } from "@/components/core/skeleton-context";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
+import {
+  User,
+  IdentificationCard,
+  Gauge,
+  MapPin,
+  House,
+  Phone,
+  DeviceMobile,
+  EnvelopeSimple,
+} from "@phosphor-icons/react";
 
 // Schema
 const formSchema = z.object({
@@ -227,160 +239,120 @@ export function CustomerDetailsForm(): React.JSX.Element {
   }, [hasUnsavedChanges]);
 
 
+  const infoFields = [
+    {
+      label: "Account Name",
+      value: watch("accountName"),
+      icon: User,
+    },
+    {
+      label: "Email",
+      value: watch("email"),
+      icon: EnvelopeSimple,
+    },
+    {
+      label: "Account #",
+      value: watch("accountNumber"),
+      icon: IdentificationCard,
+    },
+    {
+      label: "Meter #",
+      value: watch("masterNumber"),
+      icon: Gauge,
+    },
+    {
+      label: "Service Address",
+      value: watch("serviceAddress"),
+      icon: MapPin,
+    },
+    {
+      label: "Billing Address",
+      value: watch("billingAddress"),
+      icon: House,
+    },
+    {
+      label: "Primary Phone",
+      value: watch("phone"),
+      icon: Phone,
+    },
+    {
+      label: "Alt Phone",
+      value: watch("altPhone"),
+      icon: DeviceMobile,
+    },
+
+  ];
+
 
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card sx={{ borderRadius: 0 }}>
+        <Card sx={{ borderRadius: 0, }}>
           <CardContent>
-            <Grid container spacing={3}>
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="accountName"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl
-                      variant="outlined"
-                      fullWidth
-                      size="small"
-                      disabled
-                      required
-                      error={!!errors.accountName}
+
+            <Grid container spacing={2}>
+              {infoFields.map(({ label, value, icon: Icon }) => (
+                <Grid xs={12} md={6} key={label}>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      borderRadius: 3,
+                      height: "100%",
+                    }}
+                  >
+                    <CardContent
+                      sx={{
+                        py: 1.25,
+                        px: 0,
+                        "&:last-child": {
+                          pb: 1.25,
+                        },
+                      }}
                     >
-                      <InputLabel>Account name</InputLabel>
-                      <OutlinedInput label="Account name" {...field} />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          px: { xs: 0, md: 3 },
+                        }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 46,
+                            height: 46,
+                            bgcolor: "#EEF4FF",
+                            color: "#2563EB",
+                          }}
+                        >
+                          <Icon size={22} />
+                        </Avatar>
 
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="accountNumber"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl
-                      disabled
-                      fullWidth
-                      size="small"
-                      required
-                      error={!!errors.accountNumber}
-                    >
-                      <InputLabel>Account #</InputLabel>
-                      <OutlinedInput label="Account #" {...field} />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
+                        <Box flex={1}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ lineHeight: 1.2 }}
+                          >
+                            {label}
+                          </Typography>
 
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="masterNumber"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl
-                      disabled
-                      fullWidth
-                      size="small"
-                      error={!!errors.masterNumber}
-                    >
-                      <InputLabel>Meter #</InputLabel>
-                      <OutlinedInput label="Master #" {...field} />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-
-
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="serviceAddress"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl
-                      disabled
-                      fullWidth
-                      size="small"
-                      required
-                      error={!!errors.serviceAddress}
-                    >
-                      <InputLabel>Service Address</InputLabel>
-                      <OutlinedInput label="Service Address" {...field} />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="billingAddress"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl
-                      disabled
-                      fullWidth
-                      size="small"
-                      required
-                      error={!!errors.billingAddress}
-                    >
-                      <InputLabel>Billing Address</InputLabel>
-                      <OutlinedInput label="Billing Address" {...field} />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="phone"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl disabled fullWidth size="small">
-                      <InputLabel>Primary Phone</InputLabel>
-                      <OutlinedInput
-                        label="Primary Phone"
-                        type="tel"
-                        inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                        {...field}
-                      />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="altPhone"
-                  control={control}
-                  disabled
-                  render={({ field }) => (
-                    <FormControl fullWidth size="small">
-                      <InputLabel>Alt Phone</InputLabel>
-                      <OutlinedInput
-                        label="Alt Phone"
-                        type="tel"
-                        inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                        {...field}
-                      />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-
-              <Grid md={6} xs={12}>
-                <Controller
-                  name="email"
-                  disabled
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth size="small" disabled error={!!errors.email}>
-                      <InputLabel>Email</InputLabel>
-                      <OutlinedInput label="Email" type="email" {...field} />
-                    </FormControl>
-                  )}
-                />
-              </Grid>
+                          <Typography
+                            variant="body1"
+                            fontWeight={600}
+                            sx={{
+                              lineHeight: 1.3,
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {value || "-"}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
 
             <Grid md={12} xs={12} p={0} pt={3}>
@@ -393,6 +365,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <OutlinedInput
                       label="Enter your comments or questions "
                       multiline
+                      minRows={3}
                       {...field}
                     />
                   </FormControl>
@@ -401,7 +374,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
             </Grid>
 
             <Grid container spacing={2} mt={1}>
-              <Grid xs={12} sm={6}>
+              {/* <Grid xs={12} sm={6}>
                 <Stack spacing={1}>
                   <Typography variant="h6">
                     Preferred contact method *
@@ -449,14 +422,82 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     )}
                   />
                 </Stack>
+              </Grid> */}
+
+              <Grid xs={12} sm={6}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    flexWrap: "wrap", // mobile ke liye
+                  }}
+                >
+                  <Typography variant="body1" whiteSpace="nowrap">
+                    Preferred contact method *
+                  </Typography>
+
+                  <Controller
+                    name="preferredContactMethod"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup row {...field}>
+                        <FormControlLabel
+                          value="Phone"
+                          control={<Radio size="small" />}
+                          label="Phone"
+                        />
+                        <FormControlLabel
+                          value="Email"
+                          control={<Radio size="small" />}
+                          label="Email"
+                        />
+                      </RadioGroup>
+                    )}
+                  />
+                </Box>
               </Grid>
-              <Grid md={12} xs={12} p={0} pt={3}>
-                <FormControl fullWidth error={!!errors.files}>
-                  <Typography variant="body1" mb={1}>
+
+              <Grid xs={12} sm={6}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography variant="body1" whiteSpace="nowrap">
+                    I am the *
+                  </Typography>
+
+                  <Controller
+                    name="preferredOwnerMethod"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup row {...field}>
+                        <FormControlLabel
+                          value="Owner"
+                          control={<Radio size="small" />}
+                          label="Owner"
+                        />
+                        <FormControlLabel
+                          value="Tenant"
+                          control={<Radio size="small" />}
+                          label="Tenant"
+                        />
+                      </RadioGroup>
+                    )}
+                  />
+                </Box>
+              </Grid>
+              {/* <Grid md={12} xs={12} p={0} pt={1.6} px={1.2}> */}
+              {/* <FormControl fullWidth error={!!errors.files}> */}
+              {/* <Typography variant="body1" mb={1}>
                     Please upload any supporting documents or photos:(Photos or
                     PDFs,etc..)
-                  </Typography>
-                  <OutlinedInput
+                  </Typography> */}
+              {/* <OutlinedInput
                     type="file"
                     inputProps={{ multiple: true }}
                     onChange={handleFilesChange}
@@ -465,11 +506,11 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormHelperText>
                       {errors.files.message as string}
                     </FormHelperText>
-                  )}
-                </FormControl>
+                  )} */}
+              {/* </FormControl> */}
 
-                {/* File Preview List */}
-                {files.length > 0 && (
+              {/* File Preview List */}
+              {/* {files.length > 0 && (
                   <Grid container spacing={1} mt={2}>
                     {files.map((file, index) => (
                       <Grid key={`${file.name}-${file.lastModified}`}>
@@ -483,14 +524,14 @@ export function CustomerDetailsForm(): React.JSX.Element {
                       </Grid>
                     ))}
                   </Grid>
-                )}
-              </Grid>
+                )} */}
+              {/* </Grid> */}
             </Grid>
           </CardContent>
 
           <Divider />
 
-          <CardActions sx={{ justifyContent: "flex-end" }}>
+          <CardActions sx={{ justifyContent: "flex-end", px: 3.2, py: 2 }}>
             <Button
               variant="outlined"
               sx={{ color: colors.blue, borderColor: colors.blue }}

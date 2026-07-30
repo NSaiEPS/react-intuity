@@ -80,7 +80,7 @@ export function BillingHistory({ rows = [] }: CustomersTableProps): React.JSX.El
         borderRadius: boarderRadius.card,
       }}
     >
-      <Header title="Payment & billing history" />
+      <Header title="Billing & Payments History" />
 
       <Divider/>
       {/* <Grid

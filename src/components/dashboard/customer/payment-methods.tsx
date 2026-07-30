@@ -70,6 +70,7 @@ interface CustomersTableProps {
   rowsPerPage?: number;
   isModal?: boolean;
   onClose?: () => void;
+  onCancel?: () => void;
   accountInfo?: boolean;
   onSaveCardDetails?: (e: string) => void;
   paymentDetailsPage?: boolean;
@@ -77,6 +78,8 @@ interface CustomersTableProps {
   convenience_fee?: number;
   amount?: number;
   amountRequired?: boolean;
+  defaultAutopayCard?: PaymentCard | CardDetails | null;
+  useAutopayDefault?: boolean;
 }
 
 // ── shared header cell style ──
@@ -360,6 +363,8 @@ const CardRow = React.memo(function CardRow({
   onSelect: (data: { card_token: number; id: number }) => void;
   onDelete: (row: CardDetails) => void;
 }) {
+
+  console.log(isSelected, "gvjhjghjhjbghbn")
   const isCard = !!row.card_type;
   const decryptedNumber = decryptFunction(row.number);
   const last4 = String(decryptedNumber).slice(-4);
@@ -971,9 +976,12 @@ const HeaderComp = ({
 export const PaymentMethods = ({
   isModal = false,
   onClose,
+  onCancel,
   onSaveCardDetails,
   autoPayDetails,
   paymentDetailsPage = false,
+  defaultAutopayCard,
+  useAutopayDefault = false
 }: CustomersTableProps): React.JSX.Element => {
   const { setContextLoading } = useLoading();
 
@@ -992,17 +1000,64 @@ export const PaymentMethods = ({
   const selectedCardInfo = useSelector(
     (state: RootState) => state.Account.selectedCardInfo
   );
+
   const [selectedCard, setSelectedCard] = React.useState<PaymentCard | CardDetails | null>(null);
 
+  const initialCard = React.useMemo(() => {
+    if (useAutopayDefault) {
+      return defaultAutopayCard ?? null;
+    }
+    return selectedCardInfo ?? null;
+  }, [useAutopayDefault, defaultAutopayCard, selectedCardInfo]);
+
   React.useEffect(() => {
-    if (selectedCardInfo) {
+    if (useAutopayDefault) {
+      setSelectedCard(defaultAutopayCard ?? null);
+      setSelectedId(
+        defaultAutopayCard
+          ? {
+            id: defaultAutopayCard.id,
+            card_token: Number(defaultAutopayCard.card_token),
+          }
+          : null
+      );
+    } else if (selectedCardInfo && !useAutopayDefault) {
       setSelectedCard(selectedCardInfo);
       setSelectedId({
         id: selectedCardInfo.id,
         card_token: Number(selectedCardInfo.card_token),
       });
+    } else {
+      setSelectedCard(null);
+      setSelectedId(null);
     }
-  }, [selectedCardInfo]);
+  }, [useAutopayDefault, defaultAutopayCard, selectedCardInfo]);
+
+  const isSelectedCardSameAsInitial = React.useMemo(() => {
+    if (!selectedCard && !initialCard) return true;
+    if (selectedCard && initialCard) {
+      return selectedCard.id === initialCard.id;
+    }
+    return false;
+  }, [selectedCard, initialCard]);
+
+  const handleCancel = React.useCallback(() => {
+    setSelectedCard(initialCard);
+    setSelectedId(
+      initialCard
+        ? {
+          id: initialCard.id,
+          card_token: Number(initialCard.card_token),
+        }
+        : null
+    );
+    if (onCancel) {
+      onCancel();
+    }
+    if (onClose) {
+      onClose();
+    }
+  }, [initialCard, onCancel, onClose]);
 
   type IntuityUser = {
     body?: { acl_role_id?: string; customer_id?: string; token?: string };
@@ -1092,7 +1147,14 @@ export const PaymentMethods = ({
     formdata.append('customer_id', stored?.body?.customer_id);
     formdata.append('model_open', '2');
     formdata.append('payment_method', String(selectedId?.card_token));
-    dispatch(getPaymentDetails(formdata, true, () => setSelectedId(null)));
+    dispatch(
+      getPaymentDetails(formdata, true, () => {
+        const refreshForm = new FormData();
+        refreshForm.append('acl_role_id', stored?.body?.acl_role_id);
+        refreshForm.append('customer_id', stored?.body?.customer_id);
+        dispatch(getPaymentDetails(refreshForm));
+      })
+    );
   };
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
@@ -1286,9 +1348,8 @@ export const PaymentMethods = ({
             <Grid item>
               <CardActions sx={{ justifyContent: 'flex-end' }}>
                 <Button
-                  onClick={() => setSelectedCard(selectedCardInfo)}
+                  onClick={handleCancel}
                   variant="outlined"
-                  disabled={selectedCard?.id === selectedCardInfo?.id}
                   size="small"
                   sx={{
                     color: colors.blue,
@@ -1306,7 +1367,7 @@ export const PaymentMethods = ({
                 <Button
                   onClick={handleSaveDetails}
                   variant="contained"
-                  disabled={selectedCard?.id === selectedCardInfo?.id}
+                  disabled={isSelectedCardSameAsInitial}
                   size='small'
                   sx={{
                     backgroundColor: colors.blue,
@@ -1319,7 +1380,7 @@ export const PaymentMethods = ({
                     },
                   }}
                 >
-                  Save details
+                  Save as Default
                 </Button>
               </CardActions>
             </Grid>

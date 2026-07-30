@@ -12,6 +12,7 @@ import { navIcons } from "./nav-icons";
 import { getLocalStorage } from "@/utils/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+import { CustomerServiceTabs, getCustomerServiceTabsFromCustomer } from "@/state/features/sideNavSlice";
 import { CaretDown } from "@phosphor-icons/react";
 import { CaretRight } from "@phosphor-icons/react";
 
@@ -30,46 +31,71 @@ function isItemOrDescendantActive(item: NavItemConfig, pathname: string): boolea
 
 
 // ✅ Fix — just a plain function
+function isSubItemAllowed(
+  subKey: string,
+  allow_auto_payment: string | number,
+  customerServiceTabs?: CustomerServiceTabs
+): boolean {
+  if (subKey === "auto-pay" && allow_auto_payment !== 1) {
+    return false;
+  }
+  if (customerServiceTabs) {
+    if (subKey === "service" && customerServiceTabs.service === false) return false;
+    if (subKey === "account" && customerServiceTabs.account === false) return false;
+    if (subKey === "stop-service" && customerServiceTabs.stopService === false) return false;
+  }
+  return true;
+}
+
 function renderNavItems({
   items = [],
   pathname,
   allow_auto_payment,
+  customerServiceTabs,
   openGroupKey,
   onGroupToggle,
 }: {
   items?: NavItemConfig[];
   pathname: string;
   allow_auto_payment: string | number;
+  customerServiceTabs?: CustomerServiceTabs;
   openGroupKey: string | null;
   onGroupToggle: (key: string) => void;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig) => {
     const { key, items: subItems, ...item } = curr;
 
-    // Filter out auto-pay if not allowed — works whether it's top-level or nested
     if (key === "auto-pay" && allow_auto_payment !== 1) {
       return acc;
     }
 
+    if (key === "history" && customerServiceTabs?.usageHistory === false) {
+      return acc;
+    }
+
     if (subItems && subItems.length > 0) {
-      const filteredSubItems = subItems.filter((sub) => sub.key !== "auto-pay" || allow_auto_payment === 1);
-      acc.push(
-        <NavGroup
-          key={key}
-          pathname={pathname}
-          groupKey={key}
-          {...item}
-          items={filteredSubItems}
-          open={openGroupKey === key}
-          onToggle={onGroupToggle}
-        />
+      const filteredSubItems = subItems.filter((sub) =>
+        isSubItemAllowed(sub.key, allow_auto_payment, customerServiceTabs)
       );
+
+      if (filteredSubItems.length > 0) {
+        acc.push(
+          <NavGroup
+            key={key}
+            pathname={pathname}
+            groupKey={key}
+            {...item}
+            items={filteredSubItems}
+            open={openGroupKey === key}
+            onToggle={onGroupToggle}
+          />
+        );
+      }
     } else {
       acc.push(<NavItem key={key} pathname={pathname} {...item} />);
     }
     return acc;
   }, []);
-
 
   return (
     <Stack component="ul" spacing={1} sx={{ listStyle: "none", m: 0, p: 0 }}>
@@ -82,6 +108,20 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
   const location = useLocation();
   const pathname = location.pathname;
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const customerServiceTabs = useSelector((state: RootState) => state?.SideNav?.customerServiceTabs);
+
+  const effectiveCustomerServiceTabs = React.useMemo(() => {
+    const companyDetails = dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company");
+    const customerInfo = dashBoardInfo?.body?.customer ?? dashBoardInfo?.customer ?? getLocalStorage("intuity-customerInfo");
+    const mergedData = {
+      ...(typeof companyDetails === "object" && companyDetails ? companyDetails : {}),
+      ...(typeof customerInfo === "object" && customerInfo ? customerInfo : {}),
+    };
+    if (Object.keys(mergedData).length > 0) {
+      return getCustomerServiceTabsFromCustomer(mergedData);
+    }
+    return customerServiceTabs;
+  }, [dashBoardInfo, customerServiceTabs]);
 
   // ✅ useMemo — stop reading localStorage on every render
   const { allow_auto_payment } = React.useMemo(() => {
@@ -153,6 +193,7 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
           pathname,
           items: navItems,
           allow_auto_payment,
+          customerServiceTabs: effectiveCustomerServiceTabs,
           openGroupKey,
           onGroupToggle: handleGroupToggle,
         })}

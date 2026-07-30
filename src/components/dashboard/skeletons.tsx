@@ -121,41 +121,48 @@ export const PriorBillsSkeleton = () => (
 
 export const AccountSkeleton = () => (
   <Card elevation={0} sx={cardSx}>
-    {/* Header bar */}
-    <SkelHeader width={120} />
+    {/* Header bar matching Header component */}
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      justifyContent="space-between"
+      alignItems={{ xs: "flex-start", sm: "center" }}
+      sx={{ px: 3, py: 2 }}
+    >
+      <Skeleton variant="text" width={280} height={32} />
+      <Stack alignItems={{ xs: "flex-start", sm: "flex-end" }} spacing={0.5}>
+        <Skeleton variant="text" width={140} height={18} />
+        <Skeleton variant="text" width={180} height={18} />
+      </Stack>
+    </Stack>
     <Divider />
 
-    <CardContent>
-      <Grid container spacing={3} sx={{ mt: 1 }}>
-        {/* Left col — profile card (avatar + name + address) */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={0} sx={{ ...cardSx, p: 2 }}>
-            <Stack spacing={2} alignItems="center" py={1}>
-              <Skeleton variant="circular" width={80} height={80} />
-              <Stack spacing={1} alignItems="center">
-                <Skeleton variant="text" width={160} height={28} />
-                <Skeleton variant="text" width={220} height={20} />
-              </Stack>
-            </Stack>
-          </Card>
-        </Grid>
-
-        {/* Right col — Current Information form */}
-        <Grid item xs={12}>
-          {/* Section header + Edit button */}
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Skeleton variant="text" width={180} height={26} />
-            <Skeleton variant="rectangular" width={80} height={34} sx={{ borderRadius: 1 }} />
-          </Stack>
-          <Grid container spacing={2}>
-            {Array.from({ length: 6 }).map((_, i) => (
+    <CardContent sx={{ p: 3 }}>
+      <Card elevation={0} sx={cardSx}>
+        <Box sx={{ px: 3, py: 2 }}>
+          <Skeleton variant="text" width={160} height={26} />
+        </Box>
+        <Divider />
+        <CardContent sx={{ p: 3 }}>
+          <Grid container spacing={3}>
+            {Array.from({ length: 9 }).map((_, i) => (
               <Grid item xs={12} md={6} key={i}>
-                <SkelField />
+                <Stack direction="row" alignItems="center" spacing={2} sx={{ pb: 1 }}>
+                  <Skeleton
+                    variant="circular"
+                    width={48}
+                    height={48}
+                    sx={{ flexShrink: 0 }}
+                  />
+                  <Box flex={1}>
+                    <Skeleton variant="text" width="35%" height={18} sx={{ mb: 0.5 }} />
+                    <Skeleton variant="text" width="60%" height={22} />
+                  </Box>
+                </Stack>
               </Grid>
             ))}
           </Grid>
-        </Grid>
-      </Grid>
+        </CardContent>
+      </Card>
     </CardContent>
   </Card>
 );

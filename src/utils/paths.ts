@@ -42,11 +42,17 @@ export const paths = {
         ? `/${slug}/dashboard/account`
         : "/intuityfe/dashboard/account";
     },
+    lastBill: (company?: string) => {
+      const slug = company ?? getCurrentCompanySlug();
+      return slug
+        ? `/${slug}/dashboard/last-bill`
+        : "/intuityfe/dashboard/last-bill";
+    },
     payNow: (company?: string) => {
       const slug = company ?? getCurrentCompanySlug();
       return slug
-        ? `/${slug}/dashboard/pay-now`
-        : "/intuityfe/dashboard/pay-now";
+        ? `/${slug}/dashboard/last-bill`
+        : "/intuityfe/dashboard/last-bill";
     },
     paperless: (company?: string) => {
       const slug = company ?? getCurrentCompanySlug();

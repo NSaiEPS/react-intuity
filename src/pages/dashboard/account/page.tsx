@@ -34,11 +34,11 @@ export default function AccountPage(): React.JSX.Element {
     <>
       {contextLoading && <AccountSkeleton />}
       <Card sx={{ borderRadius: boarderRadius.card, display: contextLoading ? 'none' : 'block' }}>
-        <Header title="Account" />
+        <Header title="Update Your Account Information" />
         <Divider sx={{ borderColor: "rgba(0,0,0,0.08)", borderBottomWidth: 1 }} />
         <Grid container spacing={3} mt={2} marginLeft={2}>
           {/* <Grid lg={6} md={6} xs={12} > */}
-          <Grid lg={12} md={6} xs={12}  mr={3} >
+          <Grid lg={12} md={12} xs={12}  mr={3} >
 
             <AccountInfo />
           </Grid>

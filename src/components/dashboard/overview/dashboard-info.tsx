@@ -141,6 +141,10 @@ export function DashboardInfo({
   }, [dashBoardInfo?.body]);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // setChecked();
+    if (type === "autoPay") {
+      navigate(paths.dashboard.autoPay())
+      return;
+    }
     setClickedState(event.target.checked);
     setOpenConfirm(true);
   };

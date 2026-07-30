@@ -118,6 +118,11 @@ export default function InvoiceTransactionTabs({
   //   );
   // };
 
+  const formatType = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const renderStatusChip = (status) => {
     const meta = statusMap[status];
 
@@ -132,8 +137,13 @@ export default function InvoiceTransactionTabs({
           color: meta.color,
           fontWeight: 600,
           borderRadius: "999px",
-          height: 28,
-          fontSize: 13,
+          height: { xs: 22, sm: 26 },
+          fontSize: { xs: 11, sm: 12.5 },
+          lineHeight: 1,
+          px: { xs: 0.25, sm: 0.5 },
+          "& .MuiChip-label": {
+            px: { xs: 0.75, sm: 1.25 },
+          },
         }}
       />
     );
@@ -146,6 +156,7 @@ export default function InvoiceTransactionTabs({
         // boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
         px: { xs: 1.5, sm: 3 },
         py: 2,
+        overflowX: "hidden",
       }}
     >
       {/* Tabs Top Bar */}
@@ -231,414 +242,647 @@ export default function InvoiceTransactionTabs({
         </FormControl>
       </Box>
 
-      {/* Table Content */}
-      <Card sx={{ borderRadius: 0 }}>
-        <Box sx={{ overflowX: "auto" }}>
-          <Table sx={{ minWidth: "800px", tableLayout: "fixed" }}>
-            <colgroup>
-              <col style={{ width: "20%" }} />
-              <col style={{ width: "18%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "20%" }} />
-            </colgroup>
-            {/* Single header row — shared across both tabs */}
-            <TableHead>
-              <TableRow sx={{
-                "& th": {
-                  fontWeight: 700,
-                  fontSize: 14,
-                  color: "black",
-                  py: 2,
-                },
-              }}>
-                <TableCell sx={{ pl: 4.5 }}>Transaction Type</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Balance</TableCell>
-              </TableRow>
-            </TableHead>
+      {/* Desktop Table View (Visible >= 1000px) */}
+      <Box sx={{ display: { xs: "none", "@media (min-width: 1000px)": { display: "block" } } }}>
+        <Card sx={{ borderRadius: 0 }}>
+          <Box sx={{ overflowX: "auto" }}>
+            <Table sx={{ minWidth: "800px", tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "16%" }} />
+                <col style={{ width: "16%" }} />
+                <col style={{ width: "20%" }} />
+              </colgroup>
+              {/* Single header row — shared across both tabs */}
+              <TableHead>
+                <TableRow
+                  sx={{
+                    "& th": {
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color: "black",
+                      py: 2,
+                    },
+                  }}
+                >
+                  <TableCell sx={{ pl: 4.5 }}>Transaction Type</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Amount</TableCell>
+                  <TableCell>Balance</TableCell>
+                </TableRow>
+              </TableHead>
 
-            <TableBody>
-              {displayedData.map((item) => {
-                const expanded = isInvoice?.includes(item.id);
+              <TableBody>
+                {displayedData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                      <Typography sx={{ color: "text.secondary", fontWeight: 500, fontSize: 14 }}>
+                        {currentTab === "invoice" ? "No Invoice found" : "No Transaction found"}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  displayedData.map((item) => {
+                    const expanded = isInvoice?.includes(item.id);
 
-                // TEMP: the real field name for an invoice's associated
-                // transactions isn't confirmed yet. Try the likely
-                // candidates in order and warn loudly if none match, so
-                // this is easy to spot in devtools instead of silently
-                // rendering an empty expansion.
-                const associatedTransactions = Array.isArray(item?.transactions)
-                  ? item.transactions
-                  : Array.isArray(item?.[item?.id])
-                    ? item[item.id]
-                    : Array.isArray(rows)
-                      ? rows.filter((r) => r.invoice_id === item.id)
-                      : [];
+                    const associatedTransactions = Array.isArray(item?.transactions)
+                      ? item.transactions
+                      : Array.isArray(item?.[item?.id])
+                        ? item[item.id]
+                        : Array.isArray(rows)
+                          ? rows.filter((r) => r.invoice_id === item.id)
+                          : [];
 
-                const hasAssociatedTransactions = associatedTransactions.length > 0;
-                if (expanded && associatedTransactions.length === 0) {
-                  // eslint-disable-next-line no-console
-                  console.warn(
-                    "[InvoiceTransactionTabs] No associated transactions found for invoice",
-                    item.id,
-                    "— check the shape of this invoice item:",
-                    item
-                  );
-                }
-
-                return (
-                  <React.Fragment key={item.id}>
-                    {/* Parent row: Invoice (or Transaction, on the Transactions tab) */}
-                    <TableRow >
-                      <TableCell sx={{ py: 1, pl: 1 }}>
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          alignItems="center"
-                        >
-                          <Box
-                            sx={{
-                              width: 16,          // same width as IconButton
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              mr: 0.5,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {currentTab === "invoice" && (
-                              <IconButton
-                                size="small"
-                                disabled={!hasAssociatedTransactions}
-                                onClick={() => handleInvoiceToggle(item.id)}
+                    return (
+                      <React.Fragment key={item.id}>
+                        {/* Parent row: Invoice (or Transaction, on the Transactions tab) */}
+                        <TableRow>
+                          <TableCell sx={{ py: 1, pl: 1 }}>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <Box
                                 sx={{
-                                  "&.Mui-disabled": {
-                                    cursor: "not-allowed",
-                                    pointerEvents: "auto",
-                                  },
+                                  width: 16,
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  mr: 0.5,
+                                  flexShrink: 0,
                                 }}
                               >
-                                {expanded ? (
-                                  <CaretDown size={14} weight="bold" />
-                                ) : (
-                                  <CaretRight size={14} weight="bold" />
+                                {currentTab === "invoice" && (
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleInvoiceToggle(item.id)}
+                                  >
+                                    {expanded ? (
+                                      <CaretDown size={14} weight="bold" />
+                                    ) : (
+                                      <CaretRight size={14} weight="bold" />
+                                    )}
+                                  </IconButton>
                                 )}
-                              </IconButton>
-                            )}
-                          </Box>
-                          {/* {currentTab === "invoice" && (
-                            <IconButton
-                              size="small"
-                              onClick={() => handleInvoiceToggle(item.id)}
-                              sx={{
-                                p: 0,
-                                mr: .5
-                              }}
-                            >
-                              {expanded ? (
-                                <CaretDown size={14} weight="bold" />
-                              ) : (
-                                <CaretRight size={14} weight="bold" />
-                              )}
-                            </IconButton>
-                          )} */}
-                          {/* <Typography variant="subtitle2">
-                            {currentTab === "invoice" ? "Invoice" : item?.type}
-                          </Typography> */}
+                              </Box>
 
-                          <FileText
-                            size={18}
-                            color={colors.blue}
-                          />
+                              {/* <FileText size={18} color={colors.blue} /> */}
 
-                          <Typography
-                            sx={{
-                              fontWeight: 500,
-                              fontSize: 14
-                            }}
-                          >
-                            {currentTab === "invoice" ? "Invoice" : item.type}
-                          </Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          py: 2
-                        }}
-                      >
-                        {currentTab === "invoice"
-                          ? dayjs(item?.billing_date).format("MMM D, YYYY")
-                          : dayjs
-                            .tz(item.transaction_date, "America/Chicago")
-                            .tz(dayjs.tz.guess())
-                            .format("YYYY-MM-DD hh:mm A")}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          py: 2
-                        }}
-                      >
-                        {/* Invoices themselves have no status — leave blank */}
-                        {currentTab === "invoice"
-                          ? null
-                          : renderStatusChip(item?.status)}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          py: 2
-                        }}
-                      >
-                        {/* {formatCurrency(item?.amount)} */}
-                        <Typography
-                          fontWeight={600}
-                          fontSize={14}
-                        >
-                          {formatCurrency(item.amount)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          py: 2
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Typography
-                            fontWeight={600}
-                            fontSize={14}
-                          >
-
-                            {formatCurrency(item?.balance_due)}
-                          </Typography>
-                          {currentTab === "invoice" && (
+                              <Typography
+                                sx={{
+                                  fontWeight: 500,
+                                  fontSize: 14,
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {currentTab === "invoice" ? "Invoice" : formatType(item.type)}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell sx={{ py: 2 }}>
+                            {currentTab === "invoice"
+                              ? dayjs(item?.billing_date).format("MMM D, YYYY")
+                              : dayjs
+                                .tz(item.transaction_date, "America/Chicago")
+                                .tz(dayjs.tz.guess())
+                                .format("YYYY-MM-DD hh:mm A")}
+                          </TableCell>
+                          <TableCell sx={{ py: 2 }}>
+                            {currentTab === "invoice"
+                              ? null
+                              : renderStatusChip(item?.status)}
+                          </TableCell>
+                          <TableCell sx={{ py: 2 }}>
+                            <Typography fontWeight={600} fontSize={14}>
+                              {formatCurrency(item.amount)}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ py: 2 }}>
                             <Box
-                              onClick={() =>
-                                navigate(paths.dashboard.invoiceDetails(item?.id))
-                              }
                               sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 0.5,
-                                cursor: "pointer",
-                                color: colors.blue,
-                                marginLeft: "16px"
+                                justifyContent: "space-between",
                               }}
                             >
-                              <FileText size={18} weight="regular" />
-                              {/* <Typography sx={{ color: colors.blue }} variant="body2">
-                                View Invoice
-                              </Typography> */}
-                              <Typography
-                                onClick={() =>
-                                  navigate(paths.dashboard.invoiceDetails(item.id))
-                                }
-                                sx={{
-                                  color: colors.blue,
-                                  cursor: "pointer",
-                                  fontWeight: 500,
-                                  fontSize: 14,
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                View Invoice
+                              <Typography fontWeight={600} fontSize={14}>
+                                {formatCurrency(item?.balance_due)}
                               </Typography>
-                            </Box>
-                          )}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-
-                    {/* Associated transactions (Payment / Late Fee / Reversal).
-                        These stay as rows in the SAME table as the parent
-                        invoice rows, so columns line up automatically.
-                        The "boxed" look is faked with borders/radius on
-                        individual cells (first row = top corners + top
-                        border, last row = bottom corners + bottom border,
-                        outer cells = left/right border), plus thin spacer
-                        rows above/below for breathing room. */}
-                    {currentTab === "invoice" && expanded && associatedTransactions.length > 0 && (
-                      <>
-                        {/* top spacer */}
-                        {/* <TableRow>
-                          <TableCell colSpan={5} sx={{ p: 1, border: "none", height: 10 }} />
-                        </TableRow> */}
-                        <TableRow>
-                          <TableCell
-                            colSpan={5}
-                            sx={{
-                              p: 2,
-                              borderBottom: 0,
-                              bgcolor: "#fff"
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                border: "1px solid #DDE5EF",
-                                borderRadius: "12px",
-                                overflow: "hidden",
-                                backgroundColor: "#FAFCFE",
-                              }}
-                            >
-                              <Table
-                                size="small"
-                                sx={{
-                                  tableLayout: "fixed",
-                                  width: "100%",
-                                  border: "1px solid #E5E7EB",
-                                  borderRadius: "12px",
-                                  overflow: "hidden",
-                                  background: "#FAFCFE",
-
-                                  "& td": {
-                                    borderBottom: "1px solid #E5E7EB",
-                                    fontSize: 14,
-                                    py: 2,
-                                  },
-
-                                  "& tr:last-child td": {
-                                    borderBottom: "none",
-                                  },
-                                }}
-                              >
-
-                                <colgroup>
-                                  <col style={{ width: "18%" }} />
-                                  <col style={{ width: "17%" }} />
-                                  <col style={{ width: "16%" }} />
-                                  <col style={{ width: "16%" }} />
-                                  <col style={{ width: "19%" }} />
-                                </colgroup>
-                                <TableBody>
-
-                                  {associatedTransactions.map((row) => (
-
-                                    <TableRow key={row.id}>
-
-                                      <TableCell sx={{ pl: 3 }}>
-                                        {row.type}
-                                      </TableCell>
-
-                                      <TableCell>
-                                        {dayjs(row.transaction_date).format("MMM D, YYYY")}
-                                      </TableCell>
-
-                                      <TableCell>
-                                        {renderStatusChip(row.status)}
-                                      </TableCell>
-
-                                      <TableCell>
-                                        <Typography fontWeight={600} sx={{ pl: 2 }}>
-                                          {formatCurrency(row.amount)}
-                                        </Typography>
-                                      </TableCell>
-
-                                      {/* <TableCell>
-                                        <Typography fontWeight={600}>
-                                          {formatCurrency(row.balance_due)}
-                                        </Typography>
-                                      </TableCell> */}
-
-                                      <TableCell>
-                                        <Box
-                                          sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                          }}
-                                        >
-                                          <Typography fontWeight={600}>
-                                            {formatCurrency(row.balance_due)}
-                                          </Typography>
-
-                                          {/* Reserve the same space as "View Invoice" */}
-                                          <Box sx={{ width: 105 }} />
-                                        </Box>
-                                      </TableCell>
-
-                                    </TableRow>
-
-                                  ))}
-
-                                </TableBody>
-
-                              </Table>
+                              {currentTab === "invoice" && (
+                                <Box
+                                  onClick={() =>
+                                    navigate(paths.dashboard.invoiceDetails(item?.id))
+                                  }
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
+                                    cursor: "pointer",
+                                    color: colors.blue,
+                                    marginLeft: "16px",
+                                  }}
+                                >
+                                  <FileText size={18} weight="regular" />
+                                  <Typography
+                                    onClick={() =>
+                                      navigate(paths.dashboard.invoiceDetails(item.id))
+                                    }
+                                    sx={{
+                                      color: colors.blue,
+                                      cursor: "pointer",
+                                      fontWeight: 500,
+                                      fontSize: 14,
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    View Invoice
+                                  </Typography>
+                                </Box>
+                              )}
                             </Box>
                           </TableCell>
                         </TableRow>
 
-                        {/* {associatedTransactions.map((row, index) => {
-                          const isFirst = index === 0;
-                          const isLast = index === associatedTransactions.length - 1;
-                          const boxBorderColor = "rgba(25, 118, 210, 0.15)";
-
-                          const outerBorderSx = {
-                            borderTop: isFirst ? `1px solid ${boxBorderColor}` : "none",
-                            borderBottom: isLast
-                              ? `1px solid ${boxBorderColor}`
-                              : "1px solid rgba(0,0,0,0.04)",
-
-                          };
-
-                          return (
-
-                            <TableRow key={row.id} sx={{ backgroundColor: ASSOCIATED_ROW_BG, pl: 2 }}>
-                              <TableCell
+                        {currentTab === "invoice" && expanded && (
+                          <TableRow>
+                            <TableCell
+                              colSpan={5}
+                              sx={{
+                                p: 2,
+                                borderBottom: 0,
+                                bgcolor: "#fff",
+                              }}
+                            >
+                              <Box
                                 sx={{
-                                  ...outerBorderSx,
-                                  borderLeft: `1px solid ${boxBorderColor}`,
-                                  borderTopLeftRadius: isFirst ? 8 : 0,
-                                  borderBottomLeftRadius: isLast ? 8 : 0,
-                                  py: 1,
-                                  pl: `${ROW_INDENT_PX}px`,
+                                  border: "1px solid #DDE5EF",
+                                  borderRadius: "12px",
+                                  overflow: "hidden",
+                                  backgroundColor: "#FAFCFE",
                                 }}
                               >
-                                <Typography variant="body2">{row.type}</Typography>
-                              </TableCell>
-                              <TableCell sx={{ ...outerBorderSx, py: 1 }}>
-                                {dayjs(row.transaction_date).format("MMM D, YYYY")}
-                              </TableCell>
-                              <TableCell sx={{ ...outerBorderSx, py: 1 }}>
-                                {renderStatusChip(row.status)}
-                              </TableCell>
-                              <TableCell sx={{ ...outerBorderSx, py: 1 }}>
-                                {formatCurrency(row.amount)}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  ...outerBorderSx,
-                                  borderRight: `1px solid ${boxBorderColor}`,
-                                  borderTopRightRadius: isFirst ? 8 : 0,
-                                  borderBottomRightRadius: isLast ? 8 : 0,
-                                  py: 1,
-                                }}
-                              >
-                                {formatCurrency(row.balance_due)}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })} */}
+                                {associatedTransactions.length > 0 ? (
+                                  <Table
+                                    size="small"
+                                    sx={{
+                                      tableLayout: "fixed",
+                                      width: "100%",
+                                      border: "1px solid #E5E7EB",
+                                      borderRadius: "12px",
+                                      overflow: "hidden",
+                                      background: "#FAFCFE",
+                                      "& td": {
+                                        borderBottom: "1px solid #E5E7EB",
+                                        fontSize: 14,
+                                        py: 2,
+                                      },
+                                      "& tr:last-child td": {
+                                        borderBottom: "none",
+                                      },
+                                    }}
+                                  >
+                                    <colgroup>
+                                      <col style={{ width: "18%" }} />
+                                      <col style={{ width: "17%" }} />
+                                      <col style={{ width: "16%" }} />
+                                      <col style={{ width: "16%" }} />
+                                      <col style={{ width: "19%" }} />
+                                    </colgroup>
+                                    <TableBody>
+                                      {associatedTransactions.map((row) => (
+                                        <TableRow key={row.id}>
+                                          <TableCell sx={{ pl: 3, textTransform: "capitalize" }}>
+                                            {formatType(row.type)}
+                                          </TableCell>
+                                          <TableCell>
+                                            {dayjs(row.transaction_date).format(
+                                              "MMM D, YYYY"
+                                            )}
+                                          </TableCell>
+                                          <TableCell>
+                                            {renderStatusChip(row.status)}
+                                          </TableCell>
+                                          <TableCell>
+                                            <Typography fontWeight={600} sx={{ pl: 2 }}>
+                                              {formatCurrency(row.amount)}
+                                            </Typography>
+                                          </TableCell>
+                                          <TableCell>
+                                            <Box
+                                              sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                              }}
+                                            >
+                                              <Typography fontWeight={600}>
+                                                {formatCurrency(row.balance_due)}
+                                              </Typography>
+                                              <Box sx={{ width: 105 }} />
+                                            </Box>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                ) : (
+                                  <Typography
+                                    sx={{
+                                      textAlign: "center",
+                                      py: 2.5,
+                                      color: "text.secondary",
+                                      fontWeight: 500,
+                                      fontSize: 14,
+                                    }}
+                                  >
+                                    No Payments found
+                                  </Typography>
+                                )}
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </Box>
+        </Card>
+      </Box>
 
-                        {/* bottom spacer */}
-                        {/* <TableRow>
-                          <TableCell colSpan={5} sx={{ p: 0, border: "none", height: 10 }} />
-                        </TableRow> */}
-                      </>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Box>
-      </Card>
-      <Divider />
+      {/* Mobile Card View (Visible < 1000px) */}
+      <Box
+        sx={{
+          display: {
+            xs: "block",
+            "@media (min-width: 1000px)": { display: "none" },
+          },
+        }}
+      >
+        {displayedData.length === 0 ? (
+          <Card
+            elevation={0}
+            sx={{
+              border: "1px solid #E5E7EB",
+              borderRadius: "12px",
+              p: 4,
+              textAlign: "center",
+              backgroundColor: "#ffffff",
+            }}
+          >
+            <Typography sx={{ color: "text.secondary", fontWeight: 500, fontSize: 14 }}>
+              {currentTab === "invoice" ? "No Invoice found" : "No Transaction found"}
+            </Typography>
+          </Card>
+        ) : (
+          displayedData.map((item) => {
+            const expanded = isInvoice?.includes(item.id);
+            const associatedTransactions = Array.isArray(item?.transactions)
+              ? item.transactions
+              : Array.isArray(item?.[item?.id])
+                ? item[item.id]
+                : Array.isArray(rows)
+                  ? rows.filter((r) => r.invoice_id === item.id)
+                  : [];
+
+            if (currentTab === "invoice") {
+              return (
+                <Card
+                  key={item.id}
+                  elevation={0}
+                  sx={{
+                    border: "1px solid #E5E7EB",
+                    borderRadius: "12px",
+                    p: 2,
+                    mb: 2,
+                    backgroundColor: "#ffffff",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  {/* Invoice Card Header */}
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={{ mb: 2 }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleInvoiceToggle(item.id)}
+                        sx={{
+                          p: 0.5,
+                          color: colors.blue,
+                        }}
+                      >
+                        {expanded ? (
+                          <CaretDown size={18} weight="bold" />
+                        ) : (
+                          <CaretRight size={18} weight="bold" />
+                        )}
+                      </IconButton>
+                      <Typography
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: 16,
+                          color: "#111827",
+                        }}
+                      >
+                        Invoice
+                      </Typography>
+                    </Stack>
+
+                    <Stack direction="row" alignItems="center" spacing={1.5}>
+                      <Typography
+                        sx={{ fontSize: 14, color: "#6B7280", fontWeight: 400 }}
+                      >
+                        {dayjs(item?.billing_date).format("MMM D, YYYY")}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() =>
+                          navigate(paths.dashboard.invoiceDetails(item?.id))
+                        }
+                        sx={{
+                          p: 0.5,
+                          color: colors.blue,
+                        }}
+                      >
+                        <FileText size={22} weight="regular" />
+                      </IconButton>
+                    </Stack>
+                  </Stack>
+
+                  {/* Amount & Balance Summary Row */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-around",
+                      py: 1,
+                      px: 1,
+                    }}
+                  >
+                    {/* Amount Column */}
+                    <Box sx={{ textAlign: "left", flex: 1, pl: { xs: 1, sm: 3 } }}>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          color: "#6B7280",
+                          fontWeight: 500,
+                          mb: 0.5,
+                        }}
+                      >
+                        Amount
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: { xs: 14.5, sm: 16 }, fontWeight: 700, color: "#111827" }}
+                      >
+                        {formatCurrency(item?.amount)}
+                      </Typography>
+                    </Box>
+
+                    <Divider
+                      orientation="vertical"
+                      flexItem
+                      sx={{ borderColor: "#E5E7EB", mx: 1 }}
+                    />
+
+                    {/* Balance Column */}
+                    <Box sx={{ textAlign: "left", flex: 1, pl: { xs: 1, sm: 3 } }}>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          color: "#6B7280",
+                          fontWeight: 500,
+                          mb: 0.5,
+                        }}
+                      >
+                        Balance
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: { xs: 14.5, sm: 16 }, fontWeight: 700, color: "#111827" }}
+                      >
+                        {formatCurrency(item?.balance_due)}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Expanded Payment UI (Nested Container) */}
+                  {expanded && (
+                    <Box
+                      sx={{
+                        mt: 2,
+                        border: "1.5px solid #BFDBFE",
+                        borderRadius: "12px",
+                        p: { xs: 1.5, sm: 2 },
+                        backgroundColor: "#FAFCFE",
+                      }}
+                    >
+                      {associatedTransactions.length > 0 ? (
+                        associatedTransactions.map((row, idx) => (
+                          <React.Fragment key={row.id || idx}>
+                            {idx > 0 && (
+                              <Divider sx={{ my: 1.5, borderColor: "#E5E7EB" }} />
+                            )}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                justifyContent: "space-between",
+                                gap: { xs: 1, sm: 2 },
+                              }}
+                            >
+                              {/* Left Col: Payment + Status & Date */}
+                              <Box sx={{ minWidth: 0, flex: "1 1 auto" }}>
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={0.75}
+                                  sx={{ flexWrap: "wrap" }}
+                                >
+                                  <Typography
+                                    sx={{
+                                      fontWeight: 700,
+                                      fontSize: { xs: 13, sm: 14 },
+                                      color: "#111827",
+                                      textTransform: "capitalize",
+                                    }}
+                                  >
+                                    {formatType(row.type) || "Payment"}
+                                  </Typography>
+                                  {renderStatusChip(row.status)}
+                                </Stack>
+                                <Typography
+                                  sx={{ fontSize: 11.5, color: "#6B7280", mt: 0.5 }}
+                                >
+                                  {dayjs(row.transaction_date).format(
+                                    "MMM D, YYYY"
+                                  )}
+                                </Typography>
+                              </Box>
+
+                              {/* Middle Col: Amount */}
+                              <Box sx={{ textAlign: "left", minWidth: { xs: 60, sm: 80 }, flexShrink: 0 }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: 11,
+                                    color: "#6B7280",
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  Amount
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    fontSize: { xs: 12.5, sm: 13.5 },
+                                    fontWeight: 700,
+                                    color: "#111827",
+                                  }}
+                                >
+                                  {formatCurrency(row.amount)}
+                                </Typography>
+                              </Box>
+
+                              {/* Right Col: Balance */}
+                              <Box sx={{ textAlign: "left", minWidth: { xs: 75, sm: 100 }, flexShrink: 0 }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: 11,
+                                    color: "#6B7280",
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  Balance
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    fontSize: { xs: 12.5, sm: 13.5 },
+                                    fontWeight: 700,
+                                    color: "#111827",
+                                  }}
+                                >
+                                  {formatCurrency(row.balance_due)}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <Typography
+                          sx={{
+                            textAlign: "center",
+                            py: 1.5,
+                            color: "text.secondary",
+                            fontWeight: 500,
+                            fontSize: 13,
+                          }}
+                        >
+                          No Payments found
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+                </Card>
+              );
+            } else {
+              // Transactions Tab Card
+              return (
+                <Card
+                  key={item.id}
+                  elevation={0}
+                  sx={{
+                    border: "1px solid #E5E7EB",
+                    borderRadius: "12px",
+                    p: 2,
+                    mb: 2,
+                    backgroundColor: "#ffffff",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    sx={{ mb: 1.5 }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ flexWrap: "wrap" }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: 15,
+                          color: "#111827",
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {formatType(item.type) || "Transaction"}
+                      </Typography>
+                      {renderStatusChip(item.status)}
+                    </Stack>
+                    <Typography sx={{ fontSize: 13, color: "#6B7280" }}>
+                      {dayjs
+                        .tz(item.transaction_date, "America/Chicago")
+                        .tz(dayjs.tz.guess())
+                        .format("MMM D, YYYY")}
+                    </Typography>
+                  </Stack>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-around",
+                      py: 1,
+                    }}
+                  >
+                    <Box sx={{ textAlign: "left", flex: 1, pl: { xs: 1, sm: 3 } }}>
+                      <Typography
+                        sx={{
+                          fontSize: 12,
+                          color: "#6B7280",
+                          fontWeight: 500,
+                          mb: 0.5,
+                        }}
+                      >
+                        Amount
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: { xs: 13.5, sm: 15 }, fontWeight: 700, color: "#111827" }}
+                      >
+                        {formatCurrency(item.amount)}
+                      </Typography>
+                    </Box>
+                    <Divider
+                      orientation="vertical"
+                      flexItem
+                      sx={{ borderColor: "#E5E7EB", mx: 1 }}
+                    />
+                    <Box sx={{ textAlign: "left", flex: 1, pl: { xs: 1, sm: 3 } }}>
+                      <Typography
+                        sx={{
+                          fontSize: 12,
+                          color: "#6B7280",
+                          fontWeight: 500,
+                          mb: 0.5,
+                        }}
+                      >
+                        Balance
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: { xs: 13.5, sm: 15 }, fontWeight: 700, color: "#111827" }}
+                      >
+                        {formatCurrency(item.balance_due)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Card>
+              );
+            }
+          })
+        )}
+      </Box>
+      {/* <Divider /> */}
     </Box>
   );
 }

@@ -5,7 +5,7 @@ export function usePreloadDashboardRoutes() {
     const timer = setTimeout(() => {
       // ✅ preload critical dashboard routes
 
-      import("../pages/dashboard/pay-now/page");
+      import("../pages/dashboard/last-bill/page");
       import("../pages/dashboard/usage-alerts/page");
       import("../pages/dashboard/payment-methods/page");
       import("../pages/dashboard/notification-settings/page");

@@ -372,26 +372,26 @@ const PaymentForm = () => {
   // }
 
 
-const { id: encryptedId } = useParams();
+  const { id: encryptedId } = useParams();
 
-let id = "";
+  let id = "";
 
-try {
-  if (!encryptedId || typeof encryptedId !== "string") {
-    throw new Error("Missing id");
+  try {
+    if (!encryptedId || typeof encryptedId !== "string") {
+      throw new Error("Missing id");
+    }
+
+    id = decrypt(encryptedId);
+  } catch (err) {
+    navigate("/errors/not-found", {
+      replace: true,
+      state: {
+        title: "Invalid URL",
+        description: "Please use a valid payment link.",
+      },
+    });
+    return;
   }
-
-  id = decrypt(encryptedId);
-} catch (err) {
-  navigate("/errors/not-found", {
-    replace: true,
-    state: {
-      title: "Invalid URL",
-      description: "Please use a valid payment link.",
-    },
-  });
-  return;
-}
   const transId = searchParams.get('transId');
   // //console.log(transId, id, "transId");
 
@@ -552,8 +552,6 @@ try {
   }, [paymentMethodInfoCards]);
 
   const amount = watch('amount');
-
-  console.log(selectedCardDetails, "selectedCardDetails22");
 
 
   useEffect(() => {
@@ -779,8 +777,6 @@ try {
     paymentDetailsInfo?.customer?.acctnum ??
     paymentDetailsInfo?.customer?.account_number ??
     '-';
-
-  console.log(CustomerInfo?.autopay, 'CustomerInfo');
 
 
   return (

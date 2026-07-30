@@ -34,9 +34,16 @@ import { BASE_URL } from '@/api/axios';
 interface AddBankAccountModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: (bank?: any) => void;
+  onReturnCard?: (data: any) => void;
 }
 
-const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) => {
+const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
+  open,
+  onClose,
+  onSuccess,
+  onReturnCard,
+}) => {
   const [routingNumber, setRoutingNumber] = useState<string>('');
   const [accountNumber, setAccountNumber] = useState<string>('');
   const [accountType, setAccountType] = useState<string>('');
@@ -131,13 +138,20 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({ open, onClose }) =>
     );
 
     dispatch(
-      getPaymentDetails(formdata, true, () => {
-        const formdata = new FormData();
-        formdata.append('acl_role_id', stored?.body?.acl_role_id);
-        formdata.append('customer_id', stored?.body?.customer_id);
+      getPaymentDetails(
+        formdata,
+        true,
+        () => {
+          const formdata = new FormData();
+          formdata.append('acl_role_id', stored?.body?.acl_role_id);
+          formdata.append('customer_id', stored?.body?.customer_id);
 
-        dispatch(getPaymentDetails(formdata, false, onClose));
-      })
+          dispatch(getPaymentDetails(formdata, false, onClose));
+          onSuccess?.();
+        },
+        null,
+        onReturnCard
+      )
     );
 
     //   bank_account_number:6789

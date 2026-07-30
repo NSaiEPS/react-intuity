@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
 import { StopServiceSkeleton } from "@/components/dashboard/skeletons";
 import { boarderRadius } from "@/utils";
-import { Card } from "@mui/material";
+import { Card, Divider } from "@mui/material";
 import Header from '@/components/CommonComponents/header-common';
 
 
@@ -38,6 +38,7 @@ export default function StopTransferServicePage(): React.JSX.Element {
       {contextLoading && <StopServiceSkeleton />}
       <Card sx={{ borderRadius: boarderRadius.card, display: contextLoading ? 'none' : 'block' }}>
         <Header title="Stop/Transfer Service" />
+        <Divider/>
         <Grid container spacing={3}>
           <Grid lg={12} md={12} xs={12}>
             <TransferDetailsForm />

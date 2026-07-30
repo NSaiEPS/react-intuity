@@ -4,6 +4,7 @@ import {
   getConfirmInfo,
   getUserInfoByToken,
 } from "@/state/features/accountSlice";
+import { fetchSideNavPermissions } from "@/state/features/sideNavSlice";
 import { getLocalStorage } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
 import { useDispatch } from "@/hooks/redux";
@@ -27,7 +28,8 @@ export default function CompanyRouteGuard() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+    dispatch(fetchSideNavPermissions());
+  }, [pathname, dispatch]);
 
   const { search } = useLocation();
   if (search.includes("token=")) {

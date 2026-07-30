@@ -205,12 +205,12 @@ export function SendBillDetailsForm(): React.JSX.Element {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ m: 3, borderRadius: boarderRadius.card }}>
-        <CardHeader title="Send Final bill to" />
+        <CardHeader sx={{ pt: 2, pb: 2 }} title="Send Final bill to" />
         <Divider />
 
         <CardContent>
           <Grid container spacing={3}>
-            <Grid md={6} xs={12}>
+            {/* <Grid md={6} xs={12}>
               <FormControl fullWidth size="small" required error={!!errors.name}>
                 <InputLabel>Contact Name</InputLabel>
                 <OutlinedInput label="Contact Name" {...register("name")}  />
@@ -218,18 +218,11 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   <FormHelperText>{errors.name.message}</FormHelperText>
                 )}
               </FormControl>
-            </Grid>
+            </Grid> */}
 
-            <Grid md={6} xs={12}>
+            {/* <Grid md={6} xs={12}>
               <FormControl fullWidth size="small" required error={!!errors.phone}>
                 <InputLabel>Contact Phone</InputLabel>
-                {/* <OutlinedInput
-                  label="Contact Phone"
-                  // type="tel"
-                  type="text" // instead of tel
-                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                  {...register("phone")}
-                /> */}
                 <OutlinedInput
                   label="Contact Phone"
                   type="text"
@@ -260,7 +253,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   <FormHelperText>{errors.phone.message}</FormHelperText>
                 )}
               </FormControl>
-            </Grid>
+            </Grid> */}
 
             <Grid md={6} xs={12}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -364,7 +357,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
               </FormControl>
             </Grid>
 
-            <Grid md={6} xs={12}>
+            {/* <Grid md={6} xs={12}>
               <FormControl fullWidth size="small" required error={!!errors.state}>
                 <InputLabel>State</InputLabel>
                 <OutlinedInput label="State" {...register("state")} />
@@ -372,69 +365,94 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   <FormHelperText>{errors.state.message}</FormHelperText>
                 )}
               </FormControl>
-            </Grid>
+            </Grid> */}
 
-            <Grid md={6} xs={12}>
-              <FormControl fullWidth size="small" error={!!errors.applicableField}>
-                <InputLabel shrink>
-                  If applicable, enter the closing attorney’s contact details
-                  (name, phone, email)
-                </InputLabel>
-                <OutlinedInput
-                  notched
-                  label="If applicable, enter the closing attorney’s contact details (name, phone, email)"
-                  {...register("applicableField")}
-                />
-                {errors.applicableField && (
-                  <FormHelperText>
-                    {errors.applicableField.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
+  {/* <Grid md={6} xs={12}>
+    <FormControl fullWidth error={!!errors.applicableField}>
+      <InputLabel shrink>
+        If applicable, enter the closing attorney's contact details (name,
+        phone, email)
+      </InputLabel>
+
+      <OutlinedInput
+        notched
+        label="If applicable, enter the closing attorney's contact details (name, phone, email)"
+        {...register("applicableField")}
+      />
+
+      {errors.applicableField && (
+        <FormHelperText>
+          {errors.applicableField.message}
+        </FormHelperText>
+      )}
+    </FormControl>
+  </Grid> */}
+
+  <Grid
+    md={6}
+    xs={12}
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      paddingLeft: "20px"
+    }}
+  >
+    <Stack
+      direction="row"
+      spacing={2}
+      alignItems="center"
+      flexWrap="wrap"
+    >
+      <Typography
+        variant="subtitle1"
+        whiteSpace="nowrap"
+      >
+        New Resident *
+      </Typography>
+
+      <Controller
+        name="preferredOwnerMethod"
+        control={control}
+        render={({ field }) => (
+          <RadioGroup row {...field}>
+            <FormControlLabel
+              value="Owner"
+              control={<Radio />}
+              label="Owner"
+            />
+            <FormControlLabel
+              value="Tenant"
+              control={<Radio />}
+              label="Tenant"
+            />
+          </RadioGroup>
+        )}
+      />
+    </Stack>
+  </Grid>
+
+  {/* <Grid xs={12}>
+    <FormControl fullWidth required error={!!errors.comment}>
+      <InputLabel>Comment</InputLabel>
+
+      <OutlinedInput
+        multiline
+        minRows={3}
+        label="Comment"
+        {...register("comment")}
+      />
+
+      {errors.comment && (
+        <FormHelperText>{errors.comment.message}</FormHelperText>
+      )}
+    </FormControl>
+  </Grid> */}
+
           </Grid>
 
-          <Grid container spacing={2} mt={1}>
-            <Grid xs={12} sm={6}>
-              <Stack spacing={1}>
-                <Typography variant="h6">I am the *</Typography>
-                <Controller
-                  name="preferredOwnerMethod"
-                  control={control}
-                  render={({ field }) => (
-                    <RadioGroup row {...field}>
-                      <FormControlLabel
-                        value="Owner"
-                        control={<Radio />}
-                        label="Owner"
-                      />
-                      <FormControlLabel
-                        value="Tenant"
-                        control={<Radio />}
-                        label="Tenant"
-                      />
-                    </RadioGroup>
-                  )}
-                />
-              </Stack>
-            </Grid>
+     
 
-            <Grid md={12} xs={12} pt={3}>
-              <FormControl fullWidth required error={!!errors.comment}>
-                <InputLabel>Comment</InputLabel>
-                <OutlinedInput
-                  multiline
-                  label="Comment"
-                  {...register("comment")}
-                />
-                {errors.comment && (
-                  <FormHelperText>{errors.comment.message}</FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
-          </Grid>
-
-          <Grid md={12} xs={12} p={0} pt={3}>
+          {/* <Grid md={12} xs={12} p={0} pt={3}>
             <FormControl fullWidth error={!!errors.files}>
               <Typography variant="body1" mb={1}>
                 Please upload any supporting documents or photos:
@@ -466,12 +484,12 @@ export function SendBillDetailsForm(): React.JSX.Element {
                 ))}
               </Grid>
             )}
-          </Grid>
+          </Grid> */}
         </CardContent>
 
         <Divider />
 
-        <CardActions sx={{ justifyContent: "flex-end" }}>
+        <CardActions sx={{ justifyContent: "flex-end",px: 3.2, py: 2 }}>
           <Button
             onClick={() => reset()}
             variant="outlined"

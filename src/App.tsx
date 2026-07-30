@@ -2,6 +2,7 @@ import React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import CompanyRouteGuard from "./components/core/company-route-guard";
+import { CustomerServiceGuard } from "./components/core/customer-service-guard";
 // Wrappers (keep them eager — they’re small and used everywhere)
 import ProtectedRoute, {
   Authorization,
@@ -22,7 +23,7 @@ import { SignInPage } from "./components/auth/sign-in-page";
 import ConfirmInformation from "./pages/auth/confirm-information/page";
 // DashBoardPage is eager — main landing page after login, lazy-loading only added a LoaderFallback flash.
 import DashBoardPage from "./pages/dashboard/page";
-const PayNowPage = React.lazy(() => import("./pages/dashboard/pay-now/page"));
+const LastBillPage = React.lazy(() => import("./pages/dashboard/last-bill/page"));
 const AlertsScreen = React.lazy(
   () => import("./pages/dashboard/usage-alerts/page")
 );
@@ -194,18 +195,22 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: withSuspense(
-              <ProtectedRoute title="Homepage">
+              <ProtectedRoute title="Overview">
                 <DashBoardPage />
               </ProtectedRoute>
             ),
           },
           {
-            path: "pay-now",
+            path: "last-bill",
             element: withSuspense(
-              <ProtectedRoute title="Pay Now">
-                <PayNowPage />
+              <ProtectedRoute title="Last Bill">
+                <LastBillPage />
               </ProtectedRoute>
             ),
+          },
+          {
+            path: "pay-now",
+            element: <Navigate to="../last-bill" relative="path" replace />,
           },
           {
             path: "usage-alerts",
@@ -250,7 +255,7 @@ export const router = createBrowserRouter([
           {
             path: "prior-bills",
             element: withSuspense(
-              <ProtectedRoute title="Billing">
+              <ProtectedRoute title="Billing & Payments History">
                 <PriorBillsPage />
               </ProtectedRoute>
             ),
@@ -258,16 +263,20 @@ export const router = createBrowserRouter([
           {
             path: "usage-history",
             element: withSuspense(
-              <ProtectedRoute title="Usage">
-                <UsageHistoryPage />
+              <ProtectedRoute title="Usage History">
+                <CustomerServiceGuard tabKey="usageHistory">
+                  <UsageHistoryPage />
+                </CustomerServiceGuard>
               </ProtectedRoute>
             ),
           },
           {
             path: "service",
             element: withSuspense(
-              <ProtectedRoute title="Customer">
-                <CustomerServicePage />
+              <ProtectedRoute title="Contact Customer Service">
+                <CustomerServiceGuard tabKey="service">
+                  <CustomerServicePage />
+                </CustomerServiceGuard>
               </ProtectedRoute>
             ),
           },
@@ -282,16 +291,20 @@ export const router = createBrowserRouter([
           {
             path: "account",
             element: withSuspense(
-              <ProtectedRoute title="Account">
-                <AccountPage />
+              <ProtectedRoute title="Update Your Account Information">
+                <CustomerServiceGuard tabKey="account">
+                  <AccountPage />
+                </CustomerServiceGuard>
               </ProtectedRoute>
             ),
           },
           {
             path: "stop-service",
             element: withSuspense(
-              <ProtectedRoute title="Stop | Transfer">
-                <StopTransferServicePage />
+              <ProtectedRoute title="Stop | Transfer Service">
+                <CustomerServiceGuard tabKey="stopService">
+                  <StopTransferServicePage />
+                </CustomerServiceGuard>
               </ProtectedRoute>
             ),
           },
