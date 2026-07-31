@@ -236,7 +236,20 @@ export function Sales({
   return (
     <Card sx={{ borderRadius: 0, ...sx }}>
       <CardHeader
-        sx={{ px: isMobile ? 2 : 3, py: isMobile ? 2 : 3 }}
+        sx={{
+          px: isMobile ? 2 : 3,
+          py: isMobile ? 2 : 3,
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "stretch" : "center",
+          "& .MuiCardHeader-content": {
+            minWidth: 0,
+          },
+          "& .MuiCardHeader-action": {
+            width: isMobile ? "100%" : "auto",
+            margin: isMobile ? "12px 0 0 0" : "-4px -8px 0 0",
+            alignSelf: isMobile ? "stretch" : "flex-start",
+          },
+        }}
         // avatar={
         //   <Box display="flex" flexDirection="column" alignItems="center">
         //     <Box display="flex" alignItems="center" mb={0.5}>
@@ -297,16 +310,19 @@ export function Sales({
           <Box
             sx={{
               display: "flex",
-              alignItems: "flex-start",
-              gap: 3,
+              alignItems: isMobile ? "stretch" : "flex-start",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 1.5 : 3,
               flexWrap: "wrap",
+              width: isMobile ? "100%" : "auto",
             }}
           >
             {/* Meter Dropdown */}
             <FormControl
               size="small"
               sx={{
-                minWidth: 220,
+                minWidth: isMobile ? "100%" : 220,
+                width: isMobile ? "100%" : "auto",
                 "& .MuiOutlinedInput-root": {
                   height: 40,
                 },
@@ -326,7 +342,15 @@ export function Sales({
             </FormControl>
 
             {/* Legend + Sync */}
-            <Box display="flex" flexDirection="row">
+            <Box
+              display="flex"
+              flexDirection="row"
+              flexWrap="wrap"
+              alignItems="center"
+              justifyContent={isMobile ? "flex-end" : "flex-start"}
+              gap={isMobile ? 2 : 0}
+              width={isMobile ? "100%" : "auto"}
+            >
               {dashboard && (
                 <Box display="flex" flexDirection="column" alignItems="center">
                   <Box display="flex" alignItems="center" mb={0.5}>
