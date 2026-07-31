@@ -1168,7 +1168,7 @@ function Dashboard({
               <FormControlLabel
                 sx={{ mt: 1, ml: -0.5 }}
                 control={<Checkbox checked={autopayEnabled} onChange={onToggle} />}
-                label={<Typography sx={{ fontWeight: 700 }}>Auto Pay {autopayEnabled ? 'ON' : 'OFF'}</Typography>}
+                label={<Typography sx={{ fontWeight: 700 }}>AutoPay {autopayEnabled ? 'ON' : 'OFF'}</Typography>}
               />
             </Box>
 

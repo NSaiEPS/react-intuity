@@ -212,7 +212,11 @@ const MainSection = memo(function MainSection() {
   }, [rawMessage, plainText, showFullText]);
 
   const isLoginPath = pathname === "/login" || pathname.includes("login-");
-  const showPayAsGuest = slug !== "login" && pathname?.includes("login") && !pathname?.includes("forgot");
+  const showPayAsGuest =
+    slug !== "login" &&
+    pathname?.includes("login") &&
+    !pathname?.includes("forgot") &&
+    companyInfo?.company?.allow_payments != 0;
 
   return (
     <Box sx={{ backgroundSize: "cover", backgroundPosition: "center", color: "#0d1b2a", py: 2, px: { xs: 0, sm: 2 }, paddingBottom: 0 }}>
