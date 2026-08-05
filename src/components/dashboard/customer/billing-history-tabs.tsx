@@ -341,10 +341,7 @@ export default function InvoiceTransactionTabs({
                           <TableCell sx={{ py: 2 }}>
                             {currentTab === "invoice"
                               ? dayjs(item?.billing_date).format("MMM D, YYYY")
-                              : dayjs
-                                .tz(item.transaction_date, "America/Chicago")
-                                .tz(dayjs.tz.guess())
-                                .format("YYYY-MM-DD hh:mm A")}
+                              : dayjs(item.transaction_date).format("MMM D, YYYY")}
                           </TableCell>
                           <TableCell sx={{ py: 2 }}>
                             {currentTab === "invoice"

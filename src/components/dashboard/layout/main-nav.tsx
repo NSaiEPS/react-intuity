@@ -49,6 +49,10 @@ export function MainNav(): React.JSX.Element {
   const CustomerInfo = getLocalStorage("intuity-customerInfo") as Record<string, any> | null;
   const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
 
+  const companyDetails = dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company");
+  const companyLogo = companyDetails?.logo;
+  const companyName = companyDetails?.company_name;
+
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
 
@@ -114,21 +118,10 @@ export function MainNav(): React.JSX.Element {
             <Box
               // component={RouterLink}
               onClick={handleLogoClickPath}
-              sx={{ display: "inline-flex" }}
+              sx={{ display: "inline-flex", alignItems: "center" }}
             >
               {aliasUser ? (
-                // <Avatar
-                //   src={aliasUser?.logo}
-                //   sx={{
-                //     width: 70,
-                //     height: "max-content",
-                //     mr: 1.5,
-                //     cursor: "pointer",
-                //   }}
-                // />
-
                 <>
-
                   <Avatar
                     src={aliasUser?.logo}
                     sx={{
@@ -138,26 +131,29 @@ export function MainNav(): React.JSX.Element {
                       cursor: "pointer",
                       flexShrink: 0,
                       bgcolor: "#fff",
-                      // border: "1px solid #e0e0e0",
                       borderRadius: "0",
 
                       "& img": {
                         objectFit: "contain",
-                        // width: "100%",
-                        // height: "100%",
-                        // padding: "4px",
                       },
                     }}
                   />
-                  <Typography sx={{fontSize:"22px", my:"auto", fontWeight:600}}>{aliasUser?.company_name}</Typography>
+                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600 }}>{aliasUser?.company_name}</Typography>
                 </>
               ) : (
-                <Logo
-                  color="dark"
-                  height={50}
-                  width={140}
-                  src={aliasUser ? aliasUser?.logo : null}
-                />
+                <>
+                  <Logo
+                    color="dark"
+                    height={50}
+                    width={140}
+                    src={companyLogo || null}
+                  />
+                  {companyName ? (
+                    <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, ml: 1.5 }}>
+                      {companyName}
+                    </Typography>
+                  ) : null}
+                </>
               )}
             </Box>
           </Stack>

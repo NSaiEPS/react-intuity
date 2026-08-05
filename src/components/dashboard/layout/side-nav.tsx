@@ -34,9 +34,13 @@ function isItemOrDescendantActive(item: NavItemConfig, pathname: string): boolea
 function isSubItemAllowed(
   subKey: string,
   allow_auto_payment: string | number,
-  customerServiceTabs?: CustomerServiceTabs
+  customerServiceTabs?: CustomerServiceTabs,
+  hasOptionalInstructions?: boolean
 ): boolean {
   if (subKey === "auto-pay" && allow_auto_payment !== 1) {
+    return false;
+  }
+  if (subKey === "payment-methods" && hasOptionalInstructions) {
     return false;
   }
   if (customerServiceTabs) {
@@ -52,6 +56,7 @@ function renderNavItems({
   pathname,
   allow_auto_payment,
   customerServiceTabs,
+  hasOptionalInstructions,
   openGroupKey,
   onGroupToggle,
 }: {
@@ -59,6 +64,7 @@ function renderNavItems({
   pathname: string;
   allow_auto_payment: string | number;
   customerServiceTabs?: CustomerServiceTabs;
+  hasOptionalInstructions?: boolean;
   openGroupKey: string | null;
   onGroupToggle: (key: string) => void;
 }): React.JSX.Element {
@@ -69,13 +75,17 @@ function renderNavItems({
       return acc;
     }
 
+    if (key === "payment-methods" && hasOptionalInstructions) {
+      return acc;
+    }
+
     if (key === "history" && customerServiceTabs?.usageHistory === false) {
       return acc;
     }
 
     if (subItems && subItems.length > 0) {
       const filteredSubItems = subItems.filter((sub) =>
-        isSubItemAllowed(sub.key, allow_auto_payment, customerServiceTabs)
+        isSubItemAllowed(sub.key, allow_auto_payment, customerServiceTabs, hasOptionalInstructions)
       );
 
       if (filteredSubItems.length > 0) {
@@ -124,12 +134,28 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
   }, [dashBoardInfo, customerServiceTabs]);
 
   // ✅ useMemo — stop reading localStorage on every render
-  const { allow_auto_payment } = React.useMemo(() => {
-    const companyDetails = getLocalStorage("intuity-company") as { allow_auto_payment?: number | string } | null;
+  const { allow_auto_payment, hasOptionalInstructions } = React.useMemo(() => {
+    const companyDetails = (dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company")) as any;
+    const cureentProcessor = dashBoardInfo?.body?.cureentProcessor ?? dashBoardInfo?.cureentProcessor ?? dashBoardInfo?.body?.currentProcessor ?? dashBoardInfo?.currentProcessor ?? companyDetails?.cureentProcessor ?? companyDetails?.currentProcessor;
+    const cureentProcessorAch = dashBoardInfo?.body?.cureentProcessorAch ?? dashBoardInfo?.cureentProcessorAch ?? dashBoardInfo?.body?.currentProcessorAch ?? dashBoardInfo?.currentProcessorAch ?? companyDetails?.cureentProcessorAch ?? companyDetails?.currentProcessorAch;
+    
+    const allowPayments = companyDetails?.allow_payments;
+    const optionalInstructions = companyDetails?.optional_instructions;
+
+    const hasCardProcessor = Boolean(cureentProcessor?.[0]?.config_value);
+    const hasAchProcessor = Boolean(cureentProcessorAch?.[0]?.config_value);
+    const hasNoProcessors = (cureentProcessor !== undefined || cureentProcessorAch !== undefined)
+      ? (!hasCardProcessor && !hasAchProcessor)
+      : false;
+
+    const isPaymentDisabled = hasNoProcessors || allowPayments == 0;
+    const hasInstructionsText = Boolean(optionalInstructions && String(optionalInstructions).trim() !== "");
+
     return {
-      allow_auto_payment: dashBoardInfo?.body?.company?.allow_auto_payment ?? companyDetails?.allow_auto_payment,
+      allow_auto_payment: companyDetails?.allow_auto_payment,
+      hasOptionalInstructions: Boolean(isPaymentDisabled && hasInstructionsText),
     };
-  }, [dashBoardInfo?.body?.company?.allow_auto_payment]); // ← only re-runs when company data changes
+  }, [dashBoardInfo]);
 
   // ----- accordion state: which top-level group is currently expanded -----
   // Only one dropdown should be open at a time.
@@ -194,6 +220,7 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
           items: navItems,
           allow_auto_payment,
           customerServiceTabs: effectiveCustomerServiceTabs,
+          hasOptionalInstructions,
           openGroupKey,
           onGroupToggle: handleGroupToggle,
         })}

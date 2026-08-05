@@ -179,7 +179,9 @@ export default function AuthCodeModal({
 
             <Box>
               <Typography sx={{ fontWeight: 700, fontSize: "1.1rem", mb: 0.5 }}>
-                Check Your Email
+                {selectedVal === "text_message" || selectedVal === "phone_call"
+                  ? "Check Your Mobile"
+                  : "Check Your Email"}
               </Typography>
               <Typography sx={{ fontSize: "0.9rem", color: "text.secondary" }}>
                 {renderMessageWithEmailHighlight(verificationMessage)}

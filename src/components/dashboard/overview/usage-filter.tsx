@@ -24,8 +24,8 @@ import secureLocalStorage from "react-secure-storage";
 import DateRangeSelector from "./custom-date-picker";
 
 function UsageFilter() {
-  const [utilityType, setUtilityType] = useState("");
-  const [unitMeasure, setUnitMeasure] = useState("");
+  const [utilityType, setUtilityType] = useState("WATER");
+  const [unitMeasure, setUnitMeasure] = useState("gallons");
   const [meterNo, setMeterNo] = useState("");
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
@@ -38,13 +38,10 @@ function UsageFilter() {
 
   const meterDetails = useMemo(() =>
     Object.entries(updatedMeterDetails).map(([key]) => ({ utility_type_name: key })),
-  [updatedMeterDetails]);
+    [updatedMeterDetails]);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(setMonthlyUsageUam(unitMeasure));
-  }, [unitMeasure]);
   const [filterList, setFilterList] = useState({
     type: [
       {
@@ -60,24 +57,35 @@ function UsageFilter() {
     ],
     meterNum: [],
   });
+
+  useEffect(() => {
+    dispatch(setMonthlyUsageUam(unitMeasure));
+  }, [unitMeasure]);
+  const usageGraph = useSelector(
+    (state: RootState) => state?.DashBoard?.usageGraph
+  );
+
+  const meterNumList = useMemo(() => {
+    if (usageGraph?.meters?.length) {
+      return usageGraph.meters.map((meter: any) => ({
+        label: meter.meter_number,
+        value: String(meter.id),
+      }));
+    }
+    return filterList.meterNum || [];
+  }, [usageGraph?.meters, filterList.meterNum]);
+
+  useEffect(() => {
+    if (meterNumList?.length && !meterNo) {
+      setMeterNo(String(meterNumList[0].value));
+    }
+  }, [meterNumList]);
+
+
   useEffect(() => {
     if (meterDetails?.length) {
       const type = [];
-      const ums = [];
-      const meterNum = [];
       meterDetails?.forEach((item) => {
-        // if (item?.meter_number) {
-        //   meterNum.push({
-        //     label: item?.meter_number,
-        //     value: item?.meter_number,
-        //   });
-        // }
-        // if (item?.uom_common_name) {
-        //   ums.push({
-        //     label: item?.uom_common_name,
-        //     value: item?.uom_common_name,
-        //   });
-        // }
         if (item?.utility_type_name) {
           type.push({
             label: item?.utility_type_name,
@@ -86,12 +94,13 @@ function UsageFilter() {
         }
       });
 
-      setUtilityType(type?.[0]?.value);
-      setFilterList({
-        type: type,
-        ums: ums,
-        meterNum: meterNum,
-      });
+      if (type.length) {
+        setUtilityType(type[0].value);
+        setFilterList((prev) => ({
+          ...prev,
+          type: type,
+        }));
+      }
     }
   }, [meterDetails]);
 
@@ -110,34 +119,21 @@ function UsageFilter() {
     endDate: dayjs().endOf("month").format("YYYY-MM-DD"),
   });
   useEffect(() => {
+    if (!userId || !roleId) return;
+
+    const currentType = utilityType || filterList.type?.[0]?.value || "WATER";
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("id", userId);
-    formData.append("utility_type", "WATER");
-    formData.append("utility_um", "gallons");
+    formData.append("utility_type", currentType);
+    formData.append("utility_um", unitMeasure || "gallons");
     formData.append("start_date", filterDates.startDate);
     formData.append("end_date", filterDates.endDate);
 
     dispatch(usageMonthlyGraph(formData));
-
-    setUtilityType("");
-    setUtiltyType();
-    setUnitMeasure("");
-    setMeterNo("");
-    return () => {
-      if (utilityTimerRef.current) clearTimeout(utilityTimerRef.current);
-    };
   }, [userId]);
-
-  const utilityTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const setUtiltyType = () => {
-    if (utilityTimerRef.current) clearTimeout(utilityTimerRef.current);
-    utilityTimerRef.current = setTimeout(() => {
-      setUtilityType(filterList.type?.[0]?.value);
-    }, 1000);
-  };
 
   useEffect(() => {
     if (utilityType) {
@@ -184,6 +180,29 @@ function UsageFilter() {
       );
     }
   }, [unitMeasure]);
+  const fetchUsageBarChart = (selectedMeterId?: string) => {
+    const targetMeter = selectedMeterId !== undefined ? selectedMeterId : meterNo;
+    if (!roleId || !userId) return;
+
+    const barFormData = new FormData();
+    barFormData.append("acl_role_id", roleId);
+    barFormData.append("customer_id", userId);
+    if (targetMeter) {
+      barFormData.append("meter_id", targetMeter);
+    }
+    barFormData.append("utility_type", utilityType || "WATER");
+    barFormData.append("utility_um", unitMeasure || "gallons");
+    barFormData.append("billed_usage", "1");
+    barFormData.append("usage_history", "1");
+
+    dispatch(getUsageGraph(barFormData));
+  };
+
+  const handleMeterChange = (selectedMeter: string) => {
+    setMeterNo(selectedMeter);
+    fetchUsageBarChart(selectedMeter);
+  };
+
   const successCallBack = (data, isMeter = false) => {
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
       const type = [...filterList.type];
@@ -222,7 +241,11 @@ function UsageFilter() {
       if (!isMeter) {
         setUnitMeasure(ums[0]?.value);
       }
-      setMeterNo(meterNum[0]?.value || "");
+      const initialMeter = meterNum[0]?.value || "";
+      setMeterNo(initialMeter);
+      if (initialMeter) {
+        fetchUsageBarChart(initialMeter);
+      }
 
       setFilterList({
         type: type,
@@ -262,134 +285,135 @@ function UsageFilter() {
       formData.append("meter_no", meterNo);
     }
     dispatch(usageMonthlyGraph(formData));
+    fetchUsageBarChart(meterNo);
   };
   return (
-  <Box sx={{ p: 2 }}>
-    <Typography
-      variant="h6"
-      fontWeight="bold"
-      mb={2}
-      display="flex"
-      alignItems="center"
-    >
-      <span role="img" aria-label="icon" style={{ marginRight: 8 }}>
-        📊
-      </span>
-      MONTHLY USAGE
-    </Typography>
+    <Box sx={{ p: 2 }}>
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        mb={2}
+        display="flex"
+        alignItems="center"
+      >
+        <span role="img" aria-label="icon" style={{ marginRight: 8 }}>
+          📊
+        </span>
+        MONTHLY USAGE
+      </Typography>
 
-    <Grid
-      container
-      spacing={2}
-      alignItems={{ xs: "stretch", sm: "flex-end" }}
-    >
-      {/* Utility Type */}
-      <Grid item xs={12} sm="auto">
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-          }}
-        >
-          <Typography fontWeight={500}>Utility Type</Typography>
-
-          <FormControl
-            fullWidth
+      <Grid
+        container
+        spacing={2}
+        alignItems={{ xs: "stretch", sm: "flex-end" }}
+      >
+        {/* Utility Type */}
+        <Grid item xs={12} sm="auto">
+          <Box
             sx={{
-              minWidth: { xs: "100%", sm: 180 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
             }}
           >
-            <Select
-              value={utilityType}
-              onChange={(e) => setUtilityType(e.target.value)}
-              sx={{ height: 40 }}
+            <Typography fontWeight={500}>Utility Type</Typography>
+
+            <FormControl
+              fullWidth
+              sx={{
+                minWidth: { xs: "100%", sm: 180 },
+              }}
             >
-              {filterList.type?.map((item) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      </Grid>
+              <Select
+                value={utilityType}
+                onChange={(e) => setUtilityType(e.target.value)}
+                sx={{ height: 40 }}
+              >
+                {filterList.type?.map((item) => (
+                  <MenuItem key={item.value} value={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </Grid>
 
-      {/* Utility UM */}
-      <Grid item xs={12} sm="auto">
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-          }}
-        >
-          <Typography fontWeight={500}>Utility UM</Typography>
-
-          <FormControl
-            fullWidth
+        {/* Utility UM */}
+        <Grid item xs={12} sm="auto">
+          <Box
             sx={{
-              minWidth: { xs: "100%", sm: 180 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
             }}
           >
-            <Select
-              value={unitMeasure}
-              onChange={(e) => setUnitMeasure(e.target.value)}
-              sx={{ height: 40 }}
+            <Typography fontWeight={500}>Utility UM</Typography>
+
+            <FormControl
+              fullWidth
+              sx={{
+                minWidth: { xs: "100%", sm: 180 },
+              }}
             >
-              {filterList.ums?.map((item) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      </Grid>
+              <Select
+                value={unitMeasure}
+                onChange={(e) => setUnitMeasure(e.target.value)}
+                sx={{ height: 40 }}
+              >
+                {filterList.ums?.map((item) => (
+                  <MenuItem key={item.value} value={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </Grid>
 
-      {/* Meter No */}
-      <Grid item xs={12} sm="auto">
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-          }}
-        >
-          <Typography fontWeight={500}>Meter No</Typography>
-
-          <FormControl
-            fullWidth
+        {/* Meter No */}
+        <Grid item xs={12} sm="auto">
+          <Box
             sx={{
-              minWidth: { xs: "100%", sm: 170 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
             }}
           >
-            <Select
-              value={meterNo || ""}
-              onChange={(e) => setMeterNo(e.target.value)}
-              sx={{ height: 40 }}
-            >
-              {filterList.meterNum?.map((item) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      </Grid>
+            <Typography fontWeight={500}>Meter No</Typography>
 
-      {/* Date Range */}
-      <Grid item xs={12} sm="auto">
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            width: "100%",
-          }}
-        >
-          {/* <Typography
+            <FormControl
+              fullWidth
+              sx={{
+                minWidth: { xs: "100%", sm: 170 },
+              }}
+            >
+              <Select
+                value={meterNo || meterNumList?.[0]?.value || ""}
+                onChange={(e) => handleMeterChange(e.target.value)}
+                sx={{ height: 40 }}
+              >
+                {meterNumList?.map((item: any) => (
+                  <MenuItem key={item.value} value={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </Grid>
+
+        {/* Date Range */}
+        <Grid item xs={12} sm="auto">
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              width: "100%",
+            }}
+          >
+            {/* <Typography
             sx={{
               visibility: {
                 xs: "visible",
@@ -401,32 +425,32 @@ function UsageFilter() {
             Date Range
           </Typography> */}
 
-          <DateRangeSelector
-            onSubmit={(start, end) => onSubmit(start, end)}
-          />
-        </Box>
-      </Grid>
+            <DateRangeSelector
+              onSubmit={(start, end) => onSubmit(start, end)}
+            />
+          </Box>
+        </Grid>
 
-      {/* Show Button */}
-      <Grid item xs={12} sm="auto">
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={() => onSubmit()}
-          sx={{
-            height: 40,
-            backgroundColor: colors.blue,
-            minWidth: { sm: 110 },
-            "&:hover": {
-              backgroundColor: colors["blue.3"],
-            },
-          }}
-        >
-          SHOW
-        </Button>
+        {/* Show Button */}
+        <Grid item xs={12} sm="auto">
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => onSubmit()}
+            sx={{
+              height: 40,
+              backgroundColor: colors.blue,
+              minWidth: { sm: 110 },
+              "&:hover": {
+                backgroundColor: colors["blue.3"],
+              },
+            }}
+          >
+            SHOW
+          </Button>
+        </Grid>
       </Grid>
-    </Grid>
-  </Box>
+    </Box>
 
   );
 }

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"; // Correct hook for App Router
 
 import { RootState } from "@/state/store";
 import { boarderRadius, colors } from "@/utils";
-import { Button, CardActions } from "@mui/material";
+import { Box, Button, CardActions } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 import { CurrencyDollar as CurrencyDollarIcon } from "@phosphor-icons/react/dist/ssr/CurrencyDollar";
 // import { HandCoins } from '@phosphor-icons/react';
 import { useSelector } from "@/hooks/redux";
+import DOMPurify from "dompurify";
 
 import { paths } from "@/utils/paths";
 import { IconCards } from '@/components/dashboard/overview/IconCards';
@@ -37,6 +38,8 @@ export function Budget({
   const { dashBoardInfo } = useSelector(
     (state: RootState) => state?.DashBoard
   );
+
+  const homeData = dashBoardInfo?.body || dashBoardInfo || {};
   const {
     acctnum,
     customer_name,
@@ -44,8 +47,26 @@ export function Budget({
     address,
     email,
     city,
-  } = dashBoardInfo?.body?.customer || {};
-  const { balance } = dashBoardInfo?.body?.dashboard || {};
+  } = homeData?.customer || {};
+  const { balance } = homeData?.dashboard || {};
+  const company = homeData?.company;
+  const customer = homeData?.customer;
+  const last_bill = homeData?.last_bill;
+  const blockText = homeData?.block_individual_customer_payment_text;
+  const paymentUrl = homeData?.payment_url || import.meta.env.VITE_PAYMENT_URL || "";
+
+  const rawHTML =
+    company?.optional_instructions ??
+    `<p><a href="${paymentUrl}">${paymentUrl}</a></p>`;
+
+  const sanitizedHTML = DOMPurify.sanitize(rawHTML, {
+    ADD_ATTR: ["target", "rel"],
+  });
+
+  const finalHTML = sanitizedHTML.replace(
+    /<a /g,
+    '<a target="_blank" rel="noopener noreferrer" '
+  );
 
 
   return (
@@ -151,22 +172,34 @@ export function Budget({
                   p: 0,
                 }}
               >
-                <Button
-                  onClick={() => {
-                    navigate(paths.dashboard.lastBill());
-                  }}
-                  sx={{
-                    width: "100%",
+                {company?.allow_payments == 0 ? (
+                  <Box
+                    className="instructions-html"
+                    sx={{ color: "red", "& a": { color: "red !important", textDecoration: "none" } }}
+                    dangerouslySetInnerHTML={{ __html: finalHTML }}
+                  />
+                ) : customer?.is_payments_blocked == 1 ? (
+                  <Typography variant="body2" mt={1} color="red" fontWeight="bold">
+                    {blockText ?? "Payments are not allowed at this time"}
+                  </Typography>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      navigate(paths.dashboard.lastBill());
+                    }}
+                    sx={{
+                      width: "100%",
 
-                    backgroundColor: colors.blue,
-                    "&:hover": {
-                      backgroundColor: colors["blue.3"], // or any other hover color
-                    },
-                  }}
-                  variant="contained"
-                >
-                  PAY NOW
-                </Button>
+                      backgroundColor: colors.blue,
+                      "&:hover": {
+                        backgroundColor: colors["blue.3"], // or any other hover color
+                      },
+                    }}
+                    variant="contained"
+                  >
+                    PAY NOW
+                  </Button>
+                )}
               </CardActions>
             </Stack>
           </Stack>

@@ -111,11 +111,31 @@ export function Sales({
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
+  const handleMeterChange = (meterId: string) => {
+    setSelectedMeter(meterId);
+    if (!roleId || !userId) return;
+    const formData = new FormData();
+    formData.append("acl_role_id", roleId);
+    formData.append("customer_id", userId);
+    if (meterId) {
+      formData.append("meter_id", meterId);
+    }
+    formData.append("utility_type", "WATER");
+    formData.append("utility_um", "gallons");
+    formData.append("billed_usage", "1");
+    formData.append("usage_history", "1");
+
+    dispatch(getUsageGraph(formData));
+  };
+
   React.useEffect(() => {
     if (!roleId || !userId) return;
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
+    if (selectedMeter) {
+      formData.append("meter_id", selectedMeter);
+    }
     formData.append("utility_type", "WATER");
     formData.append("utility_um", "gallons");
     formData.append("billed_usage", "1");
@@ -302,28 +322,7 @@ export function Sales({
               flexWrap: "wrap",
             }}
           >
-            {/* Meter Dropdown */}
-            <FormControl
-              size="small"
-              sx={{
-                minWidth: 220,
-                "& .MuiOutlinedInput-root": {
-                  height: 40,
-                },
-              }}
-            >
-              <Select
-                value={selectedMeter}
-                onChange={(e) => setSelectedMeter(e.target.value)}
-                displayEmpty
-              >
-                {dashBoardInfo?.meters?.map((meter) => (
-                  <MenuItem key={meter.id} value={meter.id}>
-                    Meter # {meter.meter_number}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+
 
             {/* Legend + Sync */}
             <Box display="flex" flexDirection="row">

@@ -36,11 +36,13 @@ export function Logo({
       height={height}
       width={width}
       src={src ?? url}
-  loading="eager"           // ✅ load immediately
-  fetchPriority="high" 
-      style={{ display: "block",
-        cursor: "pointer"
-       }}
+      loading="eager"           // ✅ load immediately
+      fetchPriority="high"
+      style={{
+        display: "block",
+        cursor: "pointer",
+        objectFit: "contain",
+      }}
     />
   );
 }
@@ -67,9 +69,9 @@ export function DynamicLogo({
 
   return <Logo color={color} height={height} width={width}
     style={{
-    cursor: "pointer",
-  }}
-  {...props}
+      cursor: "pointer",
+    }}
+    {...props}
 
   />;
 }

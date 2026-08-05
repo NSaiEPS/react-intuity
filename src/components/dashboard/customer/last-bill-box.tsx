@@ -311,7 +311,7 @@ export function LastBill(): React.JSX.Element {
           ) : lastBillInfo?.company?.allow_payments == 0 ? (
             <Box
               className="instructions-html"
-              sx={{ "& a": { color: "red !important", textDecoration: "none" } }}
+              sx={{ color: "red", "& a": { color: "red !important", textDecoration: "none" } }}
               dangerouslySetInnerHTML={{ __html: finalHTML }}
             />
           ) : lastBillInfo?.customer?.is_payments_blocked == 1 ? (

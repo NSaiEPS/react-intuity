@@ -58,11 +58,36 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
 
   interface CompanyDetails {
     allow_auto_payment?: number | string;
+    logo?: string;
+    company_name?: string;
+    optional_instructions?: string;
   }
 
-  const companyDetails: CompanyDetails = getLocalStorage("intuity-company") as CompanyDetails | null;
+  const companyDetails = (dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company")) as any;
+  const companyLogo = companyDetails?.logo;
+  const companyName = companyDetails?.company_name;
 
-  const { allow_auto_payment } = dashBoardInfo?.body?.company || companyDetails || {};
+  const { allow_auto_payment, hasOptionalInstructions } = React.useMemo(() => {
+    const cureentProcessor = dashBoardInfo?.body?.cureentProcessor ?? dashBoardInfo?.cureentProcessor ?? dashBoardInfo?.body?.currentProcessor ?? dashBoardInfo?.currentProcessor ?? companyDetails?.cureentProcessor ?? companyDetails?.currentProcessor;
+    const cureentProcessorAch = dashBoardInfo?.body?.cureentProcessorAch ?? dashBoardInfo?.cureentProcessorAch ?? dashBoardInfo?.body?.currentProcessorAch ?? dashBoardInfo?.currentProcessorAch ?? companyDetails?.cureentProcessorAch ?? companyDetails?.currentProcessorAch;
+    
+    const allowPayments = companyDetails?.allow_payments;
+    const optionalInstructions = companyDetails?.optional_instructions;
+
+    const hasCardProcessor = Boolean(cureentProcessor?.[0]?.config_value);
+    const hasAchProcessor = Boolean(cureentProcessorAch?.[0]?.config_value);
+    const hasNoProcessors = (cureentProcessor !== undefined || cureentProcessorAch !== undefined)
+      ? (!hasCardProcessor && !hasAchProcessor)
+      : false;
+
+    const isPaymentDisabled = hasNoProcessors || allowPayments == 0;
+    const hasInstructionsText = Boolean(optionalInstructions && String(optionalInstructions).trim() !== "");
+
+    return {
+      allow_auto_payment: companyDetails?.allow_auto_payment,
+      hasOptionalInstructions: Boolean(isPaymentDisabled && hasInstructionsText),
+    };
+  }, [dashBoardInfo, companyDetails]);
 
   return (
     <>
@@ -117,7 +142,14 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
                 <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none" }}>{aliasUser?.company_name}</Typography>
               </>
             ) : (
-              <Logo color="dark" height={50} width={140} src={aliasUser ? aliasUser?.logo : null} />
+              <>
+                <Logo color="dark" height={50} width={140} src={companyLogo || null} />
+                {companyName ? (
+                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none", ml: 1.5 }}>
+                    {companyName}
+                  </Typography>
+                ) : null}
+              </>
             )}
           </Box>
         </Stack>
@@ -131,6 +163,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
             onClose,
             allow_auto_payment,
             customerServiceTabs: effectiveCustomerServiceTabs,
+            hasOptionalInstructions,
           })}
         </Box>
 
@@ -182,9 +215,13 @@ function isItemOrDescendantActive(item: NavItemConfig, pathname: string): boolea
 function isSubItemAllowed(
   subKey: string,
   allow_auto_payment: number | string,
-  customerServiceTabs?: CustomerServiceTabs
+  customerServiceTabs?: CustomerServiceTabs,
+  hasOptionalInstructions?: boolean
 ): boolean {
   if (subKey === "auto-pay" && allow_auto_payment !== 1) {
+    return false;
+  }
+  if (subKey === "payment-methods" && hasOptionalInstructions) {
     return false;
   }
   if (customerServiceTabs) {
@@ -201,17 +238,23 @@ function renderNavItems({
   onClose,
   allow_auto_payment,
   customerServiceTabs,
+  hasOptionalInstructions,
 }: {
   items?: NavItemConfig[];
   pathname: string;
   onClose?: () => void;
   allow_auto_payment: number | string;
   customerServiceTabs?: CustomerServiceTabs;
+  hasOptionalInstructions?: boolean;
 }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { key, items: subItems, ...item } = curr;
 
     if (key === "auto-pay" && allow_auto_payment !== 1) {
+      return acc;
+    }
+
+    if (key === "payment-methods" && hasOptionalInstructions) {
       return acc;
     }
 
@@ -221,7 +264,7 @@ function renderNavItems({
 
     if (subItems && subItems.length > 0) {
       const filteredSubItems = subItems.filter((sub) =>
-        isSubItemAllowed(sub.key, allow_auto_payment, customerServiceTabs)
+        isSubItemAllowed(sub.key, allow_auto_payment, customerServiceTabs, hasOptionalInstructions)
       );
       if (filteredSubItems.length > 0) {
         acc.push(

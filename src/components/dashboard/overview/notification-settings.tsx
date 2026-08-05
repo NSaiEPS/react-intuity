@@ -115,6 +115,25 @@ function NotificationsSettings() {
   const [clickedState, setClickedState] = useState(false);
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const hasOptionalInstructions = useMemo(() => {
+    const companyDetails = (dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company")) as any;
+    const cureentProcessor = dashBoardInfo?.body?.cureentProcessor ?? dashBoardInfo?.cureentProcessor ?? dashBoardInfo?.body?.currentProcessor ?? dashBoardInfo?.currentProcessor ?? companyDetails?.cureentProcessor ?? companyDetails?.currentProcessor;
+    const cureentProcessorAch = dashBoardInfo?.body?.cureentProcessorAch ?? dashBoardInfo?.cureentProcessorAch ?? dashBoardInfo?.body?.currentProcessorAch ?? dashBoardInfo?.currentProcessorAch ?? companyDetails?.cureentProcessorAch ?? companyDetails?.currentProcessorAch;
+
+    const allowPayments = companyDetails?.allow_payments;
+    const optionalInstructions = companyDetails?.optional_instructions;
+
+    const hasCardProcessor = Boolean(cureentProcessor?.[0]?.config_value);
+    const hasAchProcessor = Boolean(cureentProcessorAch?.[0]?.config_value);
+    const hasNoProcessors = (cureentProcessor !== undefined || cureentProcessorAch !== undefined)
+      ? (!hasCardProcessor && !hasAchProcessor)
+      : false;
+
+    const isPaymentDisabled = hasNoProcessors || allowPayments == 0;
+    const hasInstructionsText = Boolean(optionalInstructions && String(optionalInstructions).trim() !== "");
+
+    return Boolean(isPaymentDisabled && hasInstructionsText);
+  }, [dashBoardInfo]);
   const userInfo: CustomerInfo = useMemo(
     () => dashBoardInfo?.customer ?? (getLocalStorage("intuity-customerInfo") as CustomerInfo),
     [dashBoardInfo?.customer]
@@ -447,18 +466,20 @@ function NotificationsSettings() {
             onChange={(value) => handleChange("new_bill", value)}
             phoneVerified={phoneVerified}
           />
-          <NotificationPreferenceRow
-            label="Payment Confirmation"
-            icon={<CreditCard size={20} />}
-            iconBgColor="#E6F4EA"
-            iconColor="#1E8E3E"
-            badge="Required"
-            description="Receipt sent after each payment is processed."
-            value={preferences.payment_confirmation}
-            options={phoneGatedOptions("2", "3")}
-            onChange={(value) => handleChange("payment_confirmation", value)}
-            phoneVerified={phoneVerified}
-          />
+          {!hasOptionalInstructions && (
+            <NotificationPreferenceRow
+              label="Payment Confirmation"
+              icon={<CreditCard size={20} />}
+              iconBgColor="#E6F4EA"
+              iconColor="#1E8E3E"
+              badge="Required"
+              description="Receipt sent after each payment is processed."
+              value={preferences.payment_confirmation}
+              options={phoneGatedOptions("2", "3")}
+              onChange={(value) => handleChange("payment_confirmation", value)}
+              phoneVerified={phoneVerified}
+            />
+          )}
           <NotificationPreferenceRow
             label="Due Date Reminder"
             icon={<Calendar size={20} />}
@@ -492,7 +513,7 @@ function NotificationsSettings() {
           />
         </Box>
 
-        <Box p={2} display="flex" justifyContent="flex-end" gap={2} mt={3}>
+        <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
           <Button
             color="inherit"
             variant="outlined"

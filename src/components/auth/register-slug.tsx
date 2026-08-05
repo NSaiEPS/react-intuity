@@ -130,6 +130,21 @@ const MainSection = memo(function MainSection() {
     if (!allowed) navigate("/login");
   }, [pathname]);
 
+  useEffect(() => {
+    if (
+      pathname?.includes("onetime-payment") &&
+      companyInfo?.company &&
+      companyInfo?.company?.allow_payments == 0
+    ) {
+      const alias = companyInfo?.company?.alias || slug?.replace("onetime-payment-", "");
+      if (alias) {
+        navigate(paths.auth.newLogin(alias), { replace: true });
+      } else {
+        navigate("/login", { replace: true });
+      }
+    }
+  }, [pathname, companyInfo, slug, navigate]);
+
   const failureCallBack = useCallback(() => {
     navigate("/login");
   }, [navigate]);
