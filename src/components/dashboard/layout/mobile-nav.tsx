@@ -63,9 +63,11 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
     optional_instructions?: string;
   }
 
-  const companyDetails = (dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company")) as any;
-  const companyLogo = companyDetails?.logo;
-  const companyName = companyDetails?.company_name;
+  const localCompany = (dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company")) as any;
+  const companyDetails = localCompany;
+  const apiCompany = dashBoardInfo?.body?.company ?? dashBoardInfo?.company;
+  const companyLogo = apiCompany?.logo || aliasUser?.logo || localCompany?.logo || null;
+  const companyName = apiCompany?.company_name || aliasUser?.company_name || localCompany?.company_name || "";
 
   const { allow_auto_payment, hasOptionalInstructions } = React.useMemo(() => {
     const cureentProcessor = dashBoardInfo?.body?.cureentProcessor ?? dashBoardInfo?.cureentProcessor ?? dashBoardInfo?.body?.currentProcessor ?? dashBoardInfo?.currentProcessor ?? companyDetails?.cureentProcessor ?? companyDetails?.currentProcessor;
@@ -140,27 +142,14 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
             color: "black",
             "&:hover": { textDecoration: "none" },
           }}>
-            {aliasUser ? (
-              <>
-                {aliasUser?.logo ? (
-                  <Avatar src={aliasUser?.logo} sx={{ width: 70, height: 70, mr: aliasUser?.company_name ? 1.5 : 0 }} />
-                ) : null}
-                {aliasUser?.company_name ? (
-                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none" }}>{aliasUser?.company_name}</Typography>
-                ) : null}
-              </>
-            ) : (
-              <>
-                {companyLogo ? (
-                  <Logo color="dark" height={50} width={140} src={companyLogo} />
-                ) : null}
-                {companyName ? (
-                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none", ml: companyLogo ? 1.5 : 0 }}>
-                    {companyName}
-                  </Typography>
-                ) : null}
-              </>
-            )}
+            {companyLogo ? (
+              <Logo color="dark" height={50} width={140} src={companyLogo} />
+            ) : null}
+            {companyName ? (
+              <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none", ml: companyLogo ? 1.5 : 0 }}>
+                {companyName}
+              </Typography>
+            ) : null}
           </Box>
         </Stack>
 

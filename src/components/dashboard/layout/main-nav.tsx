@@ -48,10 +48,11 @@ export function MainNav(): React.JSX.Element {
   // const { user_name, email } = dashBoardInfo?.body?.customer || {};
   const CustomerInfo = getLocalStorage("intuity-customerInfo") as Record<string, any> | null;
   const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
+  const localCompany = getLocalStorage("intuity-company") as Record<string, any> | null;
 
-  const companyDetails = dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company");
-  const companyLogo = companyDetails?.logo;
-  const companyName = companyDetails?.company_name;
+  const apiCompany = dashBoardInfo?.body?.company ?? dashBoardInfo?.company;
+  const companyLogo = apiCompany?.logo || aliasUser?.logo || localCompany?.logo || null;
+  const companyName = apiCompany?.company_name || aliasUser?.company_name || localCompany?.company_name || "";
 
   const { user_name, loginID, customer_name } =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
@@ -124,47 +125,19 @@ export function MainNav(): React.JSX.Element {
               onClick={handleLogoClickPath}
               sx={{ display: "inline-flex", alignItems: "center" }}
             >
-              {aliasUser ? (
-                <>
-                  {aliasUser?.logo ? (
-                    <Avatar
-                      src={aliasUser?.logo}
-                      sx={{
-                        width: "max-content",
-                        height: { xs: 50, sm: 60, md: 70 },
-                        mr: aliasUser?.company_name ? { xs: 1, sm: 1.5 } : 0,
-                        cursor: "pointer",
-                        flexShrink: 0,
-                        bgcolor: "#fff",
-                        borderRadius: "0",
-
-                        "& img": {
-                          objectFit: "contain",
-                        },
-                      }}
-                    />
-                  ) : null}
-                  {aliasUser?.company_name ? (
-                    <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600 }}>{aliasUser?.company_name}</Typography>
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  {companyLogo ? (
-                    <Logo
-                      color="dark"
-                      height={50}
-                      width={140}
-                      src={companyLogo}
-                    />
-                  ) : null}
-                  {companyName ? (
-                    <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, ml: companyLogo ? 1.5 : 0 }}>
-                      {companyName}
-                    </Typography>
-                  ) : null}
-                </>
-              )}
+              {companyLogo ? (
+                <Logo
+                  color="dark"
+                  height={50}
+                  width={140}
+                  src={companyLogo}
+                />
+              ) : null}
+              {companyName ? (
+                <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, ml: companyLogo ? 1.5 : 0 }}>
+                  {companyName}
+                </Typography>
+              ) : null}
             </Box>
           </Stack>
           <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>
