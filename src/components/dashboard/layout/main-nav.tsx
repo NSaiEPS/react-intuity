@@ -101,14 +101,18 @@ export function MainNav(): React.JSX.Element {
           sx={{
             alignItems: "center",
             justifyContent: "space-between",
-            minHeight: "64px",
+            minHeight: "79px",
+            height: "79px",
             px: 2,
           }}
         >
           <Stack
             spacing={2}
             sx={{
-              p: 1.8,
+              py: 1.8,
+              px: 0,
+              height: "100%",
+              justifyContent: "center",
               backgroundColor: colors.white,
 
               borderRightColor: "var(--mui-palette-divider)",
@@ -122,34 +126,40 @@ export function MainNav(): React.JSX.Element {
             >
               {aliasUser ? (
                 <>
-                  <Avatar
-                    src={aliasUser?.logo}
-                    sx={{
-                      width: "max-content",
-                      height: { xs: 50, sm: 60, md: 70 },
-                      mr: { xs: 1, sm: 1.5 },
-                      cursor: "pointer",
-                      flexShrink: 0,
-                      bgcolor: "#fff",
-                      borderRadius: "0",
+                  {aliasUser?.logo ? (
+                    <Avatar
+                      src={aliasUser?.logo}
+                      sx={{
+                        width: "max-content",
+                        height: { xs: 50, sm: 60, md: 70 },
+                        mr: aliasUser?.company_name ? { xs: 1, sm: 1.5 } : 0,
+                        cursor: "pointer",
+                        flexShrink: 0,
+                        bgcolor: "#fff",
+                        borderRadius: "0",
 
-                      "& img": {
-                        objectFit: "contain",
-                      },
-                    }}
-                  />
-                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600 }}>{aliasUser?.company_name}</Typography>
+                        "& img": {
+                          objectFit: "contain",
+                        },
+                      }}
+                    />
+                  ) : null}
+                  {aliasUser?.company_name ? (
+                    <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600 }}>{aliasUser?.company_name}</Typography>
+                  ) : null}
                 </>
               ) : (
                 <>
-                  <Logo
-                    color="dark"
-                    height={50}
-                    width={140}
-                    src={companyLogo || null}
-                  />
+                  {companyLogo ? (
+                    <Logo
+                      color="dark"
+                      height={50}
+                      width={140}
+                      src={companyLogo}
+                    />
+                  ) : null}
                   {companyName ? (
-                    <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, ml: 1.5 }}>
+                    <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, ml: companyLogo ? 1.5 : 0 }}>
                       {companyName}
                     </Typography>
                   ) : null}

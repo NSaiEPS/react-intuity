@@ -32,6 +32,7 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { CustomBackdrop, Loader } from 'nsaicomponents';
 
+import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from '@/hooks/redux';
 // import { useLoading } from '@/components/core/skeletion-context';
 import { SkeletonWrapper } from '@/components/core/withSkeleton';
@@ -984,6 +985,10 @@ export const PaymentMethods = ({
   useAutopayDefault = false
 }: CustomersTableProps): React.JSX.Element => {
   const { setContextLoading } = useLoading();
+  const location = useLocation();
+  const isPaymentMethodsPage = React.useMemo(() => {
+    return location.pathname.includes('/payment-methods');
+  }, [location.pathname]);
 
   React.useLayoutEffect(() => {
     if (!paymentDetailsPage) setContextLoading(true);
@@ -1062,7 +1067,6 @@ export const PaymentMethods = ({
   type IntuityUser = {
     body?: { acl_role_id?: string; customer_id?: string; token?: string };
   };
-  const isPaymentMethodsPage = location.pathname.includes("payment-methods");
 
   const stored = React.useMemo(() => {
     const raw = getLocalStorage('intuity-user');
@@ -1347,23 +1351,25 @@ export const PaymentMethods = ({
             </Box>
             <Grid item>
               <CardActions sx={{ justifyContent: 'flex-end' }}>
-                <Button
-                  onClick={handleCancel}
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    color: colors.blue,
-                    borderColor: colors.blue,
-                    borderRadius: 1.2,
-                    '@media (max-width:600px)': {
-                      paddingX: 1,
-                      paddingY: 0.3,
-                      fontSize: "0.8rem"
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
+                {(!isPaymentMethodsPage || isModal) && (
+                  <Button
+                    onClick={handleCancel}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      color: colors.blue,
+                      borderColor: colors.blue,
+                      borderRadius: 1.2,
+                      '@media (max-width:600px)': {
+                        paddingX: 1,
+                        paddingY: 0.3,
+                        fontSize: "0.8rem"
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Button
                   onClick={handleSaveDetails}
                   variant="contained"

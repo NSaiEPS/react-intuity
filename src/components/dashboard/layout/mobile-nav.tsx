@@ -124,7 +124,11 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
         {/* Drawer content */}
         <Stack
           sx={{
-            p: 3,
+            px: 2,
+            py: 2,
+            minHeight: "79px",
+            height: "79px",
+            justifyContent: "center",
             backgroundColor: colors.white,
             borderRight: 0.5,
             borderRightColor: "var(--mui-palette-divider)",
@@ -138,14 +142,20 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
           }}>
             {aliasUser ? (
               <>
-                <Avatar src={aliasUser?.logo} sx={{ width: 70, height: 70, mr: 1.5 }} />
-                <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none" }}>{aliasUser?.company_name}</Typography>
+                {aliasUser?.logo ? (
+                  <Avatar src={aliasUser?.logo} sx={{ width: 70, height: 70, mr: aliasUser?.company_name ? 1.5 : 0 }} />
+                ) : null}
+                {aliasUser?.company_name ? (
+                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none" }}>{aliasUser?.company_name}</Typography>
+                ) : null}
               </>
             ) : (
               <>
-                <Logo color="dark" height={50} width={140} src={companyLogo || null} />
+                {companyLogo ? (
+                  <Logo color="dark" height={50} width={140} src={companyLogo} />
+                ) : null}
                 {companyName ? (
-                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none", ml: 1.5 }}>
+                  <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none", ml: companyLogo ? 1.5 : 0 }}>
                     {companyName}
                   </Typography>
                 ) : null}

@@ -293,9 +293,9 @@ export function LastBill(): React.JSX.Element {
           <Typography variant="subtitle1">
             INVOICE NO: {lastBillInfo?.last_bill?.invoice_number}
           </Typography>
-          <Typography variant="h6" mt={1} gutterBottom>
+          {/* <Typography variant="h6" mt={1} gutterBottom>
             {CustomerInfo?.acctnum} {CustomerInfo?.customer_name}
-          </Typography>
+          </Typography> */}
 
           <Typography variant="body2" mt={4}>
             Total Account Balance

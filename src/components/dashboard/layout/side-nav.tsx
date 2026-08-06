@@ -138,7 +138,7 @@ export const SideNav = React.memo(function SideNav(): React.JSX.Element {
     const companyDetails = (dashBoardInfo?.body?.company ?? dashBoardInfo?.company ?? getLocalStorage("intuity-company")) as any;
     const cureentProcessor = dashBoardInfo?.body?.cureentProcessor ?? dashBoardInfo?.cureentProcessor ?? dashBoardInfo?.body?.currentProcessor ?? dashBoardInfo?.currentProcessor ?? companyDetails?.cureentProcessor ?? companyDetails?.currentProcessor;
     const cureentProcessorAch = dashBoardInfo?.body?.cureentProcessorAch ?? dashBoardInfo?.cureentProcessorAch ?? dashBoardInfo?.body?.currentProcessorAch ?? dashBoardInfo?.currentProcessorAch ?? companyDetails?.cureentProcessorAch ?? companyDetails?.currentProcessorAch;
-    
+
     const allowPayments = companyDetails?.allow_payments;
     const optionalInstructions = companyDetails?.optional_instructions;
 
