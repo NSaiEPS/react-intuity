@@ -23,12 +23,16 @@ import { alpha, useTheme } from "@mui/material/styles";
 import type { SxProps } from "@mui/material/styles";
 import { ArrowClockwise as ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { Download as DownloadIcon } from "@phosphor-icons/react";
 import type { ApexOptions } from "apexcharts";
 import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
-
 import { paths } from "@/utils/paths";
 import { Chart } from "@/components/core/chart";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
+
 
 export interface SalesProps {
   chartSeries?: { name: string; data: number[] }[];
@@ -42,6 +46,7 @@ export function Sales({
   path,
   dashboard = false,
 }: SalesProps): React.JSX.Element {
+  const chartRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:750px)");
   const chartOptions = useChartOptions();
@@ -75,6 +80,37 @@ export function Sales({
   //     label: "Meter # 10023458",
   //   },
   // ];
+
+  const handleDownloadPdf = async () => {
+    if (!chartRef.current) return;
+
+    const canvas = await html2canvas(chartRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg");
+
+    const pdf = new jsPDF("landscape", "mm", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(
+      imgData,
+      "JPEG",
+      10,
+      10,
+      imgWidth,
+      imgHeight
+    );
+
+    pdf.save("Usage-Month-Graph.pdf");
+  };
 
   const [selectedMeter, setSelectedMeter] = React.useState(
     dashBoardInfo?.meters?.length ? dashBoardInfo?.meters[0]?.id : ""
@@ -171,9 +207,11 @@ export function Sales({
     // }
     if (barData) {
       barData.forEach((item, index) => {
+        const dateStr = item?.[0] ?? "";
+        if (dateStr.toLowerCase().includes("no data")) return;
         gallons.push(item?.[3] ?? "0");
         dollars.push("");
-        dates.push(item?.[0] ?? "");
+        dates.push(dateStr);
         colors.push(colorPalette[index]);
       });
     }
@@ -248,11 +286,24 @@ export function Sales({
     return { min, max, tickAmount };
   }, [numericGallons]);
 
+  const mappedGallons = React.useMemo(() => {
+    const min = yAxisBounds.min;
+    const step = (yAxisBounds.max - yAxisBounds.min) / (yAxisBounds.tickAmount || 4);
+    const baselineOffset = step * 0.10;
+    return numericGallons.map((v) => {
+      const num = Number(v) || 0;
+      if (num <= 0) {
+        return min + baselineOffset;
+      }
+      return num;
+    });
+  }, [numericGallons, yAxisBounds]);
+
   const chartData: any = {
     series: [
       {
         name: "Usage",
-        data: numericGallons,
+        data: mappedGallons,
       },
     ],
     options: {
@@ -291,17 +342,28 @@ export function Sales({
       },
       dataLabels: {
         enabled: true,
-        formatter: function (val: any) {
-          if (val === undefined || val === null || val === "") return "";
-          const num = typeof val === "number" ? val : parseFloat(String(val).replace(/,/g, ""));
-          if (isNaN(num)) return "";
+        formatter: function (_val: any, opts: any) {
+          const index = opts?.dataPointIndex;
+          const rawVal = numericGallons[index];
+          const num = Number(rawVal) || 0;
+          if (num <= 0) {
+            return `0 ${monthlyUsageUam || "Gallon"}`;
+          }
           return `${num.toLocaleString()} ${monthlyUsageUam || "Gallon"}`;
         },
         offsetY: 15,
         style: {
           fontSize: "12px",
           fontWeight: 600,
-          colors: ["#ffffff"],
+          colors: [
+            function (opts: any) {
+              const index = opts?.dataPointIndex;
+              const rawVal = numericGallons[index];
+              const num = Number(rawVal) || 0;
+              if (num <= 0) return "#374151";
+              return "#ffffff";
+            },
+          ],
         },
       },
       xaxis: {
@@ -310,8 +372,8 @@ export function Sales({
         axisTicks: { show: true },
         labels: {
           show: true,
-          rotate: -45,
-          rotateAlways: true,
+          rotate: 0,
+          rotateAlways: false,
           style: {
             fontSize: "12px",
             fontWeight: 600,
@@ -349,8 +411,12 @@ export function Sales({
       tooltip: {
         enabled: true,
         y: {
-          formatter: (val: number) =>
-            typeof val === "number" ? `${val.toLocaleString()} ${monthlyUsageUam || "Gallon"}` : `${val}`,
+          formatter: (_val: number, opts: any) => {
+            const index = opts?.dataPointIndex;
+            const rawVal = numericGallons[index];
+            const num = Number(rawVal) || 0;
+            return `${num.toLocaleString()} ${monthlyUsageUam || "Gallon"}`;
+          },
         },
       },
     },
@@ -480,6 +546,14 @@ export function Sales({
               >
                 Sync
               </Button>
+              <Button
+                color="inherit"
+                size="small"
+                startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}
+                onClick={handleDownloadPdf}
+              >
+                Download Graph
+              </Button>
             </Box>
           </Box>
         }
@@ -500,13 +574,15 @@ export function Sales({
             type="bar"
           />
         ) : (
-          <Chart
-            key={`${monthlyUsageUam}-${barGraphData.gallons.join("-")}`}
-            options={chartData.options}
-            series={chartData.series}
-            type="bar"
-            height={400}
-          />
+          <div ref={chartRef}>
+            <Chart
+              key={`${monthlyUsageUam}-${barGraphData.gallons.join("-")}`}
+              options={chartData.options}
+              series={chartData.series}
+              type="bar"
+              height={400}
+            />
+          </div>
         )}
       </CardContent>
       <Divider />
@@ -595,7 +671,8 @@ function useChartOptions(): ApexOptions {
       axisBorder: { color: theme.palette.divider, show: true },
       axisTicks: { color: theme.palette.divider, show: true },
       labels: {
-        rotate: -45,
+        rotate: 0,
+        rotateAlways: false,
         style: {
           colors: theme.palette.text.secondary,
           fontSize: "11px",
@@ -630,7 +707,7 @@ function useChartOptions(): ApexOptions {
           },
           xaxis: {
             labels: {
-              rotate: -45,
+              rotate: 0,
               style: {
                 fontSize: "10px",
               },

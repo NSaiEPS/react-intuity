@@ -15,7 +15,8 @@ import {
   Typography,
 } from "@mui/material";
 import { ChartLineUp } from "@phosphor-icons/react";
-const Chart = React.lazy(() => import("react-apexcharts"));
+import type { ApexOptions } from "apexcharts";
+import Chart from "react-apexcharts";
 
 import { useDispatch, useSelector } from "@/hooks/redux";
 import secureLocalStorage from "react-secure-storage";
@@ -46,7 +47,7 @@ const HeaderSection = ({ setUamType }) => {
 
   const meterDetails = useMemo(() =>
     Object.entries(updatedMeterDetails).map(([key]) => ({ utility_type_name: key })),
-  [updatedMeterDetails]);
+    [updatedMeterDetails]);
 
   const utilityTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const setUtiltyType = () => {
@@ -277,85 +278,10 @@ const BarChart = () => {
   });
   const [uamType, setUamType] = useState("gallons");
 
-  // const chartData = {
-  //   series: [
-  //     {
-  //       name: 'Gallons',
-  //       data: barGraphData.gallons,
-  //     },
-  //   ],
-  //   options: {
-  //     chart: {
-  //       type: 'bar',
-  //       height: 400,
-  //       toolbar: { show: false },
-  //     },
-  //     colors: [...barGraphData.colors], // Orange bars
-  //     plotOptions: {
-  //       bar: {
-  //         columnWidth: '40%',
-  //         distributed: true,
-  //         startingShape: 'flat',
-  //         dataLabels: {
-  //           position: 'top', // For gallons at the top
-  //         },
-  //       },
-  //     },
-  //     dataLabels: {
-  //       enabled: true,
-  //       formatter: function (val, { dataPointIndex }) {
-  //         //console.log(barGraphData.gallons[dataPointIndex], dataPointIndex, barGraphData, 'dataPointIndex');
-  //         return `${barGraphData.gallons[dataPointIndex]} ${uamType}`;
-  //       },
-  //       offsetY: -25,
-
-  //       style: {
-  //         fontSize: '14px',
-  //         colors: ['#6b7280'], // gray
-  //       },
-  //     },
-  //     xaxis: {
-  //       categories: [...barGraphData.dates],
-  //       labels: {
-  //         show: true,
-  //         useHTML: true,
-  //         formatter: function (val, index) {
-  //           // //console.log('barGraphDatabarGraphData', val, index);
-  //           let Dateindex = barGraphData.dates.indexOf(val);
-  //           let dollar = barGraphData.dollars[Dateindex];
-  //           const dollarVal = barGraphData.dollars[index];
-  //           const isNegative = dollarVal < 0;
-  //           const dollarFormatted = `${isNegative ? '-' : ''}$${Math.abs(dollarVal).toFixed(2)}`;
-  //           const date = barGraphData.dates[index];
-  //           // return `${dollarFormatted}\n${date}`;
-  //           // return `$ ${dollar}\n ${index}`;
-  //           const label = `${dollar} (${index})`;
-  //           return label;
-  //         },
-  //         style: {
-  //           fontSize: '14px',
-  //           colors: ['#000', '#000', '#000', '#000'], // Black for amount
-  //           fontWeight: 600,
-  //         },
-  //       },
-  //     },
-  //     yaxis: {
-  //       show: false,
-  //     },
-  //     grid: {
-  //       show: false,
-  //     },
-  //     tooltip: {
-  //       enabled: false,
-  //     },
-  //   },
-  // };
-
-  //   secureLocalStorage.setItem('intuity-bar-chart', res?.body?.dashboard);
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.usageGraph
   );
-type BarChartData = Record<string, [number, number]>;
+  type BarChartData = Record<string, [number, number]>;
 
   const barData: BarChartData = dashBoardInfo;
 
@@ -366,10 +292,12 @@ type BarChartData = Record<string, [number, number]>;
     const colors: string[] = [];
     if (barData?.bar_chart_data) {
       Object.entries(barData.bar_chart_data).forEach(([key, values], index) => {
+        const dateStr = key?.split(",")[0] ?? "";
+        if (dateStr.toLowerCase().includes("no data")) return;
         gallons.push(Number(values?.[0]) || 0);
         dollars.push(Number(values?.[1]) || 0);
-        dates.push(key?.split(",")[0] ?? "");
-        colors.push(colorPalette[index]);
+        dates.push(dateStr);
+        colors.push(colorPalette[index] || "#f97316");
       });
     }
 
@@ -382,72 +310,190 @@ type BarChartData = Record<string, [number, number]>;
     }
   }, [dashBoardInfo]);
 
-  const chartData = useMemo(
-    () => ({
-      series: [
-        {
-          name: "gallons",
-          data: barGraphData.gallons,
-        },
-      ],
-      options: {
-        chart: {
-          type: "bar",
-          height: 400,
-          toolbar: { show: false },
-        },
-        colors: [...barGraphData.colors],
-        plotOptions: {
-          bar: {
-            columnWidth: "40%",
-            distributed: true,
-            startingShape: "flat",
-            dataLabels: {
-              position: "top",
-            },
-          },
-        },
-        dataLabels: {
-          enabled: true,
-          formatter: function (val, { dataPointIndex }) {
-            return `${barGraphData.gallons[dataPointIndex]} ${uamType}`;
-          },
-          offsetY: -25,
-          style: {
-            fontSize: "14px",
-            colors: ["#6b7280"],
-          },
-        },
-        xaxis: {
-          categories: [...barGraphData.dates],
-          labels: {
-            show: true,
-            useHTML: true,
-            formatter: function (val) {
-              const Dateindex = barGraphData.dates.indexOf(val);
-              const dollar = barGraphData.dollars[Dateindex] ?? 0;
-              const label = `$ ${dollar}`;
-              return label;
-            },
-            style: {
-              fontSize: "14px",
-              colors: ["#000"],
-              fontWeight: 600,
-            },
-          },
-        },
-        yaxis: {
-          show: false,
-        },
-        grid: {
-          show: false,
-        },
-        tooltip: {
-          enabled: false,
+  const hasMonthlyData = useMemo(() => {
+    if (!barGraphData.gallons || barGraphData.gallons.length === 0) return false;
+    return barGraphData.gallons.some((val) => Number(val) > 0);
+  }, [barGraphData.gallons]);
+
+  const yAxisBounds = useMemo(() => {
+    const valid = (barGraphData.gallons || []).map(Number).filter((v) => !isNaN(v) && v > 0);
+    if (!valid.length) {
+      return { min: 0, max: 1000, tickAmount: 4 };
+    }
+    const minVal = Math.min(...valid);
+    const maxVal = Math.max(...valid);
+
+    if (minVal === maxVal) {
+      const min = Math.max(0, Math.floor(minVal * 0.8));
+      const max = Math.ceil(maxVal * 1.2) || (min + 100);
+      return { min, max, tickAmount: 4 };
+    }
+
+    const range = maxVal - minVal;
+    const rawStep = range / 4;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep > 0 ? rawStep : 1)));
+    const residual = rawStep / (magnitude || 1);
+    let niceResidual = 10;
+    if (residual <= 1) niceResidual = 1;
+    else if (residual <= 2) niceResidual = 2;
+    else if (residual <= 2.5) niceResidual = 2.5;
+    else if (residual <= 5) niceResidual = 5;
+
+    const step = (niceResidual * magnitude) || 1;
+    let min = Math.floor(minVal / step) * step;
+    let max = Math.ceil(maxVal / step) * step;
+
+    if (min >= minVal || minVal - min < step * 0.5) {
+      min = Math.max(0, min - step);
+    }
+
+    if (max <= min) max = min + step * 4;
+
+    const tickAmount = Math.max(1, Math.round((max - min) / step)) || 4;
+    return { min, max, tickAmount };
+  }, [barGraphData.gallons]);
+
+  const chartData = useMemo(() => {
+    const options: ApexOptions = {
+      chart: {
+        type: "bar",
+        height: 400,
+        toolbar: { show: false },
+      },
+      legend: {
+        show: hasMonthlyData,
+        position: "top",
+        horizontalAlign: "right",
+      },
+      noData: {
+        text: "No data for this period",
+        align: "center",
+        verticalAlign: "middle",
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: "#6b7280",
+          fontSize: "14px",
         },
       },
-    }),
-    [barGraphData, uamType]
+      colors: barGraphData.colors?.length ? [...barGraphData.colors] : ["#f97316"],
+      plotOptions: {
+        bar: {
+          columnWidth: "40%",
+          distributed: true,
+          dataLabels: {
+            position: "top",
+          },
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (_val: any, opts: any) {
+          const index = opts?.dataPointIndex;
+          const rawVal = barGraphData.gallons?.[index];
+          const num = Number(rawVal) || 0;
+          if (num <= 0) {
+            return `0 ${uamType || "Gallon"}`;
+          }
+          return `${num.toLocaleString()} ${uamType || "Gallon"}`;
+        },
+        offsetY: 15,
+        style: {
+          fontSize: "12px",
+          fontWeight: 600,
+          colors: [
+            function (opts: any) {
+              const index = opts?.dataPointIndex;
+              const rawVal = barGraphData.gallons?.[index];
+              const num = Number(rawVal) || 0;
+              if (num <= 0) return "#374151";
+              return "#ffffff";
+            },
+          ],
+        },
+      },
+      xaxis: {
+        categories: [...(barGraphData.dates || [])],
+        axisBorder: { show: true },
+        axisTicks: { show: true },
+        labels: {
+          show: true,
+          rotate: 0,
+          rotateAlways: false,
+          formatter: function (val: any) {
+            const Dateindex = barGraphData.dates.indexOf(val);
+            const dollar = barGraphData.dollars[Dateindex] ?? 0;
+            return `$ ${dollar}`;
+          },
+          style: {
+            fontSize: "12px",
+            fontWeight: 600,
+          },
+        },
+      },
+      yaxis: {
+        show: true,
+        min: yAxisBounds.min,
+        max: yAxisBounds.max,
+        tickAmount: yAxisBounds.tickAmount,
+        title: {
+          text: uamType || "Gallon",
+          style: {
+            fontSize: "12px",
+            fontWeight: 500,
+          },
+        },
+        labels: {
+          formatter: function (val: number) {
+            return typeof val === "number" ? val.toLocaleString() : `${val}`;
+          },
+          style: {
+            fontSize: "11px",
+          },
+        },
+      },
+      grid: {
+        show: true,
+        borderColor: "#e5e7eb",
+        strokeDashArray: 0,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: true } },
+      },
+      tooltip: {
+        enabled: true,
+        y: {
+          formatter: (_val: number, opts: any) => {
+            const index = opts?.dataPointIndex;
+            const rawVal = barGraphData.gallons?.[index];
+            const num = Number(rawVal) || 0;
+            return `${num.toLocaleString()} ${uamType || "Gallon"}`;
+          },
+        },
+      },
+    };
+
+    const step = (yAxisBounds.max - yAxisBounds.min) / (yAxisBounds.tickAmount || 4);
+    const min = yAxisBounds.min;
+    const baselineOffset = step * 0.01;
+
+    const seriesData = (barGraphData.gallons || []).map((v) => {
+      const num = Number(v) || 0;
+      if (num <= 0) {
+        return min + baselineOffset;
+      }
+      return num;
+    });
+
+    const series = [
+      {
+        name: "Usage",
+        data: seriesData,
+      },
+    ];
+
+    return { series, options };
+  },
+    [barGraphData, uamType, hasMonthlyData, yAxisBounds]
   );
 
   return (
@@ -457,7 +503,6 @@ type BarChartData = Record<string, [number, number]>;
         options={chartData.options}
         series={chartData.series}
         type="bar"
-        key={`${uamType}-${barGraphData.gallons.join("-")}`}
         height={400}
       />
     </>
