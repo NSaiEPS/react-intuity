@@ -13,11 +13,15 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
-import { CustomerInfo } from "@/utils";
+import { colors, CustomerInfo } from "@/utils";
 
 function UsageHeader() {
+  const location = useLocation();
+  const isAlertsPage = location.pathname.includes("usage-alerts");
+  const isHistoryPage = location.pathname.includes("usage-history");
+
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
@@ -66,22 +70,53 @@ function UsageHeader() {
           py={1}
         >
           {/* Left: Title + Usage Alerts */}
-          <Box display="flex" alignItems="center" gap={2} flexWrap="wrap" pt={2} pb={2}>
-            <Typography  variant={isMobile ? "h6" : "h5"}>
-              Usage History
-            </Typography>
+          <Box display="flex" alignItems="center" gap={3} flexWrap="wrap" pt={1.5} pb={1.5}>
+            <Box
+              display="flex"
+              alignItems="center"
+              sx={{
+                cursor: "pointer",
+                pb: 0.5,
+                borderBottom: isHistoryPage ? `3px solid ${colors.blue}` : "3px solid transparent",
+                transition: "all 0.2s ease",
+              }}
+              onClick={() => navigate(paths.dashboard.usageHistory())}
+            >
+              <Typography
+                sx={{
+                  fontSize: isHistoryPage ? "24px" : "20px",
+                  fontWeight: 500,
+                  color: isHistoryPage ? "text.primary" : "text.secondary",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                Usage History
+              </Typography>
+            </Box>
 
             <Box
               display="flex"
               alignItems="center"
-              sx={{ cursor: "pointer" }}
+              sx={{
+                cursor: "pointer",
+                pb: 0.5,
+                borderBottom: isAlertsPage ? `3px solid ${colors.blue}` : "3px solid transparent",
+                transition: "all 0.2s ease",
+              }}
               onClick={() => navigate(paths.dashboard.usageAlerts())}
             >
-              <Typography variant={isMobile ? "body1" : "h6"} fontWeight={500}>
+              <Typography
+                sx={{
+                  fontSize: isAlertsPage ? "24px" : "20px",
+                  fontWeight: 500,
+                  color: isAlertsPage ? "text.primary" : "text.secondary",
+                  transition: "all 0.2s ease",
+                }}
+              >
                 Usage Alerts
               </Typography>
               <Chip
-                label={usageAlerts?.total_alerts}
+                label={usageAlerts?.total_alerts || 0}
                 size="small"
                 sx={{
                   ml: 1,
@@ -95,7 +130,6 @@ function UsageHeader() {
             </Box>
           </Box>
 
-
           {/* Right: Account No & Name */}
           <Box display="flex" flexDirection="column" mt={isMobile ? 1 : 0}>
             <Typography variant={isMobile ? "body1" : "h6"}>
@@ -106,7 +140,7 @@ function UsageHeader() {
             </Typography>
           </Box>
         </Box>
-          <Divider/>
+        <Divider />
       </Grid>
     </Grid>
   );

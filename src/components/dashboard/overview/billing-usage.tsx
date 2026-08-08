@@ -214,56 +214,45 @@ const HeaderSection = ({ setUamType }) => {
       </Typography>
 
       {/* Dropdowns */}
-      <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <Typography>Utility Type:</Typography>
-        </Grid>
-        <Grid item>
-          <FormControl>
-            <Select
-              value={utilityType}
-              onChange={(e) => {
-                setUtilityType(e.target.value);
-              }}
-              sx={{ height: 40 }}
-            >
-              {filterList.type?.map((item) => (
-                <MenuItem value={item?.value}>{item?.label}</MenuItem>
-              ))}
-
-              {/* not using now */}
-              {/* <MenuItem value="ELECTRIC">ELECTRIC</MenuItem>
-              <MenuItem value="GAS">GAS</MenuItem> */}
-            </Select>
-          </FormControl>
+      <Grid container spacing={2} alignItems="flex-end">
+        <Grid item xs={12} sm="auto">
+          <Box display="flex" flexDirection="column" gap={0.5}>
+            <Typography fontWeight={500} variant="body2">Utility Type:</Typography>
+            <FormControl fullWidth sx={{ minWidth: { xs: "100%", sm: 180 } }}>
+              <Select
+                value={utilityType}
+                onChange={(e) => {
+                  setUtilityType(e.target.value);
+                }}
+                sx={{ height: 40, bgcolor: "white" }}
+              >
+                {filterList.type?.map((item) => (
+                  <MenuItem key={item?.value} value={item?.value}>{item?.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Grid>
 
-        <Grid item>
-          <Typography>Utility UM:</Typography>
-        </Grid>
-        <Grid item>
-          <FormControl>
-            <Select
-              value={unitMeasure}
-              onChange={(e) => {
-                setUnitMeasure(e.target.value);
-
-                setUamType(e.target.value);
-
-                onSubmit(e.target.value);
-              }}
-              sx={{ height: 40 }}
-            >
-              {/* <MenuItem value="gallons">gallons</MenuItem>
-              <MenuItem value="myunit">myunit</MenuItem>
-              <MenuItem value="Cubic-Mtr">Cubic-Mtr</MenuItem>
-              <MenuItem value="Cubic-Ft">Cubic-Ft</MenuItem>
-              <MenuItem value="ML">ML</MenuItem> */}
-              {filterList.ums?.map((item) => (
-                <MenuItem value={item?.value}>{item?.label}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+        <Grid item xs={12} sm="auto">
+          <Box display="flex" flexDirection="column" gap={0.5}>
+            <Typography fontWeight={500} variant="body2">Utility UM:</Typography>
+            <FormControl fullWidth sx={{ minWidth: { xs: "100%", sm: 180 } }}>
+              <Select
+                value={unitMeasure}
+                onChange={(e) => {
+                  setUnitMeasure(e.target.value);
+                  setUamType(e.target.value);
+                  onSubmit(e.target.value);
+                }}
+                sx={{ height: 40, bgcolor: "white" }}
+              >
+                {filterList.ums?.map((item) => (
+                  <MenuItem key={item?.value} value={item?.value}>{item?.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Grid>
       </Grid>
     </Box>
@@ -393,9 +382,9 @@ const BarChart = () => {
           const rawVal = barGraphData.gallons?.[index];
           const num = Number(rawVal) || 0;
           if (num <= 0) {
-            return `0 ${uamType || "Gallon"}`;
+            return "0";
           }
-          return `${num.toLocaleString()} ${uamType || "Gallon"}`;
+          return num.toLocaleString();
         },
         offsetY: 15,
         style: {

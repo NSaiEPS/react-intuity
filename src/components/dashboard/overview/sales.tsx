@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getUsageGraph } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colorPalette, colors } from "@/utils";
@@ -39,15 +39,20 @@ export interface SalesProps {
   sx?: SxProps;
   path?: string;
   dashboard?: boolean;
+  noData?: boolean;
+  title?: string;
 }
 
 export function Sales({
   sx,
   path,
   dashboard = false,
+  noData = false,
+  title,
 }: SalesProps): React.JSX.Element {
   const chartRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useMediaQuery("(max-width:750px)");
   const chartOptions = useChartOptions();
   const dashBoardInfo = useSelector(
@@ -165,7 +170,7 @@ export function Sales({
   };
 
   React.useEffect(() => {
-    if (!roleId || !userId) return;
+    if (noData || !roleId || !userId) return;
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
@@ -178,7 +183,7 @@ export function Sales({
     formData.append("usage_history", "1");
 
     dispatch(getUsageGraph(formData));
-  }, [userId]);
+  }, [userId, noData]);
 
   const [barGraphData, setBarGraphData] = React.useState({
     gallons: [],
@@ -233,13 +238,17 @@ export function Sales({
   }, [chartSeries]);
 
   const hasMonthlyData = React.useMemo(() => {
+    if (noData) return false;
     if (!barGraphData.gallons || barGraphData.gallons.length === 0) return false;
     return barGraphData.gallons.some((val) => {
       if (!val) return false;
       const num = parseFloat(String(val));
       return !isNaN(num) && num > 0;
     });
-  }, [barGraphData.gallons]);
+  }, [barGraphData.gallons, noData]);
+
+  const isNoData = noData || !hasMonthlyData;
+  const isDashboardOnly = location.pathname === "/dashboard" || location.pathname === "/dashboard/" || title === "Billing History" || (noData && path !== "usage-history");
 
   const numericGallons = React.useMemo(() => {
     return (barGraphData.gallons || []).map((v) => {
@@ -303,7 +312,7 @@ export function Sales({
     series: [
       {
         name: "Usage",
-        data: mappedGallons,
+        data: isNoData ? [] : mappedGallons,
       },
     ],
     options: {
@@ -320,15 +329,16 @@ export function Sales({
       noData: {
         text: "No data for this period",
         align: "center",
-        verticalAlign: "middle",
+        verticalAlign: "bottom",
         offsetX: 0,
-        offsetY: 0,
+        offsetY: 10,
         style: {
           color: "#6b7280",
           fontSize: "14px",
+          fontWeight: 500,
         },
       },
-      colors: barGraphData.colors?.length ? [...barGraphData.colors] : ["#f97316"],
+      colors: isNoData || !barGraphData.colors?.length ? ["#f97316"] : [...barGraphData.colors],
 
       plotOptions: {
         bar: {
@@ -341,15 +351,15 @@ export function Sales({
         },
       },
       dataLabels: {
-        enabled: true,
+        enabled: !isNoData,
         formatter: function (_val: any, opts: any) {
           const index = opts?.dataPointIndex;
           const rawVal = numericGallons[index];
           const num = Number(rawVal) || 0;
           if (num <= 0) {
-            return `0 ${monthlyUsageUam || "Gallon"}`;
+            return "0";
           }
-          return `${num.toLocaleString()} ${monthlyUsageUam || "Gallon"}`;
+          return num.toLocaleString();
         },
         offsetY: 15,
         style: {
@@ -367,11 +377,11 @@ export function Sales({
         },
       },
       xaxis: {
-        categories: [...barGraphData.dates],
+        categories: isNoData ? [] : [...barGraphData.dates],
         axisBorder: { show: true },
-        axisTicks: { show: true },
+        axisTicks: { show: !isNoData },
         labels: {
-          show: true,
+          show: !isNoData,
           rotate: 0,
           rotateAlways: false,
           style: {
@@ -382,11 +392,11 @@ export function Sales({
       },
       yaxis: {
         show: true,
-        min: yAxisBounds.min,
-        max: yAxisBounds.max,
-        tickAmount: yAxisBounds.tickAmount,
+        min: isNoData ? 0 : yAxisBounds.min,
+        max: isDashboardOnly ? 400 : (isNoData ? 4000 : yAxisBounds.max),
+        tickAmount: isDashboardOnly ? 4 : (isNoData ? 4 : yAxisBounds.tickAmount),
         title: {
-          text: monthlyUsageUam || "Gallon",
+          text: isDashboardOnly ? "Amount ($)" : (monthlyUsageUam || "Gallon"),
           style: {
             fontSize: "12px",
             fontWeight: 500,
@@ -394,7 +404,12 @@ export function Sales({
         },
         labels: {
           formatter: function (val: number) {
-            return typeof val === "number" ? val.toLocaleString() : `${val}`;
+            if (typeof val !== "number") return `${val}`;
+            if (isDashboardOnly) {
+              if (val === 0) return "0";
+              return `$${val.toLocaleString()}`;
+            }
+            return val.toLocaleString();
           },
           style: {
             fontSize: "11px",
@@ -409,7 +424,7 @@ export function Sales({
         yaxis: { lines: { show: true } },
       },
       tooltip: {
-        enabled: true,
+        enabled: !isNoData,
         y: {
           formatter: (_val: number, opts: any) => {
             const index = opts?.dataPointIndex;
@@ -559,7 +574,7 @@ export function Sales({
         }
         title={
           <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600}>
-            {dashboard ? "Usage" : "Usage / month"}
+            {title || (dashboard ? "Usage" : "Usage / month")}
           </Typography>
         }
       />
@@ -576,7 +591,7 @@ export function Sales({
         ) : (
           <div ref={chartRef}>
             <Chart
-              key={`${monthlyUsageUam}-${barGraphData.gallons.join("-")}`}
+              key={isNoData ? "no-data" : `${monthlyUsageUam}-${barGraphData.gallons.join("-")}`}
               options={chartData.options}
               series={chartData.series}
               type="bar"
