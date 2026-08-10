@@ -33,6 +33,7 @@ import { CustomBackdrop, Loader } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
 
 import UsageHeader from "@/components/dashboard/overview/usage-header";
+import DateRangeSelector from "@/components/dashboard/overview/custom-date-picker";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 
 type ConfirmDialogState = {
@@ -251,54 +252,19 @@ export default function AlertsScreen() {
           gap={2}
           mb={2.5}
         >
-          {/* Start Date */}
+          {/* Alert Date Range Selector */}
           <Box display="flex" flexDirection="column" gap={0.5}>
-            <Typography fontWeight={500} variant="body2" color="text.secondary">
-              Alert Date From
-            </Typography>
-            <DatePicker
-              value={startDate}
-              onChange={setStartDate}
-              maxDate={endDate || dayjs()}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  size="small"
-                  sx={{
-                    width: { xs: "100%", sm: 170 },
-                    bgcolor: "white",
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "8px",
-                    },
-                  }}
-                />
-              )}
-            />
-          </Box>
-
-          {/* End Date */}
-          <Box display="flex" flexDirection="column" gap={0.5}>
-            <Typography fontWeight={500} variant="body2" color="text.secondary">
-              Alert Date To
-            </Typography>
-            <DatePicker
-              value={endDate}
-              onChange={setEndDate}
-              maxDate={dayjs()}
-              minDate={startDate || undefined}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  size="small"
-                  sx={{
-                    width: { xs: "100%", sm: 170 },
-                    bgcolor: "white",
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "8px",
-                    },
-                  }}
-                />
-              )}
+            {/* <Typography fontWeight={500} variant="body2" color="text.secondary">
+              Alert Date Range
+            </Typography> */}
+            <DateRangeSelector
+              maxDate={new Date()}
+              initialStartDate={startDate}
+              initialEndDate={endDate}
+              onSubmit={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+              }}
             />
           </Box>
 

@@ -22,10 +22,28 @@ import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css"; // important!
 
-const DateRangeSelector = ({ onSubmit }) => {
-  const [selectedLabel, setSelectedLabel] = useState("This Month");
-  const [startDate, setStartDate] = useState<Dayjs>(dayjs().startOf("month"));
-  const [endDate, setEndDate] = useState<Dayjs>(dayjs().endOf("month"));
+interface DateRangeSelectorProps {
+  onSubmit: (start: Dayjs | null, end: Dayjs | null) => void;
+  maxDate?: Date;
+  label?: string;
+  initialStartDate?: Dayjs | null;
+  initialEndDate?: Dayjs | null;
+}
+
+const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
+  onSubmit,
+  maxDate,
+  label = "Date Range",
+  initialStartDate,
+  initialEndDate,
+}) => {
+  const [selectedLabel, setSelectedLabel] = useState("Date Range");
+  const [startDate, setStartDate] = useState<Dayjs | null>(
+    initialStartDate !== undefined ? initialStartDate : dayjs().startOf("month")
+  );
+  const [endDate, setEndDate] = useState<Dayjs | null>(
+    initialEndDate !== undefined ? initialEndDate : dayjs().endOf("month")
+  );
   const [openCustomDialog, setOpenCustomDialog] = useState(false);
   const [customDateRange, setCustomDateRange] = useState<
     [Date | null, Date | null]
@@ -33,21 +51,37 @@ const DateRangeSelector = ({ onSubmit }) => {
 
   const datePresets = ["This Month", "Last Month", "Custom Range"];
 
-  const formatRange = (start: Dayjs, end: Dayjs) =>
-    `${start.format("MMM D, YYYY")} - ${end.format("MMM D, YYYY")}`;
+  React.useEffect(() => {
+    if (initialStartDate !== undefined) {
+      setStartDate(initialStartDate);
+    }
+    if (initialEndDate !== undefined) {
+      setEndDate(initialEndDate);
+    }
+    if (initialStartDate === null && initialEndDate === null) {
+      setSelectedLabel("Date Range");
+    }
+  }, [initialStartDate, initialEndDate]);
+
+  const formatRange = (start: Dayjs | null, end: Dayjs | null) => {
+    if (!start && !end) return "Select Date Range";
+    if (start && !end) return `${start.format("MMM D, YYYY")} - ...`;
+    if (!start && end) return `... - ${end.format("MMM D, YYYY")}`;
+    return `${start!.format("MMM D, YYYY")} - ${end!.format("MMM D, YYYY")}`;
+  };
 
   const handleChange = (e: SelectChangeEvent) => {
     const label = e.target.value;
     setSelectedLabel(label);
 
     const today = dayjs();
-    let start = today;
-    let end = today;
+    let start: Dayjs | null = today;
+    let end: Dayjs | null = today;
 
     switch (label) {
       case "This Month":
         start = today.startOf("month");
-        end = today.endOf("month");
+        end = maxDate && today.endOf("month").isAfter(dayjs(maxDate)) ? dayjs(maxDate) : today.endOf("month");
         break;
       case "Last Month":
         start = today.subtract(1, "month").startOf("month");
@@ -111,49 +145,133 @@ const DateRangeSelector = ({ onSubmit }) => {
       </FormControl>
 
       {/* Custom Range Dialog */}
-      <Dialog open={openCustomDialog} maxWidth="xs" fullWidth>
+      <Dialog
+        open={openCustomDialog}
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
+            px: "6px",
+            py: 1,
+          },
+        }}
+      >
         <DialogTitle
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            pl: 3,
-            pr: 1,
+            px: "6px",
             pt: 2,
+            pb: 1,
           }}
         >
-          <Typography variant="h6">Select Custom Date Range</Typography>
+          <Typography variant="h6" fontWeight={700}>
+            Select Custom Date Range
+          </Typography>
           <IconButton onClick={() => setOpenCustomDialog(false)}>
             <X size={24} color={colors.blue} />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ px: 3, py: 1 }}>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-            <DatePicker
-              selectsRange
-              startDate={customDateRange[0]}
-              endDate={customDateRange[1]}
-              onChange={(update) =>
-                setCustomDateRange(update as [Date | null, Date | null])
-              }
-              isClearable
-              dateFormat="MM/dd/yyyy"
-              placeholderText="MM/DD/YYYY - MM/DD/YYYY"
-              inline
-              showMonthDropdown
-              showYearDropdown
-              dropdownMode="scroll"
-              minDate={new Date(2000, 0, 1)}
-              maxDate={new Date(2035, 11, 31)}
-              calendarClassName="custom-datepicker"
-              dayClassName={(date) => "custom-day"} // optional custom day styling
-            />
+        <DialogContent sx={{ px: "12px", py: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              justifyContent: "center",
+              alignItems: "stretch",
+              gap: 2,
+              mt: 1,
+              mb: 1,
+            }}
+          >
+            {/* Start Date Calendar */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                flex: 1,
+                width: { xs: "100%", sm: "auto" },
+                maxWidth: "400px",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                fontWeight={600}
+                sx={{ mb: 1, color: colors.blue, fontSize: "14px" }}
+              >
+                Start Date
+              </Typography>
+              <DatePicker
+                selected={customDateRange[0]}
+                onChange={(date: Date | null) =>
+                  setCustomDateRange([date, customDateRange[1]])
+                }
+                selectsStart
+                startDate={customDateRange[0]}
+                endDate={customDateRange[1]}
+                maxDate={
+                  customDateRange[1] && maxDate
+                    ? customDateRange[1] < maxDate
+                      ? customDateRange[1]
+                      : maxDate
+                    : customDateRange[1] || maxDate || new Date(2035, 11, 31)
+                }
+                minDate={new Date(2000, 0, 1)}
+                dateFormat="MM/dd/yyyy"
+                inline
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="scroll"
+                calendarClassName="custom-datepicker"
+                fixedHeight
+              />
+            </Box>
+
+            {/* End Date Calendar */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                flex: 1,
+                width: { xs: "100%", sm: "auto" },
+                maxWidth: "400px",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                fontWeight={600}
+                sx={{ mb: 1, color: colors.blue, fontSize: "14px" }}
+              >
+                End Date
+              </Typography>
+              <DatePicker
+                selected={customDateRange[1]}
+                onChange={(date: Date | null) =>
+                  setCustomDateRange([customDateRange[0], date])
+                }
+                selectsEnd
+                startDate={customDateRange[0]}
+                endDate={customDateRange[1]}
+                minDate={customDateRange[0] || new Date(2000, 0, 1)}
+                maxDate={maxDate || new Date(2035, 11, 31)}
+                dateFormat="MM/dd/yyyy"
+                inline
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="scroll"
+                calendarClassName="custom-datepicker"
+                fixedHeight
+              />
+            </Box>
           </Box>
         </DialogContent>
 
         {/* Reset + Save Buttons */}
-        <DialogActions sx={{ px: 3, pb: 3, display: "flex", gap: 1 }}>
+        <DialogActions sx={{ px: "12px", pb: 2, pt: 1, display: "flex", gap: 1.5 }}>
           {/* Reset Button */}
           <Button
             variant="outlined"
@@ -195,6 +313,9 @@ const DateRangeSelector = ({ onSubmit }) => {
         {`
           .custom-datepicker {
             width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
             border-radius: 12px;
             border: 1px solid #e0e0e0;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -203,6 +324,16 @@ const DateRangeSelector = ({ onSubmit }) => {
 
           .react-datepicker__month-container {
             width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex: 1 !important;
+          }
+
+          .react-datepicker__month {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
           }
 
           .react-datepicker__year-dropdown,
@@ -263,7 +394,16 @@ const DateRangeSelector = ({ onSubmit }) => {
             transition: all 0.2s;
           }
 
-          .custom-datepicker .react-datepicker__day:hover {
+          .custom-datepicker .react-datepicker__day--disabled,
+          .custom-datepicker .react-datepicker__day--disabled:hover {
+            color: #d1d5db !important;
+            background-color: transparent !important;
+            cursor: not-allowed !important;
+            opacity: 0.4 !important;
+            pointer-events: none !important;
+          }
+
+          .custom-datepicker .react-datepicker__day:not(.react-datepicker__day--disabled):hover {
             background-color: ${colors.blue};
             color: white;
           }

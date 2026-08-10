@@ -268,7 +268,6 @@ React.useEffect(() => {
           <React.Suspense fallback={<ChartSkeleton />}>
             <Sales
               sx={{ flexGrow: 1 }}
-              noData
               title="Billing History"
             />
           </React.Suspense>

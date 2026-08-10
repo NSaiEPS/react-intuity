@@ -426,6 +426,7 @@ function UsageFilter() {
           </Typography> */}
 
             <DateRangeSelector
+              maxDate={new Date()}
               onSubmit={(start, end) => onSubmit(start, end)}
             />
           </Box>
