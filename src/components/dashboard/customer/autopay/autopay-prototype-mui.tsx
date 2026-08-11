@@ -1212,7 +1212,7 @@ function Dashboard({
                       borderRadius: '8px',
                       p: '6px 12px',
                       backgroundColor: '#ffffff',
-                      cursor: 'pointer',
+                      cursor: 'normal',
                       '&:hover': {
                         borderColor: '#A6ACAF',
                       },
@@ -1406,7 +1406,7 @@ export default function AutoPayPrototype() {
   /* ---------------- Dashboard toggle ---------------- */
   function handleToggle() {
     if (!autopayEnabled) {
-      // OFF -> ON
+      // OFF -> ON : always redirect to enroll in autopay screen
       const hasSavedAutopayCard = Boolean(
         autopayMethodInfo?.id ||
         autopayMethodInfo?.card_token ||
@@ -1414,18 +1414,9 @@ export default function AutoPayPrototype() {
         autopayMethodInfo?.card_number ||
         autopayMethodInfo?.bank_account_number
       );
-      const hasCards = (Array.isArray(myCards) && myCards.length > 0) || hasSavedAutopayCard;
-
-      if (hasSavedAutopayCard && (everEnrolled || autopayMethodInfo) && (autopayMethodInfo || autopayMethodId)) {
-        // Previously enrolled or has saved card -> straight to Review & Confirm
-        setAuthChecked(false); // must reselect
-        setView('review');
-      } else {
-        // No saved payment method -> redirect to enroll in autopay screen
-        setNewCardSelected(false);
-        setPaymentType(hasSavedAutopayCard ? 'saved' : '');
-        setView('enroll-choose');
-      }
+      setNewCardSelected(false);
+      setPaymentType(hasSavedAutopayCard ? 'saved' : '');
+      setView('enroll-choose');
     } else {
       // ON -> OFF : go to the Deactivate page
       setView('deactivate');
@@ -1608,7 +1599,16 @@ export default function AutoPayPrototype() {
   /* ---------------- Change payment method (from Dashboard link) ---------------- */
   function handleChangeMethod() {
     setAuthChecked(false);
-    setView('review');
+    setNewCardSelected(false);
+    const hasSavedAutopayCard = Boolean(
+      autopayMethodInfo?.id ||
+      autopayMethodInfo?.card_token ||
+      autopayMethodInfo?.token ||
+      autopayMethodInfo?.card_number ||
+      autopayMethodInfo?.bank_account_number
+    );
+    setPaymentType(hasSavedAutopayCard ? 'saved' : '');
+    setView('enroll-choose');
   }
 
   // On Mount

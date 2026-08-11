@@ -1345,7 +1345,7 @@ export const PaymentMethods = ({
                 <Typography variant="caption" color="text.secondary" fontStyle="italic" fontSize="0.75rem">
                   {/* If credit card expires, or you need to edit a payment method, please select Remove then add your card.   {isPaymentMethodsPage */}
                   {isPaymentMethodsPage ? "If card expires, or you need to edit a payment method, please select Remove then add your card."
-                    : "If credit card expires, or you need to edit a payment method, please select Remove then add your card."}              </Typography>
+                    : "If card expires, or you need to edit a payment method, please select Remove then add your card."}              </Typography>
 
               </Stack>
             </Box>
