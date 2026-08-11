@@ -4,7 +4,10 @@ import {
   updateAccountInfo,
   updatePaperLessInfo,
 } from "@/state/features/accountSlice";
-import { getNotificationList } from "@/state/features/dashBoardSlice";
+import {
+  getNotificationList,
+  getDashboardInfo,
+} from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
@@ -129,16 +132,28 @@ export function DashboardInfo({
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const [checked, setChecked] = React.useState(
-    dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false
-  );
+  const [checked, setChecked] = React.useState(() => {
+    if (type === "notification") {
+      const val = dashBoardInfo?.body?.[typeofUser]?.[value];
+      return val !== undefined && val !== null && val != 4 && val !== "4" && val !== "None";
+    }
+    return dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false;
+  });
+
   React.useEffect(() => {
     if (dashBoardInfo?.body) {
-      setChecked(
-        dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false
-      );
+      if (type === "notification") {
+        const val = dashBoardInfo?.body?.[typeofUser]?.[value];
+        if (val !== undefined && val !== null) {
+          setChecked(val != 4 && val !== "4" && val !== "None");
+        }
+      } else {
+        setChecked(
+          dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false
+        );
+      }
     }
-  }, [dashBoardInfo?.body]);
+  }, [dashBoardInfo?.body, type, typeofUser, value]);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // setChecked();
     if (type === "autoPay") {
@@ -227,23 +242,21 @@ export function DashboardInfo({
         notificationPrefrences.biller_announcements
       );
 
-      dispatch(updateAccountInfo(formData, true, getPrefDetails));
+      dispatch(
+        updateAccountInfo(formData, true, () => {
+          getPrefDetails();
+          if (roleId && userId) {
+            dispatch(getDashboardInfo(roleId, userId));
+          }
+        })
+      );
 
       setChecked(clickedState ? true : false);
     }
     setOpenConfirm(false);
   };
-  // const successCallBack = () => {
-  //   const stored = (getLocalStorage('intuity-user'));
 
-  //   let roleId = stored?.body?.acl_role_id;
-  //   let userId = stored?.body?.customer_id;
-  //   let token = stored?.body?.token;
-  //   dispatch(getDashboardInfo(roleId, userId, token));
-
-  // };
-
-  const successCallBack = (type, clickedState) => {
+  const successCallBack = (type: string, clickedState: boolean) => {
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -252,11 +265,13 @@ export function DashboardInfo({
     formData.append("page_no", "0");
     formData.append("markRead", "0");
     formData.append("model_open", "9");
-    // formData.append('is_form', '0');
 
     dispatch(getNotificationList(formData));
     updateLocalStorageValue("intuity-customerInfo", type, clickedState ? 1 : 0);
     setChecked(clickedState);
+    if (roleId && userId) {
+      dispatch(getDashboardInfo(roleId, userId));
+    }
   };
   React.useEffect(() => {
     if (apiCall) {
