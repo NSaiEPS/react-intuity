@@ -180,6 +180,7 @@ export interface CustomerInfo {
   balance?: number;
   email?: string;
   company_id?: string;
+  paperless_payer_terms_conditions?: string;
 }
 
 export interface UtilityItem {

@@ -30,9 +30,11 @@ const PayerTermsConditionsModal = () => {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
 
-  const CustomerInfo: CustomerInfo = dashBoardInfo?.customer
-    ? dashBoardInfo?.customer
-    : getLocalStorage("intuity-customerInfo");
+  const CustomerInfo: CustomerInfo = dashBoardInfo?.body?.customer
+    ? dashBoardInfo?.body?.customer
+    : dashBoardInfo?.customer
+      ? dashBoardInfo?.customer
+      : getLocalStorage("intuity-customerInfo");
   const [isPaperLessOn, setIsPaperLessOn] = useState(false);
   const dispatch = useDispatch();
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
@@ -190,21 +192,30 @@ const PayerTermsConditionsModal = () => {
 
         <DialogContent>
           <Typography variant="h6"></Typography>
-          <Typography
-            component="span" // ensures it stays inline with the text
-            sx={{
-              display: "inline-block",
-              transition: "border-bottom 0.2s ease",
-              borderBottom: "2px solid transparent",
-            }}
-          >
-            Payer is electing to receive an electronic record of their bill.
-            When Payer selects to receive an electronic record of their bill,
-            Payer agrees to be automatically enrolled in and consents to
-            paperless billing. Payer may withdraw its consent to Paperless at
-            any time by updating Payer’s online profile, which can be achieved
-            from the Payer’s online account, or by contacting the Biller.
-          </Typography>
+          {CustomerInfo?.paperless_payer_terms_conditions ? (
+            <Typography
+              component="div"
+              sx={{
+                display: "inline-block",
+                transition: "border-bottom 0.2s ease",
+                borderBottom: "2px solid transparent",
+              }}
+              dangerouslySetInnerHTML={{
+                __html: CustomerInfo.paperless_payer_terms_conditions,
+              }}
+            />
+          ) : (
+            <Typography
+              component="span" // ensures it stays inline with the text
+              sx={{
+                display: "inline-block",
+                transition: "border-bottom 0.2s ease",
+                borderBottom: "2px solid transparent",
+              }}
+            >
+              No Terms and Conditions found.
+            </Typography>
+          )}
         </DialogContent>
       </Dialog>
     </Grid>

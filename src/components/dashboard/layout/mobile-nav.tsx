@@ -224,6 +224,7 @@ function isSubItemAllowed(
     return false;
   }
   if (customerServiceTabs) {
+    if (subKey === "history" && customerServiceTabs.usageHistory === false) return false;
     if (subKey === "service" && customerServiceTabs.service === false) return false;
     if (subKey === "account" && customerServiceTabs.account === false) return false;
     if (subKey === "stop-service" && customerServiceTabs.stopService === false) return false;

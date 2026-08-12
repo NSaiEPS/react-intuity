@@ -37,6 +37,7 @@ export interface CustomerAccount {
   last_name?: string;
   phone?: string;
   account_number?: string;
+  paperless_payer_terms_conditions?: string;
   [key: string]: any;
 }
 
@@ -63,6 +64,8 @@ export interface CompanyDetails {
   zip?: string;
   /** 1 = two-factor auth is required for this company */
   require_2fa?: number;
+  /** 1 = flat rate company, Usage History is disabled */
+  is_flat_rate?: number | string;
   [key: string]: any;
 }
 

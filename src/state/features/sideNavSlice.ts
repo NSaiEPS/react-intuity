@@ -24,11 +24,19 @@ export function getCustomerServiceTabsFromCustomer(data: any): CustomerServiceTa
     return true;
   };
 
+  const isFlatRate =
+    data?.is_flat_rate === 1 ||
+    data?.is_flat_rate === "1" ||
+    data?.company?.is_flat_rate === 1 ||
+    data?.company?.is_flat_rate === "1" ||
+    data?.body?.company?.is_flat_rate === 1 ||
+    data?.body?.company?.is_flat_rate === "1";
+
   return {
     service: isAllowed(data.contact_customer_service),
     account: isAllowed(data.update_account_information),
     stopService: isAllowed(data.stop_transfer_service),
-    usageHistory: isAllowed(data.usage_history),
+    usageHistory: isFlatRate ? false : isAllowed(data.usage_history),
   };
 }
 
