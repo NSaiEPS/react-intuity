@@ -191,6 +191,38 @@ export function DashboardInfo({
       updateAccountInfo(formData, true, notificationResponse, undefined, true)
     );
   };
+  const notificationPreferenceDetails = useSelector(
+    (state: RootState) => state?.Account?.notificationPreferenceDetails
+  );
+
+  const { hasEmail, hasPhone } = React.useMemo(() => {
+    const customerInfo = (dashBoardInfo?.body?.customer ?? dashBoardInfo?.customer ?? getLocalStorage("intuity-customerInfo")) as any;
+
+    const phoneNo =
+      notificationPreferenceDetails?.phone_no && notificationPreferenceDetails?.phone_no !== "0"
+        ? notificationPreferenceDetails?.phone_no
+        : (customerInfo?.phone_no || customerInfo?.mobile || "");
+
+    const isPhoneVerified =
+      notificationPreferenceDetails?.is_phone_verified !== undefined
+        ? notificationPreferenceDetails?.is_phone_verified == 1
+        : customerInfo?.is_phone_verified == 1;
+
+    const hasPhone = Boolean(phoneNo && phoneNo !== "0" && isPhoneVerified);
+
+    const email =
+      notificationPreferenceDetails?.updated_email ||
+      notificationPreferenceDetails?.email ||
+      customerInfo?.email ||
+      "";
+    const hasEmail = Boolean(email && String(email).trim() !== "");
+
+    return {
+      hasEmail,
+      hasPhone,
+    };
+  }, [dashBoardInfo, notificationPreferenceDetails]);
+
   const handleConfirm = () => {
     const formData = new FormData();
 
@@ -230,7 +262,18 @@ export function DashboardInfo({
       formData.append("id", userId);
       formData.append("model_open", "3");
 
-      formData.append("notification_reminder", clickedState ? "3" : "4");
+      let reminderValue = "4"; // None
+      if (clickedState) {
+        if (hasPhone && hasEmail) {
+          reminderValue = "3"; // Both
+        } else if (hasPhone && !hasEmail) {
+          reminderValue = "2"; // Text
+        } else {
+          reminderValue = "1"; // Email
+        }
+      }
+
+      formData.append("notification_reminder", reminderValue);
       formData.append("notification_new_bill", notificationPrefrences.new_bill);
       formData.append(
         "notification_payment",

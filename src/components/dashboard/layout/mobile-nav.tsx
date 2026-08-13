@@ -127,26 +127,44 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
         <Stack
           sx={{
             px: 2,
-            py: 2,
+            py: 1.5,
             minHeight: "79px",
-            height: "79px",
+            height: "auto",
             justifyContent: "center",
             backgroundColor: colors.white,
             borderRight: 0.5,
             borderRightColor: "var(--mui-palette-divider)",
           }}
         >
-          <Box component={RouterLink} to={paths.dashboard.overview()} sx={{
-            display: "inline-flex",
-            textDecoration: "none",
-            color: "black",
-            "&:hover": { textDecoration: "none" },
-          }}>
+          <Box
+            component={RouterLink}
+            to={paths.dashboard.overview()}
+            onClick={onClose}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+              color: "black",
+              "&:hover": { textDecoration: "none" },
+            }}
+          >
             {companyLogo ? (
-              <Logo color="dark" height={50} width={140} src={companyLogo} />
+              <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+                <Logo color="dark" height={45} width={100} src={companyLogo} />
+              </Box>
             ) : null}
             {companyName ? (
-              <Typography sx={{ fontSize: "22px", my: "auto", fontWeight: 600, textDecoration: "none", ml: companyLogo ? 1.5 : 0 }}>
+              <Typography
+                sx={{
+                  fontSize: { xs: "14px", sm: "15px" },
+                  fontWeight: 600,
+                  lineHeight: 1.3,
+                  textDecoration: "none",
+                  ml: companyLogo ? 1.5 : 0,
+                  color: "black",
+                  wordBreak: "break-word",
+                }}
+              >
                 {companyName}
               </Typography>
             ) : null}
