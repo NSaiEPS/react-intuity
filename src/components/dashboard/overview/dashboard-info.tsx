@@ -9,7 +9,7 @@ import {
   getDashboardInfo,
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { boarderRadius } from "@/utils";
+import { boarderRadius, colors } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue } from "@/utils/auth";
 
 import Card from "@mui/material/Card";
@@ -22,11 +22,24 @@ import Typography from "@mui/material/Typography";
 import { Bell as BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
 import { ListBullets as ListBulletsIcon } from "@phosphor-icons/react/dist/ssr/ListBullets";
 import { Users as UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
+import { X as XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { useDispatch, useSelector } from "@/hooks/redux";
 
 import { paths } from "@/utils/paths";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
-import { Avatar } from "@mui/material";
+import {
+  Avatar,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
+} from "@mui/material";
+import { Button } from "nsaicomponents";
 
 export interface DashboardInfoProps {
   sx?: SxProps;
@@ -165,6 +178,15 @@ export function DashboardInfo({
   };
   const [clickedState, setClickedState] = React.useState(false);
   const [openConfirm, setOpenConfirm] = React.useState(false);
+  const [agreeTerms, setAgreeTerms] = React.useState(false);
+  const [payerTermsModalOpen, setPayerTermsModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!openConfirm) {
+      setAgreeTerms(false);
+    }
+  }, [openConfirm]);
+
   const dispatch = useDispatch();
 
   // ✅ Fix — move inside useMemo
@@ -195,8 +217,12 @@ export function DashboardInfo({
     (state: RootState) => state?.Account?.notificationPreferenceDetails
   );
 
+  const CustomerInfo = React.useMemo(() => {
+    return (dashBoardInfo?.body?.customer ?? dashBoardInfo?.customer ?? getLocalStorage("intuity-customerInfo")) as any;
+  }, [dashBoardInfo]);
+
   const { hasEmail, hasPhone } = React.useMemo(() => {
-    const customerInfo = (dashBoardInfo?.body?.customer ?? dashBoardInfo?.customer ?? getLocalStorage("intuity-customerInfo")) as any;
+    const customerInfo = CustomerInfo;
 
     const phoneNo =
       notificationPreferenceDetails?.phone_no && notificationPreferenceDetails?.phone_no !== "0"
@@ -379,7 +405,7 @@ export function DashboardInfo({
             >
               <Typography variant="h5" fontWeight={600}>
                 {type === "paperLess"
-                  ? "Paperless"
+                  ? "Paperless Billing"
                   : type === "notification"
                     ? "Bill Due Reminder"
                     : "Auto Pay"}
@@ -450,21 +476,203 @@ export function DashboardInfo({
         </CardContent>
       </Card>
 
-      <ConfirmDialog
-        open={openConfirm}
-        title={
-          type === "paperLess"
-            ? "Paperless"
-            : type === "notification"
+      {type === "paperLess" ? (
+        <>
+          {/* Paperless Confirmation Modal */}
+          <Dialog
+            open={openConfirm}
+            onClose={() => setOpenConfirm(false)}
+            PaperProps={{
+              sx: {
+                borderRadius: "16px",
+                p: { xs: 2.5, sm: 3 },
+                maxWidth: { xs: "95%", sm: "460px" },
+                width: "100%",
+                boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.12)",
+              },
+            }}
+          >
+            <DialogTitle
+              sx={{
+                color: colors.blue,
+                fontWeight: 700,
+                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                p: 0,
+                mb: 2,
+              }}
+            >
+              {clickedState ? "Go Paperless?" : "Turn Off Paperless Billing?"}
+            </DialogTitle>
+
+            <DialogContent sx={{ p: 0, mb: 3 }}>
+              <Typography
+                sx={{
+                  color: "#374151",
+                  fontSize: { xs: "0.95rem", sm: "1rem" },
+                  lineHeight: 1.5,
+                  mb: clickedState ? 2 : 0,
+                }}
+              >
+                {clickedState
+                  ? "You’re about to enroll in paperless billing. Future bills will be available online and you’ll no longer receive paper bills by mail."
+                  : "You’re about to eliminate paperless billing. Future bills will be sent by mail and available online."}
+              </Typography>
+
+              {clickedState && (
+                <FormGroup sx={{ mt: 1 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={agreeTerms}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                        sx={{
+                          color: colors.blue,
+                          "&.Mui-checked": {
+                            color: colors.blue,
+                          },
+                          p: 0.5,
+                          mr: 1,
+                        }}
+                      />
+                    }
+                    label={
+                      <Typography sx={{ fontSize: "0.95rem", color: "#374151" }}>
+                        I agree to the{" "}
+                        <Typography
+                          component="span"
+                          sx={{
+                            color: colors.blue,
+                            cursor: "pointer",
+                            fontWeight: 500,
+                            textDecoration: "underline",
+                            "&:hover": {
+                              color: colors["blue.3"],
+                            },
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setPayerTermsModalOpen(true);
+                          }}
+                        >
+                          Payer Terms and Conditions
+                        </Typography>
+                      </Typography>
+                    }
+                    sx={{ alignItems: "center", ml: 0 }}
+                  />
+                </FormGroup>
+              )}
+            </DialogContent>
+
+            <DialogActions sx={{ p: 0, justifyContent: "flex-end", gap: 1.5 }}>
+              <Button
+                variant="outlined"
+                textTransform="none"
+                style={{
+                  color: colors.blue,
+                  borderColor: colors.blue,
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  height: "40px",
+                  paddingLeft: "16px",
+                  paddingRight: "16px",
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                }}
+                onClick={() => setOpenConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={clickedState && !agreeTerms}
+                type="button"
+                variant="contained"
+                textTransform="none"
+                bgColor={colors.blue}
+                hoverBackgroundColor={colors["blue.3"]}
+                hoverColor="white"
+                style={{
+                  borderRadius: "10px",
+                  height: "40px",
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  paddingLeft: "16px",
+                  paddingRight: "16px",
+                }}
+                onClick={handleConfirm}
+              >
+                {clickedState ? "Enroll in Paperless Billing" : "Turn Off Paperless Billing"}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Payer Terms and Conditions Modal */}
+          <Dialog
+            open={payerTermsModalOpen}
+            maxWidth="sm"
+            fullWidth
+            onClose={() => setPayerTermsModalOpen(false)}
+          >
+            <DialogTitle sx={{ ml: 1, p: 2, pr: 6, fontWeight: 600, color: colors.blue }}>
+              Payer Terms and Conditions
+              <IconButton
+                aria-label="close"
+                onClick={() => setPayerTermsModalOpen(false)}
+                sx={{
+                  position: "absolute",
+                  right: 10,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <XIcon size={24} color={colors.blue} />
+              </IconButton>
+            </DialogTitle>
+            <Divider />
+
+            <DialogContent sx={{ p: 3 }}>
+              {CustomerInfo?.paperless_payer_terms_conditions ? (
+                <Typography
+                  component="div"
+                  sx={{
+                    fontSize: "0.95rem",
+                    lineHeight: 1.6,
+                    color: "#333",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: CustomerInfo.paperless_payer_terms_conditions,
+                  }}
+                />
+              ) : (
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: "0.95rem",
+                    color: "#666",
+                  }}
+                >
+                  No Terms and Conditions found.
+                </Typography>
+              )}
+            </DialogContent>
+          </Dialog>
+        </>
+      ) : (
+        <ConfirmDialog
+          open={openConfirm}
+          title={
+            type === "notification"
               ? "Notifications"
               : "Auto Pay"
-        }
-        message={`Are you sure want to ${!checked ? "ON" : "OFF"} it`}
-        confirmLabel="Yes, Confirm"
-        cancelLabel="Cancel"
-        onConfirm={handleConfirm}
-        onCancel={() => setOpenConfirm(false)}
-      />
+          }
+          message={`Are you sure want to ${!checked ? "ON" : "OFF"} it`}
+          confirmLabel="Yes, Confirm"
+          cancelLabel="Cancel"
+          onConfirm={handleConfirm}
+          onCancel={() => setOpenConfirm(false)}
+        />
+      )}
     </>
   );
 }

@@ -1,3 +1,3 @@
 export default function Loading() {
-  return <p>Loading Paper Less details...</p>;
+  return <p>Loading Paperless Billing details...</p>;
 }

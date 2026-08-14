@@ -74,7 +74,7 @@ export const navItems = [
       },
       {
         key: "paperless",
-        title: "Go Paperless",
+        title: "Paperless Billing",
         icon: "paperless",
         href: paths.dashboard.paperless(),
         pathFun: paths.dashboard.paperless(),

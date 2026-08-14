@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
-import { getNotificationList } from "@/state/features/dashBoardSlice";
+import { getNotificationList, getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
@@ -26,6 +26,8 @@ import Header from '@/components/CommonComponents/header-common';
 
 const PayerTermsConditionsModal = () => {
   const [payerTermsModalOpen, setPayerTermsModalOpen] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
@@ -35,34 +37,27 @@ const PayerTermsConditionsModal = () => {
     : dashBoardInfo?.customer
       ? dashBoardInfo?.customer
       : getLocalStorage("intuity-customerInfo");
-  const [isPaperLessOn, setIsPaperLessOn] = useState(false);
+
+  const isPaperLessOn = CustomerInfo?.paperless === 1;
   const dispatch = useDispatch();
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
-  useEffect(() => {
-    setIsPaperLessOn(CustomerInfo?.paperless === 1 ? true : false);
-  }, [CustomerInfo?.paperless]);
-  const handleChange = () => {
-    setIsPaperLessOn((prev) => !prev);
-  };
-
   const raw = getLocalStorage("intuity-user");
-
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
-  // let roleId = stored?.user?.body?.acl_role_id;
-  // let userId = stored?.user?.body?.id;
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
+
   const handleSave = () => {
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-    formData.append("paperless", isPaperLessOn ? "on" : "off");
-    dispatch(updatePaperLessInfo(formData, "", successCallBack));
+    formData.append("paperless", isPaperLessOn ? "off" : "on");
+    dispatch(updatePaperLessInfo(formData, "paperless", successCallBack));
   };
+
   const successCallBack = () => {
     const formData = new FormData();
 
@@ -72,89 +67,123 @@ const PayerTermsConditionsModal = () => {
     formData.append("page_no", "0");
     formData.append("markRead", "0");
     formData.append("model_open", "9");
-    // formData.append('is_form', '0');
 
     dispatch(getNotificationList(formData));
     updateLocalStorageValue(
       "intuity-customerInfo",
       "paperless",
-      isPaperLessOn ? 1 : 0
+      isPaperLessOn ? 0 : 1
     );
+    if (roleId && userId) {
+      dispatch(getDashboardInfo(roleId, userId));
+    }
+    setAgreeTerms(false);
   };
 
   return (
     <Grid>
-      <Header title="Paperless" />
+      <Header title="Paperless Billing" />
       <Divider />
 
-      <CardContent>
-        <Grid container spacing={6} wrap="wrap" justifyContent="space-between">
-          <Grid m={5} sm={6} xs={12}>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox onChange={handleChange} checked={isPaperLessOn} />
-                }
-                label={
-                  <>
-                    By enabling Paperless, I agree to the{" "}
-                    <Typography
-                      component="span" // ensures it stays inline with the text
-                      sx={{
-                        color: colors.blue,
+      <CardContent sx={{ p: { xs: 2.5, sm: 4 } }}>
+        <Typography
+          variant="h5"
+          sx={{
+            color: colors.blue,
+            fontWeight: 700,
+            mb: 2,
+            fontSize: { xs: "1.25rem", sm: "1.5rem" },
+          }}
+        >
+          {isPaperLessOn ? "Turn Off Paperless Billing?" : "Go Paperless?"}
+        </Typography>
 
-                        cursor: "pointer",
-                        display: "inline-block",
-                        transition: "border-bottom 0.2s ease",
-                        borderBottom: "2px solid transparent",
-                        "&:hover": {
-                          borderBottom: "2px solid",
-                          borderColor: colors["blue.1"],
-                        },
-                      }}
-                      // Optional: onClick handler if you want to trigger something
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setPayerTermsModalOpen(true);
-                      }}
-                    >
-                      Payer Terms and Conditions
-                    </Typography>
-                  </>
-                }
-              />
-            </FormGroup>
-          </Grid>
-        </Grid>
+        <Typography
+          sx={{
+            color: "#374151",
+            fontSize: { xs: "0.95rem", sm: "1rem" },
+            lineHeight: 1.5,
+            mb: 3,
+          }}
+        >
+          {isPaperLessOn
+            ? "You’re about to eliminate paperless billing. Future bills will be sent by mail and available online."
+            : "You’re about to enroll in paperless billing. Future bills will be available online and you’ll no longer receive paper bills by mail."}
+        </Typography>
+
+        {!isPaperLessOn && (
+          <FormGroup sx={{ mb: 1 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  sx={{
+                    color: colors.blue,
+                    "&.Mui-checked": {
+                      color: colors.blue,
+                    },
+                    p: 0.5,
+                    mr: 1,
+                  }}
+                />
+              }
+              label={
+                <Typography sx={{ fontSize: "0.95rem", color: "#374151" }}>
+                  I agree to the{" "}
+                  <Typography
+                    component="span"
+                    sx={{
+                      color: colors.blue,
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      textDecoration: "underline",
+                      "&:hover": {
+                        color: colors["blue.3"],
+                      },
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setPayerTermsModalOpen(true);
+                    }}
+                  >
+                    Payer Terms and Conditions
+                  </Typography>
+                </Typography>
+              }
+              sx={{ alignItems: "center", ml: 0 }}
+            />
+          </FormGroup>
+        )}
       </CardContent>
+
       <Divider />
-      <CardActions sx={{ justifyContent: "flex-end" }}>
+
+      <CardActions sx={{ p: 3, justifyContent: "flex-end", gap: 1.5 }}>
         <Button
           variant="outlined"
-          textTransform="capitalize"
+          textTransform="none"
           style={{
             color: colors.blue,
             borderColor: colors.blue,
             backgroundColor: "white",
-            borderRadius: "12px",
+            borderRadius: "10px",
             height: "41px",
+            paddingLeft: "20px",
+            paddingRight: "20px",
+            fontSize: "0.95rem",
+            fontWeight: 600,
           }}
-          disabled={
-            accountLoading ||
-            (CustomerInfo?.paperless === 1 && isPaperLessOn) ||
-            (CustomerInfo?.paperless !== 1 && !isPaperLessOn)
-          }
-          onClick={() => { setIsPaperLessOn(CustomerInfo?.paperless === 1) }}
+          disabled={accountLoading}
+          onClick={() => {
+            setAgreeTerms(false);
+          }}
         >
           Cancel
         </Button>
         <Button
-          disabled={
-            accountLoading ||
-            (CustomerInfo?.paperless === 1 && isPaperLessOn) ||
-            (CustomerInfo?.paperless !== 1 && !isPaperLessOn)
-          }
+          disabled={accountLoading || (!isPaperLessOn && !agreeTerms)}
           loading={accountLoading}
           type="submit"
           variant="contained"
@@ -163,17 +192,27 @@ const PayerTermsConditionsModal = () => {
           hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
           style={{
-            borderRadius: "12px",
+            borderRadius: "10px",
             height: "41px",
-            // backgroundColor: 'red',
+            fontSize: "0.95rem",
+            fontWeight: 600,
+            paddingLeft: "20px",
+            paddingRight: "20px",
           }}
           onClick={handleSave}
         >
-          Save changes
+          {isPaperLessOn ? "Turn Off Paperless Billing" : "Enroll in Paperless Billing"}
         </Button>
       </CardActions>
-      <Dialog open={payerTermsModalOpen} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ ml: 1, p: 2 }}>
+
+      {/* Payer Terms and Conditions Dialog */}
+      <Dialog
+        open={payerTermsModalOpen}
+        maxWidth="sm"
+        fullWidth
+        onClose={() => setPayerTermsModalOpen(false)}
+      >
+        <DialogTitle sx={{ ml: 1, p: 2, pr: 6, fontWeight: 600, color: colors.blue }}>
           Payer Terms and Conditions
           <IconButton
             aria-label="close"
@@ -190,15 +229,14 @@ const PayerTermsConditionsModal = () => {
         </DialogTitle>
         <Divider />
 
-        <DialogContent>
-          <Typography variant="h6"></Typography>
+        <DialogContent sx={{ p: 3 }}>
           {CustomerInfo?.paperless_payer_terms_conditions ? (
             <Typography
               component="div"
               sx={{
-                display: "inline-block",
-                transition: "border-bottom 0.2s ease",
-                borderBottom: "2px solid transparent",
+                fontSize: "0.95rem",
+                lineHeight: 1.6,
+                color: "#333",
               }}
               dangerouslySetInnerHTML={{
                 __html: CustomerInfo.paperless_payer_terms_conditions,
@@ -206,11 +244,10 @@ const PayerTermsConditionsModal = () => {
             />
           ) : (
             <Typography
-              component="span" // ensures it stays inline with the text
+              component="span"
               sx={{
-                display: "inline-block",
-                transition: "border-bottom 0.2s ease",
-                borderBottom: "2px solid transparent",
+                fontSize: "0.95rem",
+                color: "#666",
               }}
             >
               No Terms and Conditions found.

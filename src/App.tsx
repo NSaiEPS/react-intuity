@@ -241,7 +241,7 @@ export const router = createBrowserRouter([
           {
             path: "paperless",
             element: withSuspense(
-              <ProtectedRoute title="Paper Less">
+              <ProtectedRoute title="Paperless Billing">
                 <PaperLessPage />
               </ProtectedRoute>
             ),
