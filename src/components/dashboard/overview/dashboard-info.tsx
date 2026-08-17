@@ -144,11 +144,19 @@ export function DashboardInfo({
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
+  const myCardsList = useSelector(
+    (state: RootState) => state?.Account?.paymentMethodInfo
+  );
 
   const [checked, setChecked] = React.useState(() => {
     if (type === "notification") {
       const val = dashBoardInfo?.body?.[typeofUser]?.[value];
       return val !== undefined && val !== null && val != 4 && val !== "4" && val !== "None";
+    }
+    if (type === "autoPay") {
+      if (Array.isArray(myCardsList) && myCardsList.length === 0) {
+        return false;
+      }
     }
     const val = dashBoardInfo?.body?.[typeofUser]?.[value];
     if (val !== undefined && val !== null) {
@@ -164,6 +172,19 @@ export function DashboardInfo({
       if (val !== undefined && val !== null) {
         setChecked(val != 4 && val !== "4" && val !== "None");
       }
+    } else if (type === "autoPay") {
+      if (Array.isArray(myCardsList) && myCardsList.length === 0) {
+        setChecked(false);
+        updateLocalStorageValue("intuity-customerInfo", "autopay", 0);
+      } else {
+        const val = dashBoardInfo?.body?.[typeofUser]?.[value];
+        if (val !== undefined && val !== null) {
+          setChecked(Number(val) === 1);
+        } else {
+          const localInfo = getLocalStorage("intuity-customerInfo") as any;
+          setChecked(Number(localInfo?.autopay) === 1);
+        }
+      }
     } else {
       const val = dashBoardInfo?.body?.[typeofUser]?.[value];
       if (val !== undefined && val !== null) {
@@ -173,7 +194,7 @@ export function DashboardInfo({
         setChecked(Number(localInfo?.autopay) === 1);
       }
     }
-  }, [dashBoardInfo?.body, type, typeofUser, value]);
+  }, [dashBoardInfo?.body, myCardsList, type, typeofUser, value]);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // setChecked();
     if (type === "autoPay") {

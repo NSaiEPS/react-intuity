@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { deleteCardAndBankAccount, getPaymentDetails, getPaymentProcessorDetails } from '@/state/features/accountSlice';
+import { getDashboardInfo } from '@/state/features/dashBoardSlice';
 import { RootState } from '@/state/store';
 import { boarderRadius, colors, CustomerInfo, decryptFunction } from '@/utils';
-import { getLocalStorage } from '@/utils/auth';
+import { getLocalStorage, updateLocalStorageValue } from '@/utils/auth';
 import {
   Box,
   Button,
@@ -1116,23 +1117,40 @@ export const PaymentMethods = ({
   }, []);
 
   const handleConfirm = React.useCallback(() => {
+    const roleId = stored?.body?.acl_role_id;
+    const userId = stored?.body?.customer_id;
+
     const formData = new FormData();
-    formData.append('acl_role_id', stored?.body?.acl_role_id);
-    formData.append('customer_id', stored?.body?.customer_id);
+    formData.append('acl_role_id', roleId);
+    formData.append('customer_id', userId);
     formData.append('id', deleCardDetails?.id?.toString() || '');
     formData.append('payment_method', '1');
-    formData.append('customerid', stored?.body?.customer_id);
+    formData.append('customerid', userId);
 
     dispatch(
       deleteCardAndBankAccount(formData, deleCardDetails?.card_type ? 'card' : 'bank_account', () => {
         setOpenConfirm(false);
         const refreshForm = new FormData();
-        refreshForm.append('acl_role_id', stored?.body?.acl_role_id);
-        refreshForm.append('customer_id', stored?.body?.customer_id);
-        dispatch(getPaymentDetails(refreshForm));
+        refreshForm.append('acl_role_id', roleId);
+        refreshForm.append('customer_id', userId);
+
+        dispatch(getPaymentDetails(refreshForm, false, (customerData: any) => {
+          if (customerData?.autopay !== undefined && customerData?.autopay !== null) {
+            updateLocalStorageValue('intuity-customerInfo', 'autopay', Number(customerData.autopay));
+          }
+        }, undefined, (resBody: any) => {
+          const remainingCards = resBody?.mycards || [];
+          if (!Array.isArray(remainingCards) || remainingCards.length === 0) {
+            updateLocalStorageValue('intuity-customerInfo', 'autopay', 0);
+          }
+        }));
+
+        if (roleId && userId) {
+          dispatch(getDashboardInfo(roleId, userId));
+        }
       })
     );
-  }, [deleCardDetails, dispatch]);
+  }, [deleCardDetails, dispatch, stored]);
 
   const handleSaveDetails = () => {
     const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(

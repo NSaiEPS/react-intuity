@@ -70,15 +70,13 @@ class GlobalErrorBoundary extends React.Component<
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <GlobalErrorBoundary>
-      <UserProvider>
-        <LoadingProvider>
-          <Layout>
-            <RouterProvider router={router} />
-          </Layout>
-        </LoadingProvider>
-      </UserProvider>
-    </GlobalErrorBoundary>
-  </React.StrictMode>
+  <GlobalErrorBoundary>
+    <UserProvider>
+      <LoadingProvider>
+        <Layout>
+          <RouterProvider router={router} />
+        </Layout>
+      </LoadingProvider>
+    </UserProvider>
+  </GlobalErrorBoundary>
 );
