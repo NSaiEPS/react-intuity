@@ -4,7 +4,7 @@ import {
   usageUtilityFilters,
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
-import { colorPalette } from "@/utils";
+import { colorPalette, colors } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import {
   Box,
@@ -278,19 +278,19 @@ const BarChart = () => {
     const gallons: number[] = [];
     const dollars: number[] = [];
     const dates: string[] = [];
-    const colors: string[] = [];
+    const colorsList: string[] = [];
     if (barData?.bar_chart_data) {
-      Object.entries(barData.bar_chart_data).forEach(([key, values], index) => {
+      Object.entries(barData.bar_chart_data).forEach(([key, values]) => {
         const dateStr = key?.split(",")[0] ?? "";
         if (dateStr.toLowerCase().includes("no data")) return;
         gallons.push(Number(values?.[0]) || 0);
         dollars.push(Number(values?.[1]) || 0);
         dates.push(dateStr);
-        colors.push(colorPalette[index] || "#f97316");
+        colorsList.push(colors.blue);
       });
     }
 
-    setBarGraphData({ gallons, dollars, dates, colors });
+    setBarGraphData({ gallons, dollars, dates, colors: colorsList });
   };
 
   useEffect(() => {
@@ -365,7 +365,7 @@ const BarChart = () => {
           fontSize: "14px",
         },
       },
-      colors: barGraphData.colors?.length ? [...barGraphData.colors] : ["#f97316"],
+      colors: [colors.blue],
       plotOptions: {
         bar: {
           columnWidth: "40%",

@@ -260,20 +260,20 @@ export function Sales({
     const gallons: string[] = [];
     const dollars: string[] = [];
     const dates: string[] = [];
-    const colors: string[] = [];
+    const colorsList: string[] = [];
 
     if (barData) {
-      barData.forEach((item: any, index: number) => {
+      barData.forEach((item: any) => {
         const dateStr = item?.[0] ?? "";
         if (dateStr.toLowerCase().includes("no data")) return;
         gallons.push(item?.[3] ?? "0");
         dollars.push("");
         dates.push(dateStr);
-        colors.push(colorPalette[index % colorPalette.length]);
+        colorsList.push(colors.blue);
       });
     }
 
-    setBarGraphData({ gallons, dollars, dates, colors });
+    setBarGraphData({ gallons, dollars, dates, colors: colorsList });
   };
 
   React.useEffect(() => {
@@ -303,50 +303,50 @@ export function Sales({
       return billingRecords.map((r) => r.amount);
     }
     return (barGraphData.gallons || []).map((v) => {
-      if (typeof v === "number") return v;
-      const parsed = parseFloat(String(v).replace(/,/g, ""));
-      return isNaN(parsed) ? 0 : parsed;
+      const num = parseFloat(String(v).replace(/,/g, ""));
+      return isNaN(num) ? 0 : num;
     });
   }, [isBillingHistoryChart, billingRecords, barGraphData.gallons]);
 
   const yAxisBounds = React.useMemo(() => {
-    const valid = numericValues.filter((v) => typeof v === "number" && !isNaN(v));
+    const valid = numericValues.filter((v) => !isNaN(v) && v > 0);
     if (!valid.length) {
-      return { min: 0, max: isBillingHistoryChart ? 500 : 4000, tickAmount: 4 };
+      return { min: 0, max: isBillingHistoryChart ? 100 : 1000, tickAmount: 4 };
     }
-
     const minVal = Math.min(...valid);
     const maxVal = Math.max(...valid);
 
+    if (minVal === maxVal) {
+      const min = Math.max(0, Math.floor(minVal * 0.8));
+      const max = Math.ceil(maxVal * 1.2) || min + 100;
+      return { min, max, tickAmount: 4 };
+    }
+
+    const range = maxVal - minVal;
+    const rawStep = range / 4;
+
     if (isBillingHistoryChart) {
-      const min = minVal < 0 ? Math.floor(minVal / 50) * 50 : 0;
-      const maxTarget = Math.max(100, maxVal);
-      const range = maxTarget - min;
-      const rawStep = range / 4;
-      const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
-      const residual = rawStep / magnitude;
+      const step = Math.ceil(rawStep / 10) * 10 || 10;
+      let min = Math.floor(minVal / step) * step;
+      let max = Math.ceil(maxVal / step) * step;
+
+      if (min >= minVal || minVal - min < step * 0.3) {
+        min = Math.max(0, min - step);
+      }
+      if (max <= min) max = min + step * 4;
+
+      const tickAmount = Math.max(1, Math.round((max - min) / step));
+      return { min, max, tickAmount };
+    } else {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep > 0 ? rawStep : 1)));
+      const residual = rawStep / (magnitude || 1);
       let niceResidual = 10;
       if (residual <= 1) niceResidual = 1;
       else if (residual <= 2) niceResidual = 2;
       else if (residual <= 2.5) niceResidual = 2.5;
       else if (residual <= 5) niceResidual = 5;
 
-      const step = niceResidual * magnitude;
-      let max = Math.ceil(maxTarget / step) * step;
-      if (max <= min) max = min + step * 4;
-      const tickAmount = Math.max(1, Math.round((max - min) / step));
-      return { min, max, tickAmount };
-    } else {
-      if (minVal === maxVal) {
-        const min = Math.max(0, Math.floor((minVal * 0.8) / 1000) * 1000);
-        const max = Math.ceil((maxVal * 1.2) / 1000) * 1000 || 4000;
-        const tickAmount = Math.max(1, Math.round((max - min) / 1000));
-        return { min, max, tickAmount };
-      }
-
-      const range = maxVal - minVal;
-      const rawStep = range / 4;
-      let step = Math.max(1000, Math.ceil((rawStep || 1000) / 1000) * 1000);
+      const step = niceResidual * magnitude || 1;
 
       let min = Math.floor(minVal / step) * step;
       if (min >= minVal || minVal - min < step * 0.4) {
@@ -388,11 +388,7 @@ export function Sales({
         position: "top",
         horizontalAlign: "right",
       },
-      colors: isNoData
-        ? [colors.blue]
-        : isBillingHistoryChart
-        ? billingRecords.map((_, index) => colorPalette[index % colorPalette.length] || colors.blue)
-        : !barGraphData.colors?.length ? ["#f97316"] : [...barGraphData.colors],
+      colors: [colors.blue],
 
       plotOptions: {
         bar: {

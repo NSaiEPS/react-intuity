@@ -150,20 +150,27 @@ export function DashboardInfo({
       const val = dashBoardInfo?.body?.[typeofUser]?.[value];
       return val !== undefined && val !== null && val != 4 && val !== "4" && val !== "None";
     }
-    return dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false;
+    const val = dashBoardInfo?.body?.[typeofUser]?.[value];
+    if (val !== undefined && val !== null) {
+      return Number(val) === 1;
+    }
+    const localInfo = getLocalStorage("intuity-customerInfo") as any;
+    return Number(localInfo?.autopay) === 1;
   });
 
   React.useEffect(() => {
-    if (dashBoardInfo?.body) {
-      if (type === "notification") {
-        const val = dashBoardInfo?.body?.[typeofUser]?.[value];
-        if (val !== undefined && val !== null) {
-          setChecked(val != 4 && val !== "4" && val !== "None");
-        }
+    if (type === "notification") {
+      const val = dashBoardInfo?.body?.[typeofUser]?.[value];
+      if (val !== undefined && val !== null) {
+        setChecked(val != 4 && val !== "4" && val !== "None");
+      }
+    } else {
+      const val = dashBoardInfo?.body?.[typeofUser]?.[value];
+      if (val !== undefined && val !== null) {
+        setChecked(Number(val) === 1);
       } else {
-        setChecked(
-          dashBoardInfo?.body?.[typeofUser]?.[value] === 1 ? true : false
-        );
+        const localInfo = getLocalStorage("intuity-customerInfo") as any;
+        setChecked(Number(localInfo?.autopay) === 1);
       }
     }
   }, [dashBoardInfo?.body, type, typeofUser, value]);

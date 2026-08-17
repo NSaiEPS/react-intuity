@@ -52,10 +52,11 @@ import {
 import AddBankAccountModal from '../add-bank-modal';
 import AddCardModal from '../add-card-modal';
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '@/hooks/redux';
 import { RootState, store } from '@/state/store';
 import { getLocalStorage, IntuityUser, updateLocalStorageValue } from '@/utils/auth';
+import { paths } from '@/utils/paths';
 import { getPaymentProcessorDetails, getConvenienceFee, getPaymentDetails, updatePaperLessInfo } from '@/state/features/accountSlice';
 import { colors, CustomerInfo } from '@/utils';
 import dayjs, { Dayjs } from 'dayjs';
@@ -740,11 +741,17 @@ function EnrollChoose({
     autopayMethodInfo?.card_type
   );
 
+  React.useEffect(() => {
+    if (!hasSavedCard && paymentType !== 'no-save') {
+      setPaymentType('no-save');
+    }
+  }, [hasSavedCard, paymentType, setPaymentType]);
+
   const canContinue =
     paymentType === 'saved'
       ? hasSavedCard
       : paymentType === 'no-save'
-        ? newCardSelected && hasSavedCard
+        ? newCardSelected || hasSavedCard
         : false;
 
   return (
@@ -802,12 +809,12 @@ function EnrollChoose({
             setPaymentType(val);
           }}
         >
-          {/* Option 1: Saved Payment Method */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
-            <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} />
+          {/* Option 1: Saved Payment Method - Only rendered if saved card exists */}
+          {hasSavedCard && (
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
+              <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} />
 
-            {/* Saved payment details box */}
-            {hasSavedCard && (
+              {/* Saved payment details box */}
               <Box
                 onClick={() => {
                   setPaymentType('saved');
@@ -874,36 +881,8 @@ function EnrollChoose({
                   </svg>
                 </Box>
               </Box>
-            )}
-
-            {/* Manage Button */}
-            {!hasSavedCard && (
-              <ButtonComp
-                variant="contained"
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenPaymentModal(true);
-                }}
-                sx={{
-                  textTransform: 'none',
-                  backgroundColor: '#1E6091',
-                  color: '#ffffff',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: '4px',
-                  ml: 1,
-                  '&:hover': {
-                    backgroundColor: '#184E77',
-                  },
-                }}
-              >
-                Manage
-              </ButtonComp>
-            )}
-          </Box>
+            </Box>
+          )}
 
           {/* Option 2: Pay this bill only */}
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -1237,6 +1216,7 @@ function Dashboard({
 
 export default function AutoPayPrototype() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { contextLoading, setContextLoading } = useLoading();
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
@@ -1247,6 +1227,15 @@ export default function AutoPayPrototype() {
   const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
   const raw = getLocalStorage('intuity-user');
   const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+
+  const isInitialAutopayOn = () => {
+    const apiVal = dashBoardInfo?.body?.customer?.autopay;
+    if (apiVal !== undefined && apiVal !== null) {
+      return Number(apiVal) === 1;
+    }
+    const cust = getLocalStorage('intuity-customerInfo') as any;
+    return Number(cust?.autopay) === 1;
+  };
 
   // const CustomerInfo: CustomerInfo | null = dashBoardInfo?.body?.customer
   //   ? (dashBoardInfo?.body?.customer as unknown as CustomerInfo)
@@ -1344,13 +1333,32 @@ export default function AutoPayPrototype() {
     // { id: "seed1", type: "card", brand: "Visa", last4: "1111", isDefault: true },
   ]);
   const [paymentType, setPaymentType] = useState<'saved' | 'no-save' | ''>('');
-  const [autopayEnabled, setAutopayEnabled] = useState(userInfo?.autopay === 1 ? true : false);
+  const [autopayEnabled, setAutopayEnabled] = useState(() => isInitialAutopayOn());
   const [everEnrolled, setEverEnrolled] = useState(false);
   const [autopayMethodInfo, setAutopayMethodInfo] = useState(dashBoardInfo?.body?.autopay_card || null)
   const [autopayMethodId, setAutopayMethodId] = useState<string | number | null>(dashBoardInfo?.body?.autopay_card?.id || null);
   const [authChecked, setAuthChecked] = useState(false);
 
-  const [view, setView] = useState<ViewName>('dashboard');
+  const hasSavedAutopayCard = Boolean(
+    autopayMethodInfo?.id ||
+    autopayMethodInfo?.card_token ||
+    autopayMethodInfo?.token ||
+    autopayMethodInfo?.card_number ||
+    autopayMethodInfo?.bank_account_number ||
+    autopayMethodInfo?.card_type ||
+    autopayMethodInfo?.account_type ||
+    dashBoardInfo?.body?.autopay_card?.id ||
+    dashBoardInfo?.body?.autopay_card?.card_token
+  );
+
+  const getInitialView = (): ViewName => {
+    if (isInitialAutopayOn()) {
+      return 'deactivate';
+    }
+    return 'enroll-choose';
+  };
+
+  const [view, setView] = useState<ViewName>(() => getInitialView());
   const [pendingDefaultModal, setPendingDefaultModal] = useState<string | null>(null); // newly-added method awaiting default decision
   const [showSuccess, setShowSuccess] = useState(false);
   const [showDeactivated, setShowDeactivated] = useState(false);
@@ -1406,19 +1414,23 @@ export default function AutoPayPrototype() {
   /* ---------------- Dashboard toggle ---------------- */
   function handleToggle() {
     if (!autopayEnabled) {
-      // OFF -> ON : always redirect to enroll in autopay screen
-      const hasSavedAutopayCard = Boolean(
+      // OFF -> ON : Redirect to Step 1 Enroll in AutoPay
+      const hasSavedCard = Boolean(
         autopayMethodInfo?.id ||
         autopayMethodInfo?.card_token ||
         autopayMethodInfo?.token ||
         autopayMethodInfo?.card_number ||
-        autopayMethodInfo?.bank_account_number
+        autopayMethodInfo?.bank_account_number ||
+        autopayMethodInfo?.card_type ||
+        autopayMethodInfo?.account_type ||
+        (methods && methods.length > 0) ||
+        (myCards && myCards.length > 0)
       );
       setNewCardSelected(false);
-      setPaymentType(hasSavedAutopayCard ? 'saved' : '');
+      setPaymentType(hasSavedCard ? 'saved' : 'no-save');
       setView('enroll-choose');
     } else {
-      // ON -> OFF : go to the Deactivate page
+      // ON -> OFF : Redirect to Deactivate Page
       setView('deactivate');
     }
   }
@@ -1548,7 +1560,7 @@ export default function AutoPayPrototype() {
     setShowSuccess(false);
     setAutopayEnabled(true);
     setEverEnrolled(true);
-    setView('dashboard');
+    navigate(paths.dashboard.overview());
   }
 
   /* ---------------- Deactivation ---------------- */
@@ -1583,17 +1595,16 @@ export default function AutoPayPrototype() {
     setAutopayEnabled(false);
     setisAutoPay(false);
     updateLocalStorageValue('intuity-customerInfo', 'autopay', 0);
-    setView('dashboard');
     setShowDeactivated(true);
   }
   function finishDeactivation() {
     handleHomeApi();
     setShowDeactivated(false);
     setAutopayEnabled(false);
-    setView('dashboard');
+    navigate(paths.dashboard.overview());
   }
   function handleKeepAutopay() {
-    setView('dashboard');
+    navigate(paths.dashboard.overview());
   }
 
   /* ---------------- Change payment method (from Dashboard link) ---------------- */
@@ -1685,7 +1696,10 @@ export default function AutoPayPrototype() {
                 setPaymentType('saved');
                 setOpenPaymentModal(false);
                 setNewCardSelected(true);
-                // setOpenConfirm(true);
+                setAuthChecked(false);
+                if (view === 'enroll-choose') {
+                  setView('review');
+                }
               } catch {
                 console.error('Failed to parse card details');
               }
@@ -1707,6 +1721,10 @@ export default function AutoPayPrototype() {
             setPaymentType('saved');
             setBankModalOpen(false);
             setNewCardSelected(true);
+            setAuthChecked(false);
+            if (view === 'enroll-choose') {
+              setView('review');
+            }
           }}
           onReturnCard={(data) => {
             const newlyAdded =
@@ -1724,6 +1742,10 @@ export default function AutoPayPrototype() {
             setPaymentType('saved');
             setBankModalOpen(false);
             setNewCardSelected(true);
+            setAuthChecked(false);
+            if (view === 'enroll-choose') {
+              setView('review');
+            }
           }}
         />
       )}
@@ -1740,6 +1762,10 @@ export default function AutoPayPrototype() {
             setPaymentType('saved');
             setCardModalOpen(false);
             setNewCardSelected(true);
+            setAuthChecked(false);
+            if (view === 'enroll-choose') {
+              setView('review');
+            }
           }}
           onReturnCard={(data) => {
             const newlyAdded =
@@ -1757,6 +1783,10 @@ export default function AutoPayPrototype() {
             setPaymentType('saved');
             setCardModalOpen(false);
             setNewCardSelected(true);
+            setAuthChecked(false);
+            if (view === 'enroll-choose') {
+              setView('review');
+            }
           }}
         />
       )}
@@ -1786,7 +1816,7 @@ export default function AutoPayPrototype() {
             onNewMethodContinue={handleNewMethodFromEnroll}
             autopayMethodInfo={autopayMethodInfo}
             newCardSelected={newCardSelected}
-            onCancel={() => setView('dashboard')}
+            onCancel={() => navigate(paths.dashboard.overview())}
             accountNo={accountNumber}
             amountDue={billAmountDue}
             dueDate={formattedBillDueDate}
