@@ -4,19 +4,21 @@ import {
   updateAccountCustomerInfo,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+import { colors, fileToBase64 } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
   Button,
   CardActions,
+  Chip,
   FormControlLabel,
   FormHelperText,
   Radio,
   RadioGroup,
   Typography,
 } from "@mui/material";
+import { XSquare } from "@phosphor-icons/react/dist/ssr/XSquare";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
@@ -112,9 +114,26 @@ export function AccountDetailsForm(): React.JSX.Element {
   };
 
   const [newInfo, setNewInfo] = React.useState(initialState);
+  const [files, setFiles] = React.useState<File[]>([]);
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const selectedFiles = Array.from(e.target.files);
+    setFiles((prev) => [...prev, ...selectedFiles]);
+    e.target.value = "";
+  };
+
+  const handleFileRemove = (index: number) => {
+    setFiles((prev) => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+      return updated;
+    });
+  };
 
   const handleCancel = () => {
     setNewInfo(initialState);
+    setFiles([]);
   };
 
   //   React.useEffect(() => {
@@ -185,9 +204,13 @@ export function AccountDetailsForm(): React.JSX.Element {
     dispatch(getAccountInfo(roleId, userId));
   };
 
-  const onSubmit = (data: FormSchema) => {
+  const onSubmit = async (data: FormSchema) => {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
+
+    const base64Files = await Promise.all(
+      files.map((file) => fileToBase64(file))
+    );
 
     const userData = new FormData();
     userData.append("acl_role_id", roleId);
@@ -199,17 +222,26 @@ export function AccountDetailsForm(): React.JSX.Element {
     userData.append("altPhone", data.alt_phone || "");
     userData.append("amthe", data.role);
 
+    base64Files.forEach((base64) => {
+      userData.append("attachment_file", base64);
+    });
+
     dispatch(updateAccountCustomerInfo(userData, successCallback));
   };
 
   const successCallback = () => {
     getUserDetails();
     setNewInfo(initialState);
+    setFiles([]);
   };
 
-  const handleNewInfoSubmit = () => {
+  const handleNewInfoSubmit = async () => {
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
+
+    const base64Files = await Promise.all(
+      files.map((file) => fileToBase64(file))
+    );
 
     const userData = new FormData();
 
@@ -221,6 +253,10 @@ export function AccountDetailsForm(): React.JSX.Element {
     userData.append("primaryPhone", newInfo.primary_phone);
     userData.append("altPhone", newInfo.alt_phone);
     userData.append("amthe", newInfo.role);
+
+    base64Files.forEach((base64) => {
+      userData.append("attachment_file", base64);
+    });
 
     dispatch(updateAccountCustomerInfo(userData, successCallback));
   };
@@ -524,16 +560,42 @@ export function AccountDetailsForm(): React.JSX.Element {
                   <FormHelperText>{errors.comment.message}</FormHelperText>
                 ) : null}
               </FormControl>
+            </Grid>
 
+            <Grid item xs={12} sx={{ pt: 3 }}>
+              <FormControl fullWidth>
+                <Typography variant="body1" mb={1}>
+                  Please upload any supporting documents or photos: (Photos or PDFs, etc..)
+                </Typography>
+                <OutlinedInput
+                  type="file"
+                  inputProps={{ multiple: true }}
+                  onChange={handleFilesChange}
+                />
+              </FormControl>
+
+              {files.length > 0 && (
+                <Grid container spacing={1} mt={2}>
+                  {files.map((file, index) => (
+                    <Grid item key={`${file.name}-${file.lastModified}`}>
+                      <Chip
+                        label={file.name}
+                        onDelete={() => handleFileRemove(index)}
+                        deleteIcon={<XSquare />}
+                        variant="outlined"
+                        color="primary"
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
             </Grid>
           </CardContent>
           <Divider />
           <CardActions sx={{ justifyContent: "flex-end", border: "none", px: 3.2, py: 2 }}>
             <Button
               type="button"
-              onClick={() => {
-                setNewInfo(initialState);
-              }}
+              onClick={handleCancel}
               sx={{ color: colors.blue, borderColor: colors.blue }}
               variant="outlined"
             >

@@ -2,7 +2,21 @@ import { boarderRadius } from '@/utils';
 import { Card, Link as MuiLink, Stack } from '@mui/material';
 import { Envelope, Headphones, Globe } from '@phosphor-icons/react/dist/ssr';
 
-export function IconCards({ type }) {
+interface IconCardsProps {
+  type: string;
+  href?: string;
+}
+
+export function IconCards({ type, href }: IconCardsProps) {
+  const Icon =
+    type === 'Headphones'
+      ? Headphones
+      : type === 'Website'
+      ? Globe
+      : Envelope;
+
+  const cardContent = <Icon size={24} weight="regular" />;
+
   return (
     <Stack>
       <Card
@@ -22,37 +36,22 @@ export function IconCards({ type }) {
           },
         }}
       >
-        {type === 'Headphones' ? (
+        {href ? (
           <MuiLink
-            href="tel:+12345678900"
+            href={href}
+            target={type === 'Website' ? '_blank' : undefined}
+            rel={type === 'Website' ? 'noopener noreferrer' : undefined}
             underline="none"
             color="inherit"
             sx={{ display: 'inline-flex', alignItems: 'center' }}
           >
-            <Headphones size={24} weight="regular" />
+            {cardContent}
           </MuiLink>
-        ) : type === 'Website' ? (
-          <MuiLink
-            href={'www.intuity.com'}
-            target="_blank"
-            rel="noopener noreferrer"
-            underline="none"
-            color="inherit"
-            sx={{ display: 'inline-flex', alignItems: 'center' }}
-          >
-            <Globe size={24} weight="regular" />
-          </MuiLink>
-        ) :(
-          <MuiLink
-            href="mailto:info@intuity.com"
-            underline="none"
-            color="inherit"
-            sx={{ display: 'inline-flex', alignItems: 'center' }}
-          >
-            <Envelope size={24} weight="regular" />
-          </MuiLink>
+        ) : (
+          cardContent
         )}
       </Card>
     </Stack>
   );
 }
+

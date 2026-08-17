@@ -39,22 +39,22 @@ export function TotalProfit({
     (state: RootState) => state?.DashBoard
   );
 
+  const company = dashBoardInfo?.body?.company ?? dashBoardInfo?.company;
+
+
+
   const { due_date } = dashBoardInfo?.body?.customer?.last_bill || {};
   const { balance } = dashBoardInfo?.body?.dashboard || {};
 
-  const [companyDetails, setCompanyDetails] = React.useState({
-    phone: "+12345678900",
-    email: "info@intuity.com",
-    website: "www.intuity.com",
-  });
-
-  React.useEffect(() => {
-    setCompanyDetails({
-      phone: aliasUser?.phone || "+12345678900",
-      email: aliasUser?.email || "info@intuity.com",
-      website: aliasUser?.company_website_URL || "www.intuity.com",
-    });
-  }, [aliasUser?.phone, aliasUser?.email, aliasUser?.company_website_URL]);
+  const companyDetails = {
+    phone: company?.phone || aliasUser?.phone || "",
+    email: company?.email || aliasUser?.email || "",
+    website:
+      company?.company_website_URL ||
+      company?.company_website ||
+      aliasUser?.company_website_URL ||
+      "",
+  };
 
   const cardSx: SxProps = {
     ...sx,
@@ -99,7 +99,7 @@ export function TotalProfit({
                 <Button
                   startIcon={<IconCards type={"Headphones"} />}
                   component="a"
-                  href={`tel:${companyDetails.phone}`}
+                  href={`tel:${companyDetails?.phone}`}
                   sx={{ textTransform: "none", color: "black" }}
                 >
                   Call
@@ -108,7 +108,7 @@ export function TotalProfit({
                 <Button
                   startIcon={<IconCards type={"Envelope"} />}
                   component="a"
-                  href={`mailto:${companyDetails.email}`}
+                  href={`mailto:${companyDetails?.email}`}
                   sx={{ textTransform: "none", color: "black" }}
                 >
                   Email
@@ -120,7 +120,11 @@ export function TotalProfit({
                 <Button
                   startIcon={<IconCards type={"Website"} />}
                   component="a"
-                  href={companyDetails.website}
+                  href={
+                    companyDetails?.website.startsWith("http")
+                      ? companyDetails?.website
+                      : `https://${companyDetails?.website}`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   sx={{ textTransform: "none", color: "black" }}

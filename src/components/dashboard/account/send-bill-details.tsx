@@ -1,6 +1,6 @@
 import * as React from "react";
 import { stopTransferService } from "@/state/features/accountSlice";
-import { boarderRadius, colors } from "@/utils";
+import { boarderRadius, colors, fileToBase64 } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -108,19 +108,20 @@ export function SendBillDetailsForm(): React.JSX.Element {
   });
   const dispatch = useDispatch();
 
-  const onSubmit: SubmitHandler<FormDataContent> = (data) => {
-    const files:  File[] = data?.files?.length ? data?.files : [];
+  const onSubmit: SubmitHandler<FormDataContent> = async (data) => {
+    const files: File[] = data?.files?.length ? data?.files : [];
 
-    // if (!files?.length) {
-    //   toast.warning('Please upload any file');
-    //   return;
-    // }
     const raw = getLocalStorage("intuity-user");
 
     const stored: IntuityUser | null =
       typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
     const roleId = stored?.body?.acl_role_id;
     const customer_id = stored?.body?.customer_id;
+
+    const base64Files = await Promise.all(
+      files.map((file) => fileToBase64(file))
+    );
+
     // //console.log(data, 'hhhhhhh');
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
@@ -139,8 +140,8 @@ export function SendBillDetailsForm(): React.JSX.Element {
       dayjs(data?.requestedStopDate).format("DD/MM/YYYY")
     );
     formData.append("attorneys_contact", data?.applicableField);
-    files.forEach((file) => {
-      formData.append(`upload_file`, file);
+    base64Files.forEach((base64) => {
+      formData.append("attachment_file", base64);
     });
     // if (!files?.length) {
     //   formData.append('upload_file', '');
@@ -452,7 +453,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
      
 
-          {/* <Grid md={12} xs={12} p={0} pt={3}>
+           <Grid md={12} xs={12} p={0} pt={3}>
             <FormControl fullWidth error={!!errors.files}>
               <Typography variant="body1" mb={1}>
                 Please upload any supporting documents or photos:
@@ -484,7 +485,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
                 ))}
               </Grid>
             )}
-          </Grid> */}
+          </Grid> 
         </CardContent>
 
         <Divider />

@@ -121,8 +121,14 @@ export function Budget({
             </Stack>
             {icons && (
               <Stack direction="row" spacing={2} ml={"auto"}>
-                <IconCards type={"Headphones"} />
-                <IconCards type={"Envelope"} />
+                <IconCards
+                  type={"Headphones"}
+                  href={company?.phone ? `tel:${company.phone}` : undefined}
+                />
+                <IconCards
+                  type={"Envelope"}
+                  href={company?.email ? `mailto:${company.email}` : undefined}
+                />
               </Stack>
             )}
           </Stack>

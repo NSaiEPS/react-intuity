@@ -1,7 +1,7 @@
 import * as React from "react";
 import { contactCustomerService } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+import { colors, fileToBase64 } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -108,8 +108,12 @@ export function CustomerDetailsForm(): React.JSX.Element {
   const customer_id = stored?.body?.customer_id;
 
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     const files: File[] = data.files ? Array.from(data.files) : [];
+
+    const base64Files = await Promise.all(
+      files.map((file) => fileToBase64(file))
+    );
 
     // if (!files?.length) {
     //   toast.warning('Please upload file');
@@ -125,8 +129,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
     formData.append("question", data?.question);
     formData.append("preferMethod", data?.preferredContactMethod);
     formData.append("amthe", data?.preferredOwnerMethod);
-    files.forEach((file) => {
-      formData.append(`upload_file`, file);
+    base64Files.forEach((base64) => {
+      formData.append("attachment_file", base64);
     });
     // if (!files?.length) {
     //   formData.append(`upload_file`, '');
@@ -491,13 +495,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   />
                 </Box>
               </Grid>
-              {/* <Grid md={12} xs={12} p={0} pt={1.6} px={1.2}> */}
-              {/* <FormControl fullWidth error={!!errors.files}> */}
-              {/* <Typography variant="body1" mb={1}>
+              <Grid md={12} xs={12} p={0} pt={1.6} px={1.2}>
+              <FormControl fullWidth error={!!errors.files}>
+              <Typography variant="body1" mb={1}>
                     Please upload any supporting documents or photos:(Photos or
                     PDFs,etc..)
-                  </Typography> */}
-              {/* <OutlinedInput
+                  </Typography>
+              <OutlinedInput
                     type="file"
                     inputProps={{ multiple: true }}
                     onChange={handleFilesChange}
@@ -506,11 +510,11 @@ export function CustomerDetailsForm(): React.JSX.Element {
                     <FormHelperText>
                       {errors.files.message as string}
                     </FormHelperText>
-                  )} */}
-              {/* </FormControl> */}
+                  )}
+              </FormControl>
 
               {/* File Preview List */}
-              {/* {files.length > 0 && (
+              {files.length > 0 && (
                   <Grid container spacing={1} mt={2}>
                     {files.map((file, index) => (
                       <Grid key={`${file.name}-${file.lastModified}`}>
@@ -524,8 +528,8 @@ export function CustomerDetailsForm(): React.JSX.Element {
                       </Grid>
                     ))}
                   </Grid>
-                )} */}
-              {/* </Grid> */}
+                )}
+              </Grid>
             </Grid>
           </CardContent>
 

@@ -2,7 +2,7 @@ import CryptoJS from "crypto-js";
 
 // ── Sub-module re-exports (all existing imports from "@/utils" still work) ──
 export { colors, colorPalette } from "./colors";
-export { getTodayDate, formatToMMDDYYYY, boarderRadius } from "./formatters";
+export { getTodayDate, formatToMMDDYYYY, boarderRadius, fileToBase64 } from "./formatters";
 export { dummyCountriesList } from "./countries";
 
 // ── Routing ──────────────────────────────────────────────────────────────────
