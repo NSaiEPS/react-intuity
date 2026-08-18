@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getUsageGraph } from "@/state/features/dashBoardSlice";
+import { getUsageGraph, usageMonthlyGraph } from "@/state/features/dashBoardSlice";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
-import { colorPalette, colors } from "@/utils";
+import { colors } from "@/utils";
 import { formatCurrency } from "@/utils/formatters";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import dayjs from "dayjs";
@@ -15,10 +15,6 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   SelectChangeEvent,
   Typography,
   useMediaQuery,
@@ -95,7 +91,6 @@ export function Sales({
     const pdf = new jsPDF("landscape", "mm", "a4");
 
     const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
 
     const imgWidth = pageWidth - 20;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -143,21 +138,29 @@ export function Sales({
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
 
-  const handleMeterChange = (meterId: string) => {
-    setSelectedMeter(meterId);
+  const handleSync = () => {
     if (!roleId || !userId) return;
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-    if (meterId) {
-      formData.append("meter_id", meterId);
-    }
+    formData.append("id", userId);
     formData.append("utility_type", "WATER");
-    formData.append("utility_um", "gallons");
-    formData.append("billed_usage", "1");
-    formData.append("usage_history", "1");
+    formData.append("utility_um", monthlyUsageUam || "gallons");
+    formData.append("start_date", dayjs().startOf("month").format("YYYY-MM-DD"));
+    formData.append("end_date", dayjs().endOf("month").format("YYYY-MM-DD"));
+    dispatch(usageMonthlyGraph(formData));
 
-    dispatch(getUsageGraph(formData));
+    const barFormData = new FormData();
+    barFormData.append("acl_role_id", roleId);
+    barFormData.append("customer_id", userId);
+    if (selectedMeter) {
+      barFormData.append("meter_id", selectedMeter);
+    }
+    barFormData.append("utility_type", "WATER");
+    barFormData.append("utility_um", monthlyUsageUam || "gallons");
+    barFormData.append("billed_usage", "1");
+    barFormData.append("usage_history", "1");
+    dispatch(getUsageGraph(barFormData));
   };
 
   // Process parent table billing history data from Redux state (lastBillInfo) - limit to top 3 parent invoice records
@@ -241,7 +244,7 @@ export function Sales({
         formData.append("meter_id", selectedMeter);
       }
       formData.append("utility_type", "WATER");
-      formData.append("utility_um", "gallons");
+      formData.append("utility_um", monthlyUsageUam || "gallons");
       formData.append("billed_usage", "1");
       formData.append("usage_history", "1");
 
@@ -249,38 +252,65 @@ export function Sales({
     }
   }, [userId, roleId, noData, isBillingHistoryChart, selectedYear, dispatch]);
 
-  const [barGraphData, setBarGraphData] = React.useState({
+  const [barGraphData, setBarGraphData] = React.useState<{
+    gallons: number[];
+    dollars: (number | string)[];
+    dates: string[];
+    colors: string[];
+  }>({
     gallons: [],
     dollars: [],
     dates: [],
     colors: [],
   });
 
-  const getBarChartData = (barData: any) => {
-    const gallons: string[] = [];
-    const dollars: string[] = [];
+  React.useEffect(() => {
+    if (isBillingHistoryChart) return;
+
+    const gallons: number[] = [];
+    const dollars: (number | string)[] = [];
     const dates: string[] = [];
     const colorsList: string[] = [];
 
-    if (barData) {
-      barData.forEach((item: any) => {
-        const dateStr = item?.[0] ?? "";
+    const barData = dashBoardInfo?.bar_chart_data;
+
+    if (barData && Object.keys(barData).length > 0) {
+      Object.entries(barData).forEach(([key, values]: [string, any]) => {
+        const dateStr = key?.split(",")[0] ?? key;
         if (dateStr.toLowerCase().includes("no data")) return;
-        gallons.push(item?.[3] ?? "0");
-        dollars.push("");
+
+        const gallonVal = typeof values?.[0] === "number"
+          ? values[0]
+          : parseFloat(String(values?.[0] || 0).replace(/,/g, "")) || 0;
+
+        const dollarVal = values?.[1] !== undefined && values?.[1] !== null ? values[1] : 0;
+
+        gallons.push(gallonVal);
+        dollars.push(dollarVal);
+        dates.push(dateStr);
+        colorsList.push(colors.blue);
+      });
+    } else if (monthlyUsageGraph?.length && Array.isArray(monthlyUsageGraph)) {
+      monthlyUsageGraph.slice(1).forEach((item: any) => {
+        const dateStr = item?.[0] ?? "";
+        if (!dateStr || dateStr.toLowerCase().includes("no data")) return;
+
+        const rawGallon = item?.[3] ?? "0";
+        const gallonVal = typeof rawGallon === "number"
+          ? rawGallon
+          : parseFloat(String(rawGallon).replace(/,/g, "")) || 0;
+
+        const dollarVal = item?.[4] !== undefined && item?.[4] !== null ? item[4] : 0;
+
+        gallons.push(gallonVal);
+        dollars.push(dollarVal);
         dates.push(dateStr);
         colorsList.push(colors.blue);
       });
     }
 
     setBarGraphData({ gallons, dollars, dates, colors: colorsList });
-  };
-
-  React.useEffect(() => {
-    if (monthlyUsageGraph?.length) {
-      getBarChartData(monthlyUsageGraph?.slice(1));
-    }
-  }, [monthlyUsageGraph]);
+  }, [dashBoardInfo, monthlyUsageGraph, isBillingHistoryChart]);
 
   const hasBillingData = React.useMemo(() => {
     return billingRecords.length > 0;
@@ -291,7 +321,7 @@ export function Sales({
     if (!barGraphData.gallons || barGraphData.gallons.length === 0) return false;
     return barGraphData.gallons.some((val) => {
       if (!val) return false;
-      const num = parseFloat(String(val).replace(/,/g, ""));
+      const num = typeof val === "number" ? val : parseFloat(String(val).replace(/,/g, ""));
       return !isNaN(num) && num !== 0;
     });
   }, [barGraphData.gallons, noData]);
@@ -303,7 +333,7 @@ export function Sales({
       return billingRecords.map((r) => r.amount);
     }
     return (barGraphData.gallons || []).map((v) => {
-      const num = parseFloat(String(v).replace(/,/g, ""));
+      const num = typeof v === "number" ? v : parseFloat(String(v).replace(/,/g, ""));
       return isNaN(num) ? 0 : num;
     });
   }, [isBillingHistoryChart, billingRecords, barGraphData.gallons]);
@@ -363,12 +393,26 @@ export function Sales({
   const categories = isNoData
     ? []
     : isBillingHistoryChart
-    ? billingRecords.map((r) => r.dateFormatted)
-    : [...barGraphData.dates];
+      ? billingRecords.map((r) => r.dateFormatted)
+      : [...barGraphData.dates];
 
   const seriesData = isNoData
     ? []
-    : numericValues;
+    : isBillingHistoryChart
+      ? numericValues
+      : (() => {
+          const step = (yAxisBounds.max - yAxisBounds.min) / (yAxisBounds.tickAmount || 4);
+          const min = yAxisBounds.min;
+          const baselineOffset = step * 0.015;
+
+          return numericValues.map((v) => {
+            const num = Number(v) || 0;
+            if (num <= 0) {
+              return min + baselineOffset;
+            }
+            return num;
+          });
+        })();
 
   const chartData: any = {
     series: [
@@ -384,9 +428,7 @@ export function Sales({
         toolbar: { show: false },
       },
       legend: {
-        show: !isBillingHistoryChart,
-        position: "top",
-        horizontalAlign: "right",
+        show: false,
       },
       colors: [colors.blue],
 
@@ -406,7 +448,7 @@ export function Sales({
           const index = opts?.dataPointIndex;
           const rawVal = numericValues[index];
           const num = Number(rawVal);
-          if (isNaN(num)) return "";
+          if (isNaN(num)) return "0";
           return isBillingHistoryChart
             ? formatCurrency(num)
             : num.toLocaleString();
@@ -435,6 +477,19 @@ export function Sales({
           show: !isNoData,
           rotate: 0,
           rotateAlways: false,
+          formatter: function (val: any) {
+            if (isBillingHistoryChart) return val;
+            const idx = categories.indexOf(val);
+            if (
+              idx !== -1 &&
+              barGraphData.dollars[idx] !== undefined &&
+              barGraphData.dollars[idx] !== ""
+            ) {
+              const d = barGraphData.dollars[idx];
+              return [val, `$ ${d}`];
+            }
+            return val;
+          },
           style: {
             fontSize: "12px",
             fontWeight: 600,
@@ -475,22 +530,54 @@ export function Sales({
         xaxis: { lines: { show: false } },
         yaxis: { lines: { show: true } },
       },
-      tooltip: {
-        enabled: !isNoData,
-        y: {
-          formatter: (_val: number, opts: any) => {
-            const index = opts?.dataPointIndex;
-            const rawVal = numericValues[index];
-            const num = Number(rawVal) || 0;
-            if (isBillingHistoryChart) {
-              return formatCurrency(num);
-            }
-            return `${num.toLocaleString()} ${monthlyUsageUam || "Gallon"}`;
+      tooltip: isBillingHistoryChart
+        ? {
+            enabled: !isNoData,
+            y: {
+              formatter: (_val: number, opts: any) => {
+                const index = opts?.dataPointIndex;
+                const rawVal = numericValues[index];
+                const num = Number(rawVal) || 0;
+                return formatCurrency(num);
+              },
+            },
+          }
+        : {
+            enabled: !isNoData,
+            custom: function ({ dataPointIndex, w }: any) {
+              const dateStr = categories[dataPointIndex] || w?.globals?.labels?.[dataPointIndex] || "";
+              const gallonVal = numericValues[dataPointIndex] ?? 0;
+              const dollarVal = barGraphData.dollars[dataPointIndex] ?? 0;
+
+              const gallonNum = typeof gallonVal === "number" ? gallonVal : parseFloat(String(gallonVal).replace(/,/g, "")) || 0;
+              const um = monthlyUsageUam || "Gallon";
+              const formattedGallons = `${gallonNum.toLocaleString()} ${um}`;
+              const formattedDollars = `$ ${dollarVal}`;
+
+              return `
+                <div style="padding: 10px 14px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); font-family: inherit; font-size: 13px;">
+                  <div style="font-weight: 700; color: #111827; margin-bottom: 6px; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px;">${dateStr}</div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #374151; margin-bottom: 4px;">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${colors.blue};"></span>
+                      <strong>Usage:</strong>
+                    </span>
+                    <span style="font-weight: 600; color: #1f2937;">${formattedGallons}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #374151;">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                      <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${colors.blue};"></span>
+                      <strong>Billed Amount:</strong>
+                    </span>
+                    <span style="font-weight: 600; color: #111827;">${formattedDollars}</span>
+                  </div>
+                </div>
+              `;
+            },
           },
-        },
-      },
     },
   };
+
   return (
     <Card sx={{ borderRadius: 0, ...sx }}>
       <CardHeader
@@ -508,129 +595,37 @@ export function Sales({
             alignSelf: isMobile ? "stretch" : "flex-start",
           },
         }}
-        // avatar={
-        //   <Box display="flex" flexDirection="column" alignItems="center">
-        //     <Box display="flex" alignItems="center" mb={0.5}>
-        //       <Typography variant="body1" mr={1}>
-        //         {input.data?.[0]?.values?.[0]?.rate}
-        //       </Typography>
-        //       <Box width={12} height={20} bgcolor={colors.blue} />
-        //     </Box>
-        //     <Box display="flex" alignItems="center">
-        //       <Typography variant="body1" mr={1}>
-        //         {input.data?.[0]?.values?.[1]?.rate}
-        //       </Typography>
-        //       <Box width={12} height={20} bgcolor={alpha(colors.blue, 0.5)} /> {/* Deep purple */}
-        //     </Box>
-        //   </Box>
-        // }
-        // action={
-        //   <Box display="flex" flexDirection="row">
-        //     {dashboard && (
-        //       <Box display="flex" flexDirection="column" alignItems="center">
-        //         <Box display="flex" alignItems="center" mb={0.5}>
-        //           <Typography variant="body1" mr={1}>
-        //             {
-        //               dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[0]
-        //                 ?.rate
-        //             }
-        //           </Typography>
-        //           <Box width={12} height={20} bgcolor={colors.blue} />
-        //         </Box>
-        //         <Box display="flex" alignItems="center">
-        //           <Typography variant="body1" mr={1}>
-        //             {
-        //               dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[1]
-        //                 ?.rate
-        //             }
-        //           </Typography>
-        //           <Box
-        //             width={12}
-        //             height={20}
-        //             bgcolor={alpha(colors.blue, 0.5)}
-        //           />{" "}
-        //           {/* Deep purple */}
-        //         </Box>
-        //       </Box>
-        //     )}
-        //     <Button
-        //       color="inherit"
-        //       size="small"
-        //       startIcon={
-        //         <ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />
-        //       }
-        //     >
-        //       Sync
-        //     </Button>
-        //   </Box>
-        // }
         action={
           isBillingHistoryChart ? null : (
             <Box
               sx={{
                 display: "flex",
-                alignItems: isMobile ? "stretch" : "flex-start",
-                flexDirection: isMobile ? "column" : "row",
-                gap: isMobile ? 1.5 : 3,
-                flexWrap: "wrap",
-                width: isMobile ? "100%" : "auto",
+                alignItems: "center",
+                gap: 1,
               }}
             >
-              {/* Legend + Sync */}
-              <Box
-                display="flex"
-                flexDirection="row"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent={isMobile ? "flex-end" : "flex-start"}
-                gap={isMobile ? 2 : 0}
-                width={isMobile ? "100%" : "auto"}
+              <Button
+                color="inherit"
+                size="small"
+                startIcon={<ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />}
+                onClick={handleSync}
               >
-                {dashboard && (
-                  <Box display="flex" flexDirection="column" alignItems="center">
-                    <Box display="flex" alignItems="center" mb={0.5}>
-                      <Typography variant="body1" mr={1}>
-                        {dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[0]?.rate}
-                      </Typography>
-                      <Box width={12} height={20} bgcolor={colors.blue} />
-                    </Box>
-
-                    <Box display="flex" alignItems="center">
-                      <Typography variant="body1" mr={1}>
-                        {dashBoardInfo?.usage_history_data?.data?.[0]?.values?.[1]?.rate}
-                      </Typography>
-
-                      <Box
-                        width={12}
-                        height={20}
-                        bgcolor={alpha(colors.blue, 0.5)}
-                      />
-                    </Box>
-                  </Box>
-                )}
-
-                <Button
-                  color="inherit"
-                  size="small"
-                  startIcon={<ArrowClockwiseIcon fontSize="var(--icon-fontSize-md)" />}
-                >
-                  Sync
-                </Button>
-                <Button
-                  color="inherit"
-                  size="small"
-                  startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}
-                  onClick={handleDownloadPdf}
-                >
-                  Download Graph
-                </Button>
-              </Box>
+                Sync
+              </Button>
+              <Button
+                color="inherit"
+                size="small"
+                startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}
+                onClick={handleDownloadPdf}
+              >
+                Download Graph
+              </Button>
             </Box>
           )
         }
         title={
           <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600}>
-            {title || (dashboard ? "Usage" : "Usage / month")}
+            {title || (dashboard ? "Usage" : "Usage & Billing")}
           </Typography>
         }
         subheader={

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Card, Grid } from "@mui/material";
-import BarChart from "@/components/dashboard/overview/billing-usage";
 const Sales = React.lazy(() =>
   import("@/components/dashboard/overview/sales").then((module) => ({
     default: module.Sales,
@@ -29,7 +28,6 @@ export default function UsageHistoryPage(): React.JSX.Element {
             chartSeries={[]}
             sx={{ height: "100%" }}
           />
-          <BarChart />
         </Grid>
       </Card>
     </>
