@@ -140,14 +140,17 @@ export function Sales({
 
   const handleSync = () => {
     if (!roleId || !userId) return;
+    const startDate = dayjs().startOf("month").format("YYYY-MM-DD");
+    const endDate = dayjs().endOf("month").format("YYYY-MM-DD");
+
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
     formData.append("id", userId);
-    formData.append("utility_type", "WATER");
-    formData.append("utility_um", monthlyUsageUam || "gallons");
-    formData.append("start_date", dayjs().startOf("month").format("YYYY-MM-DD"));
-    formData.append("end_date", dayjs().endOf("month").format("YYYY-MM-DD"));
+    formData.append("utility_type", "Water");
+    formData.append("utility_um", monthlyUsageUam || "Gallon");
+    formData.append("start_date", startDate);
+    formData.append("end_date", endDate);
     dispatch(usageMonthlyGraph(formData));
 
     const barFormData = new FormData();
@@ -156,10 +159,12 @@ export function Sales({
     if (selectedMeter) {
       barFormData.append("meter_id", selectedMeter);
     }
-    barFormData.append("utility_type", "WATER");
-    barFormData.append("utility_um", monthlyUsageUam || "gallons");
+    barFormData.append("utility_type", "Water");
+    barFormData.append("utility_um", monthlyUsageUam || "Gallon");
     barFormData.append("billed_usage", "1");
     barFormData.append("usage_history", "1");
+    barFormData.append("start_date", startDate);
+    barFormData.append("end_date", endDate);
     dispatch(getUsageGraph(barFormData));
   };
 
@@ -237,16 +242,21 @@ export function Sales({
         dispatch(getLastBillInfo(formData));
       }
     } else {
+      const startDate = dayjs().startOf("month").format("YYYY-MM-DD");
+      const endDate = dayjs().endOf("month").format("YYYY-MM-DD");
+
       const formData = new FormData();
       formData.append("acl_role_id", roleId);
       formData.append("customer_id", userId);
       if (selectedMeter) {
         formData.append("meter_id", selectedMeter);
       }
-      formData.append("utility_type", "WATER");
-      formData.append("utility_um", monthlyUsageUam || "gallons");
+      formData.append("utility_type", "Water");
+      formData.append("utility_um", monthlyUsageUam || "Gallon");
       formData.append("billed_usage", "1");
       formData.append("usage_history", "1");
+      formData.append("start_date", startDate);
+      formData.append("end_date", endDate);
 
       dispatch(getUsageGraph(formData));
     }

@@ -24,8 +24,8 @@ import secureLocalStorage from "react-secure-storage";
 import DateRangeSelector from "./custom-date-picker";
 
 function UsageFilter() {
-  const [utilityType, setUtilityType] = useState("WATER");
-  const [unitMeasure, setUnitMeasure] = useState("gallons");
+  const [utilityType, setUtilityType] = useState("Water");
+  const [unitMeasure, setUnitMeasure] = useState("Gallon");
   const [meterNo, setMeterNo] = useState("");
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
@@ -45,14 +45,14 @@ function UsageFilter() {
   const [filterList, setFilterList] = useState({
     type: [
       {
-        label: "WATER",
-        value: "WATER",
+        label: "Water",
+        value: "Water",
       },
     ],
     ums: [
       {
-        label: "gallons",
-        value: "gallons",
+        label: "Gallon",
+        value: "Gallon",
       },
     ],
     meterNum: [],
@@ -84,7 +84,7 @@ function UsageFilter() {
 
   useEffect(() => {
     if (meterDetails?.length) {
-      const type = [];
+      const type: { label: string; value: string }[] = [];
       meterDetails?.forEach((item) => {
         if (item?.utility_type_name) {
           type.push({
@@ -95,14 +95,48 @@ function UsageFilter() {
       });
 
       if (type.length) {
-        setUtilityType(type[0].value);
         setFilterList((prev) => ({
           ...prev,
           type: type,
         }));
+        setUtilityType((prev) => {
+          const match = type.find(
+            (t) => t.value.toLowerCase() === (prev || "").toLowerCase()
+          );
+          return match ? match.value : type[0].value;
+        });
       }
     }
   }, [meterDetails]);
+
+  // Derived active values ensuring the first item in each select box is selected by default
+  const selectedUtilityTypeValue = useMemo(() => {
+    if (!filterList.type?.length) return "";
+    const matched = filterList.type.find(
+      (item) =>
+        item.value === utilityType ||
+        item.value.toLowerCase() === (utilityType || "").toLowerCase()
+    );
+    return matched ? matched.value : filterList.type[0].value;
+  }, [filterList.type, utilityType]);
+
+  const selectedUnitMeasureValue = useMemo(() => {
+    if (!filterList.ums?.length) return "";
+    const matched = filterList.ums.find(
+      (item) =>
+        item.value === unitMeasure ||
+        item.value.toLowerCase() === (unitMeasure || "").toLowerCase()
+    );
+    return matched ? matched.value : filterList.ums[0].value;
+  }, [filterList.ums, unitMeasure]);
+
+  const selectedMeterNoValue = useMemo(() => {
+    if (!meterNumList?.length) return "";
+    const matched = meterNumList.find(
+      (item: any) => String(item.value) === String(meterNo)
+    );
+    return matched ? String(matched.value) : String(meterNumList[0].value);
+  }, [meterNumList, meterNo]);
 
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
@@ -180,7 +214,7 @@ function UsageFilter() {
       );
     }
   }, [unitMeasure]);
-  const fetchUsageBarChart = (selectedMeterId?: string) => {
+  const fetchUsageBarChart = (selectedMeterId?: string, dates?: { startDate: string; endDate: string }) => {
     const targetMeter = selectedMeterId !== undefined ? selectedMeterId : meterNo;
     if (!roleId || !userId) return;
 
@@ -190,10 +224,12 @@ function UsageFilter() {
     if (targetMeter) {
       barFormData.append("meter_id", targetMeter);
     }
-    barFormData.append("utility_type", utilityType || "WATER");
-    barFormData.append("utility_um", unitMeasure || "gallons");
+    barFormData.append("utility_type", utilityType || "Water");
+    barFormData.append("utility_um", unitMeasure || "Gallon");
     barFormData.append("billed_usage", "1");
     barFormData.append("usage_history", "1");
+    barFormData.append("start_date", dates?.startDate || filterDates.startDate);
+    barFormData.append("end_date", dates?.endDate || filterDates.endDate);
 
     dispatch(getUsageGraph(barFormData));
   };
@@ -256,15 +292,14 @@ function UsageFilter() {
   };
 
   const onSubmit = (start?: Dayjs | null, end?: Dayjs | null) => {
-    const startDate = dayjs(start);
-    const endDate = dayjs(end);
+    const sDate = start ? dayjs(start).format("YYYY-MM-DD") : filterDates.startDate;
+    const eDate = end ? dayjs(end).format("YYYY-MM-DD") : filterDates.endDate;
     if (start) {
       setFilterDates({
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
+        startDate: sDate,
+        endDate: eDate,
       });
     }
-    // Formatted string
 
     const formData = new FormData();
 
@@ -273,19 +308,13 @@ function UsageFilter() {
     formData.append("id", userId);
     formData.append("utility_type", utilityType);
     formData.append("utility_um", unitMeasure);
-    formData.append(
-      "start_date",
-      start ? startDate.format("YYYY-MM-DD") : filterDates.startDate
-    );
-    formData.append(
-      "end_date",
-      end ? endDate.format("YYYY-MM-DD") : filterDates.endDate
-    );
+    formData.append("start_date", sDate);
+    formData.append("end_date", eDate);
     if (meterNo) {
       formData.append("meter_no", meterNo);
     }
     dispatch(usageMonthlyGraph(formData));
-    fetchUsageBarChart(meterNo);
+    fetchUsageBarChart(meterNo, { startDate: sDate, endDate: eDate });
   };
   return (
     <Box sx={{ p: 2 }}>
@@ -325,7 +354,7 @@ function UsageFilter() {
               }}
             >
               <Select
-                value={utilityType}
+                value={selectedUtilityTypeValue}
                 onChange={(e) => setUtilityType(e.target.value)}
                 sx={{ height: 40 }}
               >
@@ -357,7 +386,7 @@ function UsageFilter() {
               }}
             >
               <Select
-                value={unitMeasure}
+                value={selectedUnitMeasureValue}
                 onChange={(e) => setUnitMeasure(e.target.value)}
                 sx={{ height: 40 }}
               >
@@ -389,7 +418,7 @@ function UsageFilter() {
               }}
             >
               <Select
-                value={meterNo || meterNumList?.[0]?.value || ""}
+                value={selectedMeterNoValue}
                 onChange={(e) => handleMeterChange(e.target.value)}
                 sx={{ height: 40 }}
               >

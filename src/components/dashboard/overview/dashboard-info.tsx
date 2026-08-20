@@ -30,6 +30,7 @@ import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import {
   Avatar,
   Checkbox,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -208,6 +209,7 @@ export function DashboardInfo({
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [agreeTerms, setAgreeTerms] = React.useState(false);
   const [payerTermsModalOpen, setPayerTermsModalOpen] = React.useState(false);
+  const [isUpdating, setIsUpdating] = React.useState(false);
 
   React.useEffect(() => {
     if (!openConfirm) {
@@ -226,8 +228,6 @@ export function DashboardInfo({
       userId: stored?.body?.customer_id,
     };
   }, []); // ← only reads localStorage once
-
-
 
   const getPrefDetails = () => {
     const formData = new FormData();
@@ -277,37 +277,44 @@ export function DashboardInfo({
     };
   }, [dashBoardInfo, notificationPreferenceDetails]);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    setIsUpdating(true);
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
 
-    // logic for destructive action
     if (type === "paperLess") {
-      // dispatch(setPaperLessSettings(checked ? 'on' : 'off'));
       formData.append("paperless", clickedState ? "on" : "off");
 
-      dispatch(
-        updatePaperLessInfo(formData, "paperless", () =>
-          successCallBack("paperless", clickedState)
-        )
-      );
+      try {
+        await dispatch(
+          updatePaperLessInfo(formData, "paperless", () =>
+            successCallBack("paperless", clickedState)
+          )
+        );
+      } catch (err) {
+        setIsUpdating(false);
+        setOpenConfirm(false);
+      }
     } else if (type === "autoPay") {
-      // dispatch(setAutoPaySettings(checked ? '1' : '0'));
       formData.append("auto_pay", clickedState ? "1" : "0");
       formData.append("id", dashBoardInfo?.body?.customer?.autopay_setting_id);
       formData.append(
         "payment_method_id",
         dashBoardInfo?.body?.customer?.payment_method_id
       );
-      // formData.append("is_form", "1");
 
-      dispatch(
-        updatePaperLessInfo(formData, "autopay", () =>
-          successCallBack("autopay", clickedState)
-        )
-      );
+      try {
+        await dispatch(
+          updatePaperLessInfo(formData, "autopay", () =>
+            successCallBack("autopay", clickedState)
+          )
+        );
+      } catch (err) {
+        setIsUpdating(false);
+        setOpenConfirm(false);
+      }
     } else {
       const formData = new FormData();
 
@@ -339,21 +346,32 @@ export function DashboardInfo({
         notificationPrefrences.biller_announcements
       );
 
-      dispatch(
-        updateAccountInfo(formData, true, () => {
-          getPrefDetails();
-          if (roleId && userId) {
-            dispatch(getDashboardInfo(roleId, userId));
-          }
-        })
-      );
-
-      setChecked(clickedState ? true : false);
+      try {
+        await dispatch(
+          updateAccountInfo(
+            formData,
+            true,
+            async () => {
+              getPrefDetails();
+              if (roleId && userId) {
+                await dispatch(getDashboardInfo(roleId, userId));
+              }
+              setChecked(clickedState ? true : false);
+              setIsUpdating(false);
+              setOpenConfirm(false);
+            },
+            undefined,
+            true
+          )
+        );
+      } catch (err) {
+        setIsUpdating(false);
+        setOpenConfirm(false);
+      }
     }
-    setOpenConfirm(false);
   };
 
-  const successCallBack = (type: string, clickedState: boolean) => {
+  const successCallBack = async (type: string, clickedState: boolean) => {
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);
@@ -367,8 +385,10 @@ export function DashboardInfo({
     updateLocalStorageValue("intuity-customerInfo", type, clickedState ? 1 : 0);
     setChecked(clickedState);
     if (roleId && userId) {
-      dispatch(getDashboardInfo(roleId, userId));
+      await dispatch(getDashboardInfo(roleId, userId));
     }
+    setIsUpdating(false);
+    setOpenConfirm(false);
   };
   React.useEffect(() => {
     if (apiCall) {
@@ -472,33 +492,41 @@ export function DashboardInfo({
             </Stack>
             <Stack
               component="button"
+              disabled={isUpdating}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                if (isUpdating) return;
                 e.stopPropagation();
                 if (type === "autoPay") {
                   navigate(paths.dashboard.autoPay());
                   return;
                 }
-                setClickedState(!clickedState);
+                setClickedState(!checked);
                 setOpenConfirm(true);
               }} // 👈 prevent the card click
               sx={{
                 all: "unset", // Reset button styles
                 display: "flex",
                 width: "70px",
-                cursor: "pointer",
+                cursor: isUpdating ? "not-allowed" : "pointer",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <IOSSwitch
-                checked={checked}
-                // disabled={type === "autoPay"}
-                onChange={handleChange}
-                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.stopPropagation();
-                  if (type === "autoPay") {
-                    navigate(paths.dashboard.autoPay());
-                  }
-                }} // 👈 prevent the card click
-              />
+              {isUpdating ? (
+                <CircularProgress size={24} sx={{ color: colors.blue }} />
+              ) : (
+                <IOSSwitch
+                  checked={checked}
+                  disabled={isUpdating}
+                  onChange={handleChange}
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation();
+                    if (type === "autoPay") {
+                      navigate(paths.dashboard.autoPay());
+                    }
+                  }} // 👈 prevent the card click
+                />
+              )}
             </Stack>
           </Stack>
         </CardContent>
@@ -509,7 +537,9 @@ export function DashboardInfo({
           {/* Paperless Confirmation Modal */}
           <Dialog
             open={openConfirm}
-            onClose={() => setOpenConfirm(false)}
+            onClose={() => {
+              if (!isUpdating) setOpenConfirm(false);
+            }}
             PaperProps={{
               sx: {
                 borderRadius: "16px",
@@ -597,6 +627,7 @@ export function DashboardInfo({
               <Button
                 variant="outlined"
                 textTransform="none"
+                disabled={isUpdating}
                 style={{
                   color: colors.blue,
                   borderColor: colors.blue,
@@ -608,12 +639,15 @@ export function DashboardInfo({
                   fontSize: "0.9rem",
                   fontWeight: 600,
                 }}
-                onClick={() => setOpenConfirm(false)}
+                onClick={() => {
+                  if (!isUpdating) setOpenConfirm(false);
+                }}
               >
                 Cancel
               </Button>
               <Button
-                disabled={clickedState && !agreeTerms}
+                disabled={(clickedState && !agreeTerms) || isUpdating}
+                loading={isUpdating}
                 type="button"
                 variant="contained"
                 textTransform="none"
@@ -698,7 +732,10 @@ export function DashboardInfo({
           confirmLabel="Yes, Confirm"
           cancelLabel="Cancel"
           onConfirm={handleConfirm}
-          onCancel={() => setOpenConfirm(false)}
+          onCancel={() => {
+            if (!isUpdating) setOpenConfirm(false);
+          }}
+          loader={isUpdating}
         />
       )}
     </>

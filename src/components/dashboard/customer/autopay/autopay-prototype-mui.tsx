@@ -323,7 +323,7 @@ function PaymentMethodSelector({
 
         {/* Saved payment details box */}
         {
-          autopayMethodInfo?.id && (
+          (autopayMethodInfo?.id || (autopayMethodInfo as any)?.card_token || (autopayMethodInfo as any)?.last4) && (
             <Box
               // onClick={() => {
               //   setPaymentType('saved');
@@ -342,11 +342,11 @@ function PaymentMethodSelector({
                 gap: 1.5,
               }}
             >
-              {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type)}
+              {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type ?? (autopayMethodInfo as any)?.brand)}
 
               <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || 'Card'} ending in{' '}
-                {getCardLast4(autopayMethodInfo as any)}
+                {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || (autopayMethodInfo as any)?.brand || 'Card'} ending in{' '}
+                {getCardLast4(autopayMethodInfo as any) || (autopayMethodInfo as any)?.last4 || ''}
               </Typography>
 
               {/* Default Badge */}
@@ -738,14 +738,27 @@ function EnrollChoose({
     autopayMethodInfo?.card_number ||
     autopayMethodInfo?.bank_account_number ||
     autopayMethodInfo?.account_type ||
-    autopayMethodInfo?.card_type
+    autopayMethodInfo?.card_type ||
+    (methods && methods.length > 0)
   );
 
+  const displayCard = (
+    autopayMethodInfo?.id ||
+    autopayMethodInfo?.card_token ||
+    autopayMethodInfo?.token ||
+    autopayMethodInfo?.card_number ||
+    autopayMethodInfo?.bank_account_number ||
+    autopayMethodInfo?.account_type ||
+    autopayMethodInfo?.card_type
+  ) ? autopayMethodInfo : defaultMethod;
+
   React.useEffect(() => {
-    if (!hasSavedCard && paymentType !== 'no-save') {
+    if (hasSavedCard && (paymentType === '' || !newCardSelected)) {
+      setPaymentType('saved');
+    } else if (!hasSavedCard && paymentType !== 'no-save') {
       setPaymentType('no-save');
     }
-  }, [hasSavedCard, paymentType, setPaymentType]);
+  }, [hasSavedCard, newCardSelected]);
 
   const canContinue =
     paymentType === 'saved'
@@ -833,11 +846,11 @@ function EnrollChoose({
                   gap: 1.5,
                 }}
               >
-                {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type)}
+                {renderCardBrand(displayCard?.card_type ?? displayCard?.account_type ?? (displayCard as any)?.brand)}
 
                 <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                  {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || 'Card'} ending in{' '}
-                  {getCardLast4(autopayMethodInfo as any)}
+                  {displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || 'Card'} ending in{' '}
+                  {getCardLast4(displayCard as any) || (displayCard as any)?.last4 || ''}
                 </Typography>
 
                 {/* Default Badge */}
@@ -952,7 +965,7 @@ function EnrollChoose({
             padding: "0 24px",
           }}
           disabled={!canContinue}
-          onClick={() => onContinueExisting(String(autopayMethodInfo?.id ?? pickedExistingId ?? ''))}
+          onClick={() => onContinueExisting(String(displayCard?.id ?? pickedExistingId ?? ''))}
         >
           Continue
         </Button>
@@ -1437,6 +1450,10 @@ export default function AutoPayPrototype() {
 
   /* ---------------- Enrollment: existing method chosen ---------------- */
   function handleContinueExisting(methodId: string) {
+    const selectedMethod = methods.find((m) => String(m.id) === String(methodId)) || (methods && methods.length > 0 ? methods[0] : null);
+    if (selectedMethod) {
+      setAutopayMethodInfo(selectedMethod as any);
+    }
     setAutopayMethodId(methodId);
     setAuthChecked(false);
     setView('review');

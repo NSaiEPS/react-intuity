@@ -424,13 +424,14 @@ export const getPaymentDetails = (
 };
 
 export const deleteCardAndBankAccount = (
-  formData: FormData,
+  payload: Record<string, any> | FormData,
   type: "card" | "bank_account",
-  successCallBack?: () => void
+  successCallBack?: () => void,
+  requiresConfirmationCallback?: (message: string) => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
-    const res = await deleteCardAndBankAccountApi({ formData, type });
+    const res = await deleteCardAndBankAccountApi({ payload, type });
     if (res.status) {
       toast.success(
         res?.message
@@ -440,6 +441,11 @@ export const deleteCardAndBankAccount = (
             : "Successfully Deleted the Bank Account"
       );
       if (successCallBack) successCallBack();
+    } else if (res?.status_code?.requires_confirmation && requiresConfirmationCallback) {
+      requiresConfirmationCallback(
+        res?.message ||
+          "This payment method is currently being used for AutoPay. Removing it will also disable AutoPay for this account.\nAre you sure you want to continue?"
+      );
     } else {
       navigateTo("/login", { replace: true }, res?.message);
       if (res?.message !== "You are not authorised to use this api") {

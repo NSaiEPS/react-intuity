@@ -387,6 +387,7 @@ export type RemovePaymentMethodDialogProps = {
     loader?: boolean;
     /** Optional extra warning, e.g. "this is the primary payment method" */
     isPrimary?: boolean;
+    message?: string;
 };
 
 
@@ -397,6 +398,7 @@ export function RemovePaymentMethodDialog({
     onCancel,
     loader = false,
     isPrimary = false,
+    message: customMessage,
 }: RemovePaymentMethodDialogProps): React.JSX.Element {
     const isCard = !!details?.card_type;
     const expired = isCard && details ? isCardExpired(details) : false;
@@ -414,17 +416,17 @@ export function RemovePaymentMethodDialog({
         // Requirement 2: expired credit card — no card details, no question, no "will no longer be
         // available" clause. Just state that an expired payment method is being removed.
         heading = "Remove Expired Payment Method";
-        message = "You are removing an expired payment method.";
+        message = customMessage || "You are removing an expired payment method.";
         footerMessage = undefined;
         showSummary = false;
     } else {
         // Requirement 1 (active card) and Requirement 3 (bank account / ACH) share the same
         // question + clause, with the summary chip sandwiched in between them.
         heading = "Remove Payment Method";
-        message = "Are you sure you want to remove this payment method?";
-        footerMessage =
-            "This payment method will no longer be available for future payments or AutoPay." +
-            primaryWarning;
+        message = customMessage || "Are you sure you want to remove this payment method?";
+        footerMessage = customMessage
+            ? (isPrimary ? primaryWarning.trim() : undefined)
+            : ("This payment method will no longer be available for future payments or AutoPay." + primaryWarning);
         showSummary = true;
     }
 

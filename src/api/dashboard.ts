@@ -62,12 +62,21 @@ export async function getPaymentDetailsApi({ formData }: { formData: FormData })
   return res.data;
 }
 
-export async function deleteCardAndBankAccountApi({ formData, type }: { formData: FormData; type?: string }) {
+export async function deleteCardAndBankAccountApi({
+  formData,
+  payload,
+  type,
+}: {
+  formData?: FormData;
+  payload?: Record<string, any> | FormData;
+  type?: string;
+}) {
   const endpoint =
     type === "bank_account"
       ? "billing/front/delete-bank-account/"
       : "billing/front/delete-card/";
-  const res = await api.post(endpoint, formData);
+  const data = payload || formData;
+  const res = await api.post(endpoint, data);
   return res.data;
 }
 

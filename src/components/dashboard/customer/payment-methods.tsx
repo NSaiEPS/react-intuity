@@ -1003,6 +1003,8 @@ export const PaymentMethods = ({
   const [bankModalOpen, setBankModalOpen] = React.useState(false);
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [deleCardDetails, setDeleteCardDetails] = React.useState<CardDetails | null>(null);
+  const [needsConfirm, setNeedsConfirm] = React.useState(false);
+  const [confirmMessage, setConfirmMessage] = React.useState('');
   const selectedCardInfo = useSelector(
     (state: RootState) => state.Account.selectedCardInfo
   );
@@ -1111,46 +1113,86 @@ export const PaymentMethods = ({
     setSelectedId((prev) => (prev?.id === data.id ? null : data));
   }, []);
 
-  const handleDelete = React.useCallback((row: CardDetails) => {
-    setOpenConfirm(true);
-    setDeleteCardDetails(row);
-  }, []);
+  const executeDelete = React.useCallback(
+    (row: CardDetails, confirmFlag: boolean) => {
+      const roleId = stored?.body?.acl_role_id;
+      const userId = stored?.body?.customer_id;
+      const cardId = row?.id;
+
+      const payload: Record<string, any> = {
+        id: cardId ? (isNaN(Number(cardId)) ? cardId : Number(cardId)) : '',
+        customer_id: userId ? (isNaN(Number(userId)) ? userId : Number(userId)) : '',
+        customerid: userId ? (isNaN(Number(userId)) ? userId : Number(userId)) : '',
+        acl_role_id: roleId ? (isNaN(Number(roleId)) ? roleId : Number(roleId)) : '',
+        payment_method: 1,
+      };
+
+      if (confirmFlag) {
+        payload.confirm = 1;
+      }
+
+      dispatch(
+        deleteCardAndBankAccount(
+          payload,
+          row?.card_type ? 'card' : 'bank_account',
+          () => {
+            setOpenConfirm(false);
+            setNeedsConfirm(false);
+            setConfirmMessage('');
+            setDeleteCardDetails(null);
+            const refreshForm = new FormData();
+            refreshForm.append('acl_role_id', roleId);
+            refreshForm.append('customer_id', userId);
+
+            dispatch(
+              getPaymentDetails(
+                refreshForm,
+                false,
+                (customerData: any) => {
+                  if (customerData?.autopay !== undefined && customerData?.autopay !== null) {
+                    updateLocalStorageValue('intuity-customerInfo', 'autopay', Number(customerData.autopay));
+                  }
+                },
+                undefined,
+                (resBody: any) => {
+                  const remainingCards = resBody?.mycards || [];
+                  if (!Array.isArray(remainingCards) || remainingCards.length === 0) {
+                    updateLocalStorageValue('intuity-customerInfo', 'autopay', 0);
+                  }
+                }
+              )
+            );
+
+            if (roleId && userId) {
+              dispatch(getDashboardInfo(roleId, userId));
+            }
+          },
+          (msg: string) => {
+            setDeleteCardDetails(row);
+            setConfirmMessage(msg);
+            setNeedsConfirm(true);
+            setOpenConfirm(true);
+          }
+        )
+      );
+    },
+    [dispatch, stored]
+  );
+
+  const handleDelete = React.useCallback(
+    (row: CardDetails) => {
+      setNeedsConfirm(false);
+      setConfirmMessage('');
+      executeDelete(row, false);
+    },
+    [executeDelete]
+  );
 
   const handleConfirm = React.useCallback(() => {
-    const roleId = stored?.body?.acl_role_id;
-    const userId = stored?.body?.customer_id;
-
-    const formData = new FormData();
-    formData.append('acl_role_id', roleId);
-    formData.append('customer_id', userId);
-    formData.append('id', deleCardDetails?.id?.toString() || '');
-    formData.append('payment_method', '1');
-    formData.append('customerid', userId);
-
-    dispatch(
-      deleteCardAndBankAccount(formData, deleCardDetails?.card_type ? 'card' : 'bank_account', () => {
-        setOpenConfirm(false);
-        const refreshForm = new FormData();
-        refreshForm.append('acl_role_id', roleId);
-        refreshForm.append('customer_id', userId);
-
-        dispatch(getPaymentDetails(refreshForm, false, (customerData: any) => {
-          if (customerData?.autopay !== undefined && customerData?.autopay !== null) {
-            updateLocalStorageValue('intuity-customerInfo', 'autopay', Number(customerData.autopay));
-          }
-        }, undefined, (resBody: any) => {
-          const remainingCards = resBody?.mycards || [];
-          if (!Array.isArray(remainingCards) || remainingCards.length === 0) {
-            updateLocalStorageValue('intuity-customerInfo', 'autopay', 0);
-          }
-        }));
-
-        if (roleId && userId) {
-          dispatch(getDashboardInfo(roleId, userId));
-        }
-      })
-    );
-  }, [deleCardDetails, dispatch, stored]);
+    if (deleCardDetails) {
+      executeDelete(deleCardDetails, true);
+    }
+  }, [deleCardDetails, executeDelete]);
 
   const handleSaveDetails = () => {
     const selectedCardDetails = Object.keys(paymentMethodInfoCards).filter(
@@ -1445,8 +1487,13 @@ export const PaymentMethods = ({
               open={openConfirm}
               details={deleCardDetails}
               isPrimary={isDeletingPrimaryCard}
+              message={confirmMessage}
               onConfirm={handleConfirm}
-              onCancel={() => setOpenConfirm(false)}
+              onCancel={() => {
+                setOpenConfirm(false);
+                setNeedsConfirm(false);
+                setConfirmMessage('');
+              }}
               loader={accountLoading}
             />
 
