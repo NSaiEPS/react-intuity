@@ -21,6 +21,7 @@ export interface ToastPayload {
   message: string;
   subMessage?: string; // ← 2nd optional text shown in the coloured box
   onOk?: () => void;   // ← optional fallback called when user clicks OK
+  noAutoClose?: boolean; // ← optional flag to disable auto-close progress timer
   id: number;
 }
 
@@ -32,18 +33,18 @@ let _dismissListeners: DismissListener[] = [];
 let _idCounter = 0;
 
 export const toast = {
-  success(message?: string, subMessage?: string, onOk?: () => void) {
-    _emit({ type: "success", message: message ?? "", subMessage, onOk, id: ++_idCounter });
+  success(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
+    _emit({ type: "success", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });
   },
-  error(message?: string, subMessage?: string, onOk?: () => void) {
-    _emit({ type: "error", message: message ?? "", subMessage, onOk, id: ++_idCounter });
+  error(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
+    _emit({ type: "error", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });
   },
-  warning(message?: string, subMessage?: string, onOk?: () => void) {
-    _emit({ type: "warning", message: message ?? "", subMessage, onOk, id: ++_idCounter });
+  warning(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
+    _emit({ type: "warning", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });
   },
   /** Alias — some code uses toast.warn() */
-  warn(message?: string, subMessage?: string, onOk?: () => void) {
-    _emit({ type: "warning", message: message ?? "", subMessage, onOk, id: ++_idCounter });
+  warn(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
+    _emit({ type: "warning", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });
   },
   /** Programmatically dismiss the currently visible alert */
   dismiss() {
