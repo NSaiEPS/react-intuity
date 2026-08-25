@@ -104,10 +104,10 @@ export function ConfirmDialog({
             open={open}
             PaperProps={{
                 sx: {
-                    
+
                     m: { xs: 0, sm: 4 },
                     width: { xs: "95%", sm: "auto" },
-                    maxWidth: { xs: "100%", sm: "60%", md:"40%" },
+                    maxWidth: { xs: "100%", sm: "60%", md: "40%" },
                 },
             }}
         >
@@ -123,7 +123,7 @@ export function ConfirmDialog({
 
             <DialogContent
                 sx={{
-                    minWidth: {xs:"80%", sm: "400px" },
+                    minWidth: { xs: "80%", sm: "400px" },
                     px: 2,
                     py: 0,
                     m: 0,
@@ -175,8 +175,8 @@ export function ConfirmDialog({
                 {footerMessage && (
                     <DialogContentText
                         sx={{
-                            maxWidth:{xs:"100%", sm:'80%'},
-                            mx:'auto',
+                            maxWidth: { xs: "100%", sm: '80%' },
+                            mx: 'auto',
                             whiteSpace: "pre-line",
                             fontSize: { xs: "0.85rem", sm: "1rem" },
                             textAlign: "center",
@@ -188,12 +188,12 @@ export function ConfirmDialog({
                 )}
             </DialogContent>
 
-            <Divider sx={{mt:1}}/>
+            <Divider sx={{ mt: 1 }} />
 
             <DialogActions
                 sx={{
-                    display:'flex',
-                    justifyContent:'space-between',
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     p: 2,
                     gap: 1,
                 }}
@@ -325,7 +325,7 @@ function PaymentMethodSummary({ details }: { details: CardDetails }) {
                 borderRadius: 1.5,
                 border: "1px solid #E2E8F0",
                 bgcolor: "#F8FAFC",
-                maxWidth: {xs: "100%",sm:"60%"}
+                maxWidth: { xs: "100%", sm: "60%" }
             }}
         >
             <Box
@@ -404,7 +404,7 @@ export function RemovePaymentMethodDialog({
     const expired = isCard && details ? isCardExpired(details) : false;
 
     const primaryWarning = isPrimary
-        ? "\n\nWarning: You are removing your Primary payment method. No Primary payment method will be assigned after this payment method is removed."
+        ? "\n\nThis is also your primary payment method. After it's removed, you won't have a primary payment method."
         : "";
 
     let heading: string;
@@ -422,7 +422,7 @@ export function RemovePaymentMethodDialog({
     } else {
         // Requirement 1 (active card) and Requirement 3 (bank account / ACH) share the same
         // question + clause, with the summary chip sandwiched in between them.
-        heading = "Remove Payment Method";
+        heading = "Remove Payment Method?";
         message = customMessage || "Are you sure you want to remove this payment method?";
         footerMessage = customMessage
             ? (isPrimary ? primaryWarning.trim() : undefined)
