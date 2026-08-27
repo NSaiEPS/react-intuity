@@ -354,7 +354,7 @@ export const updatePaperLessInfo = (
           res?.message
             ? res?.message
             : type === "autopay"
-              ? "Updated Auto Pay!"
+              ? "Updated AutoPay!"
               : "Updated Paperless!"
         );
       }
@@ -363,7 +363,7 @@ export const updatePaperLessInfo = (
           successCallBack(res?.body?.autopay_card);
           if (setAutoPaySettings) setAutoPaySettings(res?.body?.autopay_setting);
         } else {
-          successCallBack();
+          successCallBack(res);
         }
       }
     } else {
@@ -444,7 +444,7 @@ export const deleteCardAndBankAccount = (
     } else if (res?.status_code?.requires_confirmation && requiresConfirmationCallback) {
       requiresConfirmationCallback(
         res?.message ||
-          "This payment method is currently being used for AutoPay. Removing it will also disable AutoPay for this account.\nAre you sure you want to continue?"
+        "This payment method is currently being used for AutoPay. Removing it will also disable AutoPay for this account.\nAre you sure you want to continue?"
       );
     } else {
       navigateTo("/login", { replace: true }, res?.message);
@@ -733,15 +733,15 @@ export const saveDefaultPaymentMethod = (
 };
 
 export const getConvenienceFee = (
-  formData: FormData,
-  successCallBack?: () => void
+  payload: any,
+  successCallBack?: (resData?: any) => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
-    const res = await getConvenienceFeeAPI({ formData });
+    const res = await getConvenienceFeeAPI(payload);
     if (res?.status) {
       dispatch(setConvenienceFee(res?.body));
-      if (successCallBack) successCallBack();
+      if (successCallBack) successCallBack(res?.body);
     } else {
       navigateTo("/login", { replace: true }, res?.message);
       if (res?.message !== "You are not authorised to use this api") {

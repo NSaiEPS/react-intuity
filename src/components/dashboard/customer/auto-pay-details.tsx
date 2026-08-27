@@ -310,7 +310,7 @@ export default function AutoPayDetails(): React.JSX.Element {
                 width: 150,
               }}
               control={<Checkbox defaultChecked onChange={handleChange} checked={isAutoPay} />}
-              label="Auto Pay ON"
+              label="AutoPay ON"
             />
           </FormGroup>
           {autoPayDetails?.length || autoPayDetails?.id || selectedCardDetails?.token ? (

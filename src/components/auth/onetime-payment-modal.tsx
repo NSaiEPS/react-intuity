@@ -6,7 +6,7 @@ import {
   oneTimePayment,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { calculatePaymentAmount, colors } from "@/utils";
+import { colors, getPaymentMethodType } from "@/utils";
 // @react-pdf/renderer is 1.46 MB — loaded only when user requests a PDF preview
 import {
   Backdrop,
@@ -74,6 +74,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     totalPayment: "",
     paymentType: "card",
     street: "",
+    cardType: "",
   });
   const [customerDetails, setCustomerDetails] = useState<any>({});
   type FormErrors = {
@@ -103,46 +104,69 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const convenienceFee = useSelector(
     (state: RootState) => state?.Account.convenienceFee
   );
-  useEffect(() => {
-    const fee = calculatePaymentAmount({
-      amount: formData.amountToPay || "0",
-      paymentType: formData.paymentType,
-      cardType: "visa",
-      config: convenienceFee,
-    }).convenienceFee.toFixed(2);
-
-    setFormData((prev) => ({
-      ...prev,
-
-      convenienceFee: fee,
-      totalPayment: (Number(fee) + Number(formData.amountToPay)).toFixed(2),
-    }));
-
-    if (activeStep == 2 && convenienceFee?.config_data_ach) {
-      const worldPlayDetails = {
-        account_number: formData.accountNo,
-        invoice_amount: formData.invoiceAmount,
-        name: formData.name,
-        email: formData.email,
-        amount: Number(formData.amountToPay).toFixed(2),
-        convenienceFee: Number(fee).toFixed(2),
-        // totalPayment: Number(formData.totalPayment).toFixed(2),
-        totalPayment: (Number(fee) + Number(formData.amountToPay)).toFixed(2),
-
-        paymentType: formData.paymentType,
-        street: formData.street,
-        company_id: companyInfo?.company?.id,
-        company_alias: companyInfo?.company?.alias,
-        customer_id: customerDetails?.id,
-        success_authenticate: "1",
-        billing_id: customerDetails?.billing_id,
-        is_one_time: "1",
-        is_card: "1",
-      };
-      secureLocalStorage.setItem("worldplay-details", worldPlayDetails);
-      //console.log(worldPlayDetails, "worldPlayDetails");
+  const extractFeeFromResponse = (resData: any): number => {
+    if (typeof resData === "number") return resData;
+    if (typeof resData === "string") return parseFloat(resData) || 0;
+    if (resData && typeof resData === "object") {
+      const val = resData.convenience_fee ?? resData.fee_amount ?? resData.convenienceFee ?? resData.fee ?? 0;
+      return parseFloat(String(val)) || 0;
     }
-  }, [formData.amountToPay, convenienceFee, activeStep]);
+    return 0;
+  };
+
+  useEffect(() => {
+    if (activeStep !== 2) return;
+
+    const amountNum = parseFloat(formData.amountToPay || "0");
+    if (amountNum <= 0) return;
+
+    const paymentMethodType = getPaymentMethodType({
+      paymentType: formData.paymentType,
+      cardType: formData.cardType,
+    });
+
+    const payload = {
+      acl_role_id: 4,
+      customer_id: customerDetails?.id,
+      amount: amountNum.toFixed(2),
+      payment_method_type: paymentMethodType,
+      is_one_time_payment: true,
+    };
+
+    dispatch(
+      getConvenienceFee(payload, (resData) => {
+        const feeNum = extractFeeFromResponse(resData);
+        const feeStr = feeNum.toFixed(2);
+        const totalStr = (feeNum + amountNum).toFixed(2);
+
+        setFormData((prev) => ({
+          ...prev,
+          convenienceFee: feeStr,
+          totalPayment: totalStr,
+        }));
+
+        const worldPlayDetails = {
+          account_number: formData.accountNo,
+          invoice_amount: formData.invoiceAmount,
+          name: formData.name,
+          email: formData.email,
+          amount: amountNum.toFixed(2),
+          convenienceFee: feeStr,
+          totalPayment: totalStr,
+          paymentType: formData.paymentType,
+          street: formData.street,
+          company_id: companyInfo?.company?.id,
+          company_alias: companyInfo?.company?.alias,
+          customer_id: customerDetails?.id,
+          success_authenticate: "1",
+          billing_id: customerDetails?.billing_id,
+          is_one_time: "1",
+          is_card: "1",
+        };
+        secureLocalStorage.setItem("worldplay-details", worldPlayDetails);
+      })
+    );
+  }, [activeStep, formData.amountToPay, formData.paymentType, formData.cardType, customerDetails?.id, dispatch]);
 
   // Validation per step
   const validateStep = () => {
@@ -366,6 +390,7 @@ successModalClose(toast)
       totalPayment: "",
       paymentType: "card",
       street: "",
+      cardType: "",
     });
     onClose();
     navigateTo('/auth-card-redirect',{
@@ -391,6 +416,7 @@ successModalClose(toast)
       totalPayment: "",
       paymentType: "card",
       street: "",
+      cardType: "",
     });
     onClose();
   };
@@ -411,8 +437,6 @@ successModalClose(toast)
           () => {}
         )
       );
-      formdata.append("customer_id", customerDetails?.id);
-      dispatch(getConvenienceFee(formdata));
     }
   }, [activeStep]);
   const renderStepContent = (step) => {

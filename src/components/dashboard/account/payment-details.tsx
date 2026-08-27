@@ -10,7 +10,7 @@ import {
   schedulePayment,
 } from '@/state/features/accountSlice';
 import { RootState } from '@/state/store';
-import { calculatePaymentAmount, colors, CustomerInfo, decryptFunction, maskValue } from '@/utils';
+import { colors, CustomerInfo, decryptFunction, getPaymentMethodType, maskValue } from '@/utils';
 import { getLocalStorage, IntuityUser } from '@/utils/auth';
 import { paths } from '@/utils/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -332,11 +332,6 @@ const PaymentForm = () => {
       formdata.append('acl_role_id', stored?.body?.acl_role_id);
       formdata.append('company_id', CustomerInfo?.company_id);
       dispatch(getPaymentProcessorDetails(formdata, false));
-      const convenienceFeeFormdata = new FormData();
-      convenienceFeeFormdata.append('acl_role_id', stored?.body?.acl_role_id);
-      convenienceFeeFormdata.append('customer_id', stored?.body?.customer_id);
-
-      dispatch(getConvenienceFee(convenienceFeeFormdata));
     }
   }, [CustomerInfo]);
 
@@ -552,17 +547,74 @@ const PaymentForm = () => {
   }, [paymentMethodInfoCards]);
 
   const amount = watch('amount');
+  const [debouncedAmount, setDebouncedAmount] = useState(amount);
 
-
+  // Update debounced amount when user stops typing (600ms delay)
   useEffect(() => {
-    const fee = calculatePaymentAmount({
-      amount: watch('amount') || '0',
-      paymentType: paymentType === 'saved' ? (selectedCardDetails?.card_type ? 'card' : 'bank_account') : debitType,
-      cardType: selectedCardDetails?.card_type || 'visa',
-      config: convenienceFee,
-    }).convenienceFee.toFixed(2);
-    setValue('convenienceFee', Number(fee));
-  }, [amount, convenienceFee, debitType, selectedCardDetails?.card_type, paymentType, setValue, watch]);
+    const handler = setTimeout(() => {
+      setDebouncedAmount(amount);
+    }, 600);
+    return () => clearTimeout(handler);
+  }, [amount]);
+
+  const extractFeeFromResponse = (resData: any): number => {
+    if (typeof resData === 'number') return resData;
+    if (typeof resData === 'string') return parseFloat(resData) || 0;
+    if (resData && typeof resData === 'object') {
+      const val = resData.convenience_fee ?? resData.fee_amount ?? resData.convenienceFee ?? resData.fee ?? 0;
+      return parseFloat(String(val)) || 0;
+    }
+    return 0;
+  };
+
+  const fetchConvenienceFee = React.useCallback(
+    (amtToUse?: string) => {
+      const targetAmount = amtToUse !== undefined ? amtToUse : watch('amount');
+      const numericAmount = parseFloat(targetAmount || '0');
+      if (numericAmount <= 0) {
+        setValue('convenienceFee', 0);
+        return;
+      }
+
+      const aclRoleId = stored?.body?.acl_role_id ? Number(stored.body.acl_role_id) : 4;
+      const customerId = stored?.body?.customer_id ? Number(stored.body.customer_id) : 0;
+
+      const isBankAccount =
+        paymentType === 'saved'
+          ? Boolean(selectedCardDetails?.bank_account_number)
+          : debitType === 'bank_account';
+
+      const cardTypeOrBrand =
+        paymentType === 'saved'
+          ? (selectedCardDetails?.card_type || selectedCardDetails?.brand)
+          : undefined;
+
+      const paymentMethodType = getPaymentMethodType({
+        isBank: isBankAccount,
+        cardType: cardTypeOrBrand,
+      });
+
+      const payload = {
+        acl_role_id: aclRoleId,
+        customer_id: customerId,
+        amount: numericAmount.toFixed(2),
+        payment_method_type: paymentMethodType,
+      };
+
+      dispatch(
+        getConvenienceFee(payload, (resData) => {
+          const fee = extractFeeFromResponse(resData);
+          setValue('convenienceFee', fee);
+        })
+      );
+    },
+    [watch, stored?.body?.acl_role_id, stored?.body?.customer_id, paymentType, selectedCardDetails?.bank_account_number, selectedCardDetails?.card_type, selectedCardDetails?.brand, debitType, dispatch, setValue]
+  );
+
+  // Trigger fee API call when debounced amount changes (user stops typing) or payment method changes
+  useEffect(() => {
+    fetchConvenienceFee(debouncedAmount);
+  }, [debouncedAmount, fetchConvenienceFee]);
   useEffect(() => {
     if (
       myCustomerDetails?.allow_overpayments == 0 &&
@@ -1043,6 +1095,7 @@ const PaymentForm = () => {
                     onBlur={() => {
                       setIsAmountFocused(false);
                       field.onBlur(); // keep RHF's blur/touched tracking intact
+                      fetchConvenienceFee(watch('amount'));
                     }}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^\d.]/g, '');

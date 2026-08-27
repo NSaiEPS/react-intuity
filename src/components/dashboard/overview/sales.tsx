@@ -78,7 +78,7 @@ export function Sales({
   const isBillingHistoryChart = title === "Billing History" || path !== "usage-history";
 
   const handleDownloadPdf = async () => {
-    if (!chartRef.current) return;
+    if (isNoData || !chartRef.current) return;
 
     const canvas = await html2canvas(chartRef.current, {
       scale: 2,
@@ -226,14 +226,15 @@ export function Sales({
     dispatch(getLastBillInfo(formData));
   };
 
-  const hasFetchedBillingRef = React.useRef(false);
+  const lastFetchedBillingKeyRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     if (noData || !roleId || !userId) return;
 
     if (isBillingHistoryChart) {
-      if (!hasFetchedBillingRef.current) {
-        hasFetchedBillingRef.current = true;
+      const fetchKey = `${userId}-${selectedYear}`;
+      if (lastFetchedBillingKeyRef.current !== fetchKey) {
+        lastFetchedBillingKeyRef.current = fetchKey;
         const formData = new FormData();
         formData.append("acl_role_id", roleId);
         formData.append("customer_id", userId);
@@ -411,18 +412,18 @@ export function Sales({
     : isBillingHistoryChart
       ? numericValues
       : (() => {
-          const step = (yAxisBounds.max - yAxisBounds.min) / (yAxisBounds.tickAmount || 4);
-          const min = yAxisBounds.min;
-          const baselineOffset = step * 0.015;
+        const step = (yAxisBounds.max - yAxisBounds.min) / (yAxisBounds.tickAmount || 4);
+        const min = yAxisBounds.min;
+        const baselineOffset = step * 0.015;
 
-          return numericValues.map((v) => {
-            const num = Number(v) || 0;
-            if (num <= 0) {
-              return min + baselineOffset;
-            }
-            return num;
-          });
-        })();
+        return numericValues.map((v) => {
+          const num = Number(v) || 0;
+          if (num <= 0) {
+            return min + baselineOffset;
+          }
+          return num;
+        });
+      })();
 
   const chartData: any = {
     series: [
@@ -542,29 +543,29 @@ export function Sales({
       },
       tooltip: isBillingHistoryChart
         ? {
-            enabled: !isNoData,
-            y: {
-              formatter: (_val: number, opts: any) => {
-                const index = opts?.dataPointIndex;
-                const rawVal = numericValues[index];
-                const num = Number(rawVal) || 0;
-                return formatCurrency(num);
-              },
+          enabled: !isNoData,
+          y: {
+            formatter: (_val: number, opts: any) => {
+              const index = opts?.dataPointIndex;
+              const rawVal = numericValues[index];
+              const num = Number(rawVal) || 0;
+              return formatCurrency(num);
             },
-          }
+          },
+        }
         : {
-            enabled: !isNoData,
-            custom: function ({ dataPointIndex, w }: any) {
-              const dateStr = categories[dataPointIndex] || w?.globals?.labels?.[dataPointIndex] || "";
-              const gallonVal = numericValues[dataPointIndex] ?? 0;
-              const dollarVal = barGraphData.dollars[dataPointIndex] ?? 0;
+          enabled: !isNoData,
+          custom: function ({ dataPointIndex, w }: any) {
+            const dateStr = categories[dataPointIndex] || w?.globals?.labels?.[dataPointIndex] || "";
+            const gallonVal = numericValues[dataPointIndex] ?? 0;
+            const dollarVal = barGraphData.dollars[dataPointIndex] ?? 0;
 
-              const gallonNum = typeof gallonVal === "number" ? gallonVal : parseFloat(String(gallonVal).replace(/,/g, "")) || 0;
-              const um = monthlyUsageUam || "Gallon";
-              const formattedGallons = `${gallonNum.toLocaleString()} ${um}`;
-              const formattedDollars = `$ ${dollarVal}`;
+            const gallonNum = typeof gallonVal === "number" ? gallonVal : parseFloat(String(gallonVal).replace(/,/g, "")) || 0;
+            const um = monthlyUsageUam || "Gallon";
+            const formattedGallons = `${gallonNum.toLocaleString()} ${um}`;
+            const formattedDollars = `$ ${dollarVal}`;
 
-              return `
+            return `
                 <div style="padding: 10px 14px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); font-family: inherit; font-size: 13px;">
                   <div style="font-weight: 700; color: #111827; margin-bottom: 6px; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px;">${dateStr}</div>
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #374151; margin-bottom: 4px;">
@@ -583,8 +584,8 @@ export function Sales({
                   </div>
                 </div>
               `;
-            },
           },
+        },
     },
   };
 
@@ -627,6 +628,7 @@ export function Sales({
                 size="small"
                 startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}
                 onClick={handleDownloadPdf}
+                disabled={isNoData}
               >
                 Download Graph
               </Button>

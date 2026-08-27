@@ -1,4 +1,5 @@
 import { colors } from "@/utils";
+import { formatCurrency } from "@/utils/formatters";
 import {
   Dialog,
   DialogTitle,
@@ -43,7 +44,7 @@ export default function PaymentSummaryModal({
   Recurring = null,
   Payment = null,
 }: PaymentSummaryModalProps) {
-  const total = Math.trunc((amount + fee) * 100) / 100;
+  const total = (Number(amount) || 0) + (Number(fee) || 0);
   const recurrenceMap = {
     1: "and every month",
     2: "and every other month",
@@ -116,12 +117,12 @@ export default function PaymentSummaryModal({
 
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
           <Typography>Invoice Amount</Typography>
-          <Typography>${amount}</Typography>
+          <Typography>{formatCurrency(amount)}</Typography>
         </Stack>
 
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
           <Typography>Convenience Fee</Typography>
-          <Typography>${fee}</Typography>
+          <Typography>{formatCurrency(fee)}</Typography>
         </Stack>
 
         <Divider sx={{ mb: 2 }} />
@@ -131,7 +132,7 @@ export default function PaymentSummaryModal({
             Total Payment
           </Typography>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            ${total}
+            {formatCurrency(total)}
           </Typography>
         </Stack>
         {dueDate && (

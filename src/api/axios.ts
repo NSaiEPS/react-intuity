@@ -28,6 +28,11 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && error.config?.url !== 'users/login') {
       secureLocalStorage.clear();
+      import('@/state/store').then(({ store }) => {
+        import('@/state/features/accountSlice').then(({ resetAccountStore }) => store.dispatch(resetAccountStore()));
+        import('@/state/features/dashBoardSlice').then(({ resetDashboardStore }) => store.dispatch(resetDashboardStore()));
+        import('@/state/features/paymentSlice').then(({ resetPaymentStore }) => store.dispatch(resetPaymentStore()));
+      }).catch(() => {});
       toast.info('Your session has expired. Please log in again.');
       navigateTo('/login', { replace: true });
     }

@@ -4,6 +4,7 @@ import CryptoJS from "crypto-js";
 export { colors, colorPalette } from "./colors";
 export { getTodayDate, formatToMMDDYYYY, boarderRadius, fileToBase64 } from "./formatters";
 export { dummyCountriesList } from "./countries";
+export { getPaymentMethodType } from "./paymentHelpers";
 
 // ── Routing ──────────────────────────────────────────────────────────────────
 

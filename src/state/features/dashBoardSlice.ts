@@ -237,18 +237,21 @@ export const getNotificationList = (
 };
 
 export const getUsageGraph = (formData: FormData) => async (dispatch: AppDispatch): Promise<void> => {
+  dispatch(setusageGraph({}));
   dispatch(setDashboardLoader(true));
   try {
     const res = await usageGraphAPI({ formData });
     if (res?.status) {
       dispatch(setusageGraph(res?.body));
     } else {
+      dispatch(setusageGraph({}));
       navigateTo("/login", { replace: true }, res?.message);
       if (res?.message !== "You are not authorised to use this api") {
         toast.error(res?.message ?? "Something went wrong!");
       }
     }
   } catch (e: any) {
+    dispatch(setusageGraph({}));
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
   } finally {
     dispatch(setDashboardLoader(false));
@@ -279,18 +282,21 @@ export const getInvoiceDetails = (
 };
 
 export const usageMonthlyGraph = (formData: FormData) => async (dispatch: AppDispatch): Promise<void> => {
+  dispatch(setMonthlyUsageGraph({}));
   dispatch(setDashboardLoader(true));
   try {
     const res = await usageMonthlyGraphAPI({ formData });
     if (res?.status) {
       dispatch(setMonthlyUsageGraph(res?.body?.data));
     } else {
+      dispatch(setMonthlyUsageGraph({}));
       navigateTo("/login", { replace: true }, res?.message);
       if (res?.message !== "You are not authorised to use this api") {
         toast.error(res?.message ?? "Something went wrong!");
       }
     }
   } catch (e: any) {
+    dispatch(setMonthlyUsageGraph({}));
     toast.error(e?.response?.data?.message ?? "Error Try again!!");
   } finally {
     dispatch(setDashboardLoader(false));

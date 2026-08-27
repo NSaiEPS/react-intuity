@@ -1,3 +1,3 @@
 export default function Loading() {
-  return <p>Loading Auto Pay details...</p>;
+  return <p>Loading AutoPay details...</p>;
 }

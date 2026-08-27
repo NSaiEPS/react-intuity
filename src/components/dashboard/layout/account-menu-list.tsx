@@ -2,10 +2,12 @@ import * as React from "react";
 
 import {
   linkAnotherAccount,
+  resetAccountStore,
   setUserInfo,
   updateAccountInfo,
 } from "@/state/features/accountSlice";
-import { getDashboardInfo, getNotificationList } from "@/state/features/dashBoardSlice";
+import { getDashboardInfo, getNotificationList, resetDashboardStore } from "@/state/features/dashBoardSlice";
+import { resetPaymentStore } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 import { getLocalStorage, IntuityUser, setLocalStorage } from "@/utils/auth";
 import { Avatar, Box, IconButton, Typography } from "@mui/material";
@@ -81,6 +83,9 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
       formData.append("customer_id", userId);
 
       confirmIfDirty(async () => {
+        dispatch(resetDashboardStore());
+        dispatch(resetPaymentStore());
+        dispatch(resetAccountStore());
         const { error } = await authClient.signOut(token, formData);
         if (error) {
           logger.error("Sign out error", error);
@@ -133,6 +138,8 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
 
   const handleAccountClick = (data = accountDetails) => {
     onClose();
+    dispatch(resetDashboardStore());
+    dispatch(resetPaymentStore());
     const formData = new FormData();
     formData.append("acl_role_id", stored?.body?.acl_role_id);
     formData.append("login", data?.link_customer_id);

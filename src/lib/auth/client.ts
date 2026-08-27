@@ -6,10 +6,6 @@ import { toast } from "@/lib/custom-toast";
 import type { User } from "@/types/user";
 
 import { clearLocalStorage, getLocalStorage, setLocalStorage } from "../../utils/auth";
-import { store } from "@/state/store";
-import { resetAccountStore } from "@/state/features/accountSlice";
-import { resetDashboardStore } from "@/state/features/dashBoardSlice";
-import { resetPaymentStore } from "@/state/features/paymentSlice";
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
@@ -188,9 +184,11 @@ class AuthClient {
     }
 
     // Reset all Redux slices to their initial state
-    store.dispatch(resetAccountStore());
-    store.dispatch(resetDashboardStore());
-    store.dispatch(resetPaymentStore());
+    import("@/state/store").then(({ store }) => {
+      import("@/state/features/accountSlice").then(({ resetAccountStore }) => store.dispatch(resetAccountStore()));
+      import("@/state/features/dashBoardSlice").then(({ resetDashboardStore }) => store.dispatch(resetDashboardStore()));
+      import("@/state/features/paymentSlice").then(({ resetPaymentStore }) => store.dispatch(resetPaymentStore()));
+    }).catch(() => {});
 
     // Redirect to alias login if available, otherwise generic login
     const loginPath = companyAlias ? `/login-${companyAlias}` : "/login";

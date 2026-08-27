@@ -82,6 +82,7 @@ interface CustomersTableProps {
   amountRequired?: boolean;
   defaultAutopayCard?: PaymentCard | CardDetails | null;
   useAutopayDefault?: boolean;
+  saveButtonText?: string;
 }
 
 // ── shared header cell style ──
@@ -983,7 +984,8 @@ export const PaymentMethods = ({
   autoPayDetails,
   paymentDetailsPage = false,
   defaultAutopayCard,
-  useAutopayDefault = false
+  useAutopayDefault = false,
+  saveButtonText,
 }: CustomersTableProps): React.JSX.Element => {
   const { setContextLoading } = useLoading();
   const location = useLocation();
@@ -1446,7 +1448,7 @@ export const PaymentMethods = ({
                     },
                   }}
                 >
-                  Save as Default
+                  {saveButtonText ?? (useAutopayDefault ? 'Change' : 'Save as Default')}
                 </Button>
               </CardActions>
             </Grid>

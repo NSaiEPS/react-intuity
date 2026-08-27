@@ -150,8 +150,8 @@ export async function saveDefaultPaymentMethodAPI({ formData }: { formData: Form
   return res.data;
 }
 
-export async function getConvenienceFeeAPI({ formData }: { formData: FormData }) {
-  const res = await api.post("get-convenience-fee", formData);
+export async function getConvenienceFeeAPI(payload: any) {
+  const res = await api.post("get-convenience-fee", payload);
   return res.data;
 }
 

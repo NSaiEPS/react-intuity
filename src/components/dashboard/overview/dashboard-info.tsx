@@ -199,7 +199,7 @@ export function DashboardInfo({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // setChecked();
     if (type === "autoPay") {
-      navigate(paths.dashboard.autoPay())
+      navigate(paths.dashboard.autoPay(), { state: { fromToggle: true } });
       return;
     }
     setClickedState(event.target.checked);
@@ -456,7 +456,7 @@ export function DashboardInfo({
                   ? "Paperless Billing"
                   : type === "notification"
                     ? "Bill Due Reminder"
-                    : "Auto Pay"}
+                    : "AutoPay"}
               </Typography>
               {type === "paperLess" ? (
                 <Avatar
@@ -497,7 +497,7 @@ export function DashboardInfo({
                 if (isUpdating) return;
                 e.stopPropagation();
                 if (type === "autoPay") {
-                  navigate(paths.dashboard.autoPay());
+                  navigate(paths.dashboard.autoPay(), { state: { fromToggle: true } });
                   return;
                 }
                 setClickedState(!checked);
@@ -522,7 +522,7 @@ export function DashboardInfo({
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
                     if (type === "autoPay") {
-                      navigate(paths.dashboard.autoPay());
+                      navigate(paths.dashboard.autoPay(), { state: { fromToggle: true } });
                     }
                   }} // 👈 prevent the card click
                 />
@@ -726,7 +726,7 @@ export function DashboardInfo({
           title={
             type === "notification"
               ? "Notifications"
-              : "Auto Pay"
+              : "AutoPay"
           }
           message={`Are you sure want to ${!checked ? "ON" : "OFF"} it`}
           confirmLabel="Yes, Confirm"

@@ -66,7 +66,7 @@ const NotFound = React.lazy(() => import("./pages/not-found"));
 
 import { LoaderFallback } from "@/components/core/protectedRoute";
 
-console.log("version 1.1.46")
+console.log("version 1.1.47")
 
 const withSuspense = (element: React.ReactNode) => {
   return (
@@ -233,7 +233,7 @@ export const router = createBrowserRouter([
           {
             path: "auto-pay",
             element: withSuspense(
-              <ProtectedRoute title="Auto Pay">
+              <ProtectedRoute title="AutoPay">
                 <AutoPayPage />
               </ProtectedRoute>
             ),

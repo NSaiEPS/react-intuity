@@ -44,6 +44,9 @@ export const getLastBillInfo = (
   isPost = false,
   successCallBack?: (data: LastBillInfo) => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
+  if (!isPost) {
+    dispatch(setLastBillInfo({}));
+  }
   dispatch(setPaymentLoader(true));
   try {
     const res: ApiResponse<LastBillInfo> = await getLastBillInfoAPI({ formData });
@@ -62,6 +65,7 @@ export const getLastBillInfo = (
       }
     }
   } catch (e: unknown) {
+    dispatch(setLastBillInfo({}));
     const error = e as AxiosError<{ message?: string }>;
     toast.error(error.response?.data?.message ?? 'Error! Try again.');
   } finally {

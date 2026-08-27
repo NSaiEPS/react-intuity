@@ -2,6 +2,8 @@ import * as React from "react";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { setUserInfo } from "@/state/features/accountSlice";
+import { resetDashboardStore } from "@/state/features/dashBoardSlice";
+import { resetPaymentStore } from "@/state/features/paymentSlice";
 
 import { colors } from "@/utils";
 
@@ -150,6 +152,8 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
 
   const successCallBack = async (res: AuthResponse, companyInfo: CompanyInfoBody | null) => {
     console.log(pathname, res, companyInfo, 'successCallBack')
+    dispatch(resetDashboardStore());
+    dispatch(resetPaymentStore());
     dispatch(setUserInfo(res));
     if (pathname?.split("/")[1] !== "login" && pathname?.includes("login")) {
 
