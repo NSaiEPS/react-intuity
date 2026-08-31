@@ -228,7 +228,7 @@ export function LastBill(): React.JSX.Element {
             </Grid>
 
             {/* Late fee row */}
-            <Box
+            {/* <Box
               sx={{
                 backgroundColor: "#e7f0f7",
                 px: 2,
@@ -245,14 +245,13 @@ export function LastBill(): React.JSX.Element {
                     : ""}
                 </Typography>
                 <Typography fontWeight="bold" color="red">
-                  {/* ${Number(lastBillInfo?.last_bill?.late_date_amount ?? 0).toFixed(2)} */}
                   {formatCurrency(lastBillInfo?.last_bill?.late_date_amount)}
                 </Typography>
               </Grid>
-            </Box>
+            </Box> */}
 
             {/* Total invoice amount plus new late fee */}
-            <Box
+            {/* <Box
               sx={{
                 backgroundColor: "#e7f0f7",
                 px: 2,
@@ -266,14 +265,11 @@ export function LastBill(): React.JSX.Element {
                   Total invoice amount plus new late fee
                 </Typography>
                 <Typography fontWeight="bold">
-                  {/* ${(
-                    Number(lastBillInfo?.last_bill?.amount ?? 0) +
-                    Number(lastBillInfo?.last_bill?.late_date_amount ?? 0)
-                  ).toFixed(2)} */}
+               
                   {formatCurrency(Number(lastBillInfo?.last_bill?.amount ?? 0) + Number(lastBillInfo?.last_bill?.late_date_amount ?? 0))}
                 </Typography>
               </Grid>
-            </Box>
+            </Box> */}
           </Stack>
         </Grid>
 

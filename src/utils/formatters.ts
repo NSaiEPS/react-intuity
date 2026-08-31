@@ -1,11 +1,29 @@
 import dayjs from "dayjs";
 
-export const getTodayDate = (format: string) => {
+export const APP_DATE_FORMAT = "MMM D, YYYY";
+
+export const getTodayDate = (format?: string) => {
   const today = dayjs().format("YYYY-MM-DD");
   if (format) {
     return dayjs(today).format(format);
   }
   return today;
+};
+
+/**
+ * Formats a date string, timestamp, or Date object into the standard application date format (e.g. "Aug 19, 2026").
+ * @param date - The date value to format
+ * @param format - Optional custom format string, defaults to APP_DATE_FORMAT ("MMM D, YYYY")
+ * @param fallback - Optional fallback string if the date is invalid or falsy
+ */
+export const formatDate = (
+  date?: string | number | Date | dayjs.Dayjs | null,
+  format: string = APP_DATE_FORMAT,
+  fallback: string = "-"
+): string => {
+  if (!date) return fallback;
+  const parsed = dayjs(date);
+  return parsed.isValid() ? parsed.format(format) : (typeof date === "string" ? date : fallback);
 };
 
 export function formatToMMDDYYYY(
@@ -21,7 +39,7 @@ export function formatToMMDDYYYY(
   } else if (name) {
     if (!dateString) return dayjs().format("MM-DD-YYYY");
     const date = dayjs(dateString);
-    return date.isValid() ? date.format("MMM DD, YYYY") : "-";
+    return date.isValid() ? date.format(APP_DATE_FORMAT) : "-";
   } else if (backtype) {
     if (!dateString) return dayjs().format("MM-DD-YYYY");
     const date = dayjs(dateString);

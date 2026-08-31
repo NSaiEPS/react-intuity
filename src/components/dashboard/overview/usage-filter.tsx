@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   getUsageGraph,
   setMonthlyUsageUam,
+  setUsageFilterValues,
   usageMonthlyGraph,
   usageUtilityFilters,
 } from "@/state/features/dashBoardSlice";
@@ -138,6 +139,34 @@ function UsageFilter() {
     return matched ? String(matched.value) : String(meterNumList[0].value);
   }, [meterNumList, meterNo]);
 
+  const [filterDates, setFilterDates] = useState({
+    startDate: dayjs().startOf("month").format("YYYY-MM-DD"),
+    endDate: dayjs().endOf("month").format("YYYY-MM-DD"),
+  });
+
+  useEffect(() => {
+    const selectedMeterObj = meterNumList?.find(
+      (m: any) => String(m.value) === String(selectedMeterNoValue)
+    );
+    dispatch(
+      setUsageFilterValues({
+        utilityType: selectedUtilityTypeValue,
+        unitMeasure: selectedUnitMeasureValue,
+        meterNo: selectedMeterNoValue,
+        meterNumberLabel: selectedMeterObj?.label || selectedMeterNoValue,
+        startDate: filterDates.startDate,
+        endDate: filterDates.endDate,
+      })
+    );
+  }, [
+    selectedUtilityTypeValue,
+    selectedUnitMeasureValue,
+    selectedMeterNoValue,
+    meterNumList,
+    filterDates,
+    dispatch,
+  ]);
+
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
 
   const stored: IntuityUser | null = useMemo(() => {
@@ -148,10 +177,6 @@ function UsageFilter() {
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
-  const [filterDates, setFilterDates] = useState({
-    startDate: dayjs().startOf("month").format("YYYY-MM-DD"),
-    endDate: dayjs().endOf("month").format("YYYY-MM-DD"),
-  });
   useEffect(() => {
     if (!userId || !roleId) return;
 

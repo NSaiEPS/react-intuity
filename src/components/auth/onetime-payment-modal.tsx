@@ -6,7 +6,8 @@ import {
   oneTimePayment,
 } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors, getPaymentMethodType } from "@/utils";
+import { colors, getPaymentMethodType, maskValue } from "@/utils";
+import PaymentSummaryModal from "../dashboard/overview/payment-summary-modal";
 // @react-pdf/renderer is 1.46 MB — loaded only when user requests a PDF preview
 import {
   Backdrop,
@@ -77,6 +78,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     cardType: "",
   });
   const [customerDetails, setCustomerDetails] = useState<any>({});
+  const [cardBankDetails, setCardBankDetails] = useState<any>(null);
   type FormErrors = {
     accountNo?: string;
     invoiceAmount?: string;
@@ -188,8 +190,23 @@ export default function OneTimePaymentModal({ open, onClose }) {
       }
     }
     if (activeStep === 1) {
-      if (Number(formData.amountToPay) === 0 || !formData.amountToPay)
-        newErrors.amountToPay = "Amount to Pay is required";
+      const amountVal = Number(formData.amountToPay);
+      if (!formData.amountToPay || isNaN(amountVal) || amountVal <= 0) {
+        toast.warn("Amount should be more than 0");
+        newErrors.amountToPay = "Amount should be more than 0";
+      } else if (
+        companyInfo?.company?.allow_overpayments == 0 &&
+        amountVal > customerDetails.balance
+      ) {
+        toast.warn("Over payments are not allowed at this time.");
+        newErrors.amountToPay = "Over payments are not allowed at this time.";
+      } else if (
+        companyInfo?.company?.allow_partial_payments == 0 &&
+        amountVal < customerDetails.balance
+      ) {
+        toast.warn("Partial payments are not allowed at this time.");
+        newErrors.amountToPay = "Partial payments are not allowed at this time.";
+      }
       if (!formData.name) newErrors.name = "Name  is required";
       if (!formData.email) newErrors.email = "Email  is required";
       const isValidEmail = (email) =>
@@ -197,8 +214,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
       if (!isValidEmail(formData.email)) {
   newErrors.email = "Enter a valid email address";
 }
-      // if (Number(formData.amountToPay) > customerDetails.balance)
-      //   newErrors.amountToPay = `Amount can't be greater than the  Due Amount: $${customerDetails.balance}`;
     }
     if (activeStep === 2) {
       if (!formData.paymentType)
@@ -648,31 +663,7 @@ successModalClose(toast)
                 fullWidth
                 label="Amount To Pay *"
                 value={formData.amountToPay}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (Number(value) < 0) {
-                    toast.warn("Amount should be more than 0");
-                    return;
-                  }
-                  if (
-                    companyInfo?.company?.allow_overpayments == 0 &&
-                    Number(value) > customerDetails.balance
-                  ) {
-                    toast.warn("Over payments are not allowed at this time.");
-                    return;
-                  }
-
-                  if (
-                    companyInfo?.company?.allow_partial_payments == 0 &&
-                    Number(value) < customerDetails.balance
-                  ) {
-                    toast.warn(
-                      "Partial payments are not allowed at this time."
-                    );
-                    return;
-                  }
-                  handleChange("amountToPay")(e);
-                }}
+                onChange={handleChange("amountToPay")}
                 error={!!errors.amountToPay}
                 helperText={errors.amountToPay}
                 sx={{ mb: 2 }}
@@ -872,9 +863,7 @@ successModalClose(toast)
 
             <PaymentIframe
               type={formData.paymentType === "card" ? "card" : "account"}
-              onSuccess={(res) =>
-                handleSaveDetails(res, companyInfo, formData, customerDetails)
-              }
+              onSuccess={(res: any) => setCardBankDetails(res)}
               oneTimePayment={formData}
               convenience_fee={String(formData.convenienceFee || 0)}
               amount={(Number(formData.amountToPay) || 0).toFixed(2)}
@@ -1059,6 +1048,44 @@ successModalClose(toast)
           }}
           id={oneTimeData?.last_bill?.id}
           oneTime={true}
+        />
+      )}
+
+      {Boolean(cardBankDetails) && (
+        <PaymentSummaryModal
+          open={Boolean(cardBankDetails)}
+          onClose={() => {
+            setCardBankDetails(null);
+          }}
+          onPay={() => {
+            const details = cardBankDetails;
+            setCardBankDetails(null);
+            handleSaveDetails(details, companyInfo, formData, customerDetails);
+          }}
+          payText="Pay Now"
+          amount={Number(formData.amountToPay || 0)}
+          fee={Number(formData.convenienceFee || 0)}
+          cardType={
+            cardBankDetails?.cardType ??
+            cardBankDetails?.ssl_card_short_description ??
+            cardBankDetails?.brand ??
+            (formData.paymentType === "card" ? "Credit Card" : "Bank Account")
+          }
+          cardLast4={
+            cardBankDetails?.cardNumber
+              ? (String(cardBankDetails.cardNumber).includes("*")
+                  ? cardBankDetails.cardNumber
+                  : maskValue(cardBankDetails.cardNumber))
+              : cardBankDetails?.ssl_card_number
+              ? cardBankDetails.ssl_card_number
+              : cardBankDetails?.accountNumber
+              ? (String(cardBankDetails.accountNumber).includes("*")
+                  ? cardBankDetails.accountNumber
+                  : maskValue(cardBankDetails.accountNumber))
+              : cardBankDetails?.last4
+              ? maskValue(cardBankDetails.last4)
+              : ""
+          }
         />
       )}
     </Dialog>

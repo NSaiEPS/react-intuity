@@ -84,7 +84,7 @@ const MainSection = memo(function MainSection() {
   React.useEffect(() => {
     const idle: (cb: () => void) => void =
       (window as any).requestIdleCallback
-        ? (cb) => (window as any).requestIdleCallback(cb, { timeout: 3000 })
+        ? (cb) => (window as any).requestIdleCallback(cb, { timeout: 15000 })
         : (cb) => window.setTimeout(cb, 500);
 
     idle(() => {

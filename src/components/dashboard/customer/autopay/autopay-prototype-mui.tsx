@@ -308,9 +308,6 @@ function PaymentMethodSelector({
   onOpenManage: () => void;
   autopayMethodInfo?: CardDetails;
 }) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const selected = methods.find((m) => m.id === selectedId) as PaymentMethod;
-
   return (
     <Box sx={{
       // border: '1.5px solid #2A72B9',
@@ -355,9 +352,6 @@ function PaymentMethodSelector({
 
               {/* Default Badge */}
               <Box
-                onClick={() => {
-                  onOpenManage();
-                }}
                 sx={{
                   backgroundColor: '#E8F8F5',
                   color: '#117A65',
@@ -369,27 +363,6 @@ function PaymentMethodSelector({
                 }}
               >
                 Default
-              </Box>
-
-              {/* Caret/Chevron Icon */}
-              <Box
-                sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
-                onClick={() => {
-                  onOpenManage();
-                }}
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
               </Box>
             </Box>
           )
@@ -406,39 +379,20 @@ function PaymentMethodSelector({
             textTransform: 'none',
             backgroundColor: '#1E6091',
             color: '#ffffff',
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: '13px',
             px: 2,
             py: 0.5,
             borderRadius: '4px',
-            ml: 2,
+            ml: 1,
             '&:hover': {
               backgroundColor: '#184E77',
             },
           }}
         >
-          Manage
+          Add/Remove
         </ButtonComp>
       </Box>
-
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-        {methods.map((m) => (
-          <MenuItem
-            key={m.id}
-            selected={m.id === selectedId}
-            onClick={() => {
-              onSelect(String(m.id));
-              setAnchorEl(null);
-            }}
-          >
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ width: 260 }}>
-              <MethodIcon type={m.type} />
-              <Typography sx={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{methodLabel(m)}</Typography>
-              {m.isDefault && <DefaultChip isDefault />}
-            </Stack>
-          </MenuItem>
-        ))}
-      </Menu>
     </Box>
   );
 }
@@ -859,10 +813,6 @@ function EnrollChoose({
 
                 {/* Default Badge */}
                 <Box
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenPaymentModal(true);
-                  }}
                   sx={{
                     backgroundColor: '#E8F8F5',
                     color: '#117A65',
@@ -875,29 +825,33 @@ function EnrollChoose({
                 >
                   Default
                 </Box>
-
-                {/* Caret/Chevron Icon */}
-                <Box
-                  sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenPaymentModal(true);
-                  }}
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </Box>
               </Box>
+
+              {/* Add/Remove Button */}
+              <ButtonComp
+                variant="contained"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenPaymentModal(true);
+                }}
+                sx={{
+                  textTransform: 'none',
+                  backgroundColor: '#1E6091',
+                  color: '#ffffff',
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  px: 2,
+                  py: 0.5,
+                  borderRadius: '4px',
+                  ml: 1,
+                  '&:hover': {
+                    backgroundColor: '#184E77',
+                  },
+                }}
+              >
+                Add/Remove
+              </ButtonComp>
             </Box>
           )}
 
@@ -1205,7 +1159,7 @@ function Dashboard({
                 </Typography>
 
                 {displayMethodInfo && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mb: 1.5 }}>
                     <Box
                       sx={{
                         display: 'inline-flex',
@@ -1237,28 +1191,34 @@ function Dashboard({
                         />
                       )}
                     </Box>
+
+                    {/* Add/Remove Button */}
+                    <ButtonComp
+                      variant="contained"
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onChangeMethod();
+                      }}
+                      sx={{
+                        textTransform: 'none',
+                        backgroundColor: '#1E6091',
+                        color: '#ffffff',
+                        fontWeight: 500,
+                        fontSize: '13px',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: '4px',
+                        ml: 1,
+                        '&:hover': {
+                          backgroundColor: '#184E77',
+                        },
+                      }}
+                    >
+                      Add/Remove
+                    </ButtonComp>
                   </Box>
                 )}
-
-                <Box sx={{ mt: 1 }}>
-                  <Typography
-                    onClick={onChangeMethod}
-                    sx={{
-                      color: colors.blue,
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      textDecoration: 'underline',
-                      cursor: 'pointer',
-                      display: 'inline-block',
-                      transition: 'color 0.2s ease',
-                      '&:hover': {
-                        color: colors['blue.1'],
-                      },
-                    }}
-                  >
-                    Change payment method
-                  </Typography>
-                </Box>
               </Box>
 
               {/* AutoPay Settings Section */}
@@ -1293,23 +1253,23 @@ function Dashboard({
             /* ==================== AUTOPAY IS OFF ==================== */
             <Box>
               {/* Status Header */}
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1}}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1 }}>
                 <XCircle size={32} color="#C1401F" weight="fill" style={{ flexShrink: 0 }} />
                 <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#C1401F', fontSize: '1.25rem', mt:0.4 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#C1401F', fontSize: '1.25rem', mt: 0.4 }}>
                     AutoPay is off.
                   </Typography>
 
                 </Box>
               </Box>
 
-              <Box> 
-                <Typography variant="body1" sx={{ color: '#5B6B7A',}}>
-                Your payments will not be made automatically.
-              </Typography>
-              <Typography variant="body1" sx={{ color: '#5B6B7A',}}>
-                Set up AutoPay to have future bills paid.
-              </Typography>
+              <Box>
+                <Typography variant="body1" sx={{ color: '#5B6B7A', }}>
+                  Your payments will not be made automatically.
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#5B6B7A', }}>
+                  Set up AutoPay to have future bills paid.
+                </Typography>
               </Box>
 
               {/* Set Up AutoPay Action Link */}

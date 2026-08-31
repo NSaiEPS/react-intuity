@@ -6,7 +6,7 @@ import { logger } from "@/lib/default-logger";
 import { getLocalStorage, type IntuityUser } from "@/utils/auth";
 import { toast } from "@/lib/custom-toast";
 
-const IDLE_TIMEOUT_MS = 180000; // 3 minutes (180,000 ms)
+const IDLE_TIMEOUT_MS = 900000; // 15 minutes 
 const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
   "mousemove",
   "mousedown",

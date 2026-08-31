@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getUsageGraph, usageMonthlyGraph } from "@/state/features/dashBoardSlice";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
-import { colors } from "@/utils";
+import { colors, formatDate, APP_DATE_FORMAT } from "@/utils";
 import { formatCurrency } from "@/utils/formatters";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import dayjs from "dayjs";
@@ -74,42 +74,174 @@ export function Sales({
     (state: RootState) => state?.Payment?.lastBillInfo
   );
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
-
-  const isBillingHistoryChart = title === "Billing History" || path !== "usage-history";
-
-  const handleDownloadPdf = async () => {
-    if (isNoData || !chartRef.current) return;
-
-    const canvas = await html2canvas(chartRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
-
-    const imgData = canvas.toDataURL("image/jpeg");
-
-    const pdf = new jsPDF("landscape", "mm", "a4");
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-
-    const imgWidth = pageWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(
-      imgData,
-      "JPEG",
-      10,
-      10,
-      imgWidth,
-      imgHeight
-    );
-
-    pdf.save(isBillingHistoryChart ? "Billing-History-Graph.pdf" : "Usage-Month-Graph.pdf");
-  };
+  const accountInfo = useSelector((state: RootState) => state?.Account?.accountInfo);
+  const fullDashboardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
+  const usageFilterValues = useSelector(
+    (state: RootState) => state?.DashBoard?.usageFilterValues
+  );
 
   const [selectedMeter, setSelectedMeter] = React.useState(
     dashBoardInfo?.meters?.length ? dashBoardInfo?.meters[0]?.id : ""
   );
+
+  const isBillingHistoryChart = title === "Billing History" || path !== "usage-history";
+
+  const customerDetails = React.useMemo(() => {
+    const rawLocal = getLocalStorage("intuity-customerInfo") as any;
+    const fromAccount = accountInfo?.customer_data?.[0];
+    const fromDashboard = fullDashboardInfo?.customer || fullDashboardInfo?.body?.customer;
+    const base = fromAccount || fromDashboard || rawLocal || {};
+
+    return {
+      accountName: base?.customer_name || base?.accountName || base?.name || "-",
+      accountNumber: String(base?.acctnum || base?.account_number || base?.accountNumber || "-"),
+      serviceAddress: base?.service_address || base?.serviceAddress || base?.customer_address || "-",
+    };
+  }, [accountInfo, fullDashboardInfo]);
+
+  const selectedMeterLabel = React.useMemo(() => {
+    if (usageFilterValues?.meterNumberLabel) return usageFilterValues.meterNumberLabel;
+    const targetId = usageFilterValues?.meterNo || selectedMeter;
+    const meterList = dashBoardInfo?.meters || [];
+    const found = meterList.find(
+      (m: any) => String(m.id) === String(targetId) || String(m.meter_number) === String(targetId)
+    );
+    return found?.meter_number || targetId || "All";
+  }, [usageFilterValues, selectedMeter, dashBoardInfo?.meters]);
+
+  const exportDateRange = React.useMemo(() => {
+    const start = usageFilterValues?.startDate || dayjs().startOf("month").format("YYYY-MM-DD");
+    const end = usageFilterValues?.endDate || dayjs().endOf("month").format("YYYY-MM-DD");
+    return `${formatDate(start, APP_DATE_FORMAT)} - ${formatDate(end, APP_DATE_FORMAT)}`;
+  }, [usageFilterValues?.startDate, usageFilterValues?.endDate]);
+
+  const handleDownloadPdf = async () => {
+    if (isNoData || !chartRef.current) return;
+
+    try {
+      // Capture only the chart directly - NO DOM changes, NO state changes, ZERO flicker
+      const canvas = await html2canvas(chartRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const pdf = new jsPDF("landscape", "mm", "a4");
+
+      const pageWidth = pdf.internal.pageSize.getWidth(); // 297mm
+      const pageHeight = pdf.internal.pageSize.getHeight(); // 210mm
+      const marginX = 14;
+      const contentWidth = pageWidth - marginX * 2; // 269mm
+
+      // ── 1. Heading ──
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(14);
+      pdf.setTextColor(17, 24, 39); // #111827
+      const headerTitle = isBillingHistoryChart ? "Billing History" : (title || "Usage & Billing");
+      pdf.text(headerTitle, marginX, 15);
+
+      // ── 2. Account Details Card (Account Name, Account #, Service Address) ──
+      const accBoxY = 18.5;
+      const accBoxHeight = 14;
+      pdf.setDrawColor(229, 231, 235); // #E5E7EB
+      pdf.setFillColor(249, 250, 251); // #F9FAFB
+      pdf.roundedRect(marginX, accBoxY, contentWidth, accBoxHeight, 1.5, 1.5, "FD");
+
+      // Col 1: Account Name
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(7);
+      pdf.setTextColor(107, 114, 128); // #6B7280
+      pdf.text("ACCOUNT NAME", marginX + 4, accBoxY + 4.5);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(8.5);
+      pdf.setTextColor(17, 24, 39); // #111827
+      pdf.text(String(customerDetails.accountName), marginX + 4, accBoxY + 10, { maxWidth: 65 });
+
+      // Col 2: Account #
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(7);
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("ACCOUNT #", marginX + 75, accBoxY + 4.5);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(8.5);
+      pdf.setTextColor(17, 24, 39);
+      pdf.text(String(customerDetails.accountNumber), marginX + 75, accBoxY + 10, { maxWidth: 50 });
+
+      // Col 3: Service Address
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(7);
+      pdf.setTextColor(107, 114, 128);
+      pdf.text("SERVICE ADDRESS", marginX + 135, accBoxY + 4.5);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(8.5);
+      pdf.setTextColor(17, 24, 39);
+      pdf.text(String(customerDetails.serviceAddress), marginX + 135, accBoxY + 10, { maxWidth: 128 });
+
+      let chartY = 36;
+
+      if (isBillingHistoryChart) {
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(107, 114, 128);
+        pdf.text("This graph shows the latest 3 Billing Details.", marginX, accBoxY + accBoxHeight + 5);
+        chartY = accBoxY + accBoxHeight + 8;
+      } else {
+        // ── 3. Filter Details Card (Utility Type, Utility UM, Meter Number, Date Range) ──
+        const filterBoxY = accBoxY + accBoxHeight + 3; // 35.5mm
+        const filterBoxHeight = 14;
+        pdf.setDrawColor(229, 231, 235);
+        pdf.setFillColor(249, 250, 251);
+        pdf.roundedRect(marginX, filterBoxY, contentWidth, filterBoxHeight, 1.5, 1.5, "FD");
+
+        const colWidth = contentWidth / 4;
+        const paddingLeft = 4;
+
+        const filters = [
+          { label: "UTILITY TYPE", value: usageFilterValues?.utilityType || "Water" },
+          { label: "UTILITY UM", value: usageFilterValues?.unitMeasure || monthlyUsageUam || "Gallon" },
+          { label: "METER NUMBER", value: selectedMeterLabel || "All" },
+          { label: "DATE RANGE", value: exportDateRange },
+        ];
+
+        filters.forEach((filter, idx) => {
+          const colX = marginX + idx * colWidth + paddingLeft;
+
+          // Label
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(7);
+          pdf.setTextColor(107, 114, 128);
+          pdf.text(filter.label, colX, filterBoxY + 4.5);
+
+          // Value
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(8.5);
+          pdf.setTextColor(17, 24, 39);
+          pdf.text(String(filter.value), colX, filterBoxY + 10, { maxWidth: colWidth - 8 });
+        });
+
+        chartY = filterBoxY + filterBoxHeight + 5; // 54.5mm
+      }
+
+      // ── 4. Chart Image ──
+      const maxChartHeight = pageHeight - chartY - 8;
+      let imgWidth = contentWidth;
+      let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      if (imgHeight > maxChartHeight) {
+        imgHeight = maxChartHeight;
+        imgWidth = (canvas.width * imgHeight) / canvas.height;
+      }
+
+      const chartX = marginX + (contentWidth - imgWidth) / 2;
+      pdf.addImage(imgData, "JPEG", chartX, chartY, imgWidth, imgHeight);
+
+      pdf.save(isBillingHistoryChart ? "Billing-History-Graph.pdf" : "Usage-Month-Graph.pdf");
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+    }
+  };
 
   const ratesSet = new Set<string>();
   const rateToDataMap: Record<string, number[]> = {};
@@ -189,7 +321,7 @@ export function Sales({
         }
 
         const d = dayjs(rawDate);
-        const dateFormatted = d.isValid() ? d.format("MMM D, YYYY") : String(rawDate || "");
+        const dateFormatted = d.isValid() ? formatDate(d, APP_DATE_FORMAT) : String(rawDate || "");
         const timestamp = d.isValid() ? d.valueOf() : 0;
 
         return {
@@ -287,8 +419,10 @@ export function Sales({
 
     if (barData && Object.keys(barData).length > 0) {
       Object.entries(barData).forEach(([key, values]: [string, any]) => {
-        const dateStr = key?.split(",")[0] ?? key;
+        const dateStr = key?.split(",")[0]?.trim() ?? key;
         if (dateStr.toLowerCase().includes("no data")) return;
+
+        const formattedDate = formatDate(dateStr, APP_DATE_FORMAT, dateStr);
 
         const gallonVal = typeof values?.[0] === "number"
           ? values[0]
@@ -298,13 +432,15 @@ export function Sales({
 
         gallons.push(gallonVal);
         dollars.push(dollarVal);
-        dates.push(dateStr);
+        dates.push(formattedDate);
         colorsList.push(colors.blue);
       });
     } else if (monthlyUsageGraph?.length && Array.isArray(monthlyUsageGraph)) {
       monthlyUsageGraph.slice(1).forEach((item: any) => {
-        const dateStr = item?.[0] ?? "";
+        const dateStr = (item?.[0] ?? "").trim();
         if (!dateStr || dateStr.toLowerCase().includes("no data")) return;
+
+        const formattedDate = formatDate(dateStr, APP_DATE_FORMAT, dateStr);
 
         const rawGallon = item?.[3] ?? "0";
         const gallonVal = typeof rawGallon === "number"
@@ -315,7 +451,7 @@ export function Sales({
 
         gallons.push(gallonVal);
         dollars.push(dollarVal);
-        dates.push(dateStr);
+        dates.push(formattedDate);
         colorsList.push(colors.blue);
       });
     }
@@ -464,20 +600,11 @@ export function Sales({
             ? formatCurrency(num)
             : num.toLocaleString();
         },
-        offsetY: isBillingHistoryChart ? -20 : 15,
+        offsetY: -20,
         style: {
           fontSize: "12px",
           fontWeight: 600,
-          colors: [
-            function (opts: any) {
-              if (isBillingHistoryChart) return "#374151";
-              const index = opts?.dataPointIndex;
-              const rawVal = numericValues[index];
-              const num = Number(rawVal) || 0;
-              if (num <= 0) return "#374151";
-              return "#ffffff";
-            },
-          ],
+          colors: ["#374151"],
         },
       },
       xaxis: {
@@ -497,7 +624,8 @@ export function Sales({
               barGraphData.dollars[idx] !== ""
             ) {
               const d = barGraphData.dollars[idx];
-              return [val, `$ ${d}`];
+              const dollarFormatted = String(d).startsWith("$") ? d : `$${d}`;
+              return [val, dollarFormatted];
             }
             return val;
           },
@@ -563,7 +691,7 @@ export function Sales({
             const gallonNum = typeof gallonVal === "number" ? gallonVal : parseFloat(String(gallonVal).replace(/,/g, "")) || 0;
             const um = monthlyUsageUam || "Gallon";
             const formattedGallons = `${gallonNum.toLocaleString()} ${um}`;
-            const formattedDollars = `$ ${dollarVal}`;
+            const formattedDollars = String(dollarVal).startsWith("$") ? dollarVal : `$${dollarVal}`;
 
             return `
                 <div style="padding: 10px 14px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); font-family: inherit; font-size: 13px;">

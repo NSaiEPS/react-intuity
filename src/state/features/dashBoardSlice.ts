@@ -23,6 +23,15 @@ import type {
 } from "@/types/domain";
 import { getCustomerServiceTabsFromCustomer, setCustomerServiceTabs } from "./sideNavSlice";
 
+export interface UsageFilterValues {
+  utilityType: string;
+  unitMeasure: string;
+  meterNo: string;
+  meterNumberLabel: string;
+  startDate: string;
+  endDate: string;
+}
+
 interface DashBoardState {
   dashBoardInfo: DashboardResponse & Record<string, any>;
   dashboardLoading: boolean;
@@ -35,6 +44,7 @@ interface DashBoardState {
   usageUtilityFilters: Record<string, any>;
   monthlyUsageUam: string;
   routeChecker: boolean;
+  usageFilterValues: UsageFilterValues;
 }
 
 const initialState: DashBoardState = {
@@ -49,6 +59,14 @@ const initialState: DashBoardState = {
   usageUtilityFilters: {},
   monthlyUsageUam: "",
   routeChecker: false,
+  usageFilterValues: {
+    utilityType: "Water",
+    unitMeasure: "Gallon",
+    meterNo: "",
+    meterNumberLabel: "",
+    startDate: "",
+    endDate: "",
+  },
 };
 
 const DashBoardSlice = createSlice({
@@ -85,6 +103,12 @@ const DashBoardSlice = createSlice({
     setRouteChecker(state, action) {
       state.routeChecker = action.payload;
     },
+    setUsageFilterValues(state, action) {
+      state.usageFilterValues = {
+        ...state.usageFilterValues,
+        ...action.payload,
+      };
+    },
     resetStore() {
       return initialState;
     },
@@ -102,6 +126,7 @@ export const {
   setUsageUtilityFilters,
   setMonthlyUsageUam,
   setRouteChecker,
+  setUsageFilterValues,
   resetStore: resetDashboardStore,
 } = DashBoardSlice.actions;
 

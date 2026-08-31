@@ -1290,9 +1290,6 @@ const PaymentForm = () => {
 
                   {/* Default Badge */}
                   <Box
-                    onClick={() => {
-                      setOpenPaymentModal(true);
-                    }}
                     sx={{
                       backgroundColor: '#E8F8F5',
                       color: '#117A65',
@@ -1304,27 +1301,6 @@ const PaymentForm = () => {
                     }}
                   >
                     Default
-                  </Box>
-
-                  {/* Caret/Chevron Icon */}
-                  <Box
-                    sx={{ display: 'flex', alignItems: 'center', color: '#7F8C8D' }}
-                    onClick={() => {
-                      setOpenPaymentModal(true);
-                    }}
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
                   </Box>
                 </Box>
 
