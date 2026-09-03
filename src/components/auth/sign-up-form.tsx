@@ -148,7 +148,9 @@ export function SignUpForm() {
 
   const handleBackToLogin = () => {
     const alias = companyInfo?.company?.alias;
-    navigate(alias ? paths.auth.newLogin(alias) : paths.auth.newLogin());
+    navigate(alias ? paths.auth.newLogin(alias) : paths.auth.newLogin(), {
+      state: { accountActivated: true },
+    });
   };
 
   // Dirty-route guard

@@ -28,6 +28,7 @@ import { z as zod } from "zod";
 
 import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/hooks/use-user";
+import { toast } from "@/lib/custom-toast";
 
 import Button from '../CommonComponents/button-comp';
 
@@ -86,6 +87,49 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
     ?.replace("reset-password-", "")
     ?.replace("onetime-payment-", "")
     ?.replace("forgot-login-", "");
+
+  const hasShownActivationToastRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (hasShownActivationToastRef.current) return;
+
+    const params = new URLSearchParams(location.search);
+    const hasActivatedParam =
+      params.get("activated") === "true" ||
+      params.get("activated") === "1" ||
+      params.get("account_activated") === "true" ||
+      params.get("account_activated") === "1" ||
+      params.get("activation") === "true" ||
+      params.get("activation") === "1" ||
+      params.get("activation") === "success" ||
+      params.get("status") === "activated" ||
+      params.get("activate") === "true" ||
+      params.get("accountActivated") === "true";
+
+    const hasActivatedState = Boolean(
+      (location.state as any)?.accountActivated ||
+      (location.state as any)?.activated
+    );
+
+    if (hasActivatedState || hasActivatedParam) {
+      hasShownActivationToastRef.current = true;
+      toast.success("Thank you for activating your account. You may now log in.");
+
+      if (hasActivatedState) {
+        window.history.replaceState({}, document.title);
+      }
+      if (hasActivatedParam) {
+        params.delete("activated");
+        params.delete("account_activated");
+        params.delete("activation");
+        params.delete("status");
+        params.delete("activate");
+        params.delete("accountActivated");
+        const newSearch = params.toString() ? `?${params.toString()}` : "";
+        navigate(`${pathname}${newSearch}`, { replace: true });
+      }
+    }
+  }, [location.search, location.state, pathname, navigate]);
 
   const handleRegisterClick = async () => {
     const slug = pathname?.split("/")[1];

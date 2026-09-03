@@ -623,7 +623,7 @@ export function DashboardInfo({
               )}
             </DialogContent>
 
-            <DialogActions sx={{ p: 0, justifyContent: "flex-end", gap: 1.5 }}>
+            <DialogActions sx={{ p: 0, justifyContent: "space-between", gap: 1.5 }}>
               <Button
                 variant="outlined"
                 textTransform="none"
@@ -720,14 +720,97 @@ export function DashboardInfo({
             </DialogContent>
           </Dialog>
         </>
+      ) : type === "notification" ? (
+        <Dialog
+          open={openConfirm}
+          onClose={() => {
+            if (!isUpdating) setOpenConfirm(false);
+          }}
+          PaperProps={{
+            sx: {
+              borderRadius: "16px",
+              p: { xs: 2.5, sm: 3 },
+              maxWidth: { xs: "95%", sm: "460px" },
+              width: "100%",
+              boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.12)",
+            },
+          }}
+        >
+          <DialogTitle
+            sx={{
+              color: colors.blue,
+              fontWeight: 700,
+              fontSize: { xs: "1.25rem", sm: "1.5rem" },
+              p: 0,
+              mb: 2,
+            }}
+          >
+            {clickedState ? "Turn On Due Date Reminders?" : "Turn Off Due Date Reminders?"}
+          </DialogTitle>
+
+          <DialogContent sx={{ p: 0, mb: 3 }}>
+            <Typography
+              sx={{
+                color: "#374151",
+                fontSize: { xs: "0.95rem", sm: "1rem" },
+                lineHeight: 1.5,
+              }}
+            >
+              {clickedState
+                ? "Due date reminders will be sent by email. You can change this in Notification Settings."
+                : "You will no longer receive reminders when your bill is due. You can turn them back on at any time."}
+            </Typography>
+          </DialogContent>
+
+          <DialogActions sx={{ p: 0, justifyContent: "space-between", gap: 1.5 }}>
+            <Button
+              variant="outlined"
+              textTransform="none"
+              disabled={isUpdating}
+              style={{
+                color: colors.blue,
+                borderColor: colors.blue,
+                backgroundColor: "white",
+                borderRadius: "10px",
+                height: "40px",
+                paddingLeft: "16px",
+                paddingRight: "16px",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+              }}
+              onClick={() => {
+                if (!isUpdating) setOpenConfirm(false);
+              }}
+            >
+              {clickedState ? "Cancel" : "Keep Reminders"}
+            </Button>
+            <Button
+              disabled={isUpdating}
+              loading={isUpdating}
+              type="button"
+              variant="contained"
+              textTransform="none"
+              bgColor={colors.blue}
+              hoverBackgroundColor={colors["blue.3"]}
+              hoverColor="white"
+              style={{
+                borderRadius: "10px",
+                height: "40px",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                paddingLeft: "16px",
+                paddingRight: "16px",
+              }}
+              onClick={handleConfirm}
+            >
+              {clickedState ? "Turn On Reminders" : "Turn Off Reminders"}
+            </Button>
+          </DialogActions>
+        </Dialog>
       ) : (
         <ConfirmDialog
           open={openConfirm}
-          title={
-            type === "notification"
-              ? "Notifications"
-              : "AutoPay"
-          }
+          title="AutoPay"
           message={`Are you sure want to ${!checked ? "ON" : "OFF"} it`}
           confirmLabel="Yes, Confirm"
           cancelLabel="Cancel"
