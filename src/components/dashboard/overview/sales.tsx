@@ -134,6 +134,8 @@ export function Sales({
       const pageHeight = pdf.internal.pageSize.getHeight(); // 210mm
       const marginX = 14;
       const contentWidth = pageWidth - marginX * 2; // 269mm
+      const colWidth = contentWidth / 4;
+      const paddingLeft = 4;
 
       // ── 1. Heading ──
       pdf.setFont("helvetica", "bold");
@@ -153,31 +155,31 @@ export function Sales({
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(7);
       pdf.setTextColor(107, 114, 128); // #6B7280
-      pdf.text("ACCOUNT NAME", marginX + 4, accBoxY + 4.5);
+      pdf.text("ACCOUNT NAME", marginX + paddingLeft, accBoxY + 4.5);
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(8.5);
       pdf.setTextColor(17, 24, 39); // #111827
-      pdf.text(String(customerDetails.accountName), marginX + 4, accBoxY + 10, { maxWidth: 65 });
+      pdf.text(String(customerDetails.accountName), marginX + paddingLeft, accBoxY + 10, { maxWidth: colWidth - 8 });
 
       // Col 2: Account #
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(7);
       pdf.setTextColor(107, 114, 128);
-      pdf.text("ACCOUNT #", marginX + 75, accBoxY + 4.5);
+      pdf.text("ACCOUNT #", marginX + colWidth + paddingLeft, accBoxY + 4.5);
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(8.5);
       pdf.setTextColor(17, 24, 39);
-      pdf.text(String(customerDetails.accountNumber), marginX + 75, accBoxY + 10, { maxWidth: 50 });
+      pdf.text(String(customerDetails.accountNumber), marginX + colWidth + paddingLeft, accBoxY + 10, { maxWidth: colWidth - 8 });
 
       // Col 3: Service Address
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(7);
       pdf.setTextColor(107, 114, 128);
-      pdf.text("SERVICE ADDRESS", marginX + 135, accBoxY + 4.5);
+      pdf.text("SERVICE ADDRESS", marginX + colWidth * 2 + paddingLeft, accBoxY + 4.5);
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(8.5);
       pdf.setTextColor(17, 24, 39);
-      pdf.text(String(customerDetails.serviceAddress), marginX + 135, accBoxY + 10, { maxWidth: 128 });
+      pdf.text(String(customerDetails.serviceAddress), marginX + colWidth * 2 + paddingLeft, accBoxY + 10, { maxWidth: colWidth * 2 - 8 });
 
       let chartY = 36;
 
@@ -194,9 +196,6 @@ export function Sales({
         pdf.setDrawColor(229, 231, 235);
         pdf.setFillColor(249, 250, 251);
         pdf.roundedRect(marginX, filterBoxY, contentWidth, filterBoxHeight, 1.5, 1.5, "FD");
-
-        const colWidth = contentWidth / 4;
-        const paddingLeft = 4;
 
         const filters = [
           { label: "UTILITY TYPE", value: usageFilterValues?.utilityType || "Water" },

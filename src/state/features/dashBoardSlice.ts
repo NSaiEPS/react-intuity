@@ -2,12 +2,15 @@ import api from "@/api/axios";
 import {
   accountDetailsAPI,
   getInvoiceDetailsAPI,
+  getInvoicePdfAPI,
+  InvoicePdfPayload,
   homeApi,
   updateUserInfo,
   usageGraphAPI,
   usageMonthlyGraphAPI,
   usageUtilityFiltersAPI,
 } from "@/api/dashboard";
+
 
 import { navigateTo } from "@/utils/navigation";
 import { createSlice } from "@reduxjs/toolkit";
@@ -305,6 +308,38 @@ export const getInvoiceDetails = (
     if (setContextLoading) setContextLoading(false);
   }
 };
+
+export const getInvoicePdf = (
+  payload: InvoicePdfPayload,
+  setContextLoading?: SetLoadingFn,
+  successCallBack?: (res: any) => void
+) => async (dispatch: AppDispatch): Promise<any> => {
+  dispatch(setDashboardLoader(true));
+  try {
+    const res = await getInvoicePdfAPI(payload);
+    if (res?.status !== false) {
+      if (successCallBack) successCallBack(res);
+      return res;
+    } else {
+      toast.error(res?.message ?? "Failed to fetch invoice PDF");
+    }
+  } catch (e: any) {
+    const errorMsg =
+      e?.response?.data?.message ||
+      (Array.isArray(e?.response?.data?.body?.errors)
+        ? e.response.data.body.errors.join(", ")
+        : typeof e?.response?.data?.body?.errors === "string"
+        ? e.response.data.body.errors
+        : null) ||
+      e?.message ||
+      "Error fetching invoice PDF";
+    toast.error(errorMsg);
+  } finally {
+    dispatch(setDashboardLoader(false));
+    if (setContextLoading) setContextLoading(false);
+  }
+};
+
 
 export const usageMonthlyGraph = (formData: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setMonthlyUsageGraph({}));

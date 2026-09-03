@@ -28,6 +28,10 @@ import utc from "dayjs/plugin/utc";
 import { paths } from "@/utils/paths";
 import { colors } from "@/utils";
 import { formatCurrency } from "@/utils/formatters";
+import { downloadInvoicePdf } from "@/utils/pdfHelper";
+
+const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
+
 
 // Register plugins
 dayjs.extend(utc);
@@ -57,7 +61,30 @@ export default function InvoiceTransactionTabs({
   handleYearChange,
 }) {
   const [currentTab, setCurrentTab] = useState("invoice");
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const navigate = useNavigate();
+
+  const handleViewInvoice = async (invoiceItem: any) => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      try {
+        await downloadInvoicePdf({
+          invoiceNumber: invoiceItem?.invoice_number,
+          customerId: invoiceItem?.customer_id,
+          companyId: invoiceItem?.company_id,
+        });
+      } catch (error) {
+        console.error("PDF Download Error:", error);
+      }
+      return;
+    }
+
+    setSelectedInvoice(invoiceItem);
+    setPreviewModalOpen(true);
+  };
+
 
   const displayedData =
     currentTab === "invoice"
@@ -366,9 +393,10 @@ export default function InvoiceTransactionTabs({
                               </Typography>
                               {currentTab === "invoice" && (
                                 <Box
-                                  onClick={() =>
-                                    navigate(paths.dashboard.invoiceDetails(item?.id))
-                                  }
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewInvoice(item);
+                                  }}
                                   sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -380,9 +408,6 @@ export default function InvoiceTransactionTabs({
                                 >
                                   <FileText size={18} weight="regular" />
                                   <Typography
-                                    onClick={() =>
-                                      navigate(paths.dashboard.invoiceDetails(item.id))
-                                    }
                                     sx={{
                                       color: colors.blue,
                                       cursor: "pointer",
@@ -598,9 +623,10 @@ export default function InvoiceTransactionTabs({
                       </Typography>
                       <IconButton
                         size="small"
-                        onClick={() =>
-                          navigate(paths.dashboard.invoiceDetails(item?.id))
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewInvoice(item);
+                        }}
                         sx={{
                           p: 0.5,
                           color: colors.blue,
@@ -880,6 +906,22 @@ export default function InvoiceTransactionTabs({
         )}
       </Box>
       {/* <Divider /> */}
+
+      {previewModalOpen && selectedInvoice && (
+        <React.Suspense fallback={null}>
+          <CustomModal
+            open={previewModalOpen}
+            onClose={() => {
+              setPreviewModalOpen(false);
+              setSelectedInvoice(null);
+            }}
+            id={selectedInvoice?.id}
+            invoiceNumber={selectedInvoice?.invoice_number}
+            customerId={selectedInvoice?.customer_id}
+            companyId={selectedInvoice?.company_id}
+          />
+        </React.Suspense>
+      )}
     </Box>
   );
 }

@@ -207,3 +207,31 @@ export async function oneTimePaymentApi({ formData, companyAlias = "cape-royale1
   const res = await api.post(`pay-as-guest-${companyAlias}`, formData);
   return res.data;
 }
+
+export interface InvoicePdfPayload {
+  customer_id: number | string;
+  invoice_number: string;
+  company_id: number | string;
+  is_guest_page?: number | string;
+}
+
+export async function getInvoicePdfAPI(payload: InvoicePdfPayload | FormData) {
+  let formData: FormData;
+  if (payload instanceof FormData) {
+    formData = payload;
+  } else {
+    formData = new FormData();
+    formData.append("customer_id", String(payload.customer_id ?? ""));
+    formData.append("invoice_number", String(payload.invoice_number ?? ""));
+    formData.append("company_id", String(payload.company_id ?? ""));
+    if (payload.is_guest_page !== undefined && payload.is_guest_page !== null) {
+      formData.append("is_guest_page", String(payload.is_guest_page));
+    }
+  }
+
+  const res = await api.post("get-invoice-pdf", formData);
+  return res.data;
+}
+
+
+

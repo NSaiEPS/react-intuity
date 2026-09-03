@@ -87,12 +87,12 @@ export default function OneTimePaymentModal({ open, onClose }) {
     [key: string]: string | undefined;
   };
   const confirmIfDirty = () => {
-  if (!isDirty) return true;
+    if (!isDirty) return true;
 
-  return window.confirm(
-    "You have unsaved changes. Are you sure you want to leave?"
-  );
-};
+    return window.confirm(
+      "You have unsaved changes. Are you sure you want to leave?"
+    );
+  };
 
 
   const [errors, setErrors] = useState<FormErrors>({}); // Track validation errors
@@ -172,12 +172,12 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
   // Validation per step
   const validateStep = () => {
-    const newErrors:Record<string, string> = {};
+    const newErrors: Record<string, string> = {};
     if (activeStep === 0) {
       if (!formData.accountNo) {
         newErrors.accountNo = "Account No. is required";
-      } 
-      
+      }
+
       // else if (!/^\d+(\.\d+)?$/.test(formData.accountNo)) {
       //   newErrors.accountNo = "Only numbers allowed";
       // }
@@ -210,10 +210,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
       if (!formData.name) newErrors.name = "Name  is required";
       if (!formData.email) newErrors.email = "Email  is required";
       const isValidEmail = (email) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       if (!isValidEmail(formData.email)) {
-  newErrors.email = "Enter a valid email address";
-}
+        newErrors.email = "Enter a valid email address";
+      }
     }
     if (activeStep === 2) {
       if (!formData.paymentType)
@@ -228,7 +228,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
       setActiveStep((prev) => prev + 1);
     }
   };
-  
+
 
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
@@ -288,15 +288,15 @@ export default function OneTimePaymentModal({ open, onClose }) {
     );
   };
 
-  const hanldeFailure = (data, noToast=false) => {
+  const hanldeFailure = (data, noToast = false) => {
 
-    if(noToast){
-  setIsDirty(false);
+    if (noToast) {
+      setIsDirty(false);
 
-          // onModalClose();
-    // onClose();
+      // onModalClose();
+      // onClose();
 
-          return
+      return
     }
 
     if (data) {
@@ -304,9 +304,9 @@ export default function OneTimePaymentModal({ open, onClose }) {
     } else {
       toast.error("Try again something went wrong!");
     }
-      setIsDirty(false);
+    setIsDirty(false);
 
-          onModalClose();
+    onModalClose();
 
   };
   const handleSaveDetails = (data, companyInfo, formData, customerDetails) => {
@@ -321,8 +321,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
     const debitType = data?.cardNumber
       ? "card"
       : data?.ssl_card_number
-      ? "card"
-      : "bank_account";
+        ? "card"
+        : "bank_account";
     const paymentData = new FormData();
     paymentData.append("account_number", formData.accountNo);
     paymentData.append("invoice_amount", formData.invoiceAmount);
@@ -380,21 +380,21 @@ export default function OneTimePaymentModal({ open, onClose }) {
         paymentData,
         () => {
 
-successModalClose()
+          successModalClose()
         },
         undefined,
         companyInfo?.company?.alias,
-         (toast) => {
+        (toast) => {
 
-successModalClose(toast)
+          successModalClose(toast)
         }
       )
     );
   };
 
-  const successModalClose=(toast?:string)=>{
-  setIsDirty(false);
-  setActiveStep(0);
+  const successModalClose = (toast?: string) => {
+    setIsDirty(false);
+    setActiveStep(0);
     setFormData({
       accountNo: "",
       invoiceAmount: "",
@@ -408,10 +408,11 @@ successModalClose(toast)
       cardType: "",
     });
     onClose();
-    navigateTo('/auth-card-redirect',{
-        state: { alias: companyInfo?.company?.alias,
-          message:toast
-          },
+    navigateTo('/auth-card-redirect', {
+      state: {
+        alias: companyInfo?.company?.alias,
+        message: toast
+      },
 
     })
   }
@@ -419,7 +420,7 @@ successModalClose(toast)
   const onModalClose = () => {
     if (!confirmIfDirty()) return;
 
-  setIsDirty(false);
+    setIsDirty(false);
     setActiveStep(0);
     setFormData({
       accountNo: "",
@@ -449,7 +450,7 @@ successModalClose(toast)
           formdata,
           false,
           undefined,
-          () => {}
+          () => { }
         )
       );
     }
@@ -500,24 +501,24 @@ successModalClose(toast)
                       }
                       placement="top"
                       arrow
-                          componentsProps={{
-    tooltip: {
-      sx: {
-        backgroundColor: '#E7E6E6',
-        color: '#000000',
-        border: '1px solid #d0cfcf',
-           fontSize: '14px',        // 👈 updated
-      lineHeight: 1.4,
-        // fontSize: '0.8rem',
-        '& .MuiTooltip-arrow': {
-          color: '#E7E6E6',
-          '&::before': {
-            border: '1px solid #d0cfcf',
-          },
-        },
-      },
-    },
-  }}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#E7E6E6',
+                            color: '#000000',
+                            border: '1px solid #d0cfcf',
+                            fontSize: '14px',        // 👈 updated
+                            lineHeight: 1.4,
+                            // fontSize: '0.8rem',
+                            '& .MuiTooltip-arrow': {
+                              color: '#E7E6E6',
+                              '&::before': {
+                                border: '1px solid #d0cfcf',
+                              },
+                            },
+                          },
+                        },
+                      }}
                     >
                       <IconButton edge="end" size="small">
                         <Question size={20} color="#5dade2" weight="fill" />
@@ -552,36 +553,36 @@ successModalClose(toast)
       case 1:
         return (
           <>
-             <Typography >
-                 Enter your email address to receive a payment confirmation.
-              </Typography>
-              {/* <Typography mb={2}>
+            <Typography >
+              Enter your email address to receive a payment confirmation.
+            </Typography>
+            {/* <Typography mb={2}>
                  Account No: {formData.accountNo}
               </Typography> */}
 
 
-                <Box
-                  mt={2}
-                  mb={4}
-                  border={1}
-                  padding={2}
-                  borderRadius={2}
-                  sx={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: 0.5 }}
-                >
-                  <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
-                    Account No:
-                  </Typography>
-                  <Typography sx={{ wordBreak: "break-word" }}>
-                    {formData.accountNo}
-                  </Typography>
+            <Box
+              mt={2}
+              mb={4}
+              border={1}
+              padding={2}
+              borderRadius={2}
+              sx={{ display: "grid", gridTemplateColumns: "auto 1fr", rowGap: 0.5 }}
+            >
+              <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
+                Account No:
+              </Typography>
+              <Typography sx={{ wordBreak: "break-word" }}>
+                {formData.accountNo}
+              </Typography>
 
-                  <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
-                    Customer:
-                  </Typography>
-                  <Typography sx={{ wordBreak: "break-word" }}>
-                    {formData.name}
-                  </Typography>
-                </Box>
+              <Typography sx={{ pr: 1, fontWeight: 500, whiteSpace: "nowrap" }}>
+                Customer:
+              </Typography>
+              <Typography sx={{ wordBreak: "break-word" }}>
+                {formData.name}
+              </Typography>
+            </Box>
             {/* <TextField
               fullWidth
               label="Account Name: "
@@ -630,34 +631,34 @@ successModalClose(toast)
                 //   : ""
 
                 companyInfo?.company?.allow_partial_payments == 0 &&
-                companyInfo?.company?.allow_overpayments == 0
+                  companyInfo?.company?.allow_overpayments == 0
                   ? "Over payments are not allowed at this time. And also Partial payments are not allowed "
                   : companyInfo?.customer?.is_payments_blocked == 1
-                  ? companyInfo?.block_individual_customer_pay_text ??
+                    ? companyInfo?.block_individual_customer_pay_text ??
                     "Payments are not allowed at this time."
-                  : // : companyInfo?.company?.allow_partial_payments == 0 ||
+                    : // : companyInfo?.company?.allow_partial_payments == 0 ||
                     //   companyInfo?.company?.allow_overpayments == 0
                     // ? "Partial payments are not allowed"
                     ""
               }
-                  componentsProps={{
-    tooltip: {
-      sx: {
-        backgroundColor: '#E7E6E6',
-        color: '#000000',
-        border: '1px solid #d0cfcf',
-           fontSize: '14px',        // 👈 updated
-      lineHeight: 1.4,
-        // fontSize: '0.8rem',
-        '& .MuiTooltip-arrow': {
-          color: '#E7E6E6',
-          '&::before': {
-            border: '1px solid #d0cfcf',
-          },
-        },
-      },
-    },
-  }}
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#E7E6E6',
+                    color: '#000000',
+                    border: '1px solid #d0cfcf',
+                    fontSize: '14px',        // 👈 updated
+                    lineHeight: 1.4,
+                    // fontSize: '0.8rem',
+                    '& .MuiTooltip-arrow': {
+                      color: '#E7E6E6',
+                      '&::before': {
+                        border: '1px solid #d0cfcf',
+                      },
+                    },
+                  },
+                },
+              }}
             >
               <TextField
                 fullWidth
@@ -723,7 +724,7 @@ successModalClose(toast)
               Total Payment: $
               {parseFloat(Number(formData.totalPayment).toFixed(2))}
             </Typography> */}
-   
+
             <Box
               mt={2}
               border={1}
@@ -758,9 +759,9 @@ successModalClose(toast)
               value={formData.paymentType}
               onChange={handleChange("paymentType")}
               sx={{
-                display:"flex",
-                flexDirection:"row",
-                padding:2
+                display: "flex",
+                flexDirection: "row",
+                padding: 2
               }}
 
             >
@@ -935,9 +936,8 @@ successModalClose(toast)
 
         const link = document.createElement("a");
         link.href = url;
-        link.download = `invoice-${
-          oneTimeData?.last_bill?.invoice_number || "file"
-        }.pdf`;
+        link.download = `invoice-${oneTimeData?.last_bill?.invoice_number || "file"
+          }.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -1074,17 +1074,17 @@ successModalClose(toast)
           cardLast4={
             cardBankDetails?.cardNumber
               ? (String(cardBankDetails.cardNumber).includes("*")
-                  ? cardBankDetails.cardNumber
-                  : maskValue(cardBankDetails.cardNumber))
+                ? cardBankDetails.cardNumber
+                : maskValue(cardBankDetails.cardNumber))
               : cardBankDetails?.ssl_card_number
-              ? cardBankDetails.ssl_card_number
-              : cardBankDetails?.accountNumber
-              ? (String(cardBankDetails.accountNumber).includes("*")
-                  ? cardBankDetails.accountNumber
-                  : maskValue(cardBankDetails.accountNumber))
-              : cardBankDetails?.last4
-              ? maskValue(cardBankDetails.last4)
-              : ""
+                ? cardBankDetails.ssl_card_number
+                : cardBankDetails?.accountNumber
+                  ? (String(cardBankDetails.accountNumber).includes("*")
+                    ? cardBankDetails.accountNumber
+                    : maskValue(cardBankDetails.accountNumber))
+                  : cardBankDetails?.last4
+                    ? maskValue(cardBankDetails.last4)
+                    : ""
           }
         />
       )}

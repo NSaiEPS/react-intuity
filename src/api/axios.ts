@@ -16,12 +16,17 @@ export const api = axios.create({
 // Attach the auth token to every request automatically.
 // Individual calls can still override the header (e.g. getUserDetailsByToken).
 api.interceptors.request.use((config) => {
-  const token = secureLocalStorage.getItem('custom-auth-token') as string | null;
+  let token = secureLocalStorage.getItem('custom-auth-token') as string | null;
+  if (!token) {
+    const rawUser = secureLocalStorage.getItem('intuity-user') as any;
+    token = rawUser?.body?.token || rawUser?.token || null;
+  }
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
 
 api.interceptors.response.use(
   (response) => response,

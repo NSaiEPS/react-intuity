@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useState, useMemo, useLayoutEffect } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import ButtonComp from '@mui/material/Button';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
@@ -368,30 +367,27 @@ function PaymentMethodSelector({
           )
         }
         {/* Add/Edit Button */}
-        <ButtonComp
+        <Button
           variant="contained"
           size="small"
-          onClick={(e) => {
+          textTransform="none"
+          bgColor={colors.blue}
+          hoverBackgroundColor={colors['blue.3']}
+          hoverColor="white"
+          style={{
+            fontWeight: 500,
+            fontSize: '13px',
+            padding: '4px 16px',
+            borderRadius: '4px',
+            marginLeft: '8px',
+          }}
+          onClick={(e: any) => {
             e.stopPropagation();
             onOpenManage();
           }}
-          sx={{
-            textTransform: 'none',
-            backgroundColor: '#1E6091',
-            color: '#ffffff',
-            fontWeight: 500,
-            fontSize: '13px',
-            px: 2,
-            py: 0.5,
-            borderRadius: '4px',
-            ml: 1,
-            '&:hover': {
-              backgroundColor: '#184E77',
-            },
-          }}
         >
           Add/Remove
-        </ButtonComp>
+        </Button>
       </Box>
     </Box>
   );
@@ -828,30 +824,27 @@ function EnrollChoose({
               </Box>
 
               {/* Add/Remove Button */}
-              <ButtonComp
+              <Button
                 variant="contained"
                 size="small"
-                onClick={(e) => {
+                textTransform="none"
+                bgColor={colors.blue}
+                hoverBackgroundColor={colors['blue.3']}
+                hoverColor="white"
+                style={{
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  padding: '4px 16px',
+                  borderRadius: '4px',
+                  marginLeft: '8px',
+                }}
+                onClick={(e: any) => {
                   e.stopPropagation();
                   setOpenPaymentModal(true);
                 }}
-                sx={{
-                  textTransform: 'none',
-                  backgroundColor: '#1E6091',
-                  color: '#ffffff',
-                  fontWeight: 500,
-                  fontSize: '13px',
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: '4px',
-                  ml: 1,
-                  '&:hover': {
-                    backgroundColor: '#184E77',
-                  },
-                }}
               >
                 Add/Remove
-              </ButtonComp>
+              </Button>
             </Box>
           )}
 
@@ -1193,30 +1186,27 @@ function Dashboard({
                     </Box>
 
                     {/* Add/Remove Button */}
-                    <ButtonComp
+                    <Button
                       variant="contained"
                       size="small"
-                      onClick={(e) => {
+                      textTransform="none"
+                      bgColor={colors.blue}
+                      hoverBackgroundColor={colors['blue.3']}
+                      hoverColor="white"
+                      style={{
+                        fontWeight: 500,
+                        fontSize: '13px',
+                        padding: '4px 16px',
+                        borderRadius: '4px',
+                        marginLeft: '8px',
+                      }}
+                      onClick={(e: any) => {
                         e.stopPropagation();
                         onChangeMethod();
                       }}
-                      sx={{
-                        textTransform: 'none',
-                        backgroundColor: '#1E6091',
-                        color: '#ffffff',
-                        fontWeight: 500,
-                        fontSize: '13px',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: '4px',
-                        ml: 1,
-                        '&:hover': {
-                          backgroundColor: '#184E77',
-                        },
-                      }}
                     >
                       Add/Remove
-                    </ButtonComp>
+                    </Button>
                   </Box>
                 )}
               </Box>

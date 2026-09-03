@@ -18,8 +18,10 @@ import { useSelector } from "react-redux";
 import UtilityList from "./last-bill-item-info";
 import { PaymentModal } from "./paymnet-modal";
 import { formatCurrency } from "@/utils/formatters";
+import { downloadInvoicePdf } from "@/utils/pdfHelper";
 
 const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
+
 
 
 interface BillingItem {
@@ -93,29 +95,21 @@ export function LastBill(): React.JSX.Element {
   }, [lastBillInfo?.billing_list]);
 
   const handlePreviewInvoice = async () => {
-    if (!invoiceDetails) return;
-
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     if (isMobile) {
       try {
-        const [{ pdf }, { default: InvoicePdfDocument }] = await Promise.all([
-          import("@react-pdf/renderer"),
-          import("../layout/invoice-pdf-view"),
-        ]);
+        const invoiceNum =
+          lastBillInfo?.get_invoices?.[0]?.invoice_number ||
+          lastBillInfo?.last_bill?.invoice_number ||
+          invoiceDetails?.last_bill?.[0]?.invoice_number;
 
-        const blob = await pdf(
-          <InvoicePdfDocument invoiceDetails={invoiceDetails} />
-        ).toBlob();
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `invoice-${lastBillInfo?.last_bill?.invoice_number || "file"}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        await downloadInvoicePdf({
+          invoiceNumber: invoiceNum,
+          lastBillInfo,
+          invoiceDetails,
+          dashBoardInfo,
+        });
       } catch (error) {
         console.error("PDF Download Error:", error);
       }
@@ -124,6 +118,7 @@ export function LastBill(): React.JSX.Element {
 
     setPdfPreviewInvocie(true);
   };
+
 
 
   const paymentUrl = import.meta.env.VITE_PAYMENT_URL ?? "";
@@ -360,6 +355,10 @@ export function LastBill(): React.JSX.Element {
             open={previewInvoicePdf}
             onClose={() => setPdfPreviewInvocie(false)}
             id={lastBillInfo?.last_bill?.id}
+            invoiceNumber={
+              lastBillInfo?.get_invoices?.[0]?.invoice_number ||
+              lastBillInfo?.last_bill?.invoice_number
+            }
           />
         </React.Suspense>
       )}

@@ -925,9 +925,9 @@ const PaymentForm = () => {
                 onClick={() => navigate(paths.dashboard.paperless())}
                 sx={{
                   width: { xs: '100%', sm: 240 },
-                  backgroundColor: colors.blue,
                   fontWeight: 700,
                   textTransform: 'none',
+                  backgroundColor: colors.blue,
                   '&:hover': {
                     backgroundColor: colors['blue.3'],
                   },
@@ -1314,7 +1314,6 @@ const PaymentForm = () => {
                   }}
                   sx={{
                     textTransform: 'none',
-                    backgroundColor: '#1E6091',
                     color: '#ffffff',
                     fontWeight: 700,
                     fontSize: '13px',
@@ -1322,9 +1321,10 @@ const PaymentForm = () => {
                     py: 0.5,
                     borderRadius: '4px',
                     ml: 2,
-                    '&:hover': {
-                      backgroundColor: '#184E77',
-                    },
+                   backgroundColor: colors.blue,
+                  '&:hover': {
+                    backgroundColor: colors['blue.3'],
+                  },
                   }}
                 >
                   Add/Remove
