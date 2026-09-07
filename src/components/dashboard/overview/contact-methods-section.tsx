@@ -65,7 +65,7 @@ export function ContactMethodsSection({
         const label = contact.type === "phone" ? "Mobile" : "Email";
 
         return (
-          <Grid item xs={12} md={6} >
+          <Grid item xs={12} md={6} key={contact.type || index}>
             <Paper
               // variant="outlined"
               sx={{
@@ -88,8 +88,30 @@ export function ContactMethodsSection({
                 justifyContent="space-between"
                 alignItems="end"
                 height={"stretch"}
+                sx={{
+                  "@supports (-webkit-touch-callout: none)": {
+                    "@media (max-width: 899.95px)": {
+                      height: "auto",
+                    },
+                  },
+                }}
               >
-                <Grid item xs sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "stretch" }} >
+                <Grid
+                  item
+                  xs
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    height: "stretch",
+                    "@supports (-webkit-touch-callout: none)": {
+                      "@media (max-width: 899.95px)": {
+                        height: "auto",
+                        justifyContent: "flex-start",
+                      },
+                    },
+                  }}
+                >
                   <Typography
                     component="div"
                     sx={{

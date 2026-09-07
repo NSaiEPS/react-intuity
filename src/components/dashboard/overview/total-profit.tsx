@@ -57,19 +57,17 @@ export function TotalProfit({
   };
 
   const cardSx: SxProps = {
-    ...sx,
+    borderRadius: boarderRadius.card,
+    boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
+    backgroundColor: "#fff",
+    border: "1px solid #EAEAEA",
     height: "100%",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     textAlign: "center",
-    borderRadius: boarderRadius.card,
-    padding: 2,
-    paddingTop: 1,
-    boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)",
-    backgroundColor: "#fff",
-    border: "1px solid #EAEAEA",
+    ...sx,
   };
 
   return (
@@ -82,7 +80,7 @@ export function TotalProfit({
       elevation={0}
       sx={cardSx}
     >
-      <CardContent sx={{ flex: 1, width: "100%" }}>
+      <CardContent sx={{ width: "100%", p: 2, "&:last-child": { pb: 2 } }}>
         <Stack spacing={2} justifyContent="center" alignItems="center">
           <Typography variant="h5" fontWeight={600}>
             {value === "BillDue"

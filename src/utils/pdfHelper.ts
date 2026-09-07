@@ -289,6 +289,22 @@ export function downloadFile(urlOrBlob: string | Blob, fileName: string): void {
   const isString = typeof urlOrBlob === "string";
   const url = isString ? urlOrBlob : URL.createObjectURL(urlOrBlob);
 
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (typeof navigator !== "undefined" &&
+      navigator.platform === "MacIntel" &&
+      navigator.maxTouchPoints > 1);
+
+  if (isIOS) {
+    window.open(url, "_blank");
+    if (!isString) {
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 10000);
+    }
+    return;
+  }
+
   const link = document.createElement("a");
   link.href = url;
   link.download = fileName;
@@ -300,7 +316,7 @@ export function downloadFile(urlOrBlob: string | Blob, fileName: string): void {
   if (!isString) {
     setTimeout(() => {
       URL.revokeObjectURL(url);
-    }, 1000);
+    }, 5000);
   }
 }
 
@@ -385,6 +401,7 @@ export async function fetchInvoicePdfBlobUrl(
 
 /**
  * Fetches the invoice PDF via the new API and automatically triggers a file download.
+ * Handles iOS popup blocker avoidance and Android direct file download.
  */
 export async function downloadInvoicePdf(
   options: ResolveInvoicePdfParamsOptions = {}
@@ -396,17 +413,41 @@ export async function downloadInvoicePdf(
     return;
   }
 
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (typeof navigator !== "undefined" &&
+      navigator.platform === "MacIntel" &&
+      navigator.maxTouchPoints > 1);
+
+  // On iOS Safari, window.open must be triggered synchronously during the user gesture
+  // to avoid being blocked by the popup blocker after the async API fetch.
+  let iosWindow: Window | null = null;
+  if (isIOS) {
+    iosWindow = window.open("about:blank", "_blank");
+  }
+
   try {
     const { url, isBlobUrl } = await fetchInvoicePdfBlobUrl(options);
     const fileName = `invoice-${payload.invoice_number || "file"}.pdf`;
-    downloadFile(url, fileName);
+
+    if (isIOS && iosWindow) {
+      iosWindow.location.href = url;
+    } else {
+      if (iosWindow) {
+        iosWindow.close();
+      }
+      downloadFile(url, fileName);
+    }
 
     if (isBlobUrl) {
       setTimeout(() => {
         URL.revokeObjectURL(url);
-      }, 5000);
+      }, 30000);
     }
   } catch (error: any) {
+    if (iosWindow) {
+      iosWindow.close();
+    }
     const msg = error?.message || "Failed to download invoice PDF.";
     toast.error(msg);
     throw error;

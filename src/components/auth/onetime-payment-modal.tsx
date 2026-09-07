@@ -38,6 +38,7 @@ import DOMPurify from "dompurify";
 import PaymentIframe from "../CommonComponents/PaymentIframeModal";
 import { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
 import secureLocalStorage from "react-secure-storage";
+import { downloadInvoicePdf } from "@/utils/pdfHelper";
 // OneTimePdf & CustomModal pull in @react-pdf/renderer — lazy load so Pay Now renders instantly
 const CustomModal = React.lazy(() => import("../dashboard/layout/invoice-pdf-modal"));
 import { navigateTo } from "@/utils/navigation";
@@ -919,38 +920,69 @@ export default function OneTimePaymentModal({ open, onClose }) {
   const handlePreviewInvoice = async () => {
     if (!oneTimeData) return;
 
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile =
+      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      (typeof navigator !== "undefined" &&
+        navigator.platform === "MacIntel" &&
+        navigator.maxTouchPoints > 1 &&
+        window.innerWidth <= 1024) ||
+      (typeof window !== "undefined" && window.innerWidth < 768);
 
-    // 📱 MOBILE → DOWNLOAD PDF
     if (isMobile) {
+      const invoiceNum =
+        oneTimeData?.get_invoices?.[0]?.invoice_number ||
+        oneTimeData?.get_invoices?.[0]?.invoice_no ||
+        oneTimeData?.get_invoices?.[0]?.invoicenumber ||
+        oneTimeData?.last_bill?.[0]?.invoice_number ||
+        oneTimeData?.last_bill?.[0]?.invoice_no ||
+        oneTimeData?.last_bill?.invoice_number ||
+        oneTimeData?.last_bill?.invoice_no ||
+        oneTimeData?.invoice?.invoice_number ||
+        oneTimeData?.invoice?.[0]?.invoice_number ||
+        oneTimeData?.invoice_number ||
+        oneTimeData?.customer?.last_bill?.[0]?.invoice_number ||
+        oneTimeData?.customer?.last_bill?.invoice_number ||
+        oneTimeData?.customer?.invoice_number ||
+        customerDetails?.last_bill?.[0]?.invoice_number ||
+        customerDetails?.last_bill?.invoice_number ||
+        customerDetails?.invoice_number ||
+        "";
+
+      const custId =
+        customerDetails?.id ||
+        customerDetails?.customer_id ||
+        customerDetails?.customer?.id ||
+        oneTimeData?.customer?.id ||
+        oneTimeData?.customer?.customer_id ||
+        oneTimeData?.customer_id ||
+        oneTimeData?.id ||
+        0;
+
+      const compId =
+        companyInfo?.company?.id ||
+        companyInfo?.company?.company_id ||
+        companyInfo?.id ||
+        oneTimeData?.company?.id ||
+        oneTimeData?.company?.company_id ||
+        oneTimeData?.company_id ||
+        customerDetails?.company_id ||
+        customerDetails?.company?.id ||
+        2;
+
       try {
-        const [{ pdf }, { default: OneTimePdf }] = await Promise.all([
-          import("@react-pdf/renderer"),
-          import("../dashboard/layout/one-time-invoice"),
-        ]);
-        const blob = await pdf(
-          <OneTimePdf invoiceDetails={oneTimeData as any} />
-        ).toBlob();
-
-        const url = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `invoice-${oneTimeData?.last_bill?.invoice_number || "file"
-          }.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        URL.revokeObjectURL(url);
+        await downloadInvoicePdf({
+          invoiceNumber: invoiceNum,
+          customerId: custId,
+          companyId: compId,
+          isGuestPage: 1,
+          oneTimeData,
+        });
       } catch (error) {
         console.error("PDF Download Error:", error);
       }
-
-      return; // ⛔ EXIT: do not continue
+      return;
     }
 
-    // 💻 DESKTOP → OPEN PDF VIEWER MODAL
     setPdfPreviewInvocie(true);
   };
 

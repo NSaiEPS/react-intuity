@@ -95,15 +95,21 @@ export function LastBill(): React.JSX.Element {
   }, [lastBillInfo?.billing_list]);
 
   const handlePreviewInvoice = async () => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile =
+      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      (typeof navigator !== "undefined" &&
+        navigator.platform === "MacIntel" &&
+        navigator.maxTouchPoints > 1 &&
+        window.innerWidth <= 1024) ||
+      (typeof window !== "undefined" && window.innerWidth < 768);
 
     if (isMobile) {
-      try {
-        const invoiceNum =
-          lastBillInfo?.get_invoices?.[0]?.invoice_number ||
-          lastBillInfo?.last_bill?.invoice_number ||
-          invoiceDetails?.last_bill?.[0]?.invoice_number;
+      const invoiceNum =
+        lastBillInfo?.get_invoices?.[0]?.invoice_number ||
+        lastBillInfo?.last_bill?.invoice_number ||
+        invoiceDetails?.last_bill?.[0]?.invoice_number;
 
+      try {
         await downloadInvoicePdf({
           invoiceNumber: invoiceNum,
           lastBillInfo,
@@ -136,15 +142,17 @@ export function LastBill(): React.JSX.Element {
   );
 
   return (
-    <Paper elevation={2} sx={{ p: 4, backgroundColor: "#f5f9fc" }}>
-      <Grid container spacing={4}>
+    <Paper
+      elevation={2}
+      sx={{
+        p: { xs: 2, sm: 3, md: 4 },
+        backgroundColor: "#f5f9fc",
+        borderRadius: 2,
+      }}
+    >
+      <Grid container spacing={{ xs: 3, md: 4 }} alignItems="stretch">
         {/* Left Side */}
-        <Grid
-          item
-          xs={12}
-          md={8}
-          sx={{ backgroundColor: "#f5f9fc", width: "95%", p: 2 }}
-        >
+        <Grid item xs={12} md={8}>
           <Stack spacing={3}>
             <UtilityList data={lastBillInfo?.billing_list ?? {}} />
 
@@ -152,6 +160,7 @@ export function LastBill(): React.JSX.Element {
               invoiceDetails?.extra_params?.map((item) => {
                 return (
                   <Box
+                    key={item?.product_id}
                     sx={{
                       backgroundColor: "#e7f0f7",
                       px: 2,
@@ -223,48 +232,54 @@ export function LastBill(): React.JSX.Element {
             </Grid>
 
             {/* Late fee row */}
-            {/* <Box
-              sx={{
-                backgroundColor: "#e7f0f7",
-                px: 2,
-                py: 1,
-                borderRadius: 1,
-                mt: 2,
-              }}
-            >
-              <Grid container justifyContent="space-between">
-                <Typography fontWeight="bold">
-                  Late fee assessed on{" "}
-                  {lastBillInfo?.last_bill?.late_date
-                    ? formatToMMDDYYYY(lastBillInfo?.last_bill?.late_date, false, true)
-                    : ""}
-                </Typography>
-                <Typography fontWeight="bold" color="red">
-                  {formatCurrency(lastBillInfo?.last_bill?.late_date_amount)}
-                </Typography>
-              </Grid>
-            </Box> */}
+            {lastBillInfo?.last_late_fee_count?.total_late_fee != null && (
+              <>
+                <Box
+                  sx={{
+                    backgroundColor: "#e7f0f7",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 1,
+                    mt: 2,
+                  }}
+                >
+                  <Grid container justifyContent="space-between">
+                    <Typography fontWeight="bold">
+                      Late fee assessed on{" "}
+                      {lastBillInfo?.last_late_fee?.transaction_date
+                        ? formatToMMDDYYYY(lastBillInfo.last_late_fee.transaction_date, false, true)
+                        : ""}
+                    </Typography>
+                    <Typography fontWeight="bold" color="red">
+                      {formatCurrency(lastBillInfo?.last_late_fee_count?.total_late_fee)}
+                    </Typography>
+                  </Grid>
+                </Box>
 
-            {/* Total invoice amount plus new late fee */}
-            {/* <Box
-              sx={{
-                backgroundColor: "#e7f0f7",
-                px: 2,
-                py: 1,
-                borderRadius: 1,
-                mt: 2,
-              }}
-            >
-              <Grid container justifyContent="space-between">
-                <Typography fontWeight="bold">
-                  Total invoice amount plus new late fee
-                </Typography>
-                <Typography fontWeight="bold">
-               
-                  {formatCurrency(Number(lastBillInfo?.last_bill?.amount ?? 0) + Number(lastBillInfo?.last_bill?.late_date_amount ?? 0))}
-                </Typography>
-              </Grid>
-            </Box> */}
+                {/* Total invoice amount plus new late fee */}
+                <Box
+                  sx={{
+                    backgroundColor: "#e7f0f7",
+                    px: 2,
+                    py: 1,
+                    borderRadius: 1,
+                    mt: 2,
+                  }}
+                >
+                  <Grid container justifyContent="space-between">
+                    <Typography fontWeight="bold">
+                      Total invoice amount plus new late fee
+                    </Typography>
+                    <Typography fontWeight="bold">
+                      {formatCurrency(
+                        Number(lastBillInfo?.last_bill?.amount || 0) +
+                          Number(lastBillInfo?.last_late_fee_count?.total_late_fee || 0)
+                      )}
+                    </Typography>
+                  </Grid>
+                </Box>
+              </>
+            )}
           </Stack>
         </Grid>
 
@@ -273,78 +288,88 @@ export function LastBill(): React.JSX.Element {
           item
           xs={12}
           md={4}
-          mt={4}
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          sx={{ backgroundColor: "#ffffff", borderRadius: 2, p: 3 }}
+          sx={{ display: "flex", justifyContent: "center" }}
         >
-          <Typography variant="subtitle1">
-            INVOICE NO: {lastBillInfo?.last_bill?.invoice_number}
-          </Typography>
-          {/* <Typography variant="h6" mt={1} gutterBottom>
-            {CustomerInfo?.acctnum} {CustomerInfo?.customer_name}
-          </Typography> */}
-
-          <Typography variant="body2" mt={4}>
-            Total Account Balance
-          </Typography>
-          <Typography variant="h3" color={colors.blue} fontWeight="bold">
-            {formatCurrency(Number(lastBillInfo?.customer?.balance ?? 0))}
-          </Typography>
-
-          {!lastBillInfo?.last_bill?.id ? (
-            <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-              No Invoice found
-            </Typography>
-          ) : lastBillInfo?.company?.allow_payments == 0 ? (
-            <Box
-              className="instructions-html"
-              sx={{ color: "red", "& a": { color: "red !important", textDecoration: "none" } }}
-              dangerouslySetInnerHTML={{ __html: finalHTML }}
-            />
-          ) : lastBillInfo?.customer?.is_payments_blocked == 1 ? (
-            <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-              {lastBillInfo?.block_individual_customer_payment_text ??
-                "Payments are not allowed at this time"}
-            </Typography>
-          ) : (
-            <Button
-              onClick={() => setOpen(true)}
-              variant="contained"
-              sx={{
-                mt: 3,
-                mb: 1,
-                px: 4,
-                fontWeight: "bold",
-                backgroundColor: colors.blue,
-                "&:hover": { backgroundColor: colors["blue.3"] },
-              }}
-            >
-              MAKE A PAYMENT
-            </Button>
-          )}
-
-          {lastBillInfo?.last_bill?.id && (
-            <Typography
-              onClick={handlePreviewInvoice}
-              variant="body2"
-              sx={{ textDecoration: "underline", cursor: "pointer", mt: 1 }}
-            >
-              PREVIEW INVOICE
-            </Typography>
-          )}
-
-          <Typography
-            fontWeight="bold"
-            variant="body2"
-            sx={{ cursor: "pointer", color: "red" }}
+          <Box
+            sx={{
+              backgroundColor: "#ffffff",
+              borderRadius: 2,
+              p: { xs: 3, sm: 4 },
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
+            }}
           >
-            {lastBillInfo?.payment_pending}
-          </Typography>
+            <Typography variant="subtitle1" fontWeight={600}>
+              INVOICE NO: {lastBillInfo?.last_bill?.invoice_number}
+            </Typography>
 
+            <Typography variant="body2" mt={3} color="text.secondary">
+              Total Account Balance
+            </Typography>
+            <Typography variant="h3" color={colors.blue} fontWeight="bold" my={1}>
+              {formatCurrency(Number(lastBillInfo?.customer?.balance ?? 0))}
+            </Typography>
+
+            {!lastBillInfo?.last_bill?.id ? (
+              <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+                No Invoice found
+              </Typography>
+            ) : lastBillInfo?.company?.allow_payments == 0 ? (
+              <Box
+                className="instructions-html"
+                sx={{ color: "red", "& a": { color: "red !important", textDecoration: "none" } }}
+                dangerouslySetInnerHTML={{ __html: finalHTML }}
+              />
+            ) : lastBillInfo?.customer?.is_payments_blocked == 1 ? (
+              <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+                {lastBillInfo?.block_individual_customer_payment_text ??
+                  "Payments are not allowed at this time"}
+              </Typography>
+            ) : (
+              <Button
+                onClick={() => setOpen(true)}
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 1,
+                  px: 4,
+                  py: 1,
+                  fontWeight: "bold",
+                  backgroundColor: colors.blue,
+                  "&:hover": { backgroundColor: colors["blue.3"] },
+                  width: { xs: "100%", sm: "auto" },
+                  maxWidth: "240px",
+                }}
+              >
+                MAKE A PAYMENT
+              </Button>
+            )}
+
+            {lastBillInfo?.last_bill?.id && (
+              <Typography
+                onClick={handlePreviewInvoice}
+                variant="body2"
+                sx={{ textDecoration: "underline", cursor: "pointer", mt: 1.5, color: colors.blue, fontWeight: 500 }}
+              >
+                PREVIEW INVOICE
+              </Typography>
+            )}
+
+            {lastBillInfo?.payment_pending && (
+              <Typography
+                fontWeight="bold"
+                variant="body2"
+                sx={{ cursor: "pointer", color: "red", mt: 1 }}
+              >
+                {lastBillInfo?.payment_pending}
+              </Typography>
+            )}
+          </Box>
         </Grid>
       </Grid>
 

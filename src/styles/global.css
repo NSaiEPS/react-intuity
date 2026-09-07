@@ -42,6 +42,26 @@
   outline: 2px solid var(--mui-palette-primary-main);
 }
 
+/* Prevent double/conflicting outlines on MUI outlined inputs */
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-root input,
+.MuiInputBase-root,
+.MuiInputBase-root input {
+  outline: none;
+}
+
+.MuiOutlinedInput-root:focus-visible,
+.MuiOutlinedInput-root input:focus-visible,
+.MuiInputBase-root:focus-visible,
+.MuiInputBase-root input:focus-visible {
+  outline: none;
+}
+
+/* Fix for iPhone Safari (WebKit) MUI OutlinedInput legend notch rendering bug on focus/blur */
+.MuiOutlinedInput-notchedOutline legend {
+  transition: none !important;
+}
+
 html {
   height: 100%;
 }

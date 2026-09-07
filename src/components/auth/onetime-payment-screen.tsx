@@ -1039,49 +1039,55 @@ export default function OneTimePaymentScreen() {
 
   const [previewInvoicePdf, setPdfPreviewInvocie] = useState(false);
   const handlePreviewInvoice = async () => {
-    const invoiceNum =
-      oneTimeData?.get_invoices?.[0]?.invoice_number ||
-      oneTimeData?.get_invoices?.[0]?.invoice_no ||
-      oneTimeData?.get_invoices?.[0]?.invoicenumber ||
-      oneTimeData?.last_bill?.[0]?.invoice_number ||
-      oneTimeData?.last_bill?.[0]?.invoice_no ||
-      oneTimeData?.last_bill?.invoice_number ||
-      oneTimeData?.last_bill?.invoice_no ||
-      oneTimeData?.invoice?.invoice_number ||
-      oneTimeData?.invoice?.[0]?.invoice_number ||
-      oneTimeData?.invoice_number ||
-      oneTimeData?.customer?.last_bill?.[0]?.invoice_number ||
-      oneTimeData?.customer?.last_bill?.invoice_number ||
-      oneTimeData?.customer?.invoice_number ||
-      customerDetails?.last_bill?.[0]?.invoice_number ||
-      customerDetails?.last_bill?.invoice_number ||
-      customerDetails?.invoice_number ||
-      "";
-
-    const custId =
-      customerDetails?.id ||
-      customerDetails?.customer_id ||
-      customerDetails?.customer?.id ||
-      oneTimeData?.customer?.id ||
-      oneTimeData?.customer?.customer_id ||
-      oneTimeData?.customer_id ||
-      oneTimeData?.id ||
-      0;
-
-    const compId =
-      companyInfo?.company?.id ||
-      companyInfo?.company?.company_id ||
-      companyInfo?.id ||
-      oneTimeData?.company?.id ||
-      oneTimeData?.company?.company_id ||
-      oneTimeData?.company_id ||
-      customerDetails?.company_id ||
-      customerDetails?.company?.id ||
-      2;
-
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile =
+      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      (typeof navigator !== "undefined" &&
+        navigator.platform === "MacIntel" &&
+        navigator.maxTouchPoints > 1 &&
+        window.innerWidth <= 1024) ||
+      (typeof window !== "undefined" && window.innerWidth < 768);
 
     if (isMobile) {
+      const invoiceNum =
+        oneTimeData?.get_invoices?.[0]?.invoice_number ||
+        oneTimeData?.get_invoices?.[0]?.invoice_no ||
+        oneTimeData?.get_invoices?.[0]?.invoicenumber ||
+        oneTimeData?.last_bill?.[0]?.invoice_number ||
+        oneTimeData?.last_bill?.[0]?.invoice_no ||
+        oneTimeData?.last_bill?.invoice_number ||
+        oneTimeData?.last_bill?.invoice_no ||
+        oneTimeData?.invoice?.invoice_number ||
+        oneTimeData?.invoice?.[0]?.invoice_number ||
+        oneTimeData?.invoice_number ||
+        oneTimeData?.customer?.last_bill?.[0]?.invoice_number ||
+        oneTimeData?.customer?.last_bill?.invoice_number ||
+        oneTimeData?.customer?.invoice_number ||
+        customerDetails?.last_bill?.[0]?.invoice_number ||
+        customerDetails?.last_bill?.invoice_number ||
+        customerDetails?.invoice_number ||
+        "";
+
+      const custId =
+        customerDetails?.id ||
+        customerDetails?.customer_id ||
+        customerDetails?.customer?.id ||
+        oneTimeData?.customer?.id ||
+        oneTimeData?.customer?.customer_id ||
+        oneTimeData?.customer_id ||
+        oneTimeData?.id ||
+        0;
+
+      const compId =
+        companyInfo?.company?.id ||
+        companyInfo?.company?.company_id ||
+        companyInfo?.id ||
+        oneTimeData?.company?.id ||
+        oneTimeData?.company?.company_id ||
+        oneTimeData?.company_id ||
+        customerDetails?.company_id ||
+        customerDetails?.company?.id ||
+        2;
+
       try {
         await downloadInvoicePdf({
           invoiceNumber: invoiceNum,
@@ -1095,6 +1101,7 @@ export default function OneTimePaymentScreen() {
       }
       return;
     }
+
     setPdfPreviewInvocie(true);
   };
 

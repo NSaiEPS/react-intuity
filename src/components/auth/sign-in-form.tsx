@@ -527,7 +527,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
                 Forgot password?
               </Link>
 
-              {alias && (
+              {alias && alias !== 'login' && (
                 <Link
                   to={paths.auth.forgotLogin(
                     pathname?.split("/")[1] === "login"

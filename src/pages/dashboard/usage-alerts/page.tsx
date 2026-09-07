@@ -383,13 +383,15 @@ export default function AlertsScreen() {
           sx={{
             border: "1px solid #eaecf0",
             borderRadius: "8px",
-            overflow: "hidden",
+            overflowX: "auto",
+            maxWidth: "100%",
+            WebkitOverflowScrolling: "touch",
           }}
         >
-          <Table>
+          <Table sx={{ minWidth: { xs: 750, md: "100%" } }}>
             <TableHead sx={{ backgroundColor: "#f9fafb" }}>
               <TableRow>
-                <TableCell padding="checkbox">
+                <TableCell padding="checkbox" sx={{ whiteSpace: "nowrap" }}>
                   <Checkbox
                     checked={allSelected}
                     indeterminate={
@@ -398,7 +400,7 @@ export default function AlertsScreen() {
                     onChange={handleToggleAll}
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   <TableSortLabel
                     active
                     direction={sortOrder}
@@ -407,22 +409,22 @@ export default function AlertsScreen() {
                     Alert Date
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   Acct Num
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   Name
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   Utility
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   Meter No
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   Message
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#344054" }}>
+                <TableCell sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -447,27 +449,27 @@ export default function AlertsScreen() {
                       "&:hover": { bgcolor: "#f2f4f7" },
                     }}
                   >
-                    <TableCell padding="checkbox">
+                    <TableCell padding="checkbox" sx={{ whiteSpace: "nowrap" }}>
                       <Checkbox
                         checked={selected.includes(row?.id)}
                         onChange={() => handleToggle(row?.id)}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
                       {row.data ? dayjs(row.data).format("DD/MM/YYYY") : "-"}
                     </TableCell>
-                    <TableCell>{row.acctnum || "-"}</TableCell>
-                    <TableCell>{row.customer_name || "-"}</TableCell>
-                    <TableCell>{row.utility_type_name || "-"}</TableCell>
-                    <TableCell>{row.meter_number || "-"}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>{row.acctnum || "-"}</TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>{row.customer_name || "-"}</TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>{row.utility_type_name || "-"}</TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>{row.meter_number || "-"}</TableCell>
+                    <TableCell sx={{ minWidth: 160 }}>
                       <div
                         dangerouslySetInnerHTML={{
                           __html: row.message || "-",
                         }}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
                       <IconButton
                         color="error"
                         size="small"

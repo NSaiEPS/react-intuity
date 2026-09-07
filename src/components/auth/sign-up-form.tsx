@@ -23,6 +23,43 @@ import { StepCheckEmail } from "./sign-up-step-email";
 // Re-export stepper pieces so existing imports from this file keep working
 export { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
 
+function getGuestEmail(compResp?: any, oneTimeInfo?: any): string {
+  // 1. Check company response from registration step 1 API
+  const compEmail =
+    compResp?.email ||
+    compResp?.customer?.email ||
+    compResp?.notification_email ||
+    compResp?.customer_email ||
+    compResp?.user_email;
+  if (compEmail && typeof compEmail === "string") return compEmail;
+
+  // 2. Check Redux oneTimePaymentInfo from Pay as Guest
+  const reduxEmail =
+    oneTimeInfo?.customer?.email ||
+    oneTimeInfo?.email ||
+    oneTimeInfo?.customer_email;
+  if (reduxEmail && typeof reduxEmail === "string") return reduxEmail;
+
+  // 3. Check sessionStorage from Pay as Guest
+  try {
+    const raw = sessionStorage.getItem("guest-payment-state");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const sessionEmail =
+        parsed?.formData?.email ||
+        parsed?.customerDetails?.email ||
+        parsed?.customerDetails?.customer?.email ||
+        parsed?.oneTimeData?.customer?.email ||
+        parsed?.oneTimeData?.email;
+      if (sessionEmail && typeof sessionEmail === "string") return sessionEmail;
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+
+  return "";
+}
+
 export function SignUpForm() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [stepSubmitAttempted, setStepSubmitAttempted] = React.useState(false);
@@ -35,14 +72,19 @@ export function SignUpForm() {
     ? pathname.replace("/register-", "")
     : null;
 
-  const { companyInfo } = useSelector((state: RootState) => state?.Account);
+  const { companyInfo, oneTimePaymentInfo } = useSelector((state: RootState) => state?.Account);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const initialGuestEmail = React.useMemo(() => {
+    return getGuestEmail(undefined, oneTimePaymentInfo);
+  }, [oneTimePaymentInfo]);
 
   const {
     control,
     trigger,
     getValues,
+    setValue,
     reset,
     formState: { errors, isDirty },
   } = useForm<RegisterFormData>({
@@ -57,12 +99,25 @@ export function SignUpForm() {
       confirmPassword: "",
       authType: "last_name",
       authAnswer: "",
-      notificationEmail: "",
-      confirmNotificationEmail: "",
+      notificationEmail: initialGuestEmail,
+      confirmNotificationEmail: initialGuestEmail,
       phone: "",
       countryCode: "1",
     },
   });
+
+  // Auto-fill notification emails from guest payment / customer lookup if fields haven't been manually populated
+  React.useEffect(() => {
+    const emailToSet = getGuestEmail(companyResponse, oneTimePaymentInfo);
+    if (emailToSet) {
+      if (!getValues("notificationEmail")) {
+        setValue("notificationEmail", emailToSet, { shouldDirty: false, shouldValidate: false });
+      }
+      if (!getValues("confirmNotificationEmail")) {
+        setValue("confirmNotificationEmail", emailToSet, { shouldDirty: false, shouldValidate: false });
+      }
+    }
+  }, [companyResponse, oneTimePaymentInfo, setValue, getValues]);
 
   // Only show error after user clicks Next / Submit on this step
   const showError = (fieldError: unknown) =>
@@ -101,7 +156,7 @@ export function SignUpForm() {
       formData.append("acl_role_id", "4");
     }
     if (activeStep === 2) {
-      formData.append("name", getValues("name"));
+      formData.append("name", getValues("name") || companyResponse?.customer_name || "");
       formData.append("account_no", getValues("accountNumber"));
       formData.append("authentication", getValues("authType"));
       formData.append("authentication_field", getValues("authAnswer"));
@@ -134,6 +189,20 @@ export function SignUpForm() {
     setStepSubmitAttempted(false);
     setActiveStep((prev) => prev + 1);
     setCompanyResponse((prev: any) => ({ ...prev, ...data }));
+
+    const emailFromData = getGuestEmail(data, oneTimePaymentInfo);
+    if (emailFromData) {
+      if (!getValues("notificationEmail")) {
+        setValue("notificationEmail", emailFromData, { shouldDirty: false, shouldValidate: false });
+      }
+      if (!getValues("confirmNotificationEmail")) {
+        setValue("confirmNotificationEmail", emailFromData, { shouldDirty: false, shouldValidate: false });
+      }
+    }
+    if (data?.customer_name && !getValues("name")) {
+      setValue("name", data.customer_name, { shouldDirty: false });
+    }
+
     setLoading(false);
   };
 

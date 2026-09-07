@@ -29,6 +29,7 @@ import { paths } from "@/utils/paths";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import {
   Avatar,
+  Box,
   Checkbox,
   CircularProgress,
   Dialog,
@@ -39,6 +40,8 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Button } from "nsaicomponents";
 
@@ -141,6 +144,8 @@ export function DashboardInfo({
   typeofUser,
   apiCall = false,
 }: DashboardInfoProps): React.JSX.Element {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const dashBoardInfo = useSelector(
     (state: RootState) => state?.DashBoard?.dashBoardInfo
@@ -490,10 +495,8 @@ export function DashboardInfo({
                 </Avatar>
               )}
             </Stack>
-            <Stack
-              component="button"
-              disabled={isUpdating}
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+            <Box
+              onClick={(e: React.MouseEvent) => {
                 if (isUpdating) return;
                 e.stopPropagation();
                 if (type === "autoPay") {
@@ -504,7 +507,6 @@ export function DashboardInfo({
                 setOpenConfirm(true);
               }} // 👈 prevent the card click
               sx={{
-                all: "unset", // Reset button styles
                 display: "flex",
                 width: "70px",
                 cursor: isUpdating ? "not-allowed" : "pointer",
@@ -527,7 +529,7 @@ export function DashboardInfo({
                   }} // 👈 prevent the card click
                 />
               )}
-            </Stack>
+            </Box>
           </Stack>
         </CardContent>
       </Card>
@@ -623,11 +625,19 @@ export function DashboardInfo({
               )}
             </DialogContent>
 
-            <DialogActions sx={{ p: 0, justifyContent: "space-between", gap: 1.5 }}>
+            <DialogActions
+              sx={{
+                p: 0,
+                flexDirection: { xs: "column-reverse", sm: "row" },
+                justifyContent: { xs: "stretch", sm: "space-between" },
+                gap: 1.5,
+              }}
+            >
               <Button
                 variant="outlined"
                 textTransform="none"
                 disabled={isUpdating}
+                fullWidth={isMobile}
                 style={{
                   color: colors.blue,
                   borderColor: colors.blue,
@@ -638,6 +648,7 @@ export function DashboardInfo({
                   paddingRight: "16px",
                   fontSize: "0.9rem",
                   fontWeight: 600,
+                  width: isMobile ? "100%" : "auto",
                 }}
                 onClick={() => {
                   if (!isUpdating) setOpenConfirm(false);
@@ -654,13 +665,16 @@ export function DashboardInfo({
                 bgColor={colors.blue}
                 hoverBackgroundColor={colors["blue.3"]}
                 hoverColor="white"
+                fullWidth={isMobile}
                 style={{
                   borderRadius: "10px",
                   height: "40px",
+                  minHeight: "40px",
                   fontSize: "0.9rem",
                   fontWeight: 600,
                   paddingLeft: "16px",
                   paddingRight: "16px",
+                  width: isMobile ? "100%" : "auto",
                 }}
                 onClick={handleConfirm}
               >
@@ -762,11 +776,19 @@ export function DashboardInfo({
             </Typography>
           </DialogContent>
 
-          <DialogActions sx={{ p: 0, justifyContent: "space-between", gap: 1.5 }}>
+          <DialogActions
+            sx={{
+              p: 0,
+              flexDirection: { xs: "column-reverse", sm: "row" },
+              justifyContent: { xs: "stretch", sm: "space-between" },
+              gap: 1.5,
+            }}
+          >
             <Button
               variant="outlined"
               textTransform="none"
               disabled={isUpdating}
+              fullWidth={isMobile}
               style={{
                 color: colors.blue,
                 borderColor: colors.blue,
@@ -777,6 +799,7 @@ export function DashboardInfo({
                 paddingRight: "16px",
                 fontSize: "0.9rem",
                 fontWeight: 600,
+                width: isMobile ? "100%" : "auto",
               }}
               onClick={() => {
                 if (!isUpdating) setOpenConfirm(false);
@@ -793,13 +816,16 @@ export function DashboardInfo({
               bgColor={colors.blue}
               hoverBackgroundColor={colors["blue.3"]}
               hoverColor="white"
+              fullWidth={isMobile}
               style={{
                 borderRadius: "10px",
                 height: "40px",
+                minHeight: "40px",
                 fontSize: "0.9rem",
                 fontWeight: 600,
                 paddingLeft: "16px",
                 paddingRight: "16px",
+                width: isMobile ? "100%" : "auto",
               }}
               onClick={handleConfirm}
             >

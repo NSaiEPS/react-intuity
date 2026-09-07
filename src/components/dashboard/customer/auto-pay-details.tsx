@@ -321,39 +321,106 @@ export default function AutoPayDetails(): React.JSX.Element {
               <Box
                 // onClick={() => setPaymentType('saved')}
                 sx={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   border: '1px solid #D6DBDF',
                   borderRadius: '8px',
-                  p: '6px 12px',
+                  p: { xs: '6px 10px', sm: '6px 12px' },
                   backgroundColor: '#ffffff',
                   cursor: 'pointer',
                   '&:hover': { borderColor: '#A6ACAF' },
-                  gap: 1.5,
+                  gap: { xs: 1, sm: 1.5 },
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  minWidth: 0,
                 }}
               >
-                {renderCardBrand(
-                  selectedCardDetails?.card?.card_type ??
-                  selectedCardDetails?.card?.account_type ??
-                  autoPayDetails?.card_type ??
-                  autoPayDetails?.account_type
-                )}
-
-                <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                  {selectedCardDetails?.card?.card_type ??
+                <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  {renderCardBrand(
+                    selectedCardDetails?.card?.card_type ??
                     selectedCardDetails?.card?.account_type ??
                     autoPayDetails?.card_type ??
-                    autoPayDetails?.account_type ??
-                    'Card'}{' '}
-                  ending in{' '}
-                  {String(
-                    selectedCardDetails?.card?.card_number ??
-                    selectedCardDetails?.card?.bank_account_number ??
-                    autoPayDetails?.card_number ??
-                    autoPayDetails?.bank_account_number ??
-                    ''
-                  ).slice(-4)}
-                </Typography>
+                    autoPayDetails?.account_type
+                  )}
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    minWidth: 0,
+                    flex: '1 1 auto',
+                    overflow: 'hidden',
+                    gap: 0.5,
+                  }}
+                >
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: '14px',
+                      color: '#2C3E50',
+                      fontWeight: 500,
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 1,
+                    }}
+                  >
+                    {selectedCardDetails?.card?.card_type ??
+                      selectedCardDetails?.card?.account_type ??
+                      autoPayDetails?.card_type ??
+                      autoPayDetails?.account_type ??
+                      'Card'}
+                  </Typography>
+
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: '14px',
+                      color: '#2C3E50',
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 2,
+                      display: { xs: 'none', sm: 'inline' },
+                    }}
+                  >
+                    ending in
+                  </Typography>
+
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: '14px',
+                      color: '#2C3E50',
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      display: { xs: 'inline', sm: 'none' },
+                    }}
+                  >
+                    ...
+                  </Typography>
+
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: '14px',
+                      color: '#2C3E50',
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {String(
+                      selectedCardDetails?.card?.card_number ??
+                      selectedCardDetails?.card?.bank_account_number ??
+                      autoPayDetails?.card_number ??
+                      autoPayDetails?.bank_account_number ??
+                      ''
+                    ).slice(-4)}
+                  </Typography>
+                </Box>
 
                 {/* Default Badge */}
                 <Box
@@ -365,6 +432,8 @@ export default function AutoPayDetails(): React.JSX.Element {
                     px: 1,
                     py: 0.2,
                     borderRadius: '4px',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   Default

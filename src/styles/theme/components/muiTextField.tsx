@@ -12,6 +12,9 @@ export const MuiTextField: Components<Theme>["MuiTextField"] = {
       "& .MuiOutlinedInput-notchedOutline": {
         borderColor: "#c4c4c4",
       },
+      "& .MuiOutlinedInput-notchedOutline legend": {
+        transition: "none",
+      },
       "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
         borderColor: colors.blue,
       },

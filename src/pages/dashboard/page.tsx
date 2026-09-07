@@ -276,7 +276,7 @@ React.useEffect(() => {
 
       {/* ✅ Right column — lazy */}
       <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
-        <Grid container spacing={2} height="-webkit-fill-available">
+        <Grid container spacing={2}>
           {!isLargeUp && allow_auto_payment !== 1 && (
             <Grid item xs={12} sm={6} md={6}>
               <React.Suspense fallback={<InfoCardSkeleton />}>

@@ -271,8 +271,33 @@ export function NotificationsPopover({
       </List>
 
       {localNotifications.length > 0 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-          <Pagination count={Math.max(1, totalPages)} page={pageNo} onChange={(_, value) => setPageNo(value)} color="primary" />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2, width: "100%" }}>
+          <Pagination
+            count={Math.max(1, totalPages)}
+            page={pageNo}
+            onChange={(_, value) => setPageNo(value)}
+            color="primary"
+            size={isMobile ? "small" : "medium"}
+            sx={{
+              "& .MuiPagination-ul": {
+                flexWrap: "nowrap",
+                justifyContent: "center",
+              },
+              "& .MuiPaginationItem-root": {
+                minWidth: { xs: 26, sm: 32 },
+                height: { xs: 26, sm: 32 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                margin: { xs: "0 1px", sm: "0 3px" },
+                padding: { xs: "0 2px", sm: "0 6px" },
+              },
+              "& .MuiPaginationItem-ellipsis": {
+                minWidth: { xs: 16, sm: "auto" },
+                padding: { xs: "0 1px", sm: "0 4px" },
+                margin: { xs: "0 1px", sm: "0 3px" },
+                height: "auto",
+              },
+            }}
+          />
         </Box>
       )}
     </Paper>

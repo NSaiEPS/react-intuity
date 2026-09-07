@@ -181,7 +181,7 @@ export interface DashboardBody {
 }
 
 /** Full home-API response (status + body). Stored in `state.DashBoard.dashBoardInfo`. */
-export interface DashboardResponse extends ApiResponse<DashboardBody> {}
+export interface DashboardResponse extends ApiResponse<DashboardBody> { }
 
 // ─── Last Bill ───────────────────────────────────────────────────────────────
 
@@ -197,6 +197,14 @@ export interface LastBillBody {
   achworks_pay_now_text?: any;
   nacha_pay_now_text?: any;
   last_bill?: Record<string, any>;
+  last_late_fee?: {
+    transaction_date?: string;
+    [key: string]: any;
+  };
+  last_late_fee_count?: {
+    total_late_fee?: string | number | null;
+    [key: string]: any;
+  };
   customer_acknowledgement_text?: any;
   get_recurring_payments?: any;
   customer?: CustomerAccount;

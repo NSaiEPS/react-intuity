@@ -70,13 +70,32 @@ function UsageHeader() {
           py={1}
         >
           {/* Left: Title + Usage Alerts */}
-          <Box display="flex" alignItems="center" gap={3} flexWrap="wrap" pt={1.5} pb={1.5}>
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={{ xs: 2.5, sm: 3 }}
+            flexWrap="nowrap"
+            sx={{
+              overflowX: "auto",
+              maxWidth: "100%",
+              width: { xs: "100%", sm: "auto" },
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              "&::-webkit-scrollbar": {
+                display: "none",
+              },
+              pt: 1.5,
+              pb: 1.5,
+            }}
+          >
             <Box
               display="flex"
               alignItems="center"
               sx={{
                 cursor: "pointer",
                 pb: 0.5,
+                flexShrink: 0,
+                whiteSpace: "nowrap",
                 borderBottom: isHistoryPage ? `3px solid ${colors.blue}` : "3px solid transparent",
                 transition: "all 0.2s ease",
               }}
@@ -88,6 +107,7 @@ function UsageHeader() {
                   fontWeight: 500,
                   color: isHistoryPage ? "text.primary" : "text.secondary",
                   transition: "all 0.2s ease",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Usage History
@@ -100,6 +120,8 @@ function UsageHeader() {
               sx={{
                 cursor: "pointer",
                 pb: 0.5,
+                flexShrink: 0,
+                whiteSpace: "nowrap",
                 borderBottom: isAlertsPage ? `3px solid ${colors.blue}` : "3px solid transparent",
                 transition: "all 0.2s ease",
               }}
@@ -111,6 +133,7 @@ function UsageHeader() {
                   fontWeight: 500,
                   color: isAlertsPage ? "text.primary" : "text.secondary",
                   transition: "all 0.2s ease",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Usage Alerts
@@ -125,6 +148,7 @@ function UsageHeader() {
                   fontSize: "0.75rem",
                   color: "white",
                   backgroundColor: "#d32f2f",
+                  flexShrink: 0,
                 }}
               />
             </Box>

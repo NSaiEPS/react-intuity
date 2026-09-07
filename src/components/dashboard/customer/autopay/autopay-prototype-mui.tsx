@@ -778,73 +778,177 @@ function EnrollChoose({
         >
           {/* Option 1: Saved Payment Method - Only rendered if saved card exists */}
           {hasSavedCard && (
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
-              <FormControlLabel value="saved" control={<Radio color="primary" />} label="" sx={{ mr: 0 }} />
-
-              {/* Saved payment details box */}
-              <Box
-                onClick={() => {
-                  setPaymentType('saved');
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                mb: 2.5,
+              }}
+            >
+              <FormControlLabel
+                value="saved"
+                control={
+                  <Radio
+                    color="primary"
+                    sx={{
+                      p: '9px',
+                      mt: { xs: '-2px', sm: '2px' },
+                    }}
+                  />
+                }
+                label=""
+                sx={{
+                  mr: 0.5,
+                  m: 0,
+                  alignSelf: { xs: 'flex-start', sm: 'center' },
                 }}
+              />
+
+              {/* Content to the right of the radio button */}
+              <Box
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
-                  border: '1px solid #D6DBDF',
-                  borderRadius: '8px',
-                  p: '6px 12px',
-                  backgroundColor: '#ffffff',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    borderColor: '#A6ACAF',
-                  },
-                  gap: 1.5,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                  gap: { xs: 1.25, sm: 2 },
+                  flex: 1,
+                  minWidth: 0,
                 }}
               >
-                {renderCardBrand(displayCard?.card_type ?? displayCard?.account_type ?? (displayCard as any)?.brand)}
-
-                <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                  {displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || 'Card'} ending in{' '}
-                  {getCardLast4(displayCard as any) || (displayCard as any)?.last4 || ''}
-                </Typography>
-
-                {/* Default Badge */}
+                {/* Saved payment details box */}
                 <Box
+                  onClick={() => {
+                    setPaymentType('saved');
+                  }}
                   sx={{
-                    backgroundColor: '#E8F8F5',
-                    color: '#117A65',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    px: 1,
-                    py: 0.2,
-                    borderRadius: '4px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    border: '1px solid #D6DBDF',
+                    borderRadius: '8px',
+                    p: { xs: '6px 10px', sm: '6px 12px' },
+                    backgroundColor: '#ffffff',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      borderColor: '#A6ACAF',
+                    },
+                    gap: { xs: 1, sm: 1.5 },
+                    maxWidth: '100%',
+                    boxSizing: 'border-box',
+                    minWidth: 0,
                   }}
                 >
-                  Default
-                </Box>
-              </Box>
+                  <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    {renderCardBrand(displayCard?.card_type ?? displayCard?.account_type ?? (displayCard as any)?.brand)}
+                  </Box>
 
-              {/* Add/Remove Button */}
-              <Button
-                variant="contained"
-                size="small"
-                textTransform="none"
-                bgColor={colors.blue}
-                hoverBackgroundColor={colors['blue.3']}
-                hoverColor="white"
-                style={{
-                  fontWeight: 500,
-                  fontSize: '13px',
-                  padding: '4px 16px',
-                  borderRadius: '4px',
-                  marginLeft: '8px',
-                }}
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  setOpenPaymentModal(true);
-                }}
-              >
-                Add/Remove
-              </Button>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      minWidth: 0,
+                      flex: '1 1 auto',
+                      overflow: 'hidden',
+                      gap: 0.5,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: '14px',
+                        color: '#2C3E50',
+                        fontWeight: 500,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 1,
+                      }}
+                    >
+                      {displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || 'Card'}
+                    </Typography>
+
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: '14px',
+                        color: '#2C3E50',
+                        fontWeight: 500,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 2,
+                        display: { xs: 'none', sm: 'inline' },
+                      }}
+                    >
+                      ending in
+                    </Typography>
+
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: '14px',
+                        color: '#2C3E50',
+                        fontWeight: 500,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        display: { xs: 'inline', sm: 'none' },
+                      }}
+                    >
+                      ...
+                    </Typography>
+
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: '14px',
+                        color: '#2C3E50',
+                        fontWeight: 500,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {getCardLast4(displayCard as any) || (displayCard as any)?.last4 || ''}
+                    </Typography>
+                  </Box>
+
+                  {/* Default Badge */}
+                  <Box
+                    sx={{
+                      backgroundColor: '#E8F8F5',
+                      color: '#117A65',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      px: 1,
+                      py: 0.2,
+                      borderRadius: '4px',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Default
+                  </Box>
+                </Box>
+
+                {/* Add/Remove Button */}
+                <Button
+                  variant="contained"
+                  size="small"
+                  textTransform="none"
+                  bgColor={colors.blue}
+                  hoverBackgroundColor={colors['blue.3']}
+                  hoverColor="white"
+                  style={{
+                    fontWeight: 500,
+                    fontSize: '13px',
+                    padding: '4px 16px',
+                    borderRadius: '4px',
+                  }}
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setOpenPaymentModal(true);
+                  }}
+                >
+                  Add/Remove
+                </Button>
+              </Box>
             </Box>
           )}
 
@@ -852,7 +956,15 @@ function EnrollChoose({
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <FormControlLabel
               value="no-save"
-              control={<Radio color="primary" />}
+              control={
+                <Radio
+                  color="primary"
+                  sx={{
+                    p: '9px',
+                    mt: '-2px',
+                  }}
+                />
+              }
               label={
                 <Box sx={{ ml: 0.5, mt: -0.25 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -862,6 +974,11 @@ function EnrollChoose({
                   </Box>
                 </Box>
               }
+              sx={{
+                alignItems: 'flex-start',
+                m: 0,
+                mr: 0,
+              }}
             />
           </Box>
         </RadioGroup>

@@ -66,7 +66,13 @@ export default function InvoiceTransactionTabs({
   const navigate = useNavigate();
 
   const handleViewInvoice = async (invoiceItem: any) => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile =
+      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+      (typeof navigator !== "undefined" &&
+        navigator.platform === "MacIntel" &&
+        navigator.maxTouchPoints > 1 &&
+        window.innerWidth <= 1024) ||
+      (typeof window !== "undefined" && window.innerWidth < 768);
 
     if (isMobile) {
       try {

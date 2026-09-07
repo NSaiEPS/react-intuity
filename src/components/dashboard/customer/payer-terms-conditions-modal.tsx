@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { getNotificationList, getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
@@ -17,6 +17,8 @@ import {
   Grid,
   IconButton,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { X } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
@@ -25,6 +27,8 @@ import Header from '@/components/CommonComponents/header-common';
 
 
 const PayerTermsConditionsModal = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [payerTermsModalOpen, setPayerTermsModalOpen] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
 
@@ -160,20 +164,29 @@ const PayerTermsConditionsModal = () => {
 
       <Divider />
 
-      <CardActions sx={{ p: 3, justifyContent: "flex-end", gap: 1.5 }}>
+      <CardActions
+        sx={{
+          p: { xs: 2, sm: 3 },
+          flexDirection: { xs: "column-reverse", sm: "row" },
+          gap: 1.5,
+          justifyContent: "flex-end",
+        }}
+      >
         <Button
           variant="outlined"
           textTransform="none"
+          fullWidth={isMobile}
           style={{
             color: colors.blue,
             borderColor: colors.blue,
             backgroundColor: "white",
             borderRadius: "10px",
             height: "41px",
-            paddingLeft: "20px",
-            paddingRight: "20px",
-            fontSize: "0.95rem",
+            paddingLeft: isMobile ? "16px" : "20px",
+            paddingRight: isMobile ? "16px" : "20px",
+            fontSize: isMobile ? "0.9rem" : "0.95rem",
             fontWeight: 600,
+            width: isMobile ? "100%" : "auto",
           }}
           disabled={accountLoading}
           onClick={() => {
@@ -191,13 +204,16 @@ const PayerTermsConditionsModal = () => {
           bgColor={colors.blue}
           hoverBackgroundColor={colors["blue.3"]}
           hoverColor="white"
+          fullWidth={isMobile}
           style={{
             borderRadius: "10px",
             height: "41px",
-            fontSize: "0.95rem",
+            minHeight: "41px",
+            fontSize: isMobile ? "0.9rem" : "0.95rem",
             fontWeight: 600,
-            paddingLeft: "20px",
-            paddingRight: "20px",
+            paddingLeft: isMobile ? "16px" : "20px",
+            paddingRight: isMobile ? "16px" : "20px",
+            width: isMobile ? "100%" : "auto",
           }}
           onClick={handleSave}
         >

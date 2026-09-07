@@ -429,6 +429,7 @@ const CardRow = React.memo(function CardRow({
   const statusChipColor = isExpired ? '#B91C1C' : '#92400E';
 
   return (
+    
     <TableRow
       hover={!isExpired}
       key={row.id}
@@ -437,8 +438,8 @@ const CardRow = React.memo(function CardRow({
       sx={{
         '&:last-child td': { borderBottom: 0 },
         bgcolor: rowBg,
-        borderLeft: '3px solid',
-        borderLeftColor: leftBorderColor,
+        borderLeft: { xs: 'none', sm: '3px solid' },
+        borderLeftColor: { xs: 'transparent', sm: leftBorderColor },
         cursor: isExpired ? "not-allowed" : "pointer",
         transition: 'background-color 0.15s ease',
         '&:hover': {
@@ -450,9 +451,6 @@ const CardRow = React.memo(function CardRow({
         '&.Mui-selected:hover': {
           bgcolor: isExpiring ? '#FFF7E0' : '#E0EDFF',
         },
-        // '@media (max-width:600px)': {
-        //   paddingX: 3,
-        // },
       }}
     >
       <TableCell
@@ -460,6 +458,7 @@ const CardRow = React.memo(function CardRow({
           display: { xs: 'table-cell', sm: 'none' },
           py: 1,
           px: 1,
+          borderBottom: '1px solid #E5E7EB',
         }}
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} >
@@ -1271,9 +1270,9 @@ export const PaymentMethods = ({
     <SkeletonWrapper>
       <Box
         sx={{
-          border: "1px solid #E5E7EB",
-          borderRadius: "8px",
-          bgcolor: "#fff",
+          border: isModal ? "none" : { xs: "none", sm: "1px solid #E5E7EB" },
+          borderRadius: { xs: 0, sm: "8px" },
+          bgcolor: { xs: "transparent", sm: "#fff" },
           overflow: "hidden",
           position: "relative",
         }}
@@ -1292,11 +1291,12 @@ export const PaymentMethods = ({
           <Divider />
         </Box>
 
-        <Box sx={{ width: isModal ? "100%" : { xs: "95%", md: "60%" }, mx: 'auto', my: isModal ? 0 : { xs: "8px", sm: '24px' } }}>
+        <Box sx={{ width: isModal ? "100%" : { xs: "100%", md: "60%" }, mx: 'auto', my: isModal ? 0 : { xs: 0, sm: '24px' } }}>
           <Card
             sx={{
               borderRadius: boarderRadius.card,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+              boxShadow: { xs: 'none', sm: '0 1px 3px rgba(0,0,0,0.08)' },
+              border: '1px solid #E5E7EB',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
@@ -1385,7 +1385,7 @@ export const PaymentMethods = ({
                   </TableRow>
                 </TableHead>
 
-                <TableBody>
+                <TableBody sx={{ '& tr:last-child td, & tr:last-child th': { borderBottom: 'none !important' } }}>
                   {myCards?.length > 0 ? (
                     memoizedCardRows
                   ) : (
