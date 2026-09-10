@@ -791,6 +791,11 @@ export const guestPaymentRequest = (
       if (res?.body?.is_payments_blocked) {
         failureCallBack(res?.body?.is_payments_blocked);
       } else {
+        if (res?.body?.customer?.email) {
+          try {
+            sessionStorage.setItem("guest-confirmation-email", res.body.customer.email);
+          } catch {}
+        }
         dispatch(setOneTimePaymentInfo(res?.body));
         if (successCallBack) successCallBack(res?.body?.customer);
       }

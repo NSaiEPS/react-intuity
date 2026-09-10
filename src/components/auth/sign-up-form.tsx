@@ -20,27 +20,59 @@ import { StepPortalRegistration } from "./sign-up-step-portal";
 import { StepContactInfo } from "./sign-up-step-contact";
 import { StepCheckEmail } from "./sign-up-step-email";
 
+import { getLocalStorage } from "@/utils/auth";
+
 // Re-export stepper pieces so existing imports from this file keep working
 export { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
 
-function getGuestEmail(compResp?: any, oneTimeInfo?: any): string {
-  // 1. Check company response from registration step 1 API
+const isValidEmailFormat = (email: unknown): boolean => {
+  if (typeof email !== "string") return false;
+  const trimmed = email.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+};
+
+function getAvailableEmail(
+  compResp?: any,
+  oneTimeInfo?: any,
+  portalUsername?: string
+): string {
+  // 1. Direct sessionStorage / localStorage key for guest confirmation email
+  try {
+    const directEmail =
+      sessionStorage.getItem("guest-confirmation-email") ||
+      sessionStorage.getItem("guest-payment-email") ||
+      localStorage.getItem("guest-confirmation-email");
+    if (isValidEmailFormat(directEmail)) {
+      return (directEmail as string).trim();
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+
+  // 2. Company response from registration step 1 / step 2 API
   const compEmail =
     compResp?.email ||
     compResp?.customer?.email ||
     compResp?.notification_email ||
     compResp?.customer_email ||
-    compResp?.user_email;
-  if (compEmail && typeof compEmail === "string") return compEmail;
+    compResp?.user_email ||
+    compResp?.customer_details?.email ||
+    compResp?.details?.email ||
+    compResp?.data?.email;
+  if (isValidEmailFormat(compEmail)) {
+    return (compEmail as string).trim();
+  }
 
-  // 2. Check Redux oneTimePaymentInfo from Pay as Guest
+  // 3. Redux oneTimePaymentInfo from Pay as Guest
   const reduxEmail =
     oneTimeInfo?.customer?.email ||
     oneTimeInfo?.email ||
     oneTimeInfo?.customer_email;
-  if (reduxEmail && typeof reduxEmail === "string") return reduxEmail;
+  if (isValidEmailFormat(reduxEmail)) {
+    return (reduxEmail as string).trim();
+  }
 
-  // 3. Check sessionStorage from Pay as Guest
+  // 4. Session storage guest-payment-state snapshot
   try {
     const raw = sessionStorage.getItem("guest-payment-state");
     if (raw) {
@@ -51,10 +83,32 @@ function getGuestEmail(compResp?: any, oneTimeInfo?: any): string {
         parsed?.customerDetails?.customer?.email ||
         parsed?.oneTimeData?.customer?.email ||
         parsed?.oneTimeData?.email;
-      if (sessionEmail && typeof sessionEmail === "string") return sessionEmail;
+      if (isValidEmailFormat(sessionEmail)) {
+        return (sessionEmail as string).trim();
+      }
     }
   } catch {
     // Ignore storage parse errors
+  }
+
+  // 5. Existing local/secure storage user/customer information
+  try {
+    const custInfo = getLocalStorage("intuity-customerInfo") as any;
+    if (custInfo && isValidEmailFormat(custInfo?.email)) {
+      return custInfo.email.trim();
+    }
+    const intuityUser = getLocalStorage("intuity-user") as any;
+    const userEmail = intuityUser?.email || intuityUser?.body?.email;
+    if (isValidEmailFormat(userEmail)) {
+      return userEmail.trim();
+    }
+  } catch {
+    // Ignore storage parse errors
+  }
+
+  // 6. Portal Username (if the user entered an email in Step 2)
+  if (portalUsername && isValidEmailFormat(portalUsername)) {
+    return portalUsername.trim();
   }
 
   return "";
@@ -65,6 +119,7 @@ export function SignUpForm() {
   const [stepSubmitAttempted, setStepSubmitAttempted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [companyResponse, setCompanyResponse] = React.useState<any>({});
+  const lastAutoFilledEmailRef = React.useRef<string>("");
 
   const location = useLocation();
   const pathname = location.pathname;
@@ -77,7 +132,7 @@ export function SignUpForm() {
   const navigate = useNavigate();
 
   const initialGuestEmail = React.useMemo(() => {
-    return getGuestEmail(undefined, oneTimePaymentInfo);
+    return getAvailableEmail(undefined, oneTimePaymentInfo);
   }, [oneTimePaymentInfo]);
 
   const {
@@ -106,18 +161,22 @@ export function SignUpForm() {
     },
   });
 
-  // Auto-fill notification emails from guest payment / customer lookup if fields haven't been manually populated
+  // Auto-fill notification emails from available sources if fields haven't been manually modified
   React.useEffect(() => {
-    const emailToSet = getGuestEmail(companyResponse, oneTimePaymentInfo);
+    const portalUser = getValues("email");
+    const emailToSet = getAvailableEmail(companyResponse, oneTimePaymentInfo, portalUser);
     if (emailToSet) {
-      if (!getValues("notificationEmail")) {
+      const currentNotif = getValues("notificationEmail");
+      const currentConfirm = getValues("confirmNotificationEmail");
+      if (!currentNotif || currentNotif === lastAutoFilledEmailRef.current) {
         setValue("notificationEmail", emailToSet, { shouldDirty: false, shouldValidate: false });
       }
-      if (!getValues("confirmNotificationEmail")) {
+      if (!currentConfirm || currentConfirm === lastAutoFilledEmailRef.current) {
         setValue("confirmNotificationEmail", emailToSet, { shouldDirty: false, shouldValidate: false });
       }
+      lastAutoFilledEmailRef.current = emailToSet;
     }
-  }, [companyResponse, oneTimePaymentInfo, setValue, getValues]);
+  }, [companyResponse, oneTimePaymentInfo, activeStep, setValue, getValues]);
 
   // Only show error after user clicks Next / Submit on this step
   const showError = (fieldError: unknown) =>
@@ -182,6 +241,9 @@ export function SignUpForm() {
 
   const successCallBack = (data: any) => {
     if (activeStep === 2) {
+      try {
+        sessionStorage.removeItem("guest-confirmation-email");
+      } catch {}
       reset(getValues()); // clear isDirty so beforeunload doesn't fire
       setActiveStep((prev) => prev + 1);
       return;
@@ -190,14 +252,18 @@ export function SignUpForm() {
     setActiveStep((prev) => prev + 1);
     setCompanyResponse((prev: any) => ({ ...prev, ...data }));
 
-    const emailFromData = getGuestEmail(data, oneTimePaymentInfo);
+    const portalUser = getValues("email");
+    const emailFromData = getAvailableEmail(data, oneTimePaymentInfo, portalUser);
     if (emailFromData) {
-      if (!getValues("notificationEmail")) {
+      const currentNotif = getValues("notificationEmail");
+      const currentConfirm = getValues("confirmNotificationEmail");
+      if (!currentNotif || currentNotif === lastAutoFilledEmailRef.current) {
         setValue("notificationEmail", emailFromData, { shouldDirty: false, shouldValidate: false });
       }
-      if (!getValues("confirmNotificationEmail")) {
+      if (!currentConfirm || currentConfirm === lastAutoFilledEmailRef.current) {
         setValue("confirmNotificationEmail", emailFromData, { shouldDirty: false, shouldValidate: false });
       }
+      lastAutoFilledEmailRef.current = emailFromData;
     }
     if (data?.customer_name && !getValues("name")) {
       setValue("name", data.customer_name, { shouldDirty: false });

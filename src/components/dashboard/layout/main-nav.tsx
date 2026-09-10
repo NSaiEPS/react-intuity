@@ -104,7 +104,9 @@ export function MainNav(): React.JSX.Element {
             justifyContent: "space-between",
             minHeight: "79px",
             height: "79px",
-            px: 2,
+            px: { xs: 1.5, sm: 2 },
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           <Stack
@@ -140,7 +142,7 @@ export function MainNav(): React.JSX.Element {
               ) : null}
             </Box>
           </Stack>
-          <Stack sx={{ alignItems: "center" }} direction="row" spacing={2}>
+          <Stack sx={{ alignItems: "center", flexShrink: 0 }} direction="row" spacing={2}>
             <IconButton
               onClick={(): void => {
                 setHasOpenedNav(true);
@@ -152,7 +154,16 @@ export function MainNav(): React.JSX.Element {
             </IconButton>
           </Stack>
 
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={{ xs: 1, sm: 2 }}
+            alignItems="center"
+            sx={{
+              minWidth: 0,
+              flexShrink: 1,
+              justifyContent: "flex-end",
+            }}
+          >
             {/* Notifications */}
             <Box
               ref={notificationPopover.anchorRef}
@@ -162,7 +173,12 @@ export function MainNav(): React.JSX.Element {
                   notificationPopover.handleOpen();
                 });
               }}
-              sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
             >
               <Badge
                 color="error"
@@ -191,6 +207,8 @@ export function MainNav(): React.JSX.Element {
                 display: "flex",
                 alignItems: "center",
                 cursor: "pointer",
+                minWidth: 0,
+                flexShrink: 1,
               }}
               onClick={() => {
                 setClickedType("email");
@@ -203,24 +221,61 @@ export function MainNav(): React.JSX.Element {
                 sx={{
                   width: 40,
                   height: 40,
-                  mr: 1.5,
+                  mr: { xs: 1, sm: 1.5 },
                   bgcolor: colors.blue,
                   color: colors.white,
+                  flexShrink: 0,
                 }}
               >
                 {getInitials(customer_name || "")}
               </Avatar>
 
-              <Box sx={{ display: "flex", flexDirection: "column", mr: 1 }}>
-                <Typography variant="subtitle2" noWrap>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  mr: 0.75,
+                  minWidth: 0,
+                  overflow: "hidden",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  noWrap
+                  sx={{
+                    display: "block",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {user_name}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" noWrap>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  noWrap
+                  sx={{
+                    display: "block",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {loginID}
                   {/* {updated_email} */}
                 </Typography>
               </Box>
-              <CaretDown size={16} />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <CaretDown size={16} />
+              </Box>
             </Box>
           </Stack>
         </Stack>

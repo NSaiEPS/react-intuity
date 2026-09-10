@@ -3,7 +3,7 @@ import { getCompanyDetails } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import {
-  Avatar, Box, CardContent,
+  Box, CardContent,
   Divider, Grid, Skeleton, Stack, Typography,
 } from "@mui/material";
 import DOMPurify from "dompurify";
@@ -243,23 +243,23 @@ const MainSection = memo(function MainSection() {
             {hasCompanySlug ? (
               <>
                 {companyInfo?.company ? (
-                  <Avatar
-                    src={companyInfo.company.logo || undefined}
-                    sx={{
-                      width: "max-content",
-                      height: { xs: 56, sm: 70, md: 80 },
-                      flexShrink: 0,
-                      // bgcolor: "white",
-                      borderRadius: "0",
-                      "& img": {
+                  companyInfo.company.logo ? (
+                    <Box
+                      component="img"
+                      src={companyInfo.company.logo}
+                      alt={companyInfo.company.company_name || "Company Logo"}
+                      sx={{
+                        height: { xs: 56, sm: 70, md: 80 },
+                        width: "auto",
+                        maxWidth: { xs: 200, sm: 260, md: 320 },
                         objectFit: "contain",
-                        // padding: "6px", // optional
-                      },
-                    }}
-                  // {{ width: { xs: 56, sm: 70, md: 80 }, height: { xs: 56, sm: 70, md: 80 }, flexShrink: 0 }}
-                  />
+                        flexShrink: 0,
+                        display: "block",
+                      }}
+                    />
+                  ) : null
                 ) : (
-                  <Skeleton variant="circular" width={70} height={70} sx={{ flexShrink: 0 }} />
+                  <Skeleton variant="rounded" width={70} height={70} sx={{ flexShrink: 0 }} />
                 )}
 
                 <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, width: { xs: "100%", sm: "auto" } }}>

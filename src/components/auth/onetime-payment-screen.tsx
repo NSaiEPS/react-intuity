@@ -165,6 +165,11 @@ export default function OneTimePaymentScreen() {
     setIsDirty(true);
     setFormData({ ...formData, [field]: e.target.value });
     setErrors({ ...errors, [field]: "" });
+    if (field === "email") {
+      try {
+        sessionStorage.setItem("guest-confirmation-email", e.target.value);
+      } catch {}
+    }
   };
 
   const convenienceFee = useSelector(
@@ -319,6 +324,11 @@ export default function OneTimePaymentScreen() {
             street: res?.service_address,
             amountToPay: String(res?.balance ?? 0),
           }));
+          if (res?.email) {
+            try {
+              sessionStorage.setItem("guest-confirmation-email", res.email);
+            } catch {}
+          }
           handleNext();
         },
         handleFailure

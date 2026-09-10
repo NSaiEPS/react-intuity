@@ -12,6 +12,7 @@ export interface LogoProps {
   height?: number;
   width?: number;
   src?: string | null;
+  style?: React.CSSProperties;
 }
 
 export function Logo({
@@ -20,6 +21,7 @@ export function Logo({
   height = HEIGHT,
   width = WIDTH,
   src = null,
+  style,
 }: LogoProps): React.JSX.Element {
   let url: string;
 
@@ -32,9 +34,8 @@ export function Logo({
   return (
     <img
       alt="logo"
-
       height={height}
-      width={width}
+      width={src ? undefined : width}
       src={src ?? url}
       loading="eager"           // ✅ load immediately
       fetchPriority="high"
@@ -42,6 +43,10 @@ export function Logo({
         display: "block",
         cursor: "pointer",
         objectFit: "contain",
+        height: height,
+        width: src ? "auto" : width,
+        maxWidth: width ? `${width}px` : "100%",
+        ...style,
       }}
     />
   );

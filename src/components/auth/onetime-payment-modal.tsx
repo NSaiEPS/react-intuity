@@ -102,6 +102,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
     setIsDirty(true);
     setFormData({ ...formData, [field]: e.target.value });
     setErrors({ ...errors, [field]: "" }); // clear error once user types
+    if (field === "email") {
+      try {
+        sessionStorage.setItem("guest-confirmation-email", e.target.value);
+      } catch {}
+    }
   };
 
   const convenienceFee = useSelector(
@@ -282,6 +287,11 @@ export default function OneTimePaymentModal({ open, onClose }) {
             amountToPay: String(res?.balance ?? 0),
             // balance: String(res?.balance ?? 0),
           }));
+          if (res?.email) {
+            try {
+              sessionStorage.setItem("guest-confirmation-email", res.email);
+            } catch {}
+          }
           handleNext();
         },
         hanldeFailure

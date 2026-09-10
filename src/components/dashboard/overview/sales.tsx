@@ -48,6 +48,7 @@ export function Sales({
   noData = false,
   title,
 }: SalesProps): React.JSX.Element {
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const chartRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,13 +120,34 @@ export function Sales({
     if (isNoData || !chartRef.current) return;
 
     try {
-      // Capture only the chart directly - NO DOM changes, NO state changes, ZERO flicker
-      const canvas = await html2canvas(chartRef.current, {
+      const scrollContainer = scrollContainerRef.current;
+      const prevScrollLeft = scrollContainer ? scrollContainer.scrollLeft : 0;
+      if (scrollContainer) {
+        scrollContainer.scrollLeft = 0;
+      }
+
+      // Capture full unclipped chart directly
+      const targetEl = chartRef.current;
+      const fullWidth = targetEl.scrollWidth || targetEl.offsetWidth;
+      const fullHeight = targetEl.scrollHeight || targetEl.offsetHeight;
+
+      const canvas = await html2canvas(targetEl, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
+        width: fullWidth,
+        height: fullHeight,
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        windowWidth: Math.max(document.documentElement.clientWidth, fullWidth + 100),
       });
+
+      if (scrollContainer) {
+        scrollContainer.scrollLeft = prevScrollLeft;
+      }
 
       const imgData = canvas.toDataURL("image/jpeg", 0.95);
       const pdf = new jsPDF("landscape", "mm", "a4");
@@ -542,6 +564,30 @@ export function Sales({
       ? billingRecords.map((r) => r.dateFormatted)
       : [...barGraphData.dates];
 
+  const dataPointCount = categories.length;
+
+  const dynamicChartWidth = React.useMemo(() => {
+    if (isNoData || dataPointCount === 0) {
+      return "100%";
+    }
+
+    if (isMobile) {
+      // Allocate enough horizontal space per bar on mobile so Date & Amount are never squeezed or skipped
+      const minWidthPerPoint = dataPointCount > 20 ? 80 : dataPointCount > 10 ? 85 : 95;
+      const calculatedWidth = dataPointCount * minWidthPerPoint + 60;
+      return `${Math.max(340, calculatedWidth)}px`;
+    }
+
+    // On desktop/tablet, if data points exceed 8, dynamically expand so bars are not squished
+    if (dataPointCount > 8) {
+      const minWidthPerPoint = dataPointCount > 25 ? 75 : 85;
+      const calculatedWidth = dataPointCount * minWidthPerPoint + 70;
+      return `${calculatedWidth}px`;
+    }
+
+    return "100%";
+  }, [isNoData, dataPointCount, isMobile]);
+
   const seriesData = isNoData
     ? []
     : isBillingHistoryChart
@@ -580,7 +626,7 @@ export function Sales({
 
       plotOptions: {
         bar: {
-          columnWidth: "40%",
+          columnWidth: dataPointCount > 15 ? "50%" : "40%",
           distributed: true,
           startingShape: "flat",
           dataLabels: {
@@ -608,12 +654,13 @@ export function Sales({
       },
       xaxis: {
         categories: categories,
-        axisBorder: { show: true },
-        axisTicks: { show: !isNoData },
+        axisBorder: { show: true, color: "#e5e7eb" },
+        axisTicks: { show: !isNoData, color: "#e5e7eb" },
         labels: {
           show: !isNoData,
           rotate: 0,
           rotateAlways: false,
+          hideOverlappingLabels: false,
           formatter: function (val: any) {
             if (isBillingHistoryChart) return val;
             const idx = categories.indexOf(val);
@@ -775,7 +822,7 @@ export function Sales({
           ) : null
         }
       />
-      <CardContent sx={{ px: isMobile ? 2 : 3, py: isMobile ? 1.5 : 2.5 }}>
+      <CardContent sx={{ px: isMobile ? 2 : 3, py: isMobile ? 1.5 : 2.5, overflowX: "hidden" }}>
         {dashboard ? (
           <Chart
             height={isMobile ? 240 : 350}
@@ -785,15 +832,49 @@ export function Sales({
             type="bar"
           />
         ) : (
-          <div ref={chartRef}>
-            <Chart
-              key={isNoData ? "no-data" : `${monthlyUsageUam}-${barGraphData.gallons.join("-")}`}
-              options={chartData.options}
-              series={chartData.series}
-              type="bar"
-              height={400}
-            />
-          </div>
+          <Box
+            ref={scrollContainerRef}
+            sx={{
+              width: "100%",
+              maxWidth: "100%",
+              overflowX: "auto",
+              overflowY: "hidden",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#cbd5e1 transparent",
+              "&::-webkit-scrollbar": {
+                height: 6,
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "transparent",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#cbd5e1",
+                borderRadius: 3,
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                backgroundColor: "#94a3b8",
+              },
+              pb: 1,
+            }}
+          >
+            <Box
+              ref={chartRef}
+              sx={{
+                width: dynamicChartWidth,
+                minWidth: "100%",
+              }}
+            >
+              <Chart
+                key={isNoData ? "no-data" : `${monthlyUsageUam}-${barGraphData.gallons.join("-")}-${dynamicChartWidth}`}
+                options={chartData.options}
+                series={chartData.series}
+                type="bar"
+                height={400}
+                width={dynamicChartWidth}
+              />
+            </Box>
+          </Box>
         )}
         {isNoData && (
           <Typography
