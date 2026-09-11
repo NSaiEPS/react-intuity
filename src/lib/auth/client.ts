@@ -86,7 +86,7 @@ class AuthClient {
     return {};
   }
 
-  async resetPassword(params: { email: string },alias:string): Promise<{ error?: string }> {
+  async resetPassword(params: { email: string }, alias?: string): Promise<{ error?: string }> {
     const { email } = params;
     const formData = new FormData();
     formData.append("email", email);
@@ -105,7 +105,7 @@ class AuthClient {
       toast.success(data?.message ?? "Email sent!", 
          "Please check your email inbox and click the link to change your password.",
         () => {
-  navigateTo(`/login-${alias}`);          // redirect after OK
+  navigateTo(alias ? `/login-${alias}` : "/login");          // redirect after OK
 });
     }
 
@@ -120,7 +120,7 @@ class AuthClient {
     return {};
   }
 
-   async resetUserName(params: any,alias:string): Promise<{ error?: string }> {
+   async resetUserName(params: any, alias?: string): Promise<{ error?: string }> {
   
 
     const res = await fetch(`${BASE_URL}index/recover-login`, {
@@ -137,7 +137,7 @@ class AuthClient {
       toast.success(data?.message ?? "Email sent!", 
          "",
         () => {
-  navigateTo(`/login-${alias}`);          // redirect after OK
+  navigateTo(alias ? `/login-${alias}` : "/login");          // redirect after OK
 });
     }
 

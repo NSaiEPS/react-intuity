@@ -35,12 +35,121 @@ const RegisterSuccess = React.lazy(() => import("./register-success"));
 // Fallback only used for the remaining lazy components
 const FormFallback = () => <Box sx={{ minHeight: 340 }} />;
 
+// ── Announcement alert with inline truncation UI ─────────────────────────────
+interface AnnouncementAlertProps {
+  rawMessage: string;
+  limit?: number;
+}
+
+const AnnouncementAlert = memo(function AnnouncementAlert({
+  rawMessage,
+  limit = 150,
+}: AnnouncementAlertProps) {
+  const [showFullText, setShowFullText] = useState(false);
+
+  const sanitized = useMemo(() => {
+    return DOMPurify.sanitize(rawMessage ?? "");
+  }, [rawMessage]);
+
+  const plainText = useMemo(() => {
+    if (!rawMessage) return "";
+    return DOMPurify.sanitize(rawMessage, { ALLOWED_TAGS: [] }).trim();
+  }, [rawMessage]);
+
+  const isExceedingLimit = plainText.length > limit;
+
+  const truncatedText = useMemo(() => {
+    if (!isExceedingLimit) return plainText;
+    const sliced = plainText.slice(0, limit);
+    const lastSpace = sliced.lastIndexOf(" ");
+    return lastSpace > limit * 0.7 ? sliced.slice(0, lastSpace) : sliced;
+  }, [plainText, isExceedingLimit, limit]);
+
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "block",
+        wordBreak: "break-word",
+        "& p": { display: "inline", margin: 0 },
+        "& *": { display: "inline" },
+      }}
+    >
+      {!isExceedingLimit ? (
+        // Short message: full text visible, no Read more / Read less controls
+        <Box
+          component="span"
+          dangerouslySetInnerHTML={{ __html: sanitized }}
+        />
+      ) : !showFullText ? (
+        // Long message (collapsed): truncated text with ellipsis + inline Read more on the same line
+        <>
+          <Box component="span">{truncatedText}...</Box>
+          <Box
+            component="span"
+            role="button"
+            tabIndex={0}
+            onClick={() => setShowFullText(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowFullText(true);
+              }
+            }}
+            sx={{
+              color: colors.blue,
+              cursor: "pointer",
+              fontWeight: 600,
+              display: "inline",
+              ml: 0.5,
+              userSelect: "none",
+              "&:hover": { textDecoration: "underline" },
+            }}
+          >
+            Read more
+          </Box>
+        </>
+      ) : (
+        // Long message (expanded): complete text + inline Read less on the same line
+        <>
+          <Box
+            component="span"
+            dangerouslySetInnerHTML={{ __html: sanitized }}
+          />
+          <Box
+            component="span"
+            role="button"
+            tabIndex={0}
+            onClick={() => setShowFullText(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowFullText(false);
+              }
+            }}
+            sx={{
+              color: colors.blue,
+              cursor: "pointer",
+              fontWeight: 600,
+              display: "inline",
+              ml: 0.75,
+              userSelect: "none",
+              "&:hover": { textDecoration: "underline" },
+            }}
+          >
+            Read less
+          </Box>
+        </>
+      )}
+    </Box>
+  );
+});
+
 // ✅ memo — stops re-renders from parent
 const MainSection = memo(function MainSection() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [oneTimePaymentModalOpen, setOneTimePaymentModalOpen] = useState(false);
-  const [showFullText, setShowFullText] = useState(false);
 
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
   const routeChecker = useSelector((state: RootState) => state?.DashBoard?.routeChecker);
@@ -170,11 +279,6 @@ const MainSection = memo(function MainSection() {
 
   const rawMessage = companyInfo?.company?.biller_login_page_message;
 
-  const plainText = useMemo(() =>
-    rawMessage ? DOMPurify.sanitize(rawMessage, { ALLOWED_TAGS: [] }).trim() : "",
-    [rawMessage]
-  );
-
   const getRequiredForms = () => {
     // Eager — no Suspense needed, already in the bundle
     if (pathname?.includes("onetime-payment")) return <OneTimePaymentScreen />;
@@ -196,35 +300,6 @@ const MainSection = memo(function MainSection() {
       <React.Suspense fallback={<FormFallback />}><RegisterSuccess /></React.Suspense>
     );
   };
-
-  const getImportantAlert = useCallback(() => {
-    const sanitized = DOMPurify.sanitize(rawMessage ?? "");
-    const isLong = plainText.length > 80;
-    return (
-      <Box component="span" sx={{ display: "block" }}>
-        <Box
-          component="span"
-          sx={{
-            "& p": { display: "inline", margin: 0 },
-            "& *": { display: "inline" },
-            ...(isLong && !showFullText
-              ? { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }
-              : { display: "block" }),
-          }}
-          dangerouslySetInnerHTML={{ __html: sanitized }}
-        />
-        {isLong && (
-          <Box
-            component="span"
-            onClick={() => setShowFullText(!showFullText)}
-            sx={{ color: colors.blue, cursor: "pointer", fontWeight: 600, display: "inline-block", mt: 0.5 }}
-          >
-            {showFullText ? "Read less" : "Read more"}
-          </Box>
-        )}
-      </Box>
-    );
-  }, [rawMessage, plainText, showFullText]);
 
   const isLoginPath = pathname === "/login" || pathname.includes("login-");
   const showPayAsGuest =
@@ -296,8 +371,8 @@ const MainSection = memo(function MainSection() {
           <Box sx={{ px: { xs: 2.5, sm: 0 } }}>
             <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, borderRadius: "10px", px: 2, py: 1.5, mt: 2, mb: 1.5, maxWidth: "700px", mx: "auto", textAlign: "left", boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.08)" }}>
               <Info size={20} color={colors.blue} weight="regular" style={{ flexShrink: 0, marginTop: 0 }} />
-              <Typography variant="body2" color="text.primary" component="div">
-                <strong>Announcements:</strong> {getImportantAlert()}
+              <Typography variant="body2" color="text.primary" component="div" sx={{ minWidth: 0, flex: 1 }}>
+                <strong>Announcements:</strong> <AnnouncementAlert rawMessage={rawMessage} />
               </Typography>
             </Box>
           </Box>

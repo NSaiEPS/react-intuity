@@ -32,7 +32,7 @@ import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 const schema = zod.object({
-  email: zod.string().min(1, { message: "Email is required" }).email(),
+  email: zod.string().min(1, { message: "Please enter your username" }),
 });
 
 type Values = zod.infer<typeof schema>;
@@ -56,8 +56,7 @@ export function ResetPasswordForm(): React.JSX.Element {
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
-      // @ts-ignore
-      const { error } = await authClient.resetPassword(values, companyInfo?.company?.alias);
+      const { error } = await authClient.resetPassword({ email: values.email.trim() }, companyInfo?.company?.alias);
 
       if (error) {
         setError("root", { type: "server", message: error });
