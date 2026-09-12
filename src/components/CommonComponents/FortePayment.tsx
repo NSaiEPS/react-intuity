@@ -88,7 +88,7 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
     });
   };
 
-    const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
 
   return (
     // <form id="forte-payment-form" action="javascript:void(0)">
@@ -132,7 +132,7 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
     //     Submit Payment
     //   </button>
     // </form>
-      <Box
+    <Box
       sx={{
         display: "flex",
         justifyContent: "center",

@@ -49,24 +49,24 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
   );
   const dispatch = useDispatch();
   interface ProcessorDetails {
-  processor?: "worldpay" | "elavon" | "stripe" | string;
-  iframe_url?: string;
-  token?: string;
-  merchant_id?: string;
-  public_key?: string;
-  [key: string]: unknown;
-}
+    processor?: "worldpay" | "elavon" | "stripe" | string;
+    iframe_url?: string;
+    token?: string;
+    merchant_id?: string;
+    public_key?: string;
+    [key: string]: unknown;
+  }
 
-interface DecryptedDetails {
-  card_token?: string;
-  last4?: string;
-  brand?: string;
-  expMonth?: number;
-  expYear?: number;
-  bank_account_number?: string;
-  account_type?: string;
-  [key: string]: unknown;
-}
+  interface DecryptedDetails {
+    card_token?: string;
+    last4?: string;
+    brand?: string;
+    expMonth?: number;
+    expYear?: number;
+    bank_account_number?: string;
+    account_type?: string;
+    [key: string]: unknown;
+  }
   const [processorDetails, setProcessorDetails] = useState<ProcessorDetails>({});
   const [decryptedDetails, setDecryptedDetails] = useState<DecryptedDetails>({});
   const [iframeDynamicUrl, setIframeDynamicUrl] = useState("");
@@ -94,7 +94,7 @@ interface DecryptedDetails {
             ? processor?.iframe_url ?? processor?.iframe_url_ach
             : processor?.iframe_url_ach ?? processor?.iframe_url
         );
-    try {
+        try {
           setProcessorDetails(JSON.parse(processor?.config_value));
         } catch {
           console.error("Failed to parse processor config_value");
@@ -125,7 +125,7 @@ interface DecryptedDetails {
       return `TransactionSetupID=${paymentRequiredKeyDetails}`;
     }
 
-     const companyName = encodeURIComponent(
+    const companyName = encodeURIComponent(
       dashBoardInfo?.body?.company?.company_name ?? ""
     );
     if (iframeDynamicUrl.includes("nacha_bank_frame")) {
@@ -159,7 +159,7 @@ interface DecryptedDetails {
   // }, []);
 
   // Listen for iframe postMessage — only accept messages from the trusted iframe origin
- useEffect(() => {
+  useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (iframeDynamicUrl) {
         try {
@@ -278,15 +278,15 @@ interface DecryptedDetails {
 
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
-   interface WorldpayDetails {
-  iframeUrl?: string;
-  sessionId?: string;
-  merchantId?: string;
-  paymentMethod?: "card" | "bank";
-  amount?: string;
-  currency?: string;
-  [key: string]: unknown; // allow backend extensions safely
-}
+  interface WorldpayDetails {
+    iframeUrl?: string;
+    sessionId?: string;
+    merchantId?: string;
+    paymentMethod?: "card" | "bank";
+    amount?: string;
+    currency?: string;
+    [key: string]: unknown; // allow backend extensions safely
+  }
   const [worldpayDetails, setWorldpayDetails] = useState<WorldpayDetails | null>(null);
   //console.log(worldpayDetails, "worldpayDetails");
   const companyInfo = useSelector(
@@ -316,7 +316,7 @@ interface DecryptedDetails {
       }
 
       dispatch(
-        getWorldPlayPaymentDetails( formdata, (res) => {
+        getWorldPlayPaymentDetails(formdata, (res) => {
           setWorldpayDetails(res);
         })
       );
@@ -357,47 +357,47 @@ interface DecryptedDetails {
   }, [curentProcessor, worldpayDetails]);
 
 
-    if( curentProcessor?.includes("forte")){
-       if (type === "account") {
-  return <ForteACH onSuccess={onSuccess}
-      amount={String(amount ?? "0")}
-      convenience_fee={String(convenience_fee ?? "0")} />
-       };
-  return <FortePayment onSuccess={onSuccess} />;
-}
+  if (curentProcessor?.includes("forte")) {
+    if (type === "account") {
+      return <ForteACH onSuccess={onSuccess}
+        amount={String(amount ?? "0")}
+        convenience_fee={String(convenience_fee ?? "0")} />
+    };
+    return <FortePayment onSuccess={onSuccess} />;
+  }
 
 
-//   useEffect(() => {
-//   if (!curentProcessor?.includes("forte")) return;
+  //   useEffect(() => {
+  //   if (!curentProcessor?.includes("forte")) return;
 
-//   if ((window as any).Forte) {
-//     setForteReady(true);
-//     return;
-//   }
+  //   if ((window as any).Forte) {
+  //     setForteReady(true);
+  //     return;
+  //   }
 
-//   const script = document.createElement("script");
-//   script.src = "https://api.forte.net/js/v1";
-//     script.type = "text/javascript";
-//   script.async = false;
-//    script.defer = true;
-//   script.id = "forte-js";
-  
+  //   const script = document.createElement("script");
+  //   script.src = "https://api.forte.net/js/v1";
+  //     script.type = "text/javascript";
+  //   script.async = false;
+  //    script.defer = true;
+  //   script.id = "forte-js";
 
-//     script.onload = () => {
-//     //console.log("✅ Forte JS loaded");
-//     setForteReady(true);
-//   };
 
-//   script.onerror = () => {
-//     console.error("❌ Failed to load Forte JS");
-//   };
+  //     script.onload = () => {
+  //     //console.log("✅ Forte JS loaded");
+  //     setForteReady(true);
+  //   };
 
-//   document.body.appendChild(script);
+  //   script.onerror = () => {
+  //     console.error("❌ Failed to load Forte JS");
+  //   };
 
-//   return () => {
-//     document.getElementById("forte-js")?.remove();
-//   };
-// }, [curentProcessor]);
+  //   document.body.appendChild(script);
+
+  //   return () => {
+  //     document.getElementById("forte-js")?.remove();
+  //   };
+  // }, [curentProcessor]);
 
 
 
@@ -440,7 +440,7 @@ interface DecryptedDetails {
     );
   }
 
-    // if (curentProcessor?.includes("forte")) {   
+  // if (curentProcessor?.includes("forte")) {   
 
 
 
@@ -480,15 +480,15 @@ interface DecryptedDetails {
               curentProcessor?.includes("worldpay")
                 ? "worldpayIframe"
                 : type === "account"
-                ? "iFrameBA"
-                : "iFrameCC"
+                  ? "iFrameBA"
+                  : "iFrameCC"
             }
             name={
               curentProcessor?.includes("worldpay")
                 ? "worldpayIframe"
                 : type === "account"
-                ? "iFrameBA"
-                : "iFrameCC"
+                  ? "iFrameBA"
+                  : "iFrameCC"
             }
             src={
               curentProcessor?.includes("worldpay")
@@ -514,15 +514,15 @@ interface DecryptedDetails {
             curentProcessor?.includes("worldpay")
               ? "worldpayIframe"
               : type === "account"
-              ? "iFrameBA"
-              : "iFrameCC"
+                ? "iFrameBA"
+                : "iFrameCC"
           }
           name={
             curentProcessor?.includes("worldpay")
               ? "worldpayIframe"
               : type === "account"
-              ? "iFrameBA"
-              : "iFrameCC"
+                ? "iFrameBA"
+                : "iFrameCC"
           }
           src={
             curentProcessor?.includes("worldpay")

@@ -27,42 +27,44 @@ const CompanyDetails = memo(function CompanyDetails() {
 
 
   const rawSlug = React.useMemo(
-  () => pathname?.split("/")[1],
-  [pathname]
-);
+    () => pathname?.split("/")[1],
+    [pathname]
+  );
 
+  const hasCompanySlug = React.useMemo(
+    () =>
+      Boolean(
+        rawSlug?.startsWith("login-") ||
+        rawSlug?.startsWith("register-") ||
+        rawSlug?.startsWith("reset-password-") ||
+        rawSlug?.startsWith("onetime-payment-") ||
+        rawSlug?.startsWith("forgot-login-") ||
+        (rawSlug?.startsWith("forgot-") && rawSlug !== "forgot-login") ||
+        rawSlug?.startsWith("register-success-")
+      ),
+    [rawSlug]
+  );
 
-const hasCompanySlug = React.useMemo(
-  () =>
-    rawSlug?.startsWith("login-") ||
-    rawSlug?.startsWith("register-") ||
-    rawSlug?.startsWith("reset-password-") ||
-    rawSlug?.startsWith("onetime-payment-") ||
-    rawSlug?.startsWith("forgot-login-"),
-  [rawSlug]
-);
+  const company = hasCompanySlug ? companyInfo?.company : null;
 
- 
+  const phone = company
+    ? `${company?.country ?? ""}${company?.phone ?? ""}`.trim()
+    : "";
 
-const company =  companyInfo?.company;
+  const email = company?.email ?? "";
 
+  const website = company?.company_website ?? "";
 
+  const companyUrl =
+    company?.company_website_URL ||
+    (website
+      ? website.startsWith("http://") || website.startsWith("https://")
+        ? website
+        : `https://${website}`
+      : "");
 
-const phone = hasCompanySlug
-  ? `${company?.country ?? ""}${company?.phone ?? ""}`
-  : "+1 234 567 8900";
-
-const email = hasCompanySlug
-  ? company?.email ?? ""
-  : "info@intuity.com";
-
-const website = hasCompanySlug
-  ? company?.company_website ?? ""
-  : "www.intuity.com";
-
-const companyUrl = hasCompanySlug
-  ? company?.company_website_URL ?? ""
-  : "https://www.intuity.com";
+  const hasContactInfo = Boolean(phone || email || website);
+  const showContactUs = Boolean(hasCompanySlug && company && hasContactInfo);
 
   const iconBoxStyle = {
     width: 40,
@@ -94,103 +96,107 @@ const companyUrl = hasCompanySlug
         gap: "20px",
       }}
     >
-      {/* Contact Us divider */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          width: "80%",
-          maxWidth: "700px",
-          gap: 2,
-        }}
-      >
-        <Box
-          sx={{
-            flex: 1,
-            height: "1px",
-            backgroundColor: "#d0d8e8",
-          }}
-        />
-        <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: "1rem",
-            color: colors.blue,
-            whiteSpace: "nowrap",
-          }}
-        >
-          Contact Us
-        </Typography>
-        <Box
-          sx={{
-            flex: 1,
-            height: "1px",
-            backgroundColor: "#d0d8e8",
-          }}
-        />
-      </Box>
-
-      {/* Contact icons row */}
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: { xs: "12px", sm: "32px" },
-          flexDirection: { xs: "column", sm: "row" },
-        }}
-      >
-        {/* Phone — opens native dialer */}
-        {phone && (
+      {showContactUs && (
+        <>
+          {/* Contact Us divider */}
           <Box
-            component="a"
-            href={`tel:${phone}`}
-            sx={{ ...contactItemStyle, textDecoration: "none" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              width: "80%",
+              maxWidth: "700px",
+              gap: 2,
+            }}
           >
-            <Box sx={iconBoxStyle}>
-              <Phone size={18} color={colors.blue} weight="regular" />
-            </Box>
-            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
-              {phone}
+            <Box
+              sx={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "#d0d8e8",
+              }}
+            />
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: "1rem",
+                color: colors.blue,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Contact Us
             </Typography>
+            <Box
+              sx={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "#d0d8e8",
+              }}
+            />
           </Box>
-        )}
 
-        {/* Email — opens mail client */}
-        {email && (
+          {/* Contact icons row */}
           <Box
-            component="a"
-            href={`mailto:${email}`}
-            sx={{ ...contactItemStyle, textDecoration: "none" }}
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: { xs: "12px", sm: "32px" },
+              flexDirection: { xs: "column", sm: "row" },
+            }}
           >
-            <Box sx={iconBoxStyle}>
-              <EnvelopeSimple size={18} color={colors.blue} weight="regular" />
-            </Box>
-            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
-              {email}
-            </Typography>
-          </Box>
-        )}
+            {/* Phone — opens native dialer */}
+            {phone && (
+              <Box
+                component="a"
+                href={`tel:${phone}`}
+                sx={{ ...contactItemStyle, textDecoration: "none" }}
+              >
+                <Box sx={iconBoxStyle}>
+                  <Phone size={18} color={colors.blue} weight="regular" />
+                </Box>
+                <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
+                  {phone}
+                </Typography>
+              </Box>
+            )}
 
-        {/* Website — opens in new tab */}
-        {website && (
-          <Box
-            component="a"
-            href={companyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ ...contactItemStyle, textDecoration: "none" }}
-          >
-            <Box sx={iconBoxStyle}>
-              <Globe size={18} color={colors.blue} weight="regular" />
-            </Box>
-            <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
-              {website}
-            </Typography>
+            {/* Email — opens mail client */}
+            {email && (
+              <Box
+                component="a"
+                href={`mailto:${email}`}
+                sx={{ ...contactItemStyle, textDecoration: "none" }}
+              >
+                <Box sx={iconBoxStyle}>
+                  <EnvelopeSimple size={18} color={colors.blue} weight="regular" />
+                </Box>
+                <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
+                  {email}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Website — opens in new tab */}
+            {website && (
+              <Box
+                component="a"
+                href={companyUrl || (website.startsWith("http") ? website : `https://${website}`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ ...contactItemStyle, textDecoration: "none" }}
+              >
+                <Box sx={iconBoxStyle}>
+                  <Globe size={18} color={colors.blue} weight="regular" />
+                </Box>
+                <Typography variant="body2" sx={{ color: "#333", fontWeight: 500 }}>
+                  {website}
+                </Typography>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
+        </>
+      )}
 
       {/* ✅ Logo — eager + high priority = fixes LCP */}
       <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>

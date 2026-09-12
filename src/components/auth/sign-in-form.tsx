@@ -427,8 +427,8 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
             <Link
               to={paths.auth.resetPassword(
                 pathname?.split("/")[1] === "login"
-                  ? null
-                  : alias
+                  ? undefined
+                  : pathname?.split("login-")[1]
               )}
               style={{
                 color: colors.blue,
@@ -438,28 +438,25 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
             >
               Forgot password?
             </Link>
-            {
-              alias && alias !== 'login' &&
 
-              <Typography variant="body2" color="text.secondary">
-                |
-              </Typography>}
-            {alias && alias !== 'login' &&
+            <Typography variant="body2" color="text.secondary">
+              |
+            </Typography>
 
-              <Link
-                to={paths.auth.forgotLogin(
-                  pathname?.split("/")[1] === "login"
-                    ? null
-                    : pathname?.split("login-")[1]
-                )}
-                style={{
-                  color: colors.blue,
-                  textDecoration: "none",
-                  fontSize: "0.875rem",
-                }}
-              >
-                Forgot login username?
-              </Link>}
+            <Link
+              to={paths.auth.forgotLogin(
+                pathname?.split("/")[1] === "login"
+                  ? undefined
+                  : pathname?.split("login-")[1]
+              )}
+              style={{
+                color: colors.blue,
+                textDecoration: "none",
+                fontSize: "0.875rem",
+              }}
+            >
+              Forgot login username?
+            </Link>
           </Box>
 
           {/* Login button + links row */}
@@ -515,7 +512,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
               <Link
                 to={paths.auth.resetPassword(
                   pathname?.split("/")[1] === "login"
-                    ? null
+                    ? undefined
                     : pathname?.split("login-")[1]
                 )}
                 style={{
@@ -527,22 +524,20 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
                 Forgot password?
               </Link>
 
-              {alias && alias !== 'login' && (
-                <Link
-                  to={paths.auth.forgotLogin(
-                    pathname?.split("/")[1] === "login"
-                      ? null
-                      : pathname?.split("login-")[1]
-                  )}
-                  style={{
-                    color: colors.blue,
-                    textDecoration: "none",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  Forgot login username?
-                </Link>
-              )}
+              <Link
+                to={paths.auth.forgotLogin(
+                  pathname?.split("/")[1] === "login"
+                    ? undefined
+                    : pathname?.split("login-")[1]
+                )}
+                style={{
+                  color: colors.blue,
+                  textDecoration: "none",
+                  fontSize: "0.875rem",
+                }}
+              >
+                Forgot login username?
+              </Link>
             </Box>
 
 

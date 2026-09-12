@@ -846,13 +846,15 @@ export const oneTimePayment = (
   failureCallBack?: () => void,
   companyAlias?: string,
   successCallBackWithToast?: (toast: any) => void,
-
+  showSuccessToast: boolean = false
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
   try {
     const res = await oneTimePaymentApi({ formData, companyAlias });
     if (res.status) {
-      toast.success(res?.message ?? "Payment was successful");
+      if (showSuccessToast) {
+        toast.success(res?.message ?? "Payment was successful");
+      }
       if (successCallBack) successCallBack(res?.body?.customer);
       if (successCallBackWithToast) successCallBackWithToast(res?.message);
     } else {

@@ -81,7 +81,7 @@ const ForteACH: FC<ForteACHProps> = ({
       return;
     }
 
-     if (!authorized) {
+    if (!authorized) {
       alert("Please authorize before continuing.");
       return;
     }
@@ -92,12 +92,12 @@ const ForteACH: FC<ForteACHProps> = ({
   };
 
   const handleReset = () => {
-  if (formRef.current) {
-    formRef.current.reset(); // resets all input fields
-  }
+    if (formRef.current) {
+      formRef.current.reset(); // resets all input fields
+    }
 
-  setAuthorized(false); // reset checkbox state
-};
+    setAuthorized(false); // reset checkbox state
+  };
 
 
   return (
@@ -128,7 +128,7 @@ const ForteACH: FC<ForteACHProps> = ({
     //   </button>
     // </form>
 
-      <Box
+    <Box
       sx={{
         display: "flex",
         justifyContent: "center",
@@ -153,15 +153,15 @@ const ForteACH: FC<ForteACHProps> = ({
               mb: 3,
               fontWeight: 600,
               justifyContent: "center",
-               backgroundColor: "transparent",
-              color:"red",
-              
+              backgroundColor: "transparent",
+              color: "red",
+
             }}
           >
             ⚠️ WARNING! Only click this button ONCE!
           </Alert>
 
-          <form id="forte-ach-form"  ref={formRef} action="javascript:void(0)">
+          <form id="forte-ach-form" ref={formRef} action="javascript:void(0)">
             <Grid container spacing={3}>
               {/* Routing Number */}
               <Grid item xs={12}>
@@ -201,10 +201,10 @@ const ForteACH: FC<ForteACHProps> = ({
                   {/* <MenuItem value="checking">Checking</MenuItem>
                   <MenuItem value="savings">Savings</MenuItem> */}
                   <MenuItem value="PC">Personal Checking</MenuItem>
-                            <MenuItem value="PS">Personal Savings</MenuItem>
-                            <MenuItem value="BC">Business Checking</MenuItem>
-                            <MenuItem value="BS">Business Savings</MenuItem>
-                            <MenuItem value="GL">General Ledger</MenuItem>
+                  <MenuItem value="PS">Personal Savings</MenuItem>
+                  <MenuItem value="BC">Business Checking</MenuItem>
+                  <MenuItem value="BS">Business Savings</MenuItem>
+                  <MenuItem value="GL">General Ledger</MenuItem>
                 </TextField>
               </Grid>
 
@@ -253,22 +253,22 @@ const ForteACH: FC<ForteACHProps> = ({
                 </Button>
               </Grid>
               <Grid item xs={12}>
-  <Button
-    fullWidth
-    variant="outlined"
-    size="large"
-    onClick={handleReset}
-    sx={{
-      py: 1.6,
-      borderRadius: 3,
-      fontWeight: 600,
-      fontSize: "1rem",
-      textTransform: "uppercase",
-    }}
-  >
-    RESET
-  </Button>
-</Grid>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  size="large"
+                  onClick={handleReset}
+                  sx={{
+                    py: 1.6,
+                    borderRadius: 3,
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  RESET
+                </Button>
+              </Grid>
 
             </Grid>
           </form>
