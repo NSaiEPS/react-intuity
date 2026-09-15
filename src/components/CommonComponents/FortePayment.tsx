@@ -18,7 +18,7 @@ declare global {
   interface Window {
     onTokenCreated?: (res: any) => void;
     onTokenFailed?: (err: any) => void;
-    Forte?: any;
+    forte?: any;
   }
 }
 
@@ -61,12 +61,15 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
     window.onTokenCreated = (response: any) => {
       //console.log("Forte token success:", response);
 
+      const expMonth = String(response.expire_month ?? "").padStart(2, "0");
+      const expYear = String(response.expire_year ?? "").slice(-2);
+
+      // keys match what handleSaveDetails reads for card payments
       onSuccess({
         token: response.onetime_token,
-        last4: response.last_4,
-        brand: response.card_type,
-        expMonth: response.expire_month,
-        expYear: response.expire_year,
+        cardNumber: response.last_4,
+        cardType: response.card_type,
+        cardExpDate: `${expMonth}${expYear}`,
       });
     };
 
@@ -78,14 +81,28 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
 
   // 3️⃣ Submit Handler
   const handleSubmit = () => {
-    if (!window.Forte) {
+    if (!window.forte) {
       alert("Forte not loaded yet");
       return;
     }
 
-    window.Forte.createToken({
-      formId: "forte-payment-form",
-    });
+    const getValue = (name: string) =>
+      document.querySelector<HTMLInputElement>(
+        `#forte-payment-form [forte-data="${name}"]`
+      )?.value;
+      console.log( getValue('card_number'),'clicked')
+
+    window.forte
+      .createToken({
+        api_login_id: FORTE_LOGIN_ID,
+        card_number: getValue("card_number"),
+        expire_month: getValue("expire_month"),
+        expire_year: getValue("expire_year"),
+        cvv: getValue("cvv"),
+      })
+      .success(window.onTokenCreated)
+      .error(window.onTokenFailed);
+      console.log(  window.forte,'clicked')
   };
 
   const currentYear = new Date().getFullYear();
@@ -237,9 +254,6 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
                     fontWeight: 600,
                     borderRadius: 2,
                   }}
-                  forte-api-login-id={FORTE_LOGIN_ID}
-                  forte-callback-success="onTokenCreated"
-                  forte-callback-error="onTokenFailed"
                 >
                   {ready ? "Submit Payment" : "Loading..."}
                 </Button>
