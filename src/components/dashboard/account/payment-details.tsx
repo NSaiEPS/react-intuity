@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { BASE_URL } from '@/api/axios';
+import { getConvenienceFeeAPI } from '@/api/dashboard';
 import {
-  getConvenienceFee,
   getPaymentDetails,
   getPaymentProcessorDetails,
   paymentWithoutSavingDetails,
   saveAcknowledgeForRecurringPayment,
   saveDefaultPaymentMethod,
   schedulePayment,
+  setConvenienceFee,
 } from '@/state/features/accountSlice';
 import { RootState } from '@/state/store';
 import { colors, CustomerInfo, decryptFunction, getPaymentMethodType, maskValue } from '@/utils';
 import { getLocalStorage, IntuityUser } from '@/utils/auth';
+import { navigateTo } from '@/utils/navigation';
 import { paths } from '@/utils/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   Dialog,
   FormControl,
   FormControlLabel,
@@ -244,6 +247,7 @@ const PaymentForm = () => {
 
   const [paymentType, setPaymentType] = useState<'saved' | 'no-save'>('saved');
   const [isAmountFocused, setIsAmountFocused] = React.useState(false);
+  const [isFeeLoading, setIsFeeLoading] = useState(false);
   const [debitType, setDebitType] = useState<'card' | 'bank_account'>('card');
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const { setContextLoading } = useLoading();
@@ -568,7 +572,7 @@ const PaymentForm = () => {
   };
 
   const fetchConvenienceFee = React.useCallback(
-    (amtToUse?: string) => {
+    async (amtToUse?: string) => {
       const targetAmount = amtToUse !== undefined ? amtToUse : watch('amount');
       const numericAmount = parseFloat(targetAmount || '0');
       if (numericAmount <= 0) {
@@ -601,12 +605,24 @@ const PaymentForm = () => {
         payment_method_type: paymentMethodType,
       };
 
-      dispatch(
-        getConvenienceFee(payload, (resData) => {
-          const fee = extractFeeFromResponse(resData);
+      setIsFeeLoading(true);
+      try {
+        const res = await getConvenienceFeeAPI(payload);
+        if (res?.status) {
+          dispatch(setConvenienceFee(res?.body));
+          const fee = extractFeeFromResponse(res?.body);
           setValue('convenienceFee', fee);
-        })
-      );
+        } else {
+          navigateTo('/login', { replace: true }, res?.message);
+          if (res?.message !== 'You are not authorised to use this api') {
+            toast.error(res?.message ?? 'Something went wrong!');
+          }
+        }
+      } catch (e: any) {
+        toast.error(e?.response?.data?.message ?? 'Error Try again!!');
+      } finally {
+        setIsFeeLoading(false);
+      }
     },
     [watch, stored?.body?.acl_role_id, stored?.body?.customer_id, paymentType, selectedCardDetails?.bank_account_number, selectedCardDetails?.card_type, selectedCardDetails?.brand, debitType, dispatch, setValue]
   );
@@ -1095,7 +1111,6 @@ const PaymentForm = () => {
                     onBlur={() => {
                       setIsAmountFocused(false);
                       field.onBlur(); // keep RHF's blur/touched tracking intact
-                      fetchConvenienceFee(watch('amount'));
                     }}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^\d.]/g, '');
@@ -1147,17 +1162,29 @@ const PaymentForm = () => {
               }}
             >
               <Typography sx={{ fontSize: 16, color: 'black' }}>Convenience Fee</Typography>
-              <Typography
+              <Box
                 sx={{
-                  fontSize: 16,
-                  color: 'black',
-                  textAlign: 'right',
-                  pr: "14px",
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  pr: '14px',
+                  minHeight: '24px',
                 }}
               >
-                {/* ${Number(watch('convenienceFee') || 0).toFixed(2)} */}
-                {formatCurrency(Number(watch('convenienceFee') || 0))}
-              </Typography>
+                {isFeeLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CircularProgress size={18} sx={{ color: '#2A72B9' }} /> Updating...</Box>
+                ) : (
+                  <Typography
+                    sx={{
+                      fontSize: 16,
+                      color: 'black',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {formatCurrency(Number(watch('convenienceFee') || 0))}
+                  </Typography>
+                )}
+              </Box>
 
               <Box
                 sx={{
@@ -1908,6 +1935,26 @@ const PaymentForm = () => {
             />
           )
         }
+        {isFeeLoading && (
+          <Box
+            sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              zIndex: 1200,
+              backgroundColor: 'transparent',
+              cursor: 'not-allowed',
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+        )}
         <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
           <Loader />
         </CustomBackdrop>
