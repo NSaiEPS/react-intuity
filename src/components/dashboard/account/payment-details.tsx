@@ -441,6 +441,25 @@ const PaymentForm = () => {
         formdata.append('approval_code', data?.ssl_approval_code);
         formdata.append('is_card_one_time', '1');
         formdata.append('paytype_category', data?.ssl_card_short_description);
+      } else if (data?.forte_response || data?.forte_token) {
+        const forteResp = data?.forte_response;
+        const forteToken = String(forteResp?.onetime_token ?? data?.forte_token ?? data?.token ?? '');
+        const last4 = String(forteResp?.last_4 ?? data?.credit_card_number ?? data?.cardNumber ?? '');
+        const cardType = String(forteResp?.card_type ?? data?.card_type ?? data?.cardType ?? '');
+
+        const expMonth = String(forteResp?.expire_month ?? '').padStart(2, '0');
+        const expYearRaw = String(forteResp?.expire_year ?? '');
+        const expYearFull = expYearRaw.length === 2 ? `20${expYearRaw}` : expYearRaw;
+        const expirationFormatted = expMonth && expYearFull ? `${expMonth}/${expYearFull}` : String(data?.expiration ?? '');
+
+        formdata.append('is_card_one_time', '1');
+        formdata.append('forte_token', forteToken);
+        if (forteResp) {
+          formdata.append('forte_response', typeof forteResp === 'string' ? forteResp : JSON.stringify(forteResp));
+        }
+        formdata.append('credit_card_number', last4);
+        formdata.append('card_type', cardType);
+        formdata.append('expiration', expirationFormatted);
       } else {
         formdata.append('credit_card_number', data?.cardNumber);
         formdata.append('card_type', data?.cardType);
@@ -470,8 +489,17 @@ const PaymentForm = () => {
                   ? 'General Ledger'
                   : ' Other'
       );
+      if (data?.forte_token) {
+        formdata.append('forte_token', data.forte_token);
+      }
+      if (data?.forte_response) {
+        formdata.append(
+          'forte_response',
+          typeof data.forte_response === 'string' ? data.forte_response : JSON.stringify(data.forte_response)
+        );
+      }
     }
-    formdata.append('token', data?.ssl_token ?? data?.token);
+    formdata.append('token', data?.ssl_token ?? data?.forte_token ?? data?.token);
 
     // formdata.append(
     //   "convenienceFee",

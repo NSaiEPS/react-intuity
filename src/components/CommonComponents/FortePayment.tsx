@@ -50,10 +50,6 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
     };
 
     document.head.appendChild(script);
-
-    return () => {
-      // optional cleanup
-    };
   }, []);
 
   // 2️⃣ Register Callbacks
@@ -62,14 +58,22 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
       //console.log("Forte token success:", response);
 
       const expMonth = String(response.expire_month ?? "").padStart(2, "0");
-      const expYear = String(response.expire_year ?? "").slice(-2);
+      const fullYear = String(response.expire_year ?? "");
+      const expYearFull = fullYear.length === 2 ? `20${fullYear}` : fullYear;
+      const expYearShort = expYearFull.slice(-2);
+      const formattedExpiration = `${expMonth}/${expYearFull}`;
 
-      // keys match what handleSaveDetails reads for card payments
+      // Pass complete Forte response and mapped fields
       onSuccess({
         token: response.onetime_token,
+        forte_token: response.onetime_token,
+        forte_response: response,
         cardNumber: response.last_4,
+        credit_card_number: response.last_4,
         cardType: response.card_type,
-        cardExpDate: `${expMonth}${expYear}`,
+        card_type: response.card_type,
+        expiration: formattedExpiration,
+        cardExpDate: `${expMonth}${expYearShort}`,
       });
     };
 
