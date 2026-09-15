@@ -35,7 +35,7 @@ import Button from '../CommonComponents/button-comp';
 
 import { Link, useLocation, useNavigate } from "react-router";
 import { paths } from "@/utils/paths";
-import { setLocalStorage } from "@/utils/auth";
+import { getLocalStorage, setLocalStorage } from "@/utils/auth";
 import { RootState } from "@/state/store";
 import { CompanyInfoBody } from "@/types/domain";
 
@@ -78,15 +78,24 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
 
   // const slug = pathname?.split("/")[1];
 
-  // const alias = slug?.split('login-');
-
   const rawSlug = pathname?.split("/")[1];
-  const alias = rawSlug
-    ?.replace("login-", "")
-    ?.replace("register-", "")
-    ?.replace("reset-password-", "")
-    ?.replace("onetime-payment-", "")
-    ?.replace("forgot-login-", "");
+  const params = new URLSearchParams(location.search);
+  const queryAlias = params.get("company") || params.get("alias") || params.get("company_alias");
+  const slugAlias = rawSlug?.startsWith("login-")
+    ? rawSlug.replace("login-", "")
+    : rawSlug?.startsWith("register-")
+    ? rawSlug.replace("register-", "")
+    : rawSlug?.startsWith("reset-password-")
+    ? rawSlug.replace("reset-password-", "")
+    : rawSlug?.startsWith("forgot-login-")
+    ? rawSlug.replace("forgot-login-", "")
+    : rawSlug?.startsWith("onetime-payment-")
+    ? rawSlug.replace("onetime-payment-", "")
+    : null;
+  const storedAlias = (getLocalStorage("alias-details") as { alias?: string } | null)?.alias;
+
+  const effectiveAlias = companyInfo?.company?.alias || slugAlias || queryAlias || (rawSlug !== "login" ? storedAlias : undefined);
+  const alias = effectiveAlias || "";
 
   const hasShownActivationToastRef = React.useRef(false);
 
@@ -132,21 +141,11 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
   }, [location.search, location.state, pathname, navigate]);
 
   const handleRegisterClick = async () => {
-    const slug = pathname?.split("/")[1];
-
-    if (slug === "login") {
+    if (effectiveAlias) {
+      navigate(paths.auth.registerWithAlias(effectiveAlias));
+    } else {
       navigate("/sign-up");
-      return;
     }
-    else {
-      const alias = slug?.split('login-');
-
-      navigate(`/register-${alias[1]}`);
-
-    }
-
-
-
   };
 
 
@@ -425,11 +424,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
             }}
           >
             <Link
-              to={paths.auth.resetPassword(
-                pathname?.split("/")[1] === "login"
-                  ? undefined
-                  : pathname?.split("login-")[1]
-              )}
+              to={paths.auth.resetPassword(effectiveAlias || undefined)}
               style={{
                 color: colors.blue,
                 textDecoration: "none",
@@ -444,11 +439,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
             </Typography>
 
             <Link
-              to={paths.auth.forgotLogin(
-                pathname?.split("/")[1] === "login"
-                  ? undefined
-                  : pathname?.split("login-")[1]
-              )}
+              to={paths.auth.forgotLogin(effectiveAlias || undefined)}
               style={{
                 color: colors.blue,
                 textDecoration: "none",
@@ -510,11 +501,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
               }}
             >
               <Link
-                to={paths.auth.resetPassword(
-                  pathname?.split("/")[1] === "login"
-                    ? undefined
-                    : pathname?.split("login-")[1]
-                )}
+                to={paths.auth.resetPassword(effectiveAlias || undefined)}
                 style={{
                   color: colors.blue,
                   textDecoration: "none",
@@ -525,11 +512,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
               </Link>
 
               <Link
-                to={paths.auth.forgotLogin(
-                  pathname?.split("/")[1] === "login"
-                    ? undefined
-                    : pathname?.split("login-")[1]
-                )}
+                to={paths.auth.forgotLogin(effectiveAlias || undefined)}
                 style={{
                   color: colors.blue,
                   textDecoration: "none",

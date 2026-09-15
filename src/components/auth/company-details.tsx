@@ -26,6 +26,9 @@ const CompanyDetails = memo(function CompanyDetails() {
 
 
 
+  const searchParams = React.useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const queryAlias = searchParams.get("company") || searchParams.get("alias") || searchParams.get("company_alias");
+
   const rawSlug = React.useMemo(
     () => pathname?.split("/")[1],
     [pathname]
@@ -39,10 +42,12 @@ const CompanyDetails = memo(function CompanyDetails() {
         rawSlug?.startsWith("reset-password-") ||
         rawSlug?.startsWith("onetime-payment-") ||
         rawSlug?.startsWith("forgot-login-") ||
+        rawSlug?.startsWith("update-password-") ||
         (rawSlug?.startsWith("forgot-") && rawSlug !== "forgot-login") ||
-        rawSlug?.startsWith("register-success-")
+        rawSlug?.startsWith("register-success-") ||
+        queryAlias
       ),
-    [rawSlug]
+    [rawSlug, queryAlias]
   );
 
   const company = hasCompanySlug ? companyInfo?.company : null;

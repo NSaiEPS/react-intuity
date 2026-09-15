@@ -20,8 +20,9 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { paths } from "@/utils/paths";
+import { getLocalStorage } from "@/utils/auth";
 import Button from '../../CommonComponents/button-comp';
 
 import { Button as MUIButton } from "@mui/material";
@@ -56,12 +57,24 @@ const defaultValues = {
 export function UpdatePasswordScreen(): React.JSX.Element {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const hash = searchParams.get("hash") || "";
 
-  const { accountLoading } = useSelector(
+  const { accountLoading, companyInfo } = useSelector(
     (state: RootState) => state.Account
   );
+
+  const rawSlug = location.pathname?.split("/")[1];
+  const queryAlias = searchParams.get("company") || searchParams.get("alias") || searchParams.get("company_alias");
+  const slugAlias = rawSlug?.startsWith("update-password-")
+    ? rawSlug.replace("update-password-", "")
+    : rawSlug?.startsWith("reset-password-")
+    ? rawSlug.replace("reset-password-", "")
+    : null;
+  const storedAlias = (getLocalStorage("alias-details") as { alias?: string } | null)?.alias;
+
+  const effectiveAlias = companyInfo?.company?.alias || slugAlias || queryAlias || storedAlias || "";
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -80,7 +93,7 @@ export function UpdatePasswordScreen(): React.JSX.Element {
   });
 
   const successCallBack = () => {
-    navigate(paths.auth.newLogin());
+    navigate(paths.auth.newLogin(effectiveAlias || undefined));
   };
 
   const onSubmit = (values: FormValues) => {
@@ -264,7 +277,7 @@ export function UpdatePasswordScreen(): React.JSX.Element {
           >
             <MUIButton
               component={Link}
-              to={paths.auth.newLogin()}
+              to={paths.auth.newLogin(effectiveAlias || undefined)}
               variant="outlined"
               startIcon={<ArrowLeft size={18} />}
               sx={{

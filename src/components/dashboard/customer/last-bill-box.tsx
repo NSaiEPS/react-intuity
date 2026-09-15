@@ -360,6 +360,22 @@ export function LastBill(): React.JSX.Element {
               </Typography>
             )}
 
+            {lastBillInfo?.partial_payment_late_fee_text && (
+              <Typography
+                fontWeight="bold"
+                variant="body2"
+                sx={{
+                  color: "red",
+                  mt: 1.5,
+                  maxWidth: "100%",
+                  wordBreak: "break-word",
+                  whiteSpace: "pre-line",
+                }}
+              >
+                {lastBillInfo.partial_payment_late_fee_text}
+              </Typography>
+            )}
+
             {lastBillInfo?.payment_pending && (
               <Typography
                 fontWeight="bold"

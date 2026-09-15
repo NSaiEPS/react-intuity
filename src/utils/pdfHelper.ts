@@ -1,6 +1,19 @@
 import { getInvoicePdfAPI, InvoicePdfPayload } from "@/api/dashboard";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { toast } from "@/lib/custom-toast";
+import * as pdfjsLib from "pdfjs-dist";
+
+// Configure worker for PDF.js
+if (typeof window !== "undefined") {
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.js",
+      import.meta.url
+    ).toString();
+  } catch (e) {
+    // Fallback if URL resolution fails
+  }
+}
 
 export interface ResolveInvoicePdfParamsOptions {
   customerId?: number | string | null;
@@ -453,4 +466,142 @@ export async function downloadInvoicePdf(
     throw error;
   }
 }
+
+/**
+ * Prints the invoice PDF document directly using PDF.js.
+ * Renders the PDF pages to high-resolution images in a hidden print frame,
+ * ensuring only the PDF document (and not any webpage UI) is sent to the native print dialog.
+ */
+export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
+  if (!pdfUrl) return;
+
+  try {
+    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    const pdf = await loadingTask.promise;
+    const numPages = pdf.numPages;
+
+    const pageImages: string[] = [];
+
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      // Use 2.0 scale for crisp high-DPI print output
+      const viewport = page.getViewport({ scale: 2.0 });
+
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        await page.render({
+          canvasContext: ctx,
+          viewport: viewport,
+        }).promise;
+
+        pageImages.push(canvas.toDataURL("image/png"));
+      }
+    }
+
+    if (pageImages.length === 0) {
+      throw new Error("Failed to render PDF pages for printing");
+    }
+
+    // Clean up any previous print iframe
+    const oldIframe = document.getElementById("pdf-direct-print-iframe");
+    if (oldIframe) {
+      oldIframe.remove();
+    }
+
+    const printIframe = document.createElement("iframe");
+    printIframe.id = "pdf-direct-print-iframe";
+    printIframe.style.position = "fixed";
+    printIframe.style.top = "0";
+    printIframe.style.left = "0";
+    printIframe.style.width = "0";
+    printIframe.style.height = "0";
+    printIframe.style.border = "none";
+    printIframe.style.visibility = "hidden";
+
+    document.body.appendChild(printIframe);
+
+    const printDoc = printIframe.contentWindow?.document;
+    if (!printDoc) {
+      throw new Error("Unable to open print frame document");
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Print Invoice</title>
+          <style>
+            @page {
+              size: auto;
+              margin: 0mm;
+            }
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: #ffffff;
+            }
+            .page-wrapper {
+              width: 100%;
+              page-break-after: always;
+              page-break-inside: avoid;
+              display: block;
+              margin: 0;
+              padding: 0;
+            }
+            .page-wrapper:last-child {
+              page-break-after: auto;
+            }
+            img {
+              width: 100%;
+              height: auto;
+              display: block;
+              margin: 0;
+              padding: 0;
+            }
+          </style>
+        </head>
+        <body>
+          ${pageImages.map((src) => `<div class="page-wrapper"><img src="${src}" /></div>`).join("")}
+        </body>
+      </html>
+    `;
+
+    printDoc.open();
+    printDoc.write(html);
+    printDoc.close();
+
+    // Give browser a short tick to parse images into DOM, then trigger native print
+    setTimeout(() => {
+      try {
+        printIframe.contentWindow?.focus();
+        printIframe.contentWindow?.print();
+      } catch (err) {
+        console.error("Print dialog invocation failed:", err);
+      }
+    }, 200);
+  } catch (error) {
+    console.error("printPdfFromUrl error:", error);
+    // Fallback: try iframe contentWindow print
+    try {
+      const fallbackIframe = document.createElement("iframe");
+      fallbackIframe.style.position = "fixed";
+      fallbackIframe.style.width = "0";
+      fallbackIframe.style.height = "0";
+      fallbackIframe.style.border = "none";
+      fallbackIframe.src = pdfUrl;
+      document.body.appendChild(fallbackIframe);
+      setTimeout(() => {
+        fallbackIframe.contentWindow?.focus();
+        fallbackIframe.contentWindow?.print();
+      }, 500);
+    } catch (e) {
+      console.error("Fallback print error:", e);
+    }
+  }
+}
+
 

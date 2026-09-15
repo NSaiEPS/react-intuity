@@ -196,6 +196,7 @@ export interface LastBillBody {
   schedule_payment_msg?: any;
   achworks_pay_now_text?: any;
   nacha_pay_now_text?: any;
+  partial_payment_late_fee_text?: string;
   last_bill?: Record<string, any>;
   last_late_fee?: {
     transaction_date?: string;

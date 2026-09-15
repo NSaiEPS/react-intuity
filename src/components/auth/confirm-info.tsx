@@ -76,6 +76,7 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
 
   const two_fa_status = location.state?.two_fa_status ?? false;
+  const [is2FACompleted, setIs2FACompleted] = React.useState<boolean>(false);
   const { accountLoading: loading, confirmInfo } = useSelector(
     (state: RootState) => state?.Account
   );
@@ -91,15 +92,16 @@ export function ConfirmInfoDetails(): React.JSX.Element {
 
   const user_id = stored?.body?.customer_id;
 
-  // const skip2FARef = React.useRef(false);
-  const suppress2FAModalRef = React.useRef(false);
-
   const reqCustomer = (): CustomerAccount | undefined => {
-    if (Array.isArray(confirmInfo?.customers)) {
-      const customer = confirmInfo?.customers?.filter(
-        (item: CustomerAccount) => item?.id == user_id
+    if (Array.isArray(confirmInfo?.customers) && confirmInfo.customers.length > 0) {
+      const customer = confirmInfo.customers.find(
+        (item: any) =>
+          user_id && (String(item?.id) === String(user_id) || String(item?.customer_id) === String(user_id))
       );
-      return customer?.[0];
+      return customer || confirmInfo.customers[0];
+    }
+    if (confirmInfo?.customer && typeof confirmInfo.customer === "object") {
+      return confirmInfo.customer;
     }
     return undefined;
   };
@@ -116,8 +118,6 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   };
 
   const refreshData = () => {
-    suppress2FAModalRef.current = true;
-
     const role_id = stored?.body?.acl_role_id;
     const formData = new FormData();
     console.log("refreshData");
@@ -139,23 +139,22 @@ export function ConfirmInfoDetails(): React.JSX.Element {
     navigate(paths.dashboard.overview());
   };
 
-  useEffect(() => {
-    if (suppress2FAModalRef.current) {
-      console.log("Effect Fired", suppress2FAModalRef.current);
-      setTimeout(() => {
-        suppress2FAModalRef.current = false;
-      }, 0);
-      return;
-    }
+  const is2FARequired = Boolean(
+    confirmInfo?.company?.require_2fa == 1 ||
+    confirmInfo?.require_2fa == 1 ||
+    confirmInfo?.is_two_fa_required
+  );
+  const isAlreadyVerified = Boolean(
+    two_fa_status || confirmInfo?.two_fa_status || is2FACompleted
+  );
 
-    if (
-      confirmInfo?.company?.require_2fa == 1 &&
-      reqCustomer()?.is_phone_verified == 1 && !two_fa_status
-    ) {
-      // setTwoFAModalVisible(true);
+  useEffect(() => {
+    if (!confirmInfo || Object.keys(confirmInfo).length === 0) return;
+
+    if (is2FARequired && !isAlreadyVerified) {
       localDispatch({ type: "TWO_FA_MODAL", payload: true });
     }
-  }, [confirmInfo, two_fa_status]);
+  }, [confirmInfo, two_fa_status, is2FARequired, isAlreadyVerified]);
 
   const isSingleCard = confirmInfo?.customers?.length === 1;
 
@@ -372,6 +371,10 @@ export function ConfirmInfoDetails(): React.JSX.Element {
       <TwoFAModal
         open={twoFAModalVisible}
         onClose={() => {
+          localDispatch({ type: "TWO_FA_MODAL", payload: false });
+        }}
+        onSuccess={() => {
+          setIs2FACompleted(true);
           localDispatch({ type: "TWO_FA_MODAL", payload: false });
         }}
         customerData={reqCustomer() as any}

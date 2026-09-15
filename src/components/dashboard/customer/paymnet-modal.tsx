@@ -42,9 +42,19 @@ export function PaymentModal({
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
   );
+  const dashBoardInfo = useSelector(
+    (state: RootState) => state?.DashBoard?.dashBoardInfo
+  );
   const paymentLoader = useSelector(
     (state: RootState) => state?.Payment?.paymentLoader
   );
+
+  const isAutopayEnabled =
+    Number(lastBillInfo?.customer?.autopay) === 1 ||
+    Number(dashBoardInfo?.body?.customer?.autopay) === 1 ||
+    Number(dashBoardInfo?.customer?.autopay) === 1 ||
+    lastBillInfo?.customer?.autopay === true ||
+    lastBillInfo?.customer?.autopay === "1";
 
   React.useEffect(() => {
     if (open) {
@@ -333,7 +343,9 @@ export function PaymentModal({
         </Button>
         <Button
           onClick={() => {
-            if (
+            if (paymentOption === "payNow" && isAutopayEnabled) {
+              setConfirmationOpen(true);
+            } else if (
               (lastBillInfo?.pending_payment?.length > 0 &&
                 lastBillInfo?.pending_payment_text) ||
               lastBillInfo.recurring_payment_msg1 ||
@@ -366,13 +378,19 @@ export function PaymentModal({
         message={
           deleteType
             ? `Are you sure you want to remove your ${deleteType} payment?`
-            : lastBillInfo.recurring_payment_msg1
-              ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
-              : lastBillInfo.schedule_payment_msg
-                ? `${lastBillInfo.schedule_payment_msg} Do you still want to make an additional payment?`
-                : `${lastBillInfo?.pending_payment_text}`
+            : paymentOption === "payNow" && isAutopayEnabled
+              ? "Autopay is enabled. Do you still want to make an additional payment?"
+              : lastBillInfo.recurring_payment_msg1
+                ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
+                : lastBillInfo.schedule_payment_msg
+                  ? `${lastBillInfo.schedule_payment_msg} Do you still want to make an additional payment?`
+                  : `${lastBillInfo?.pending_payment_text}`
         }
-        confirmLabel="Yes, Confirm"
+        confirmLabel={
+          paymentOption === "payNow" && isAutopayEnabled && !deleteType
+            ? "Proceed"
+            : "Yes, Confirm"
+        }
         cancelLabel="Cancel"
         onConfirm={() => {
           if (deleteType) {

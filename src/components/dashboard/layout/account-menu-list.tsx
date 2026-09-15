@@ -243,7 +243,7 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
           <Typography>Settings</Typography>
         </MenuItem>
 
-        <MenuItem onClick={() => handleClickPath(paths.dashboard.account())} sx={{ ml: 1 }}>
+        <MenuItem onClick={() => handleClickPath(paths.dashboard.settings())} sx={{ ml: 1 }}>
           <ListItemIcon sx={{ minWidth: "unset", color: "inherit" }}>
             <UserIcon fontSize="var(--icon-fontSize-md)" />
           </ListItemIcon>

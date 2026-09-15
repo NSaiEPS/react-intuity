@@ -9,8 +9,10 @@ import {
   fetchInvoicePdfBlobUrl,
   downloadFile,
   resolveInvoicePdfParams,
+  printPdfFromUrl,
 } from "@/utils/pdfHelper";
 import { Loader } from "nsaicomponents";
+import { EnvelopeSimple, Printer, DownloadSimple } from "@phosphor-icons/react";
 
 type ModalProps = {
   open: boolean;
@@ -62,6 +64,7 @@ export default function CustomModal({
   const [pdfLoading, setPdfLoading] = React.useState<boolean>(false);
   const [pdfError, setPdfError] = React.useState<string | null>(null);
   const lastFetchedKeyRef = React.useRef<string>("");
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   // React-pdf fallback for one-time payments
   type PdfComponents = {
@@ -223,8 +226,23 @@ export default function CustomModal({
     }
   };
 
+  const handleSendEmail = () => {
+    // Placeholder ready for backend email API integration
+    console.log("Send via Email clicked for invoice:", resolvedParams.invoice_number);
+  };
+
+  const handlePrint = async () => {
+    if (!pdfUrl) return;
+    try {
+      await printPdfFromUrl(pdfUrl);
+    } catch (err) {
+      console.error("Print error:", err);
+    }
+  };
+
   return (
     <div
+      className="invoice-modal-backdrop"
       style={{
         position: "fixed",
         inset: 0,
@@ -236,6 +254,7 @@ export default function CustomModal({
       }}
     >
       <div
+        className="invoice-modal-container"
         style={{
           position: "relative",
           display: "inline-block",
@@ -249,6 +268,7 @@ export default function CustomModal({
         onClick={(e) => e.stopPropagation()}
       >
         <button
+          className="invoice-modal-close-btn no-print"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
@@ -338,21 +358,65 @@ export default function CustomModal({
               </span>
 
               {pdfUrl && !pdfLoading && (
-                <button
-                  onClick={handleDownload}
-                  style={{
-                    backgroundColor: "#0284c7",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "6px 14px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Download PDF
-                </button>
+                <div className="invoice-modal-actions no-print" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <button
+                    onClick={handleSendEmail}
+                    style={{
+                      backgroundColor: "#0284c7",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 14px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <EnvelopeSimple size={16} weight="bold" />
+                    Send via Email
+                  </button>
+                  <button
+                    onClick={handlePrint}
+                    style={{
+                      backgroundColor: "#0284c7",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 14px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <Printer size={16} weight="bold" />
+                    Print
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    style={{
+                      backgroundColor: "#0284c7",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 14px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <DownloadSimple size={16} weight="bold" />
+                    Download PDF
+                  </button>
+                </div>
               )}
             </div>
 
@@ -421,6 +485,7 @@ export default function CustomModal({
                 </div>
               ) : pdfUrl ? (
                 <iframe
+                  ref={iframeRef}
                   src={pdfUrl}
                   title="Invoice PDF Preview"
                   style={{

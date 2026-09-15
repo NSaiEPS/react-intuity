@@ -159,4 +159,34 @@ body.pdf-mode .pdf-text {
   align-items: center;
 }
 
+@media print {
+  .no-print,
+  .invoice-modal-close-btn,
+  .invoice-modal-actions {
+    display: none !important;
+  }
+
+  .invoice-modal-backdrop {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    inset: auto !important;
+    z-index: auto !important;
+  }
+
+  .invoice-modal-container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+
 

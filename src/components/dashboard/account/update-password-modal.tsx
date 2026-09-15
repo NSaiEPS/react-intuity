@@ -3,6 +3,7 @@ import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
+import { getLocalStorage } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -94,8 +95,14 @@ export function UpdatePasswordModal({
 
     dispatch(updateAccountInfo(formData, false, successCallBack));
   };
+  const { companyInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
+  const storedAlias = (getLocalStorage("alias-details") as { alias?: string } | null)?.alias;
+  const effectiveAlias = companyInfo?.company?.alias || storedAlias || "";
+
   const successCallBack = () => {
-    navigate(paths.auth.newLogin());
+    navigate(paths.auth.newLogin(effectiveAlias || undefined));
     handleClose();
   };
   const [show, setShow] = React.useState({

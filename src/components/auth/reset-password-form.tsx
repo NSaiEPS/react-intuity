@@ -21,12 +21,13 @@ import { UpdatePasswordModal } from "../dashboard/account/update-password-modal"
 import { paths } from "@/utils/paths";
 import Button from '../CommonComponents/button-comp';
 
-import { Link } from "react-router";
+import { useLocation, useSearchParams, Link } from "react-router-dom";
 import { Button as MUIButton } from "@mui/material";
 
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+import { getLocalStorage } from "@/utils/auth";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
@@ -41,6 +42,8 @@ const defaultValues = { email: "" } satisfies Values;
 
 export function ResetPasswordForm(): React.JSX.Element {
   const [isPending, setIsPending] = React.useState<boolean>(false);
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const {
     control,
@@ -53,10 +56,25 @@ export function ResetPasswordForm(): React.JSX.Element {
   const { companyInfo } = useSelector(
     (state: RootState) => state?.Account
   );
+
+  const rawSlug = location.pathname?.split("/")[1];
+  const queryAlias = searchParams.get("company") || searchParams.get("alias") || searchParams.get("company_alias");
+  const slugAlias = rawSlug?.startsWith("reset-password-")
+    ? rawSlug.replace("reset-password-", "")
+    : null;
+  const storedAlias = (getLocalStorage("alias-details") as { alias?: string; id?: string | number } | null)?.alias;
+  const storedCompanyId = (getLocalStorage("alias-details") as { alias?: string; id?: string | number } | null)?.id;
+
+  const effectiveAlias = companyInfo?.company?.alias || slugAlias || queryAlias || storedAlias || "";
+  const effectiveCompanyId = companyInfo?.company?.id || storedCompanyId || "";
+
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
-      const { error } = await authClient.resetPassword({ email: values.email.trim() }, companyInfo?.company?.alias);
+      const { error } = await authClient.resetPassword(
+        { email: values.email.trim(), company: effectiveCompanyId, alias: effectiveAlias },
+        effectiveAlias || undefined
+      );
 
       if (error) {
         setError("root", { type: "server", message: error });
@@ -65,11 +83,8 @@ export function ResetPasswordForm(): React.JSX.Element {
       }
 
       setIsPending(false);
-      // setOpen(true);xs
-
-      // Redirect to confirm password reset
     },
-    [setError]
+    [setError, effectiveCompanyId, effectiveAlias]
   );
   const [emailFocused, setEmailFocused] = React.useState(false);
   return (
@@ -193,7 +208,7 @@ export function ResetPasswordForm(): React.JSX.Element {
           >
             <MUIButton
               component={Link}
-              to={paths.auth.newLogin(companyInfo?.company?.alias)}
+              to={paths.auth.newLogin(effectiveAlias || undefined)}
               variant="outlined"
               startIcon={<ArrowLeft size={18} />}
               sx={{

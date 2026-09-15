@@ -178,14 +178,21 @@ const MainSection = memo(function MainSection() {
 
   // ✅ useMemo — not recomputed every render
   const slug = useMemo(() => pathname?.split("/")[1], [pathname]);
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const queryAlias = searchParams.get("company") || searchParams.get("alias") || searchParams.get("company_alias");
 
   const hasCompanySlug = useMemo(() =>
-    slug?.startsWith("login-") ||
-    slug?.startsWith("register-") ||
-    slug?.startsWith("reset-password-") ||
-    slug?.startsWith("onetime-payment-") ||
-    (slug?.startsWith("forgot-") && slug !== "forgot-login"),
-    [slug]
+    Boolean(
+      slug?.startsWith("login-") ||
+      slug?.startsWith("register-") ||
+      slug?.startsWith("reset-password-") ||
+      slug?.startsWith("onetime-payment-") ||
+      slug?.startsWith("update-password-") ||
+      slug?.startsWith("forgot-login-") ||
+      (slug?.startsWith("forgot-") && slug !== "forgot-login") ||
+      queryAlias
+    ),
+    [slug, queryAlias]
   );
 
 
@@ -204,37 +211,46 @@ const MainSection = memo(function MainSection() {
 
 
   useEffect(() => {
-    const formData = new FormData();
+    let alias = "";
     if (
       slug?.startsWith("login-") ||
       slug?.startsWith("register-") ||
       slug?.startsWith("onetime-payment-") ||
       slug?.startsWith("forgot-login-") ||
-      slug?.startsWith("reset-password-")
+      slug?.startsWith("reset-password-") ||
+      slug?.startsWith("update-password-") ||
+      slug?.startsWith("register-success-")
     ) {
-      const alias = slug
+      alias = slug
         .replace("forgot-login-", "")
         .replace("login-", "")
         .replace("register-success-", "")
         .replace("register-", "")
         .replace("onetime-payment-", "")
-        .replace("reset-password-", "");
+        .replace("reset-password-", "")
+        .replace("update-password-", "");
+    } else if (queryAlias) {
+      alias = queryAlias;
+    }
+
+    if (alias) {
+      const formData = new FormData();
       formData.append("alias", alias);
       dispatch(getCompanyDetails(formData, undefined, failureCallBack));
     }
-  }, []); // ✅ removed slug dep — only run on mount
+  }, [pathname, location.search]);
 
   useEffect(() => {
     const allowed =
       pathname === "/login" ||
       pathname === "/sign-up" ||
-      pathname?.includes("/reset-password") ||
-      pathname?.includes("/forgot-login") ||
-      pathname?.includes("/update-password") ||
-      pathname.includes("login-") ||
-      pathname.includes("register-success-") ||
-      pathname.includes("register-") ||
-      pathname.includes("onetime-payment-");
+      pathname.startsWith("/reset-password") ||
+      pathname.startsWith("/forgot-login") ||
+      pathname.startsWith("/update-password") ||
+      pathname.startsWith("/login-") ||
+      pathname.startsWith("/register-success-") ||
+      pathname.startsWith("/register-") ||
+      pathname.startsWith("/onetime-payment-");
 
     if (!allowed) navigate("/login");
   }, [pathname]);

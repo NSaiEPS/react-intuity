@@ -35,6 +35,7 @@ interface TwoFAModalProps {
   open: boolean;
   onClose: () => void;
   customerData: CustomerData;
+  onSuccess?: () => void;
 }
 
 interface State {
@@ -79,6 +80,7 @@ export default function TwoFAModal({
   open,
   onClose,
   customerData,
+  onSuccess,
 }: TwoFAModalProps) {
   const [state, dispatchLocal] = useReducer(reducer, initialState);
 
@@ -100,6 +102,7 @@ export default function TwoFAModal({
 
   // phone_no takes priority; fall back to phone
   const effectivePhone = customerData?.phone_no || customerData?.phone;
+  const effectiveEmail = customerData?.email || stored?.body?.email || (stored as any)?.email;
 
   const handleSendCode = () => {
     if (!state.method) {
@@ -119,7 +122,7 @@ export default function TwoFAModal({
       formData.append("phone_no", effectivePhone ?? "");
       formData.append("country_code", "1");
     } else if (state.method === "email") {
-      formData.append("email", customerData?.email ?? "");
+      formData.append("email", effectiveEmail ?? "");
     }
 
     dispatch(
@@ -143,7 +146,7 @@ export default function TwoFAModal({
     ...(isValidPhone(effectivePhone)
       ? [{ value: "phone_call", label: `Phone call (${maskPhone(effectivePhone)})` }]
       : []),
-    { value: "email", label: maskEmail(customerData?.email) },
+    { value: "email", label: maskEmail(effectiveEmail) },
   ];
 
   return (
@@ -235,6 +238,7 @@ export default function TwoFAModal({
         customerData={customerData}
         selectedVal={state.method}
         onClose2Fa={onClose}
+        onSuccess={onSuccess}
       />
     </Dialog>
   );

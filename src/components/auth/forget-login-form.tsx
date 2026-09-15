@@ -21,12 +21,13 @@ import { UpdatePasswordModal } from "../dashboard/account/update-password-modal"
 import { paths } from "@/utils/paths";
 import Button from '../CommonComponents/button-comp';
 
-import { Link } from "react-router";
+import { useLocation, useSearchParams, Link } from "react-router-dom";
 import { Button as MUIButton } from "@mui/material";
 
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "@/state/store";
+import { getLocalStorage } from "@/utils/auth";
 import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
@@ -43,6 +44,25 @@ const defaultValues = { email: "" } satisfies Values;
 export function ForgotLoginForm(): React.JSX.Element {
   const [isPending, setIsPending] = React.useState<boolean>(false);
   const [accountFocused, setAccountFocused] = React.useState(false);
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const { companyInfo } = useSelector(
+    (state: RootState) => state?.Account
+  );
+
+  const rawSlug = location.pathname?.split("/")[1];
+  const queryAlias = searchParams.get("company") || searchParams.get("alias") || searchParams.get("company_alias");
+  const slugAlias = rawSlug?.startsWith("forgot-login-")
+    ? rawSlug.replace("forgot-login-", "")
+    : rawSlug?.startsWith("forgot-") && rawSlug !== "forgot-login"
+    ? rawSlug.replace("forgot-", "")
+    : null;
+  const storedAlias = (getLocalStorage("alias-details") as { alias?: string; id?: string | number } | null)?.alias;
+  const storedCompanyId = (getLocalStorage("alias-details") as { alias?: string; id?: string | number } | null)?.id;
+
+  const effectiveAlias = companyInfo?.company?.alias || slugAlias || queryAlias || storedAlias || "";
+  const effectiveCompanyId = companyInfo?.company?.id || storedCompanyId || "";
 
   const {
     control,
@@ -56,13 +76,17 @@ export function ForgotLoginForm(): React.JSX.Element {
     async (values: Values): Promise<void> => {
       setIsPending(true);
       const formData = new FormData();
-      formData.append("company", companyInfo?.company?.id);
-      formData.append("account", values.email);
+      if (effectiveCompanyId) {
+        formData.append("company", String(effectiveCompanyId));
+      }
+      if (effectiveAlias) {
+        formData.append("alias", effectiveAlias);
+        formData.append("company_alias", effectiveAlias);
+        formData.append("company_login", effectiveAlias);
+      }
+      formData.append("account", values.email.trim());
 
-
-
-      // @ts-ignore
-      const { error } = await authClient.resetUserName(formData, companyInfo?.company?.alias);
+      const { error } = await authClient.resetUserName(formData, effectiveAlias || undefined);
 
       if (error) {
         setError("root", { type: "server", message: error });
@@ -71,14 +95,8 @@ export function ForgotLoginForm(): React.JSX.Element {
       }
 
       setIsPending(false);
-      // setOpen(true);xs
-
-      // Redirect to confirm password reset
     },
-    [setError]
-  );
-  const { companyInfo } = useSelector(
-    (state: RootState) => state?.Account
+    [setError, effectiveCompanyId, effectiveAlias]
   );
   return (
     <Stack spacing={4}>
@@ -179,7 +197,7 @@ export function ForgotLoginForm(): React.JSX.Element {
           }}>
             <MUIButton
               component={Link}
-              to={paths.auth.newLogin(companyInfo?.company?.alias)}
+              to={paths.auth.newLogin(effectiveAlias || undefined)}
               variant="outlined"
               startIcon={<ArrowLeft size={18} />}
               sx={{

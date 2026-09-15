@@ -49,6 +49,7 @@ type AuthCodeModalProps = {
   onVerify: (code: string) => void;
   customerData: CustomerInfo | null;
   onClose2Fa: () => void;
+  onSuccess?: () => void;
   /**
    * Message coming back from the API, e.g.
    * "We've sent a verification code to m****@gmail.com."
@@ -100,6 +101,7 @@ export default function AuthCodeModal({
   onVerify,
   customerData,
   onClose2Fa,
+  onSuccess,
   verificationMessage = "We've sent a verification code to your registered contact.",
   helperText = "Enter the verification code below to continue signing in.",
 }: AuthCodeModalProps) {
@@ -158,6 +160,9 @@ export default function AuthCodeModal({
     reset();
     onClose();
     onClose2Fa();
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (

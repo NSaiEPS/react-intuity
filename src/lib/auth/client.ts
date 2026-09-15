@@ -86,10 +86,22 @@ class AuthClient {
     return {};
   }
 
-  async resetPassword(params: { email: string }, alias?: string): Promise<{ error?: string }> {
-    const { email } = params;
+  async resetPassword(
+    params: { email: string; company?: string | number; alias?: string },
+    alias?: string
+  ): Promise<{ error?: string }> {
+    const { email, company, alias: paramAlias } = params;
+    const resolvedAlias = alias || paramAlias;
     const formData = new FormData();
     formData.append("email", email);
+    if (company) {
+      formData.append("company", String(company));
+    }
+    if (resolvedAlias) {
+      formData.append("alias", resolvedAlias);
+      formData.append("company_alias", resolvedAlias);
+      formData.append("company_login", resolvedAlias);
+    }
 
     const res = await fetch(`${BASE_URL}index/recover-password`, {
       method: "POST",
@@ -102,11 +114,13 @@ class AuthClient {
     const data = await res.json();
     if (data?.status) {
       // toast.success(data?.message ?? "Email sent!");
-      toast.success(data?.message ?? "Email sent!", 
-         "Please check your email inbox and click the link to change your password.",
+      toast.success(
+        data?.message ?? "Email sent!",
+        "Please check your email inbox and click the link to change your password.",
         () => {
-  navigateTo(alias ? `/login-${alias}` : "/login");          // redirect after OK
-});
+          navigateTo(resolvedAlias ? `/login-${resolvedAlias}` : "/login"); // redirect after OK
+        }
+      );
     }
 
     if (!res.ok || data?.status === false || data?.body?.errors?.[0]) {
@@ -120,9 +134,7 @@ class AuthClient {
     return {};
   }
 
-   async resetUserName(params: any, alias?: string): Promise<{ error?: string }> {
-  
-
+  async resetUserName(params: any, alias?: string): Promise<{ error?: string }> {
     const res = await fetch(`${BASE_URL}index/recover-login`, {
       method: "POST",
       headers: {
@@ -134,11 +146,13 @@ class AuthClient {
     const data = await res.json();
     if (data?.status) {
       // toast.success(data?.message ?? "Email sent!");
-      toast.success(data?.message ?? "Email sent!", 
-         "",
+      toast.success(
+        data?.message ?? "Email sent!",
+        "",
         () => {
-  navigateTo(alias ? `/login-${alias}` : "/login");          // redirect after OK
-});
+          navigateTo(alias ? `/login-${alias}` : "/login"); // redirect after OK
+        }
+      );
     }
 
     if (!res.ok || data?.status === false || data?.body?.errors?.[0]) {
