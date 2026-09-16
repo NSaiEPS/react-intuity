@@ -706,6 +706,18 @@ function EnrollChoose({
     autopayMethodInfo?.card_type
   ) ? autopayMethodInfo : defaultMethod;
 
+  const isBank = Boolean(
+    displayCard?.is_bank_account ||
+    displayCard?.bank_account_number ||
+    displayCard?.account_type ||
+    (displayCard as any)?.type === 'bank' ||
+    ['checking', 'savings', 'bank', 'account'].some((term) =>
+      (displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || '')
+        .toLowerCase()
+        .includes(term)
+    )
+  );
+
   React.useEffect(() => {
     if (hasSavedCard && (paymentType === '' || !newCardSelected)) {
       setPaymentType('saved');
@@ -781,7 +793,7 @@ function EnrollChoose({
             <Box
               sx={{
                 display: 'flex',
-                alignItems: 'flex-start',
+                alignItems: 'center',
                 mb: 2.5,
               }}
             >
@@ -792,7 +804,6 @@ function EnrollChoose({
                     color="primary"
                     sx={{
                       p: '9px',
-                      mt: { xs: '-2px', sm: '2px' },
                     }}
                   />
                 }
@@ -800,7 +811,6 @@ function EnrollChoose({
                 sx={{
                   mr: 0.5,
                   m: 0,
-                  alignSelf: { xs: 'flex-start', sm: 'center' },
                 }}
               />
 
@@ -867,33 +877,49 @@ function EnrollChoose({
                       {displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || 'Card'}
                     </Typography>
 
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: '14px',
-                        color: '#2C3E50',
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                        flexShrink: 2,
-                        display: { xs: 'none', sm: 'inline' },
-                      }}
-                    >
-                      ending in
-                    </Typography>
-
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: '14px',
-                        color: '#2C3E50',
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                        display: { xs: 'inline', sm: 'none' },
-                      }}
-                    >
-                      ...
-                    </Typography>
+                    {isBank ? (
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: '14px',
+                          color: '#2C3E50',
+                          fontWeight: 500,
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0,
+                        }}
+                      >
+                        ...
+                      </Typography>
+                    ) : (
+                      <>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: '14px',
+                            color: '#2C3E50',
+                            fontWeight: 500,
+                            whiteSpace: 'nowrap',
+                            flexShrink: 2,
+                            display: { xs: 'none', sm: 'inline' },
+                          }}
+                        >
+                          ending in
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: '14px',
+                            color: '#2C3E50',
+                            fontWeight: 500,
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
+                            display: { xs: 'inline', sm: 'none' },
+                          }}
+                        >
+                          ...
+                        </Typography>
+                      </>
+                    )}
 
                     <Typography
                       component="span"
@@ -940,6 +966,7 @@ function EnrollChoose({
                     fontSize: '13px',
                     padding: '4px 16px',
                     borderRadius: '4px',
+                    flexShrink: 0,
                   }}
                   onClick={(e: any) => {
                     e.stopPropagation();
@@ -953,7 +980,7 @@ function EnrollChoose({
           )}
 
           {/* Option 2: Pay this bill only */}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormControlLabel
               value="no-save"
               control={
@@ -961,21 +988,16 @@ function EnrollChoose({
                   color="primary"
                   sx={{
                     p: '9px',
-                    mt: '-2px',
                   }}
                 />
               }
               label={
-                <Box sx={{ ml: 0.5, mt: -0.25 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography sx={{ fontWeight: 'bold', fontSize: '15px' }}>
-                      Add a new payment method
-                    </Typography>
-                  </Box>
-                </Box>
+                <Typography sx={{ fontWeight: 'bold', fontSize: '15px', color: '#172D56', ml: 0.5 }}>
+                  Add a new payment method
+                </Typography>
               }
               sx={{
-                alignItems: 'flex-start',
+                alignItems: 'center',
                 m: 0,
                 mr: 0,
               }}
@@ -1592,10 +1614,14 @@ export default function AutoPayPrototype() {
     const targetMethod = pendingMethodInfo || autopayMethodInfo;
     if (!targetMethod) return;
 
+    console.log(targetMethod, 'targetMethod')
+
     const formData = new FormData();
     formData.append('acl_role_id', roleId);
     formData.append('customer_id', userId);
-    formData.append('payment_method_id_model', targetMethod?.card_token || (targetMethod as any)?.token || '');
+    const cardId = targetMethod?.id ?? (targetMethod as any)?.card_id ?? '';
+    formData.append('payment_method_id_model', String(cardId));
+    // formData.append('payment_method_id', String(cardId));
     formData.append('is_form', '1');
     formData.append('auto_pay', '1');
     formData.append('id_select_card', String(targetMethod?.id ?? autoPaySettings?.id ?? ''));
@@ -1816,7 +1842,9 @@ export default function AutoPayPrototype() {
     formData.append('customer_id', userId);
 
     if (autopayMethodInfo) {
-      formData.append('payment_method_id_model', autopayMethodInfo?.card_token || autopayMethodInfo?.token || '');
+      const cardId = autopayMethodInfo?.id ?? (autopayMethodInfo as any)?.card_id ?? '';
+      formData.append('payment_method_id_model', String(cardId));
+      formData.append('payment_method_id', String(cardId));
 
       formData.append('is_form', '1');
       formData.append('auto_pay', '1');
@@ -1860,7 +1888,9 @@ export default function AutoPayPrototype() {
     formData.append('customer_id', userId);
 
     if (autopayMethodInfo) {
-      formData.append('payment_method_id_model', autopayMethodInfo?.card_token || autopayMethodInfo?.token || '');
+      const cardId = autopayMethodInfo?.id ?? (autopayMethodInfo as any)?.card_id ?? '';
+      formData.append('payment_method_id_model', String(cardId));
+      formData.append('payment_method_id', String(cardId));
 
       formData.append('is_form', '1');
       formData.append('auto_pay', '0');

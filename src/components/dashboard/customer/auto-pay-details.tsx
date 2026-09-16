@@ -49,6 +49,7 @@ export default function AutoPayDetails(): React.JSX.Element {
   const [autoPaySettings, setAutoPaySettings] = React.useState(null);
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
   interface CardInfo {
+    id?: string | number;
     card_type?: string;
     account_type?: string;
     card_number?: string;
@@ -104,7 +105,15 @@ export default function AutoPayDetails(): React.JSX.Element {
       // customer_id:810
       // is_form:1"
 
-      formData.append('payment_method_id_model', selectedCardDetails?.token as string);
+      const cardId =
+        selectedCardDetails?.card?.id ??
+        (selectedCardDetails as any)?.details?.id ??
+        selectedCardDetails?.id ??
+        selectedCardDetails?.token ??
+        '';
+
+      formData.append('payment_method_id_model', String(cardId));
+      formData.append('payment_method_id', String(cardId));
 
       formData.append('is_form', '1');
       formData.append('auto_pay', isAutoPay ? '1' : '0');
