@@ -3,7 +3,6 @@ import {
   getUsageGraph,
   setMonthlyUsageUam,
   setUsageFilterValues,
-  usageMonthlyGraph,
   usageUtilityFilters,
 } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
@@ -178,68 +177,25 @@ function UsageFilter() {
   const userId = stored?.body?.customer_id;
   const token = stored?.body?.token;
   useEffect(() => {
-    if (!userId || !roleId) return;
-
-    const currentType = utilityType || filterList.type?.[0]?.value || "WATER";
+    if (!roleId || !userId || !utilityType) return;
     const formData = new FormData();
-
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("utility_type", currentType);
-    formData.append("utility_um", unitMeasure || "gallons");
-    formData.append("start_date", filterDates.startDate);
-    formData.append("end_date", filterDates.endDate);
-
-    dispatch(usageMonthlyGraph(formData));
-  }, [userId]);
-
-  useEffect(() => {
-    if (utilityType) {
-      const formData = new FormData();
-
-      formData.append("acl_role_id", roleId);
-      formData.append("customer_id", userId);
-
-      formData.append("utility_type", utilityType);
-      // formData.append('utility_um', unitMeasure);
-      // formData.append('get_meter_no', '1');
-
-      //     acl_role_id:4
-      // customer_id:810
-      // utility_type:Water
-      // get_meter_no:1
-      // utility_um:gallons
-
-      dispatch(usageUtilityFilters(formData, successCallBack));
-    }
-  }, [utilityType]);
-
-  useEffect(() => {
+    formData.append("utility_type", utilityType);
     if (unitMeasure) {
-      const formData = new FormData();
-
-      formData.append("acl_role_id", roleId);
-      formData.append("customer_id", userId);
-
-      formData.append("utility_type", utilityType);
       formData.append("utility_um", unitMeasure);
       formData.append("get_meter_no", "1");
-
-      //     acl_role_id:4
-      // customer_id:810
-      // utility_type:Water
-      // get_meter_no:1
-      // utility_um:gallons
-
-      dispatch(
-        usageUtilityFilters(formData, (data) =>
-          successCallBack(data, true)
-        )
-      );
     }
-  }, [unitMeasure]);
-  const fetchUsageBarChart = (selectedMeterId?: string, dates?: { startDate: string; endDate: string }) => {
+
+    dispatch(usageUtilityFilters(formData, (data) => successCallBack(data)));
+  }, [utilityType, userId, roleId]);
+
+  const fetchUsageBarChart = (
+    selectedMeterId?: string,
+    dates?: { startDate: string; endDate: string },
+    selectedUm?: string,
+    selectedType?: string
+  ) => {
     const targetMeter = selectedMeterId !== undefined ? selectedMeterId : meterNo;
     if (!roleId || !userId) return;
 
@@ -249,8 +205,8 @@ function UsageFilter() {
     if (targetMeter) {
       barFormData.append("meter_id", targetMeter);
     }
-    barFormData.append("utility_type", utilityType || "Water");
-    barFormData.append("utility_um", unitMeasure || "Gallon");
+    barFormData.append("utility_type", selectedType || utilityType || "Water");
+    barFormData.append("utility_um", selectedUm || unitMeasure || "Gallon");
     barFormData.append("billed_usage", "1");
     barFormData.append("usage_history", "1");
     barFormData.append("start_date", dates?.startDate || filterDates.startDate);
@@ -264,25 +220,18 @@ function UsageFilter() {
     fetchUsageBarChart(selectedMeter);
   };
 
-  const successCallBack = (data, isMeter = false) => {
+  const handleUnitMeasureChange = (selectedUm: string) => {
+    setUnitMeasure(selectedUm);
+    fetchUsageBarChart(meterNo, undefined, selectedUm);
+  };
+
+  const successCallBack = (data: any, isMeter = false) => {
     if (data?.utility_um_data?.length || data?.get_meter_no?.length) {
       const type = [...filterList.type];
-      const ums = [];
-      const meterNum = [];
+      const ums: { label: string; value: string }[] = [];
+      const meterNum: { label: string; value: string }[] = [];
 
-      data?.utility_um_data?.forEach((item) => {
-        // if (item?.meter_number) {
-        //   meterNum.push({
-        //     label: item?.meter_number,
-        //     value: item?.meter_number,
-        //   });
-        // }
-        // if (item?.uom_common_name) {
-        //   ums.push({
-        //     label: item?.uom_common_name,
-        //     value: item?.uom_common_name,
-        //   });
-        // }
+      data?.utility_um_data?.forEach((item: any) => {
         if (item?.uom_common_name) {
           ums.push({
             label: item?.uom_common_name,
@@ -291,54 +240,46 @@ function UsageFilter() {
         }
       });
 
-      data?.get_meter_no?.forEach((item) => {
+      data?.get_meter_no?.forEach((item: any) => {
         if (item?.meter_number) {
           meterNum.push({
             label: item?.meter_number,
-            value: item?.id,
+            value: String(item?.id),
           });
         }
       });
-      if (!isMeter) {
-        setUnitMeasure(ums[0]?.value);
+
+      const defaultUm = (!isMeter && ums.length > 0) ? ums[0]?.value : (unitMeasure || "Gallon");
+      if (!isMeter && ums.length > 0) {
+        setUnitMeasure(defaultUm);
       }
+
       const initialMeter = meterNum[0]?.value || "";
-      setMeterNo(initialMeter);
-      if (initialMeter) {
-        fetchUsageBarChart(initialMeter);
-      }
+      setMeterNo((prev) => {
+        return prev && meterNum.some((m) => m.value === prev) ? prev : initialMeter;
+      });
 
       setFilterList({
         type: type,
-        ums: ums,
+        ums: ums.length ? ums : filterList.ums,
         meterNum: meterNum,
       });
+
+      const targetMeter = initialMeter;
+      fetchUsageBarChart(targetMeter, undefined, defaultUm, utilityType);
     }
   };
 
   const onSubmit = (start?: Dayjs | null, end?: Dayjs | null) => {
     const sDate = start ? dayjs(start).format("YYYY-MM-DD") : filterDates.startDate;
     const eDate = end ? dayjs(end).format("YYYY-MM-DD") : filterDates.endDate;
-    if (start) {
+    if (start || end) {
       setFilterDates({
         startDate: sDate,
         endDate: eDate,
       });
     }
 
-    const formData = new FormData();
-
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("utility_type", utilityType);
-    formData.append("utility_um", unitMeasure);
-    formData.append("start_date", sDate);
-    formData.append("end_date", eDate);
-    if (meterNo) {
-      formData.append("meter_no", meterNo);
-    }
-    dispatch(usageMonthlyGraph(formData));
     fetchUsageBarChart(meterNo, { startDate: sDate, endDate: eDate });
   };
   return (
@@ -412,7 +353,7 @@ function UsageFilter() {
             >
               <Select
                 value={selectedUnitMeasureValue}
-                onChange={(e) => setUnitMeasure(e.target.value)}
+                onChange={(e) => handleUnitMeasureChange(e.target.value)}
                 sx={{ height: 40 }}
               >
                 {filterList.ums?.map((item) => (
@@ -467,20 +408,10 @@ function UsageFilter() {
               width: "100%",
             }}
           >
-            {/* <Typography
-            sx={{
-              visibility: {
-                xs: "visible",
-                sm: "hidden",
-              },
-              fontWeight: 500,
-            }}
-          >
-            Date Range
-          </Typography> */}
-
             <DateRangeSelector
               maxDate={new Date()}
+              initialStartDate={dayjs(filterDates.startDate)}
+              initialEndDate={dayjs(filterDates.endDate)}
               onSubmit={(start, end) => onSubmit(start, end)}
             />
           </Box>

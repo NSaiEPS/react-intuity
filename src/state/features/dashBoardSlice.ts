@@ -265,7 +265,6 @@ export const getNotificationList = (
 };
 
 export const getUsageGraph = (formData: FormData) => async (dispatch: AppDispatch): Promise<void> => {
-  dispatch(setusageGraph({}));
   dispatch(setDashboardLoader(true));
   try {
     const res = await usageGraphAPI({ formData });

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getUsageGraph, usageMonthlyGraph } from "@/state/features/dashBoardSlice";
+import { getUsageGraph } from "@/state/features/dashBoardSlice";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
 import { RootState } from "@/state/store";
 import { colors, formatDate, APP_DATE_FORMAT } from "@/utils";
@@ -61,9 +61,6 @@ export function Sales({
   );
   const monthlyUsageUam = useSelector(
     (state: RootState) => state?.DashBoard?.monthlyUsageUam
-  );
-  const monthlyUsageGraph = useSelector(
-    (state: RootState) => state?.DashBoard?.monthlyUsageGraph
   );
   const dashboardLoading = useSelector(
     (state: RootState) => state?.DashBoard?.dashboardLoading
@@ -293,27 +290,18 @@ export function Sales({
 
   const handleSync = () => {
     if (!roleId || !userId) return;
-    const startDate = dayjs().startOf("month").format("YYYY-MM-DD");
-    const endDate = dayjs().endOf("month").format("YYYY-MM-DD");
-
-    const formData = new FormData();
-    formData.append("acl_role_id", roleId);
-    formData.append("customer_id", userId);
-    formData.append("id", userId);
-    formData.append("utility_type", "Water");
-    formData.append("utility_um", monthlyUsageUam || "Gallon");
-    formData.append("start_date", startDate);
-    formData.append("end_date", endDate);
-    dispatch(usageMonthlyGraph(formData));
+    const startDate = usageFilterValues?.startDate || dayjs().startOf("month").format("YYYY-MM-DD");
+    const endDate = usageFilterValues?.endDate || dayjs().endOf("month").format("YYYY-MM-DD");
 
     const barFormData = new FormData();
     barFormData.append("acl_role_id", roleId);
     barFormData.append("customer_id", userId);
-    if (selectedMeter) {
-      barFormData.append("meter_id", selectedMeter);
+    const targetMeter = usageFilterValues?.meterNo || selectedMeter;
+    if (targetMeter) {
+      barFormData.append("meter_id", targetMeter);
     }
-    barFormData.append("utility_type", "Water");
-    barFormData.append("utility_um", monthlyUsageUam || "Gallon");
+    barFormData.append("utility_type", usageFilterValues?.utilityType || "Water");
+    barFormData.append("utility_um", usageFilterValues?.unitMeasure || monthlyUsageUam || "Gallon");
     barFormData.append("billed_usage", "1");
     barFormData.append("usage_history", "1");
     barFormData.append("start_date", startDate);
@@ -395,24 +383,6 @@ export function Sales({
         formData.append("year", String(selectedYear));
         dispatch(getLastBillInfo(formData));
       }
-    } else {
-      const startDate = dayjs().startOf("month").format("YYYY-MM-DD");
-      const endDate = dayjs().endOf("month").format("YYYY-MM-DD");
-
-      const formData = new FormData();
-      formData.append("acl_role_id", roleId);
-      formData.append("customer_id", userId);
-      if (selectedMeter) {
-        formData.append("meter_id", selectedMeter);
-      }
-      formData.append("utility_type", "Water");
-      formData.append("utility_um", monthlyUsageUam || "Gallon");
-      formData.append("billed_usage", "1");
-      formData.append("usage_history", "1");
-      formData.append("start_date", startDate);
-      formData.append("end_date", endDate);
-
-      dispatch(getUsageGraph(formData));
     }
   }, [userId, roleId, noData, isBillingHistoryChart, selectedYear, dispatch]);
 
@@ -438,7 +408,7 @@ export function Sales({
 
     const barData = dashBoardInfo?.bar_chart_data;
 
-    if (barData && Object.keys(barData).length > 0) {
+    if (barData && typeof barData === "object" && Object.keys(barData).length > 0) {
       Object.entries(barData).forEach(([key, values]: [string, any]) => {
         const dateStr = key?.split(",")[0]?.trim() ?? key;
         if (dateStr.toLowerCase().includes("no data")) return;
@@ -456,29 +426,10 @@ export function Sales({
         dates.push(formattedDate);
         colorsList.push(colors.blue);
       });
-    } else if (monthlyUsageGraph?.length && Array.isArray(monthlyUsageGraph)) {
-      monthlyUsageGraph.slice(1).forEach((item: any) => {
-        const dateStr = (item?.[0] ?? "").trim();
-        if (!dateStr || dateStr.toLowerCase().includes("no data")) return;
-
-        const formattedDate = formatDate(dateStr, APP_DATE_FORMAT, dateStr);
-
-        const rawGallon = item?.[3] ?? "0";
-        const gallonVal = typeof rawGallon === "number"
-          ? rawGallon
-          : parseFloat(String(rawGallon).replace(/,/g, "")) || 0;
-
-        const dollarVal = item?.[4] !== undefined && item?.[4] !== null ? item[4] : 0;
-
-        gallons.push(gallonVal);
-        dollars.push(dollarVal);
-        dates.push(formattedDate);
-        colorsList.push(colors.blue);
-      });
     }
 
     setBarGraphData({ gallons, dollars, dates, colors: colorsList });
-  }, [dashBoardInfo, monthlyUsageGraph, isBillingHistoryChart]);
+  }, [dashBoardInfo, isBillingHistoryChart]);
 
   const hasBillingData = React.useMemo(() => {
     return billingRecords.length > 0;
@@ -667,10 +618,18 @@ export function Sales({
             if (
               idx !== -1 &&
               barGraphData.dollars[idx] !== undefined &&
+              barGraphData.dollars[idx] !== null &&
               barGraphData.dollars[idx] !== ""
             ) {
               const d = barGraphData.dollars[idx];
-              const dollarFormatted = String(d).startsWith("$") ? d : `$${d}`;
+              let dollarFormatted = "";
+              if (typeof d === "number") {
+                dollarFormatted = formatCurrency(d);
+              } else {
+                const str = String(d).trim();
+                const num = parseFloat(str.replace(/[^0-9.-]/g, ""));
+                dollarFormatted = !isNaN(num) ? formatCurrency(num) : (str.startsWith("$") ? str : `$${str}`);
+              }
               return [val, dollarFormatted];
             }
             return val;
@@ -732,12 +691,20 @@ export function Sales({
           custom: function ({ dataPointIndex, w }: any) {
             const dateStr = categories[dataPointIndex] || w?.globals?.labels?.[dataPointIndex] || "";
             const gallonVal = numericValues[dataPointIndex] ?? 0;
-            const dollarVal = barGraphData.dollars[dataPointIndex] ?? 0;
+            const rawDollar = barGraphData.dollars[dataPointIndex];
 
             const gallonNum = typeof gallonVal === "number" ? gallonVal : parseFloat(String(gallonVal).replace(/,/g, "")) || 0;
-            const um = monthlyUsageUam || "Gallon";
+            const um = usageFilterValues?.unitMeasure || monthlyUsageUam || "Gallon";
             const formattedGallons = `${gallonNum.toLocaleString()} ${um}`;
-            const formattedDollars = String(dollarVal).startsWith("$") ? dollarVal : `$${dollarVal}`;
+
+            let formattedDollars = "$0.00";
+            if (typeof rawDollar === "number") {
+              formattedDollars = formatCurrency(rawDollar);
+            } else if (rawDollar !== undefined && rawDollar !== null && rawDollar !== "") {
+              const str = String(rawDollar).trim();
+              const num = parseFloat(str.replace(/[^0-9.-]/g, ""));
+              formattedDollars = !isNaN(num) ? formatCurrency(num) : (str.startsWith("$") ? str : `$${str}`);
+            }
 
             return `
                 <div style="padding: 10px 14px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); font-family: inherit; font-size: 13px;">

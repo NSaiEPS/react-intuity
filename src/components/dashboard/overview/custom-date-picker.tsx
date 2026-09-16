@@ -81,7 +81,7 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({
     switch (label) {
       case "This Month":
         start = today.startOf("month");
-        end = maxDate && today.endOf("month").isAfter(dayjs(maxDate)) ? dayjs(maxDate) : today.endOf("month");
+        end = today.endOf("month");
         break;
       case "Last Month":
         start = today.subtract(1, "month").startOf("month");
