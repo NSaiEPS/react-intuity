@@ -12,7 +12,6 @@ import {
   FormControlLabel,
   Alert,
 } from "@mui/material";
-import { useRef } from "react";
 
 
 interface ForteACHProps {
@@ -30,14 +29,23 @@ declare global {
   }
 }
 
-const FORTE_LOGIN_ID = "7B0A10728C";
+const FORTE_LOGIN_ID = "873DF49605";
 
 const ForteACH: FC<ForteACHProps> = ({
   onSuccess,
 }) => {
   const [ready, setReady] = useState(false);
   const [authorized, setAuthorized] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [routingNumber, setRoutingNumber] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  // Forte only accepts "c" / "s" for account_type, so ownership is captured separately
+  const [accountOwnership, setAccountOwnership] = useState("personal");
+  const [accountType, setAccountType] = useState("c");
+
+  // our own API still expects the legacy PC / PS / BC / BS codes
+  const legacyAccountType =
+    (accountOwnership === "business" ? "B" : "P") +
+    (accountType === "s" ? "S" : "C");
 
 
   // Load Forte Script
@@ -60,25 +68,29 @@ const ForteACH: FC<ForteACHProps> = ({
     document.head.appendChild(script);
   }, []);
 
-  useEffect(() => {
-    window.onACHTokenCreated = (response: any) => {
-      onSuccess({
-        token: response.onetime_token,
-        forte_token: response.onetime_token,
-        forte_response: response,
-        accountNumber: response.last_4,
-        routingNumber: response.routing_number,
-        accountType: response.account_type,
-      });
-    };
+  const handleTokenCreated = (response: any) => {
+    onSuccess({
+      token: response.onetime_token,
+      forte_token: response.onetime_token,
+      forte_response: response,
+      accountNumber: response.last_4,
+      routingNumber: response.routing_number ?? routingNumber,
+      accountType: legacyAccountType,
+    });
+  };
 
-    window.onACHTokenFailed = (error: any) => {
-      alert(error?.response_description || "ACH Payment failed");
-    };
-  }, [onSuccess]);
+  const handleTokenFailed = (error: any) => {
+    console.error("Forte ACH error:", error);
+    alert(error?.response_description || "ACH Payment failed");
+  };
+
+  useEffect(() => {
+    window.onACHTokenCreated = handleTokenCreated;
+    window.onACHTokenFailed = handleTokenFailed;
+  });
 
   const handleSubmit = () => {
-    if (!window.Forte) {
+    if (!window.forte) {
       alert("Forte not loaded");
       return;
     }
@@ -88,16 +100,29 @@ const ForteACH: FC<ForteACHProps> = ({
       return;
     }
 
-    window.Forte.createToken({
-      formId: "forte-ach-form",
-    });
+    const account_number = accountNumber.replace(/\s|-/g, "");
+    const routing_number = routingNumber.replace(/\s|-/g, "");
+
+    if (!account_number || !routing_number) {
+      alert("Please enter the routing number and account number.");
+      return;
+    }
+    window.forte
+      .createToken({
+        api_login_id: FORTE_LOGIN_ID,
+        account_number,
+        routing_number,
+        account_type: accountType,
+      })
+      .success(handleTokenCreated)
+      .error(handleTokenFailed);
   };
 
   const handleReset = () => {
-    if (formRef.current) {
-      formRef.current.reset(); // resets all input fields
-    }
-
+    setRoutingNumber("");
+    setAccountNumber("");
+    setAccountOwnership("personal");
+    setAccountType("c");
     setAuthorized(false); // reset checkbox state
   };
 
@@ -163,7 +188,7 @@ const ForteACH: FC<ForteACHProps> = ({
             ⚠️ WARNING! Only click this button ONCE!
           </Alert>
 
-          <form id="forte-ach-form" ref={formRef} action="javascript:void(0)">
+          <form id="forte-ach-form" action="javascript:void(0)">
             <Grid container spacing={3}>
               {/* Routing Number */}
               <Grid item xs={12}>
@@ -171,6 +196,8 @@ const ForteACH: FC<ForteACHProps> = ({
                   fullWidth
                   label="Routing Number"
                   variant="standard"
+                  value={routingNumber}
+                  onChange={(e) => setRoutingNumber(e.target.value)}
                   inputProps={{
                     "forte-data": "routing_number",
                   }}
@@ -183,10 +210,27 @@ const ForteACH: FC<ForteACHProps> = ({
                   fullWidth
                   label="Account Number"
                   variant="standard"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
                   inputProps={{
                     "forte-data": "account_number",
                   }}
                 />
+              </Grid>
+
+              {/* Account Ownership */}
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Account Ownership"
+                  variant="standard"
+                  value={accountOwnership}
+                  onChange={(e) => setAccountOwnership(e.target.value)}
+                >
+                  <MenuItem value="personal">Personal Bank Account</MenuItem>
+                  <MenuItem value="business">Business Bank Account</MenuItem>
+                </TextField>
               </Grid>
 
               {/* Account Type */}
@@ -196,17 +240,15 @@ const ForteACH: FC<ForteACHProps> = ({
                   fullWidth
                   label="Account Type"
                   variant="standard"
+                  value={accountType}
+                  onChange={(e) => setAccountType(e.target.value)}
+                  SelectProps={{ native: true }}
                   inputProps={{
                     "forte-data": "account_type",
                   }}
                 >
-                  {/* <MenuItem value="checking">Checking</MenuItem>
-                  <MenuItem value="savings">Savings</MenuItem> */}
-                  <MenuItem value="PC">Personal Checking</MenuItem>
-                  <MenuItem value="PS">Personal Savings</MenuItem>
-                  <MenuItem value="BC">Business Checking</MenuItem>
-                  <MenuItem value="BS">Business Savings</MenuItem>
-                  <MenuItem value="GL">General Ledger</MenuItem>
+                  <option value="c">Checking</option>
+                  <option value="s">Savings</option>
                 </TextField>
               </Grid>
 
@@ -239,9 +281,6 @@ const ForteACH: FC<ForteACHProps> = ({
                   size="large"
                   disabled={!ready || !authorized}
                   onClick={handleSubmit}
-                  forte-api-login-id={FORTE_LOGIN_ID}
-                  forte-callback-success="onACHTokenCreated"
-                  forte-callback-error="onACHTokenFailed"
                   sx={{
                     mt: 2,
                     py: 1.6,

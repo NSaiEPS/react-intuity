@@ -22,7 +22,7 @@ declare global {
   }
 }
 
-const FORTE_LOGIN_ID = "7B0A10728C"; // move to env later
+const FORTE_LOGIN_ID = "873DF49605"; // move to env later
 
 const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
   const [ready, setReady] = useState(false);
