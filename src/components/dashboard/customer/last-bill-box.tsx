@@ -395,10 +395,23 @@ export function LastBill(): React.JSX.Element {
           <CustomModal
             open={previewInvoicePdf}
             onClose={() => setPdfPreviewInvocie(false)}
-            id={lastBillInfo?.last_bill?.id}
+            id={
+              lastBillInfo?.last_bill?.id ||
+              lastBillInfo?.last_bill?.[0]?.id ||
+              lastBillInfo?.get_invoices?.[0]?.id
+            }
             invoiceNumber={
               lastBillInfo?.get_invoices?.[0]?.invoice_number ||
-              lastBillInfo?.last_bill?.invoice_number
+              lastBillInfo?.last_bill?.invoice_number ||
+              lastBillInfo?.last_bill?.[0]?.invoice_number
+            }
+            customerId={
+              lastBillInfo?.customer?.id ||
+              lastBillInfo?.customer_id
+            }
+            companyId={
+              lastBillInfo?.company?.id ||
+              lastBillInfo?.company?.company_id
             }
           />
         </React.Suspense>

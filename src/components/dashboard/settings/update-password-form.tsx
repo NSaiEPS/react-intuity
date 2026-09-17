@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { updateAccountInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
@@ -6,9 +5,9 @@ import { colors } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Avatar,
   Box,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
   Divider,
@@ -20,8 +19,10 @@ import {
   OutlinedInput,
   Stack,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { Question } from "@phosphor-icons/react";
+import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { Eye as EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
 import { EyeSlash as EyeSlashIcon } from "@phosphor-icons/react/dist/ssr/EyeSlash";
 import { Button } from "nsaicomponents";
@@ -36,9 +37,9 @@ const passwordSchema = z
 
 const schema = z
   .object({
-    password: passwordSchema,
+    password: z.string().min(1, "Current password is required"),
     new_password: passwordSchema,
-    repassword: z.string(),
+    repassword: z.string().min(1, "Please confirm your new password"),
   })
   .refine((data) => data.new_password === data.repassword, {
     message: "Passwords don't match",
@@ -48,13 +49,13 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 export function UpdatePasswordForm(): React.JSX.Element {
-  const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [show, setShow] = React.useState({
     password: false,
     new_password: false,
     repassword: false,
   });
-const [passwordLoading, setPasswordLoading] = React.useState(false);
+  const [passwordLoading, setPasswordLoading] = React.useState(false);
+
   const toggleVisibility = (key: keyof typeof show) => {
     setShow((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -63,7 +64,6 @@ const [passwordLoading, setPasswordLoading] = React.useState(false);
     register,
     reset,
     handleSubmit,
-    watch,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -73,8 +73,6 @@ const [passwordLoading, setPasswordLoading] = React.useState(false);
       repassword: "",
     },
   });
-
-  const watchedValues = watch();
 
   const dispatch = useDispatch();
 
@@ -92,19 +90,20 @@ const [passwordLoading, setPasswordLoading] = React.useState(false);
     formData.append("new_password", data?.new_password);
     formData.append("repassword", data?.repassword);
     formData.append("password", data?.password);
-setPasswordLoading(true)
+    setPasswordLoading(true);
     dispatch(updateAccountInfo(formData, true, successCallBack));
   };
-const successCallBack=()=>{
-setPasswordLoading(false)
 
-  reset()
-  setShow({
-        password: false,
-    new_password: false,
-    repassword: false,
-  })
-}
+  const successCallBack = () => {
+    setPasswordLoading(false);
+    reset();
+    setShow({
+      password: false,
+      new_password: false,
+      repassword: false,
+    });
+  };
+
   React.useEffect(() => {
     if (isDirty) {
       dispatch(setRouteChecker(true));
@@ -112,7 +111,7 @@ setPasswordLoading(false)
     return () => {
       dispatch(setRouteChecker(false));
     };
-  }, [isDirty]);
+  }, [isDirty, dispatch]);
 
   React.useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -141,29 +140,60 @@ setPasswordLoading(false)
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ borderRadius: 1 }}>
-        <CardHeader subheader="Change Password" title="Password" />
+        <CardHeader
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            py: 2,
+            px: 3,
+            "& .MuiCardHeader-avatar": {
+              mr: 2,
+              mb: 0,
+              display: "flex",
+              alignItems: "center",
+              alignSelf: "center",
+            },
+            "& .MuiCardHeader-content": {
+              my: "auto",
+              alignSelf: "center",
+            },
+          }}
+          avatar={
+            <Avatar
+              sx={{
+                width: 48,
+                height: 48,
+                bgcolor: "#EEF4FF",
+                color: colors.blue,
+              }}
+            >
+              <Lock size={24} weight="regular" />
+            </Avatar>
+          }
+          title={
+            <Typography variant="h6" fontWeight={700}>
+              Account Password
+            </Typography>
+          }
+          subheader={
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Update your password for this portal.
+            </Typography>
+          }
+        />
         <Divider />
         <CardContent>
           <Stack spacing={3} sx={{ maxWidth: "sm" }}>
-
-            {/* Old Password */}
-            <FormControl fullWidth error={!!errors.password}>
-              <InputLabel shrink={!!watchedValues.password}>
-                Old Password *
-              </InputLabel>
+            {/* Current Password */}
+            <FormControl fullWidth size="small" error={!!errors.password}>
+              <InputLabel>Current Password</InputLabel>
               <OutlinedInput
-                label="Old Password *"
-                notched={!!watchedValues.password}
+                label="Current Password"
                 type={show.password ? "text" : "password"}
                 {...register("password")}
-                 sx={{
-                  "& input": {
-                    padding: "13px 13px",
-                  },
-                }}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton onClick={() => toggleVisibility("password")} edge="end">
+                    <IconButton size="small" onClick={() => toggleVisibility("password")} edge="end">
                       {!show.password ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
                     </IconButton>
                   </InputAdornment>
@@ -175,50 +205,41 @@ setPasswordLoading(false)
             </FormControl>
 
             {/* New Password */}
-            <FormControl fullWidth error={!!errors.new_password}>
-              <InputLabel shrink={!!watchedValues.new_password}>
-                New Password *
-              </InputLabel>
+            <FormControl fullWidth size="small" error={!!errors.new_password}>
+              <InputLabel>New Password</InputLabel>
               <OutlinedInput
-                label="New Password *"
-                notched={!!watchedValues.new_password}
+                label="New Password"
                 type={show.new_password ? "text" : "password"}
                 {...register("new_password")}
-                 sx={{
-                  "& input": {
-                    padding: "13px 13px",
-                  },
-                }}
                 endAdornment={
                   <InputAdornment position="end">
                     <Tooltip
                       title="Passwords must be a minimum of 6 characters. Special characters (!@#$%^&*) are allowed."
                       placement="top"
                       arrow
-                          componentsProps={{
-    tooltip: {
-      sx: {
-        backgroundColor: '#E7E6E6',
-        color: '#000000',
-        border: '1px solid #d0cfcf',
-           fontSize: '14px',        // 👈 updated
-      lineHeight: 1.4,
-        // fontSize: '0.8rem',
-        '& .MuiTooltip-arrow': {
-          color: '#E7E6E6',
-          '&::before': {
-            border: '1px solid #d0cfcf',
-          },
-        },
-      },
-    },
-  }}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#E7E6E6",
+                            color: "#000000",
+                            border: "1px solid #d0cfcf",
+                            fontSize: "14px",
+                            lineHeight: 1.4,
+                            "& .MuiTooltip-arrow": {
+                              color: "#E7E6E6",
+                              "&::before": {
+                                border: "1px solid #d0cfcf",
+                              },
+                            },
+                          },
+                        },
+                      }}
                     >
                       <IconButton size="small" edge="end">
                         <Question size={20} color="#90caf9" weight="fill" />
                       </IconButton>
                     </Tooltip>
-                    <IconButton onClick={() => toggleVisibility("new_password")} edge="end">
+                    <IconButton size="small" onClick={() => toggleVisibility("new_password")} edge="end">
                       {!show.new_password ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
                     </IconButton>
                   </InputAdornment>
@@ -229,24 +250,16 @@ setPasswordLoading(false)
               )}
             </FormControl>
 
-            {/* Confirm Password */}
-            <FormControl fullWidth error={!!errors.repassword}>
-              <InputLabel shrink={!!watchedValues.repassword}>
-                Confirm Password *
-              </InputLabel>
+            {/* Confirm New Password */}
+            <FormControl fullWidth size="small" error={!!errors.repassword}>
+              <InputLabel>Confirm New Password</InputLabel>
               <OutlinedInput
-                label="Confirm Password *"
-                notched={!!watchedValues.repassword}
+                label="Confirm New Password"
                 type={show.repassword ? "text" : "password"}
                 {...register("repassword")}
-                 sx={{
-                  "& input": {
-                    padding: "13px 13px",
-                  },
-                }}
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton onClick={() => toggleVisibility("repassword")} edge="end">
+                    <IconButton size="small" onClick={() => toggleVisibility("repassword")} edge="end">
                       {!show.repassword ? <EyeSlashIcon size={20} /> : <EyeIcon size={20} />}
                     </IconButton>
                   </InputAdornment>
@@ -257,41 +270,49 @@ setPasswordLoading(false)
               )}
             </FormControl>
 
+            {/* Action Buttons */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                pt: 1,
+              }}
+            >
+              <Button
+                variant="outlined"
+                textTransform="none"
+                style={{
+                  color: colors.blue,
+                  borderColor: colors.blue,
+                  borderRadius: "12px",
+                  height: "41px",
+                  backgroundColor: "white",
+                }}
+                onClick={handleReset}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={passwordLoading}
+                loading={passwordLoading}
+                type="submit"
+                variant="contained"
+                textTransform="none"
+                bgColor={colors.blue}
+                hoverBackgroundColor={colors["blue.3"]}
+                hoverColor="white"
+                style={{
+                  borderRadius: "12px",
+                  height: "41px",
+                }}
+              >
+                Save New Password
+              </Button>
+            </Box>
           </Stack>
         </CardContent>
-        {/* <Divider /> */}
-        <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
-          <Button
-            variant="outlined"
-            textTransform="none"
-            style={{
-              color: colors.blue,
-              borderColor: colors.blue,
-              borderRadius: "12px",
-              height: "41px",
-              backgroundColor: "white",
-            }}
-            onClick={handleReset}
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={passwordLoading}
-            loading={passwordLoading}
-            type="submit"
-            variant="contained"
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{
-              borderRadius: "12px",
-              height: "41px",
-            }}
-          >
-            Update
-          </Button>
-        </Box>
       </Card>
     </form>
   );

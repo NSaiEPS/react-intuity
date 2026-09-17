@@ -6,9 +6,9 @@ import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Avatar,
   Box,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
   Divider,
@@ -17,51 +17,54 @@ import {
   InputLabel,
   OutlinedInput,
   Stack,
+  Typography,
 } from "@mui/material";
+import { User } from "@phosphor-icons/react/dist/ssr/User";
 import { Button } from "nsaicomponents";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
 
 const schema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z
+  new_username: z
     .string()
-    .min(1, "Login Id or Email is required")
-
+    .min(1, "New username is required")
+    .min(8, "Must be at least 8 characters. No spaces allowed.")
+    .refine((val) => !/\s/.test(val), {
+      message: "Must be at least 8 characters. No spaces allowed.",
+    }),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export function AccountSettingsForm(): React.JSX.Element {
-  // const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [accountLoading, setAccountLoading] = React.useState(false);
 
-  const userInfo: CustomerInfo = getLocalStorage("intuity-customerInfo") as CustomerInfo;
+  const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
+  const userInfo: CustomerInfo | undefined =
+    (dashBoardInfo?.body?.customer as unknown as CustomerInfo) ||
+    (getLocalStorage("intuity-customerInfo") as CustomerInfo);
 
-  const defaultValues = {
-    name: userInfo?.user_name ?? "",
-    email: userInfo?.loginID ?? "",
-  };
+  const raw = getLocalStorage("intuity-user");
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
+
+  const currentUsername =
+    userInfo?.loginID || stored?.body?.email || userInfo?.email || "";
 
   const {
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: {
+      new_username: "",
+    },
   });
 
-  const watchedValues = watch();
-
   const dispatch = useDispatch();
-
-  const raw = getLocalStorage("intuity-user");
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const onSubmit = (data: FormData) => {
     const roleId = stored?.body?.acl_role_id;
@@ -70,16 +73,17 @@ export function AccountSettingsForm(): React.JSX.Element {
 
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-    formData.append("name", data?.name ? data?.name : userInfo?.user_name);
-    formData.append("email", data?.email ? data?.email : userInfo?.loginID);
+    formData.append("name", userInfo?.user_name || "");
+    formData.append("email", data?.new_username);
     formData.append("is_form", "1");
-    setAccountLoading(true)
+    setAccountLoading(true);
 
     dispatch(updateAccountInfo(formData, true, successCallBack));
   };
 
   const successCallBack = () => {
-    setAccountLoading(false)
+    setAccountLoading(false);
+    reset({ new_username: "" });
 
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
@@ -87,7 +91,7 @@ export function AccountSettingsForm(): React.JSX.Element {
   };
 
   const handleReset = () => {
-    reset(defaultValues);
+    reset({ new_username: "" });
   };
 
   React.useEffect(() => {
@@ -97,7 +101,7 @@ export function AccountSettingsForm(): React.JSX.Element {
     return () => {
       dispatch(setRouteChecker(false));
     };
-  }, [isDirty]);
+  }, [isDirty, dispatch]);
 
   React.useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -118,87 +122,122 @@ export function AccountSettingsForm(): React.JSX.Element {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Card sx={{ borderRadius: 1 }}>
-        <CardHeader subheader="Manage account settings" title="Account Settings" />
+        <CardHeader
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            py: 2,
+            px: 3,
+            "& .MuiCardHeader-avatar": {
+              mr: 2,
+              mb: 0,
+              display: "flex",
+              alignItems: "center",
+              alignSelf: "center",
+            },
+            "& .MuiCardHeader-content": {
+              my: "auto",
+              alignSelf: "center",
+            },
+          }}
+          avatar={
+            <Avatar
+              sx={{
+                width: 48,
+                height: 48,
+                bgcolor: "#EEF4FF",
+                color: colors.blue,
+              }}
+            >
+              <User size={24} weight="regular" />
+            </Avatar>
+          }
+          title={
+            <Typography variant="h6" fontWeight={700}>
+              Account Username
+            </Typography>
+          }
+          subheader={
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              This is the username you use to sign in. It may be an email address or a username you created.
+            </Typography>
+          }
+        />
         <Divider />
         <CardContent>
           <Stack spacing={3} sx={{ maxWidth: "sm" }}>
-
-            {/* Name */}
-            <FormControl fullWidth error={!!errors.name}>
-              <InputLabel shrink={!!watchedValues.name}>Name</InputLabel>
+            {/* Current Username */}
+            <FormControl fullWidth size="small">
+              <InputLabel>Current Username</InputLabel>
               <OutlinedInput
-                label="Name"
-                type="text"
-                notched={!!watchedValues.name}
-                {...register("name")}
+                label="Current Username"
+                value={currentUsername}
+                disabled
+                readOnly
                 sx={{
-                  height: 42,
-                  "& input": {
-                    padding: "10px 14px",
+                  "&.Mui-disabled": {
+                    backgroundColor: "#f4f6f8",
                   },
                 }}
               />
-              {errors.name && (
-                <FormHelperText>{errors.name.message}</FormHelperText>
-              )}
             </FormControl>
 
-            {/* Email */}
-            <FormControl fullWidth error={!!errors.email}>
-              <InputLabel shrink={!!watchedValues.email}>Login Id or Email</InputLabel>
+            {/* New Username */}
+            <FormControl fullWidth size="small" error={!!errors.new_username}>
+              <InputLabel>New Username</InputLabel>
               <OutlinedInput
-                label="Login Id or Email"
+                label="New Username"
                 type="text"
-                notched={!!watchedValues.email}
-                {...register("email")}
-                 sx={{
-                  height: 42,
-                  "& input": {
-                    padding: "10px 14px",
-                  },
-                }}
+                {...register("new_username")}
               />
-              {errors.email && (
-                <FormHelperText>{errors.email.message}</FormHelperText>
-              )}
+              <FormHelperText error={!!errors.new_username}>
+                {errors.new_username?.message || "Must be at least 8 characters. No spaces allowed."}
+              </FormHelperText>
             </FormControl>
 
+            {/* Action Buttons */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                pt: 1,
+              }}
+            >
+              <Button
+                variant="outlined"
+                textTransform="none"
+                style={{
+                  color: colors.blue,
+                  borderColor: colors.blue,
+                  borderRadius: "12px",
+                  height: "41px",
+                  backgroundColor: "white",
+                }}
+                onClick={handleReset}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={accountLoading}
+                loading={accountLoading}
+                type="submit"
+                variant="contained"
+                textTransform="none"
+                bgColor={colors.blue}
+                hoverBackgroundColor={colors["blue.3"]}
+                hoverColor="white"
+                style={{
+                  borderRadius: "12px",
+                  height: "41px",
+                }}
+              >
+                Save New Username
+              </Button>
+            </Box>
           </Stack>
         </CardContent>
-        {/* <Divider /> */}
-        <Box p={2} display="flex" justifyContent="flex-end" gap={2} >
-          <Button
-            variant="outlined"
-            textTransform="none"
-            style={{
-              color: colors.blue,
-              borderColor: colors.blue,
-              borderRadius: "12px",
-              height: "41px",
-              backgroundColor: "white",
-
-            }}
-            onClick={handleReset}  // ← reset to original user values
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={accountLoading}
-            loading={accountLoading}
-            type="submit"
-            variant="contained"
-            textTransform="none"
-            bgColor={colors.blue}
-            hoverBackgroundColor={colors["blue.3"]}
-            hoverColor="white"
-            style={{
-              borderRadius: "12px",
-              height: "41px",
-            }}
-          >
-            Update
-          </Button>
-        </Box>
       </Card>
     </form>
   );

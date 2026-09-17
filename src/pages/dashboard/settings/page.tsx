@@ -25,24 +25,24 @@ export default function SettingsPage(): React.JSX.Element {
       </Card> */}
 
       <Card
-  sx={{
-    borderRadius: boarderRadius.card,
-    display: showSkeleton ? "none" : "block",
-    overflow: "hidden",
-  }}
->
-  <Header title="Update Account Details and Password" />
+        sx={{
+          borderRadius: boarderRadius.card,
+          display: showSkeleton ? "none" : "block",
+          overflow: "hidden",
+        }}
+      >
+        <Header title="Profile" description="Manage your username and password for this portal." />
 
-  <Divider/>
+        <Divider />
 
-  <Box sx={{ p: 2 }}>
-    <AccountSettingsForm />
-  </Box>
+        <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <AccountSettingsForm />
+        </Box>
 
-  <Box sx={{ p: 2, pt: 0 }}>
-    <UpdatePasswordForm />
-  </Box>
-</Card>
+        <Box sx={{ p: { xs: 1.5, sm: 2 }, pt: { xs: 0, sm: 0 } }}>
+          <UpdatePasswordForm />
+        </Box>
+      </Card>
     </>
   );
 }

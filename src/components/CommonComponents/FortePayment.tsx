@@ -1,4 +1,6 @@
 import { FC, useEffect, useState } from "react";
+import { useSelector } from "@/hooks/redux";
+import { RootState } from "@/state/store";
 import {
   Box,
   Card,
@@ -8,10 +10,14 @@ import {
   Grid,
   MenuItem,
   Button,
+  CircularProgress,
 } from "@mui/material";
 
 interface FortePaymentProps {
   onSuccess: (data: any) => void;
+  apiLoginId?: string;
+  jsUrl?: string;
+  environment?: string;
 }
 
 declare global {
@@ -22,41 +28,73 @@ declare global {
   }
 }
 
-const FORTE_LOGIN_ID = "873DF49605"; // move to env later
-
-const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
+const FortePayment: FC<FortePaymentProps> = ({
+  onSuccess,
+  apiLoginId: propApiLoginId,
+  jsUrl: propJsUrl,
+  environment: propEnvironment,
+}) => {
   const [ready, setReady] = useState(false);
 
-  // 1️⃣ Load Forte Script
+  const paymentProcessorDetails = useSelector(
+    (state: RootState) => state?.Account?.paymentProcessorDetails
+  );
+
+  const forteConfig =
+    paymentProcessorDetails?.forte_115?.[0] ||
+    paymentProcessorDetails?.current_processor?.find((p: any) => p?.config_value?.includes("forte")) ||
+    paymentProcessorDetails?.forte?.[0] ||
+    paymentProcessorDetails?.forte_ach_115?.[0];
+
+  const resolvedApiLoginId = propApiLoginId || forteConfig?.api_login_id;
+  const resolvedEnvironment = propEnvironment || forteConfig?.environment || "sandbox";
+  const resolvedJsUrl =
+    propJsUrl ||
+    forteConfig?.js_url ||
+    (resolvedEnvironment === "live" || resolvedEnvironment === "production"
+      ? "https://api.forte.net/js/v1"
+      : "https://sandbox.forte.net/api/js/v1");
+
+  // 1️⃣ Load Forte Script dynamically
   useEffect(() => {
-    if (document.getElementById("forte-js")) {
-      setReady(true);
+    if (!resolvedApiLoginId) {
+      setReady(false);
       return;
+    }
+
+    const existingScript = document.getElementById("forte-js") as HTMLScriptElement | null;
+    if (existingScript) {
+      if (
+        existingScript.getAttribute("forte-api-login-id") === resolvedApiLoginId &&
+        (window as any).forte
+      ) {
+        setReady(true);
+        return;
+      }
+      existingScript.remove();
     }
 
     const script = document.createElement("script");
     script.id = "forte-js";
-    script.src = "https://sandbox.forte.net/api/js/v1";
+    script.src = resolvedJsUrl;
     script.defer = true;
-    script.setAttribute("forte-api-login-id", FORTE_LOGIN_ID);
+    script.setAttribute("forte-api-login-id", resolvedApiLoginId);
 
     script.onload = () => {
-      //console.log("✅ Forte Loaded");
       setReady(true);
     };
 
     script.onerror = () => {
-      console.error("❌ Failed to load Forte");
+      console.error("❌ Failed to load Forte SDK script");
+      setReady(false);
     };
 
     document.head.appendChild(script);
-  }, []);
+  }, [resolvedApiLoginId, resolvedJsUrl]);
 
   // 2️⃣ Register Callbacks
   useEffect(() => {
     window.onTokenCreated = (response: any) => {
-      //console.log("Forte token success:", response);
-
       const expMonth = String(response.expire_month ?? "").padStart(2, "0");
       const fullYear = String(response.expire_year ?? "");
       const expYearFull = fullYear.length === 2 ? `20${fullYear}` : fullYear;
@@ -85,6 +123,11 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
 
   // 3️⃣ Submit Handler
   const handleSubmit = () => {
+    if (!resolvedApiLoginId) {
+      alert("Payment processor configuration is missing.");
+      return;
+    }
+
     if (!window.forte) {
       alert("Forte not loaded yet");
       return;
@@ -94,11 +137,10 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
       document.querySelector<HTMLInputElement>(
         `#forte-payment-form [forte-data="${name}"]`
       )?.value;
-      console.log( getValue('card_number'),'clicked')
 
     window.forte
       .createToken({
-        api_login_id: FORTE_LOGIN_ID,
+        api_login_id: resolvedApiLoginId,
         card_number: getValue("card_number"),
         expire_month: getValue("expire_month"),
         expire_year: getValue("expire_year"),
@@ -106,53 +148,31 @@ const FortePayment: FC<FortePaymentProps> = ({ onSuccess }) => {
       })
       .success(window.onTokenCreated)
       .error(window.onTokenFailed);
-      console.log(  window.forte,'clicked')
   };
 
   const currentYear = new Date().getFullYear();
 
+  if (!resolvedApiLoginId) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          py: 8,
+          px: 2,
+        }}
+      >
+        <CircularProgress size={32} sx={{ mb: 2 }} />
+        <Typography variant="body2" color="text.secondary">
+          Loading payment processor configuration...
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    // <form id="forte-payment-form" action="javascript:void(0)">
-    //   <h3>Credit / Debit Card</h3>
-
-    //   <label>Card Number</label>
-    //   <input type="text" forte-data="card_number" />
-
-    //   <label>Exp Month</label>
-    //   <select forte-data="expire_month">
-    //     {[...Array(12)].map((_, i) => (
-    //       <option key={i + 1} value={i + 1}>
-    //         {i + 1}
-    //       </option>
-    //     ))}
-    //   </select>
-
-    //   <label>Exp Year</label>
-    //   <select forte-data="expire_year">
-    //     {[...Array(12)].map((_, i) => {
-    //       const year = new Date().getFullYear() + i;
-    //       return (
-    //         <option key={year} value={year}>
-    //           {year}
-    //         </option>
-    //       );
-    //     })}
-    //   </select>
-
-    //   <label>CVV</label>
-    //   <input type="text" forte-data="cvv" />
-
-    //   <button
-    //     type="button"
-    //     forte-api-login-id={FORTE_LOGIN_ID}
-    //     forte-callback-success="onTokenCreated"
-    //     forte-callback-error="onTokenFailed"
-    //     onClick={handleSubmit}
-    //     disabled={!ready}
-    //   >
-    //     Submit Payment
-    //   </button>
-    // </form>
     <Box
       sx={{
         display: "flex",

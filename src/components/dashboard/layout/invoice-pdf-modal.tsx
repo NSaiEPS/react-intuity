@@ -9,17 +9,20 @@ import {
   fetchInvoicePdfBlobUrl,
   downloadFile,
   resolveInvoicePdfParams,
+  resolveInvoiceEmailParams,
+  sendInvoiceEmail,
   printPdfFromUrl,
 } from "@/utils/pdfHelper";
 import { Loader } from "nsaicomponents";
 import { EnvelopeSimple, Printer, DownloadSimple } from "@phosphor-icons/react";
+import { CircularProgress } from "@mui/material";
 
 type ModalProps = {
   open: boolean;
   onClose: () => void;
   title?: string;
   width?: string | number;
-  id?: string;
+  id?: string | number;
   invoiceNumber?: string;
   customerId?: number | string;
   companyId?: number | string;
@@ -63,6 +66,7 @@ export default function CustomModal({
   const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = React.useState<boolean>(false);
   const [pdfError, setPdfError] = React.useState<string | null>(null);
+  const [isSendingEmail, setIsSendingEmail] = React.useState<boolean>(false);
   const lastFetchedKeyRef = React.useRef<string>("");
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
@@ -98,8 +102,8 @@ export default function CustomModal({
     if (id && !invoiceNumber && !oneTime) {
       const formData = new FormData();
       formData.append("acl_role_id", roleId || "");
-      formData.append("customer_id", userId || "");
-      formData.append("id", id);
+      formData.append("customer_id", String(userId || ""));
+      formData.append("id", String(id));
       dispatch(getInvoiceDetails(formData, setContextLoading));
     }
   }, [id, invoiceNumber, roleId, userId, oneTime]);
@@ -226,9 +230,28 @@ export default function CustomModal({
     }
   };
 
-  const handleSendEmail = () => {
-    // Placeholder ready for backend email API integration
-    console.log("Send via Email clicked for invoice:", resolvedParams.invoice_number);
+  const handleSendEmail = async () => {
+    if (isSendingEmail) return;
+
+    setIsSendingEmail(true);
+    try {
+      await sendInvoiceEmail({
+        id,
+        customerId: customerId || userId,
+        invoiceNumber,
+        companyId,
+        isGuestPage,
+        lastBillInfo,
+        invoiceDetails,
+        dashBoardInfo,
+        userInfo,
+        oneTimeData,
+      });
+    } catch (err) {
+      console.error("Send via Email error:", err);
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const handlePrint = async () => {
@@ -361,22 +384,29 @@ export default function CustomModal({
                 <div className="invoice-modal-actions no-print" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <button
                     onClick={handleSendEmail}
+                    disabled={isSendingEmail}
                     style={{
-                      backgroundColor: "#0284c7",
+                      backgroundColor: isSendingEmail ? "#94a3b8" : "#0284c7",
                       color: "#fff",
                       border: "none",
                       borderRadius: "6px",
                       padding: "6px 14px",
                       fontSize: "13px",
                       fontWeight: 600,
-                      cursor: "pointer",
+                      cursor: isSendingEmail ? "not-allowed" : "pointer",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
+                      opacity: isSendingEmail ? 0.8 : 1,
+                      transition: "background-color 0.2s ease, opacity 0.2s ease",
                     }}
                   >
-                    <EnvelopeSimple size={16} weight="bold" />
-                    Send via Email
+                    {isSendingEmail ? (
+                      <CircularProgress size={16} sx={{ color: "#fff" }} />
+                    ) : (
+                      <EnvelopeSimple size={16} weight="bold" />
+                    )}
+                    {isSendingEmail ? "Sending..." : "Send via Email"}
                   </button>
                   <button
                     onClick={handlePrint}

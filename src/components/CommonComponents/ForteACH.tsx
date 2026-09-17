@@ -1,4 +1,6 @@
 import { FC, useEffect, useState } from "react";
+import { useSelector } from "@/hooks/redux";
+import { RootState } from "@/state/store";
 import {
   Box,
   Card,
@@ -11,14 +13,17 @@ import {
   Checkbox,
   FormControlLabel,
   Alert,
+  CircularProgress,
 } from "@mui/material";
-
 
 interface ForteACHProps {
   onSuccess: (data: any) => void;
   invoiceId?: string | null;
   amount: string;
   convenience_fee: string;
+  apiLoginId?: string;
+  jsUrl?: string;
+  environment?: string;
 }
 
 declare global {
@@ -29,10 +34,11 @@ declare global {
   }
 }
 
-const FORTE_LOGIN_ID = "873DF49605";
-
 const ForteACH: FC<ForteACHProps> = ({
   onSuccess,
+  apiLoginId: propApiLoginId,
+  jsUrl: propJsUrl,
+  environment: propEnvironment,
 }) => {
   const [ready, setReady] = useState(false);
   const [authorized, setAuthorized] = useState(false);
@@ -42,31 +48,67 @@ const ForteACH: FC<ForteACHProps> = ({
   const [accountOwnership, setAccountOwnership] = useState("personal");
   const [accountType, setAccountType] = useState("c");
 
+  const paymentProcessorDetails = useSelector(
+    (state: RootState) => state?.Account?.paymentProcessorDetails
+  );
+
+  const forteConfig =
+    paymentProcessorDetails?.forte_ach_115?.[0] ||
+    paymentProcessorDetails?.forte_115?.[0] ||
+    paymentProcessorDetails?.current_processor_ach?.find((p: any) => p?.config_value?.includes("forte")) ||
+    paymentProcessorDetails?.forte_ach?.[0] ||
+    paymentProcessorDetails?.forte?.[0];
+
+  const resolvedApiLoginId = propApiLoginId || forteConfig?.api_login_id;
+  const resolvedEnvironment = propEnvironment || forteConfig?.environment || "sandbox";
+  const resolvedJsUrl =
+    propJsUrl ||
+    forteConfig?.js_url ||
+    (resolvedEnvironment === "live" || resolvedEnvironment === "production"
+      ? "https://api.forte.net/js/v1"
+      : "https://sandbox.forte.net/api/js/v1");
+
   // our own API still expects the legacy PC / PS / BC / BS codes
   const legacyAccountType =
     (accountOwnership === "business" ? "B" : "P") +
     (accountType === "s" ? "S" : "C");
 
-
-  // Load Forte Script
+  // Load Forte Script dynamically
   useEffect(() => {
-    if (document.getElementById("forte-js")) {
-      setReady(true);
+    if (!resolvedApiLoginId) {
+      setReady(false);
       return;
+    }
+
+    const existingScript = document.getElementById("forte-js") as HTMLScriptElement | null;
+    if (existingScript) {
+      if (
+        existingScript.getAttribute("forte-api-login-id") === resolvedApiLoginId &&
+        (window as any).forte
+      ) {
+        setReady(true);
+        return;
+      }
+      existingScript.remove();
     }
 
     const script = document.createElement("script");
     script.id = "forte-js";
-    script.src = "https://sandbox.forte.net/api/js/v1";
+    script.src = resolvedJsUrl;
     script.defer = true;
-    script.setAttribute("forte-api-login-id", FORTE_LOGIN_ID);
+    script.setAttribute("forte-api-login-id", resolvedApiLoginId);
 
     script.onload = () => {
       setReady(true);
     };
 
+    script.onerror = () => {
+      console.error("❌ Failed to load Forte SDK script");
+      setReady(false);
+    };
+
     document.head.appendChild(script);
-  }, []);
+  }, [resolvedApiLoginId, resolvedJsUrl]);
 
   const handleTokenCreated = (response: any) => {
     onSuccess({
@@ -90,6 +132,11 @@ const ForteACH: FC<ForteACHProps> = ({
   });
 
   const handleSubmit = () => {
+    if (!resolvedApiLoginId) {
+      alert("Payment processor configuration is missing.");
+      return;
+    }
+
     if (!window.forte) {
       alert("Forte not loaded");
       return;
@@ -109,7 +156,7 @@ const ForteACH: FC<ForteACHProps> = ({
     }
     window.forte
       .createToken({
-        api_login_id: FORTE_LOGIN_ID,
+        api_login_id: resolvedApiLoginId,
         account_number,
         routing_number,
         account_type: accountType,
@@ -126,35 +173,28 @@ const ForteACH: FC<ForteACHProps> = ({
     setAuthorized(false); // reset checkbox state
   };
 
+  if (!resolvedApiLoginId) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          py: 8,
+          px: 2,
+        }}
+      >
+        <CircularProgress size={32} sx={{ mb: 2 }} />
+        <Typography variant="body2" color="text.secondary">
+          Loading payment processor configuration...
+        </Typography>
+      </Box>
+    );
+  }
+
 
   return (
-    // <form id="forte-ach-form" action="javascript:void(0)">
-    //   <h3>Bank Account Payment</h3>
-
-    //   <label>Routing Number</label>
-    //   <input type="text" forte-data="routing_number" />
-
-    //   <label>Account Number</label>
-    //   <input type="text" forte-data="account_number" />
-
-    //   <label>Account Type</label>
-    //   <select forte-data="account_type">
-    //     <option value="checking">Checking</option>
-    //     <option value="savings">Savings</option>
-    //   </select>
-
-    //   <button
-    //     type="button"
-    //     forte-api-login-id={FORTE_LOGIN_ID}
-    //     forte-callback-success="onACHTokenCreated"
-    //     forte-callback-error="onACHTokenFailed"
-    //     onClick={handleSubmit}
-    //     disabled={!ready}
-    //   >
-    //     Submit Bank Payment
-    //   </button>
-    // </form>
-
     <Box
       sx={{
         display: "flex",

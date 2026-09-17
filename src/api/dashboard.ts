@@ -233,5 +233,19 @@ export async function getInvoicePdfAPI(payload: InvoicePdfPayload | FormData) {
   return res.data;
 }
 
+export interface SendInvoiceEmailPayload {
+  acl_role_id: number | string;
+  customer_id: number | string;
+  invoice_id: number | string;
+}
+
+export async function sendInvoiceEmailAPI(
+  payload: SendInvoiceEmailPayload | FormData
+) {
+  const res = await api.post("send-invoice-email", payload);
+  return res.data;
+}
+
+
 
 

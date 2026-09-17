@@ -358,12 +358,39 @@ const PaymentIframe: FC<PaymentIframeProps> = ({
 
 
   if (curentProcessor?.includes("forte")) {
+    const forteCardConfig =
+      paymentProcessorDetails?.forte_115?.[0] ||
+      paymentProcessorDetails?.[curentProcessor]?.[0] ||
+      paymentProcessorDetails?.forte?.[0] ||
+      paymentProcessorDetails?.forte_ach_115?.[0];
+
+    const forteAchConfig =
+      paymentProcessorDetails?.forte_ach_115?.[0] ||
+      paymentProcessorDetails?.[curentProcessor]?.[0] ||
+      paymentProcessorDetails?.forte_ach?.[0] ||
+      paymentProcessorDetails?.forte_115?.[0] ||
+      paymentProcessorDetails?.forte?.[0];
+
     if (type === "account") {
-      return <ForteACH onSuccess={onSuccess}
-        amount={String(amount ?? "0")}
-        convenience_fee={String(convenience_fee ?? "0")} />
-    };
-    return <FortePayment onSuccess={onSuccess} />;
+      return (
+        <ForteACH
+          onSuccess={onSuccess}
+          amount={String(amount ?? "0")}
+          convenience_fee={String(convenience_fee ?? "0")}
+          apiLoginId={forteAchConfig?.api_login_id}
+          jsUrl={forteAchConfig?.js_url}
+          environment={forteAchConfig?.environment}
+        />
+      );
+    }
+    return (
+      <FortePayment
+        onSuccess={onSuccess}
+        apiLoginId={forteCardConfig?.api_login_id}
+        jsUrl={forteCardConfig?.js_url}
+        environment={forteCardConfig?.environment}
+      />
+    );
   }
 
 

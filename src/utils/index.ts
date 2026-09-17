@@ -15,6 +15,8 @@ export { dummyCountriesList } from "./countries";
 export { getPaymentMethodType } from "./paymentHelpers";
 export {
   resolveInvoicePdfParams,
+  resolveInvoiceEmailParams,
+  sendInvoiceEmail,
   base64ToBlob,
   handlePdfResponse,
   downloadFile,

@@ -1,4 +1,9 @@
-import { getInvoicePdfAPI, InvoicePdfPayload } from "@/api/dashboard";
+import {
+  getInvoicePdfAPI,
+  InvoicePdfPayload,
+  sendInvoiceEmailAPI,
+  SendInvoiceEmailPayload,
+} from "@/api/dashboard";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { toast } from "@/lib/custom-toast";
 import * as pdfjsLib from "pdfjs-dist";
@@ -25,7 +30,23 @@ export interface ResolveInvoicePdfParamsOptions {
   dashBoardInfo?: any;
   userInfo?: any;
   oneTimeData?: any;
+  id?: number | string | null;
+  invoiceId?: number | string | null;
+  aclRoleId?: number | string | null;
 }
+
+export interface ResolveInvoiceEmailParamsOptions extends ResolveInvoicePdfParamsOptions {
+  id?: number | string | null;
+  invoiceId?: number | string | null;
+  aclRoleId?: number | string | null;
+}
+
+export interface ResolvedInvoiceEmailPayload {
+  acl_role_id: number | string;
+  customer_id: number | string;
+  invoice_id: number | string;
+}
+
 
 /**
  * Dynamically resolves customer_id, invoice_number, and company_id
@@ -603,5 +624,178 @@ export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
     }
   }
 }
+
+/**
+ * Dynamically resolves acl_role_id, customer_id, and invoice_id
+ * for sending invoice emails.
+ */
+export function resolveInvoiceEmailParams(
+  options: ResolveInvoiceEmailParamsOptions = {}
+): ResolvedInvoiceEmailPayload {
+  const {
+    id,
+    invoiceId,
+    aclRoleId,
+    customerId,
+    invoiceNumber,
+    lastBillInfo,
+    invoiceDetails,
+    dashBoardInfo,
+    userInfo,
+    oneTimeData,
+  } = options;
+
+  // 1. Resolve ACL role ID
+  let resolvedAclRoleId: number | string = 0;
+  if (aclRoleId !== undefined && aclRoleId !== null && aclRoleId !== "") {
+    resolvedAclRoleId = aclRoleId;
+  } else {
+    const rawUser = userInfo?.body ? userInfo : (getLocalStorage("intuity-user") as IntuityUser | null);
+    const roleFromStorage = rawUser?.body?.acl_role_id || (rawUser as any)?.acl_role_id;
+    const roleFromUser = userInfo?.body?.acl_role_id || userInfo?.acl_role_id;
+    const roleFromDashboard =
+      dashBoardInfo?.customer?.acl_role_id ||
+      dashBoardInfo?.body?.customer?.acl_role_id;
+
+    resolvedAclRoleId = roleFromStorage || roleFromUser || roleFromDashboard || 4;
+  }
+
+  // 2. Resolve Customer ID using standard PDF parameter resolution
+  const pdfParams = resolveInvoicePdfParams(options);
+  const resolvedCustomerId = pdfParams.customer_id;
+
+  // 3. Resolve Invoice ID
+  let resolvedInvoiceId: number | string = 0;
+  if (invoiceId !== undefined && invoiceId !== null && invoiceId !== "") {
+    resolvedInvoiceId = invoiceId;
+  } else if (id !== undefined && id !== null && id !== "") {
+    resolvedInvoiceId = id;
+  } else {
+    const invoiceIdFromInvoiceDetails =
+      invoiceDetails?.id ||
+      invoiceDetails?.invoice_id ||
+      invoiceDetails?.last_bill?.[0]?.id ||
+      invoiceDetails?.last_bill?.id ||
+      invoiceDetails?.get_invoices?.[0]?.id ||
+      invoiceDetails?.get_invoices?.[0]?.invoice_id;
+
+    const invoiceIdFromLastBill =
+      lastBillInfo?.last_bill?.id ||
+      lastBillInfo?.last_bill?.[0]?.id ||
+      lastBillInfo?.get_invoices?.[0]?.id ||
+      lastBillInfo?.get_invoices?.[0]?.invoice_id ||
+      lastBillInfo?.id;
+
+    const invoiceIdFromOneTime =
+      oneTimeData?.last_bill?.[0]?.id ||
+      oneTimeData?.last_bill?.id ||
+      oneTimeData?.get_invoices?.[0]?.id ||
+      oneTimeData?.invoice?.[0]?.id ||
+      oneTimeData?.invoice?.id ||
+      oneTimeData?.id;
+
+    const invoiceIdFromDashboard =
+      dashBoardInfo?.last_bill?.id ||
+      dashBoardInfo?.last_bill?.[0]?.id ||
+      dashBoardInfo?.get_invoices?.[0]?.id;
+
+    let invoiceIdFromListMatch: number | string = 0;
+    const targetInvoiceNumber = pdfParams.invoice_number;
+    if (targetInvoiceNumber) {
+      const allInvoices = [
+        ...(Array.isArray(lastBillInfo?.get_invoices) ? lastBillInfo.get_invoices : []),
+        ...(Array.isArray(invoiceDetails?.get_invoices) ? invoiceDetails.get_invoices : []),
+        ...(Array.isArray(oneTimeData?.get_invoices) ? oneTimeData.get_invoices : []),
+        ...(Array.isArray(dashBoardInfo?.get_invoices) ? dashBoardInfo.get_invoices : []),
+      ];
+      const match = allInvoices.find(
+        (inv) =>
+          String(inv?.invoice_number || inv?.invoice_no || "").trim() ===
+          String(targetInvoiceNumber).trim()
+      );
+      if (match?.id) {
+        invoiceIdFromListMatch = match.id;
+      }
+    }
+
+    resolvedInvoiceId =
+      invoiceIdFromListMatch ||
+      invoiceIdFromInvoiceDetails ||
+      invoiceIdFromLastBill ||
+      invoiceIdFromOneTime ||
+      invoiceIdFromDashboard ||
+      0;
+  }
+
+  return {
+    acl_role_id: !isNaN(Number(resolvedAclRoleId)) && resolvedAclRoleId !== "" && resolvedAclRoleId !== null ? Number(resolvedAclRoleId) : resolvedAclRoleId,
+    customer_id: !isNaN(Number(resolvedCustomerId)) && resolvedCustomerId !== "" && resolvedCustomerId !== null ? Number(resolvedCustomerId) : resolvedCustomerId,
+    invoice_id: !isNaN(Number(resolvedInvoiceId)) && resolvedInvoiceId !== "" && resolvedInvoiceId !== null ? Number(resolvedInvoiceId) : resolvedInvoiceId,
+  };
+}
+
+/**
+ * Triggers the POST /send-invoice-email API with dynamically resolved parameters.
+ */
+export async function sendInvoiceEmail(
+  options: ResolveInvoiceEmailParamsOptions = {}
+): Promise<{ success: boolean; message: string; data?: any }> {
+  const payload = resolveInvoiceEmailParams(options);
+
+  if (!payload.invoice_id) {
+    const errorMsg = "Invoice ID is missing. Cannot send invoice email.";
+    toast.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  if (!payload.customer_id) {
+    const errorMsg = "Customer ID is missing. Cannot send invoice email.";
+    toast.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  if (!payload.acl_role_id) {
+    const errorMsg = "User role ID is missing. Cannot send invoice email.";
+    toast.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  try {
+    const response = await sendInvoiceEmailAPI(payload);
+
+    if (response?.status === false) {
+      const errorMsg =
+        response?.message ||
+        (Array.isArray(response?.body?.errors)
+          ? response.body.errors.join(", ")
+          : typeof response?.body?.errors === "string"
+          ? response.body.errors
+          : "") ||
+        "Failed to send invoice email.";
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    const successMsg = response?.message || "Invoice email sent successfully.";
+    toast.success(successMsg);
+    return { success: true, message: successMsg, data: response };
+  } catch (error: any) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      (Array.isArray(error?.response?.data?.body?.errors)
+        ? error.response.data.body.errors.join(", ")
+        : typeof error?.response?.data?.body?.errors === "string"
+        ? error.response.data.body.errors
+        : null) ||
+      error?.message ||
+      "Failed to send invoice email. Please try again.";
+
+    if (!error?.message?.includes("is missing")) {
+      toast.error(errorMessage);
+    }
+    throw error;
+  }
+}
+
 
 
