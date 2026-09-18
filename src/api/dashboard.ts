@@ -188,6 +188,18 @@ export async function getUserDetailsByToken({ token, formData }: { token: string
 
 // ─── Public endpoints (no auth token needed) ─────────────────────────────────
 
+export async function getCompanyListApi(payload?: { acl_role_id?: string | number } | FormData) {
+  let formData: FormData;
+  if (payload instanceof FormData) {
+    formData = payload;
+  } else {
+    formData = new FormData();
+    formData.append("acl_role_id", String(payload?.acl_role_id ?? 4));
+  }
+  const res = await api.post("company/front/get-company-list", formData);
+  return res.data;
+}
+
 export async function getCompanyDetailsApi({ formData }: { formData: FormData }) {
   const res = await api.post("get-details-by-alias", formData);
   return res.data;

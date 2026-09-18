@@ -16,7 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import { UserCircle, XCircle } from "@phosphor-icons/react";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr";
-import { GearSix as GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
+import { EnvelopeSimple as EnvelopeIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { SignOut as SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { User as UserIcon } from "@phosphor-icons/react/dist/ssr/User";
 import secureLocalStorage from "react-secure-storage";
@@ -236,11 +236,11 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
           <Typography>Add Another Account</Typography>
         </MenuItem>
 
-        <MenuItem onClick={() => handleClickPath(paths.dashboard.settings())} sx={{ ml: 1 }}>
+        <MenuItem onClick={() => handleClickPath(paths.dashboard.service())} sx={{ ml: 1 }}>
           <ListItemIcon sx={{ minWidth: "unset", color: "inherit" }}>
-            <GearSixIcon fontSize="var(--icon-fontSize-md)" />
+            <EnvelopeIcon fontSize="var(--icon-fontSize-md)" />
           </ListItemIcon>
-          <Typography>Settings</Typography>
+          <Typography>Contact Us/Update Info</Typography>
         </MenuItem>
 
         <MenuItem onClick={() => handleClickPath(paths.dashboard.settings())} sx={{ ml: 1 }}>

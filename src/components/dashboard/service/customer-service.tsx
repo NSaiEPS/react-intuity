@@ -1,7 +1,7 @@
 import * as React from "react";
 import { contactCustomerService } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
-import { colors, fileToBase64 } from "@/utils";
+import { colors, fileToBase64, formatUSPhone, US_STATES } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,9 +16,11 @@ import {
   FormControlLabel,
   FormHelperText,
   InputLabel,
+  MenuItem,
   OutlinedInput,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   Typography,
 } from "@mui/material";
@@ -32,8 +34,6 @@ import { z } from "zod";
 import { useLoading } from "@/components/core/skeleton-context";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
 import {
-  User,
-  IdentificationCard,
   Gauge,
   MapPin,
   House,
@@ -42,24 +42,43 @@ import {
   EnvelopeSimple,
 } from "@phosphor-icons/react";
 
-// Schema
+// Form Schema - all update fields are optional
 const formSchema = z.object({
-  accountName: z.string().min(1, "Account name is required"),
-  accountNumber: z.string().min(1, "Account # is required"),
-  masterNumber: z.string().optional(),
-  serviceAddress: z.string().min(1, "Service Address is required"),
-  billingAddress: z.string().min(1, "Billing Address is required"),
-  phone: z.string().optional(),
-  altPhone: z.string().optional(),
-  // email: z.string().email('Invalid email address'),
-  email: z.string().optional(),
-  question: z.string().min(1, "This field is required"),
-  preferredContactMethod: z.enum(["Phone", "Email"]),
-  preferredOwnerMethod: z.enum(["Owner", "Tenant"]),
+  accountName: z.string().optional(),
+  primaryPhone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        const digits = val.replace(/\D/g, "");
+        return digits.length === 10;
+      },
+      { message: "Primary phone must be 10 digits" }
+    ),
+  altPhone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        const digits = val.replace(/\D/g, "");
+        return digits.length === 10;
+      },
+      { message: "Alternate phone must be 10 digits" }
+    ),
+  preferredOwnerMethod: z.string().optional(),
+  billingAddress1: z.string().optional(),
+  billingAddress2: z.string().optional(),
+  billingCity: z.string().optional(),
+  billingState: z.string().optional(),
+  billingZip: z.string().optional(),
+  question: z.string().optional(),
+  preferredContactMethod: z.string().optional(),
   files: z
     .any()
     .refine(
-      (files) => files instanceof FileList || Array.isArray(files),
+      (files) => !files || files instanceof FileList || Array.isArray(files),
       "Invalid file list"
     )
     .optional(),
@@ -70,34 +89,38 @@ type FormValues = z.infer<typeof formSchema>;
 export function CustomerDetailsForm(): React.JSX.Element {
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
+  const [customerData, setCustomerData] = React.useState<any>(null);
 
   const { setContextLoading } = useLoading();
   React.useLayoutEffect(() => {
     setContextLoading(true);
   }, []);
+
   const {
     control,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       accountName: "",
-      accountNumber: "",
-      masterNumber: "",
-      serviceAddress: "",
-      billingAddress: "",
-      phone: "",
+      primaryPhone: "",
       altPhone: "",
-      email: "",
+      preferredOwnerMethod: "",
+      billingAddress1: "",
+      billingAddress2: "",
+      billingCity: "",
+      billingState: "",
+      billingZip: "",
       question: "",
-      preferredContactMethod: "Phone",
-      preferredOwnerMethod: "Owner",
+      preferredContactMethod: "",
       files: [],
     },
   });
+
   const dispatch = useDispatch();
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
@@ -107,7 +130,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
   const roleId = stored?.body?.acl_role_id;
   const customer_id = stored?.body?.customer_id;
 
-
   const onSubmit = async (data: FormValues) => {
     const files: File[] = data.files ? Array.from(data.files) : [];
 
@@ -115,49 +137,104 @@ export function CustomerDetailsForm(): React.JSX.Element {
       files.map((file) => fileToBase64(file))
     );
 
-    // if (!files?.length) {
-    //   toast.warning('Please upload file');
-    //   return;
-    // }
-    // //console.log('Form Submitted:', data);
-
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", customer_id);
     formData.append("is_form", "1");
 
-    formData.append("question", data?.question);
-    formData.append("preferMethod", data?.preferredContactMethod);
-    formData.append("amthe", data?.preferredOwnerMethod);
+    // Append update fields only when provided
+    if (data.accountName && data.accountName.trim() !== "") {
+      formData.append("accountName", data.accountName.trim());
+      formData.append("account_name", data.accountName.trim());
+    }
+
+    if (data.primaryPhone && data.primaryPhone.trim() !== "") {
+      formData.append("primaryPhone", data.primaryPhone.trim());
+      formData.append("phone", data.primaryPhone.trim());
+    }
+
+    if (data.altPhone && data.altPhone.trim() !== "") {
+      formData.append("altPhone", data.altPhone.trim());
+      formData.append("phone2", data.altPhone.trim());
+    }
+
+    if (data.preferredOwnerMethod && data.preferredOwnerMethod.trim() !== "") {
+      formData.append("amthe", data.preferredOwnerMethod.trim());
+      formData.append("role", data.preferredOwnerMethod.trim().toLowerCase());
+    }
+
+    if (data.billingAddress1 && data.billingAddress1.trim() !== "") {
+      formData.append("billingAddress1", data.billingAddress1.trim());
+      formData.append("billing_address_1", data.billingAddress1.trim());
+      formData.append("billing_address1", data.billingAddress1.trim());
+    }
+
+    if (data.billingAddress2 && data.billingAddress2.trim() !== "") {
+      formData.append("billingAddress2", data.billingAddress2.trim());
+      formData.append("billing_address_2", data.billingAddress2.trim());
+      formData.append("billing_address2", data.billingAddress2.trim());
+    }
+
+    if (data.billingCity && data.billingCity.trim() !== "") {
+      formData.append("billingCity", data.billingCity.trim());
+      formData.append("billing_city", data.billingCity.trim());
+    }
+
+    if (data.billingState && data.billingState.trim() !== "") {
+      // State abbreviation only
+      formData.append("billingState", data.billingState.trim());
+      formData.append("billing_state", data.billingState.trim());
+    }
+
+    if (data.billingZip && data.billingZip.trim() !== "") {
+      formData.append("billingZip", data.billingZip.trim());
+      formData.append("billing_zip", data.billingZip.trim());
+      formData.append("billing_zip_code", data.billingZip.trim());
+    }
+
+    if (data.question && data.question.trim() !== "") {
+      formData.append("question", data.question.trim());
+      formData.append("comment", data.question.trim());
+    }
+
+    if (data.preferredContactMethod && data.preferredContactMethod.trim() !== "") {
+      formData.append("preferMethod", data.preferredContactMethod.trim());
+    }
+
     base64Files.forEach((base64) => {
       formData.append("attachment_file", base64);
     });
-    // if (!files?.length) {
-    //   formData.append(`upload_file`, '');
-    // }
-    // formData.append('upload_file', data?.files);
 
     dispatch(contactCustomerService(formData, handleReset));
   };
-  const handleReset = () => {
-    setValue("files", []);
-    setValue("preferredOwnerMethod", "Owner");
-    setValue("preferredContactMethod", "Phone");
-    setValue("question", "");
 
+  const handleReset = () => {
+    reset({
+      accountName: "",
+      primaryPhone: "",
+      altPhone: "",
+      preferredOwnerMethod: "",
+      billingAddress1: "",
+      billingAddress2: "",
+      billingCity: "",
+      billingState: "",
+      billingZip: "",
+      question: "",
+      preferredContactMethod: "",
+      files: [],
+    });
     setHasUnsavedChanges(false);
   };
 
   React.useEffect(() => {
-
     if (hasUnsavedChanges) {
       dispatch(setRouteChecker(true));
-
     }
     return () => {
       dispatch(setRouteChecker(false));
-    }
+    };
   }, [hasUnsavedChanges]);
+
   React.useEffect(() => {
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
@@ -173,26 +250,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
       )
     );
   }, [customer_id]);
-  const successCallBack = (res) => {
+
+  const successCallBack = (res: any) => {
     const customer = res?.customer_data?.[0];
-
-    setValue("accountName", customer?.customer_name);
-    setValue("accountNumber", customer?.acctnum);
-    setValue("masterNumber", customer?.meterNumber);
-    setValue("serviceAddress", customer?.service_address);
-    setValue("billingAddress", customer?.address);
-    setValue("phone", customer?.phone);
-    setValue("altPhone", customer?.phone2 ?? "");
-    const email = customer.email;
-    if (typeof email === "string" && email.trim() !== "") {
-      setValue("email", email);
-    } else {
-      setValue("email", ""); // or omit setting it if schema allows optional
-    }
-
+    setCustomerData(customer || null);
     setHasUnsavedChanges(false);
-
   };
+
   const rawFiles = watch("files");
   const files: File[] = Array.isArray(rawFiles)
     ? rawFiles
@@ -212,7 +276,6 @@ export function CustomerDetailsForm(): React.JSX.Element {
     updatedFiles.splice(index, 1);
     setValue("files", updatedFiles, { shouldValidate: true });
     setHasUnsavedChanges(true);
-
   };
 
   React.useEffect(() => {
@@ -225,14 +288,11 @@ export function CustomerDetailsForm(): React.JSX.Element {
   React.useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
-        // Show confirmation dialog
-        const message =
-          "You have unsaved changes. Are you sure you want to leave?";
+        const message = "You have unsaved changes. Are you sure you want to leave?";
         event.preventDefault();
-        event.returnValue = message; // Some browsers require this for custom messages
-        return message; // For some older browsers
+        event.returnValue = message;
+        return message;
       }
-      // Clean up builder data only if there are no unsaved changes
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -242,219 +302,304 @@ export function CustomerDetailsForm(): React.JSX.Element {
     };
   }, [hasUnsavedChanges]);
 
-
-  const infoFields = [
-    {
-      label: "Account Name",
-      value: watch("accountName"),
-      icon: User,
-    },
-    {
-      label: "Email",
-      value: watch("email"),
-      icon: EnvelopeSimple,
-    },
-    {
-      label: "Account #",
-      value: watch("accountNumber"),
-      icon: IdentificationCard,
-    },
-    {
-      label: "Meter #",
-      value: watch("masterNumber"),
-      icon: Gauge,
-    },
+  const leftColFields = [
     {
       label: "Service Address",
-      value: watch("serviceAddress"),
+      value: customerData?.service_address || "-",
       icon: MapPin,
     },
     {
-      label: "Billing Address",
-      value: watch("billingAddress"),
-      icon: House,
+      label: "Meter #",
+      value: customerData?.meterNumber || "-",
+      icon: Gauge,
     },
     {
       label: "Primary Phone",
-      value: watch("phone"),
+      value: formatUSPhone(customerData?.phone) || "-",
       icon: Phone,
     },
-    {
-      label: "Alt Phone",
-      value: watch("altPhone"),
-      icon: DeviceMobile,
-    },
-
   ];
 
+  const rightColFields = [
+    {
+      label: "Email",
+      value: customerData?.email || "-",
+      icon: EnvelopeSimple,
+    },
+    {
+      label: "Billing Address",
+      value: customerData?.address || "-",
+      icon: House,
+    },
+    {
+      label: "Secondary Phone",
+      value: formatUSPhone(customerData?.phone2) || "-",
+      icon: DeviceMobile,
+    },
+  ];
 
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card sx={{ borderRadius: 0, }}>
-          <CardContent>
-
+        <Card sx={{ borderRadius: 0, boxShadow: "none" }}>
+          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+            {/* Read-Only Compact Information Section */}
             <Grid container spacing={2}>
-              {infoFields.map(({ label, value, icon: Icon }) => (
-                <Grid xs={12} md={6} key={label}>
-                  <Card
-                    elevation={0}
-                    sx={{
-                      borderRadius: 3,
-                      height: "100%",
-                    }}
-                  >
-                    <CardContent
+              <Grid xs={12} md={6}>
+                <Stack spacing={1}>
+                  {leftColFields.map(({ label, value, icon: Icon }) => (
+                    <Card
+                      key={label}
+                      elevation={0}
                       sx={{
-                        py: 1.25,
-                        px: 0,
-                        "&:last-child": {
-                          pb: 1.25,
-                        },
+                        borderRadius: 2,
+                        backgroundColor: "#fff",
                       }}
                     >
-                      <Box
+                      <CardContent
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
+                          py: 0.75,
                           px: 0,
+                          "&:last-child": { pb: 0.75 },
                         }}
                       >
-                        <Avatar
+                        <Box
                           sx={{
-                            width: 46,
-                            height: 46,
-                            bgcolor: "#EEF4FF",
-                            color: "#2563EB",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            px: 0,
                           }}
                         >
-                          <Icon size={22} />
-                        </Avatar>
-
-                        <Box flex={1}>
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ lineHeight: 1.2 }}
-                          >
-                            {label}
-                          </Typography>
-
-                          <Typography
-                            variant="body1"
-                            fontWeight={600}
+                          <Avatar
                             sx={{
-                              lineHeight: 1.3,
-                              wordBreak: "break-word",
+                              width: 42,
+                              height: 42,
+                              bgcolor: "#EEF4FF",
+                              color: "#2563EB",
                             }}
                           >
-                            {value || "-"}
-                          </Typography>
+                            <Icon size={20} />
+                          </Avatar>
+
+                          <Box flex={1}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ lineHeight: 1.2, display: "block" }}
+                            >
+                              {label}
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              sx={{
+                                lineHeight: 1.3,
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {value}
+                            </Typography>
+                          </Box>
                         </Box>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-
-            <Grid md={12} xs={12} p={0} pt={3}>
-              <Controller
-                name="question"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth required error={!!errors.question}>
-                    <InputLabel>Enter your comments or questions </InputLabel>
-                    <OutlinedInput
-                      label="Enter your comments or questions "
-                      multiline
-                      minRows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid container spacing={2} mt={1}>
-              {/* <Grid xs={12} sm={6}>
-                <Stack spacing={1}>
-                  <Typography variant="h6">
-                    Preferred contact method *
-                  </Typography>
-                  <Controller
-                    name="preferredContactMethod"
-                    control={control}
-                    render={({ field }) => (
-                      <RadioGroup row {...field}>
-                        <FormControlLabel
-                          value="Phone"
-                          control={<Radio />}
-                          label="Phone"
-                        />
-                        <FormControlLabel
-                          value="Email"
-                          control={<Radio />}
-                          label="Email"
-                        />
-                      </RadioGroup>
-                    )}
-                  />
+                      </CardContent>
+                    </Card>
+                  ))}
                 </Stack>
               </Grid>
 
-              <Grid xs={12} sm={6}>
+              <Grid xs={12} md={6}>
                 <Stack spacing={1}>
-                  <Typography variant="h6">I am the *</Typography>
-                  <Controller
-                    name="preferredOwnerMethod"
-                    control={control}
-                    render={({ field }) => (
-                      <RadioGroup row {...field}>
-                        <FormControlLabel
-                          value="Owner"
-                          control={<Radio />}
-                          label="Owner"
-                        />
-                        <FormControlLabel
-                          value="Tenant"
-                          control={<Radio />}
-                          label="Tenant"
-                        />
-                      </RadioGroup>
-                    )}
-                  />
-                </Stack>
-              </Grid> */}
+                  {rightColFields.map(({ label, value, icon: Icon }) => (
+                    <Card
+                      key={label}
+                      elevation={0}
+                      sx={{
+                        borderRadius: 2,
+                        backgroundColor: "#fff",
+                      }}
+                    >
+                      <CardContent
+                        sx={{
+                          py: 0.75,
+                          px: 0,
+                          "&:last-child": { pb: 0.75 },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            px: 0,
+                          }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              bgcolor: "#EEF4FF",
+                              color: "#2563EB",
+                            }}
+                          >
+                            <Icon size={20} />
+                          </Avatar>
 
-              <Grid xs={12} sm={6}>
+                          <Box flex={1}>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ lineHeight: 1.2, display: "block" }}
+                            >
+                              {label}
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              sx={{
+                                lineHeight: 1.3,
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {value}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
+              </Grid>
+            </Grid>
+
+            {/* Form Title & Instructions */}
+            <Box sx={{ mt: 3, mb: 2 }}>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                color="text.primary"
+                sx={{ mb: 0.5 }}
+              >
+                Request changes to your information with the utility provider.
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: colors.blue,
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                }}
+              >
+                Only complete the fields you want to update. You may also use the message box to ask a question or leave a comment.
+                <br />
+                Changes will be sent to your utility provider for review and will appear after your next bill is posted.
+              </Typography>
+            </Box>
+
+            {/* Form Fields Grid */}
+            <Grid container spacing={2}>
+              {/* Row 1: Account Name & Primary Phone */}
+              <Grid xs={12} md={6}>
+                <Controller
+                  name="accountName"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.accountName}>
+                      <InputLabel>Account Name</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Account Name"
+                      />
+                      {errors.accountName && (
+                        <FormHelperText>{errors.accountName.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid xs={12} md={6}>
+                <Controller
+                  name="primaryPhone"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.primaryPhone}>
+                      <InputLabel>Primary Phone</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Primary Phone"
+                        type="tel"
+                        value={formatUSPhone(field.value || "")}
+                        onChange={(e) => field.onChange(formatUSPhone(e.target.value))}
+                        inputProps={{ maxLength: 14 }}
+                      />
+                      {errors.primaryPhone && (
+                        <FormHelperText>{errors.primaryPhone.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              {/* Row 2: Alternate Phone & I am the */}
+              <Grid xs={12} md={6}>
+                <Controller
+                  name="altPhone"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.altPhone}>
+                      <InputLabel>Alternate Phone</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Alternate Phone"
+                        type="tel"
+                        value={formatUSPhone(field.value || "")}
+                        onChange={(e) => field.onChange(formatUSPhone(e.target.value))}
+                        inputProps={{ maxLength: 14 }}
+                      />
+                      {errors.altPhone && (
+                        <FormHelperText>{errors.altPhone.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid xs={12} md={6}>
                 <Box
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
-                    flexWrap: "wrap", // mobile ke liye
+                    height: "100%",
+                    minHeight: 40,
+                    flexWrap: "wrap",
+                    pl: 0.5,
                   }}
                 >
-                  <Typography variant="body1" whiteSpace="nowrap">
-                    Preferred contact method *
+                  <Typography variant="body2" fontWeight={500} whiteSpace="nowrap">
+                    I am the
                   </Typography>
-
                   <Controller
-                    name="preferredContactMethod"
+                    name="preferredOwnerMethod"
                     control={control}
                     render={({ field }) => (
-                      <RadioGroup row {...field}>
+                      <RadioGroup
+                        row
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                      >
                         <FormControlLabel
-                          value="Phone"
+                          value="Owner"
                           control={<Radio size="small" />}
-                          label="Phone"
+                          label="Owner"
                         />
                         <FormControlLabel
-                          value="Email"
+                          value="Tenant"
                           control={<Radio size="small" />}
-                          label="Email"
+                          label="Tenant"
                         />
                       </RadioGroup>
                     )}
@@ -462,47 +607,186 @@ export function CustomerDetailsForm(): React.JSX.Element {
                 </Box>
               </Grid>
 
-              <Grid xs={12} sm={6}>
+              {/* Row 3: Billing Address Line 1 */}
+              <Grid xs={12}>
+                <Controller
+                  name="billingAddress1"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.billingAddress1}>
+                      <InputLabel>Billing Address Line 1</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Billing Address Line 1"
+                      />
+                      {errors.billingAddress1 && (
+                        <FormHelperText>{errors.billingAddress1.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              {/* Row 4: Billing Address Line 2 */}
+              <Grid xs={12}>
+                <Controller
+                  name="billingAddress2"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.billingAddress2}>
+                      <InputLabel>Billing Address Line 2</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Billing Address Line 2"
+                      />
+                      {errors.billingAddress2 && (
+                        <FormHelperText>{errors.billingAddress2.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              {/* Row 5: Billing City, Billing State, Billing ZIP Code */}
+              <Grid xs={12} sm={4}>
+                <Controller
+                  name="billingCity"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.billingCity}>
+                      <InputLabel>Billing City</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Billing City"
+                      />
+                      {errors.billingCity && (
+                        <FormHelperText>{errors.billingCity.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid xs={12} sm={4}>
+                <Controller
+                  name="billingState"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.billingState}>
+                      <InputLabel>Billing State</InputLabel>
+                      <Select
+                        {...field}
+                        value={field.value || ""}
+                        label="Billing State"
+                        renderValue={(selected) => selected || ""}
+                      >
+                        <MenuItem value="">
+                          <em>None</em>
+                        </MenuItem>
+                        {US_STATES.map((state) => (
+                          <MenuItem key={state.code} value={state.code}>
+                            {`${state.code} – ${state.name}`}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {errors.billingState && (
+                        <FormHelperText>{errors.billingState.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              <Grid xs={12} sm={4}>
+                <Controller
+                  name="billingZip"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.billingZip}>
+                      <InputLabel>Billing Zip Code</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Billing Zip Code"
+                        inputProps={{ maxLength: 10 }}
+                      />
+                      {errors.billingZip && (
+                        <FormHelperText>{errors.billingZip.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              {/* Row 6: Comment or Question (optional) */}
+              <Grid xs={12}>
+                <Controller
+                  name="question"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl fullWidth size="small" error={!!errors.question}>
+                      <InputLabel>Comment or Question (optional)</InputLabel>
+                      <OutlinedInput
+                        {...field}
+                        label="Comment or Question (optional)"
+                        multiline
+                        minRows={3}
+                      />
+                      {errors.question && (
+                        <FormHelperText>{errors.question.message}</FormHelperText>
+                      )}
+                    </FormControl>
+                  )}
+                />
+              </Grid>
+
+              {/* Row 7: Preferred Contact Method (optional) */}
+              <Grid xs={12}>
                 <Box
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
                     flexWrap: "wrap",
+                    pl: 0.5,
                   }}
                 >
-                  <Typography variant="body1" whiteSpace="nowrap">
-                    I am the *
+                  <Typography variant="body2" fontWeight={500} whiteSpace="nowrap">
+                    Preferred Contact Method (optional)
                   </Typography>
-
                   <Controller
-                    name="preferredOwnerMethod"
+                    name="preferredContactMethod"
                     control={control}
                     render={({ field }) => (
-                      <RadioGroup row {...field}>
+                      <RadioGroup
+                        row
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                      >
                         <FormControlLabel
-                          value="Owner"
+                          value="Email"
                           control={<Radio size="small" />}
-                          label="Owner"
+                          label="Email"
                         />
                         <FormControlLabel
-                          value="Tenant"
+                          value="Telephone"
                           control={<Radio size="small" />}
-                          label="Tenant"
+                          label="Telephone"
                         />
                       </RadioGroup>
                     )}
                   />
                 </Box>
               </Grid>
-              <Grid md={12} xs={12} p={0} pt={1.6} px={1.2}>
-              <FormControl fullWidth error={!!errors.files}>
-              <Typography variant="body1" mb={1}>
-                    Please upload any supporting documents or photos:(Photos or
-                    PDFs,etc..)
+
+              {/* Row 8: Upload Supporting Documents (optional) */}
+              <Grid xs={12}>
+                <FormControl fullWidth error={!!errors.files}>
+                  <Typography variant="body2" fontWeight={500} mb={1}>
+                    Upload Supporting Documents (optional)
                   </Typography>
-              <OutlinedInput
+                  <OutlinedInput
                     type="file"
+                    size="small"
                     inputProps={{ multiple: true }}
                     onChange={handleFilesChange}
                   />
@@ -511,13 +795,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
                       {errors.files.message as string}
                     </FormHelperText>
                   )}
-              </FormControl>
+                </FormControl>
 
-              {/* File Preview List */}
-              {files.length > 0 && (
-                  <Grid container spacing={1} mt={2}>
+                {/* File Preview List */}
+                {files.length > 0 && (
+                  <Grid container spacing={1} mt={1}>
                     {files.map((file, index) => (
-                      <Grid key={`${file.name}-${file.lastModified}`}>
+                      <Grid key={`${file.name}-${file.lastModified}-${index}`}>
                         <Chip
                           label={file.name}
                           onDelete={() => handleFileRemove(index)}
@@ -535,14 +819,13 @@ export function CustomerDetailsForm(): React.JSX.Element {
 
           <Divider />
 
-          <CardActions sx={{ justifyContent: "flex-end", px: 3.2, py: 2 }}>
+          <CardActions sx={{ justifyContent: "flex-end", px: 3, py: 2, gap: 1.5 }}>
             <Button
               variant="outlined"
-              sx={{ color: colors.blue, borderColor: colors.blue }}
-              disables={accountLoading}
+              disabled={accountLoading}
               textTransform="none"
               onClick={() => {
-                handleReset()
+                handleReset();
                 setHasUnsavedChanges(false);
               }}
               style={{
@@ -551,6 +834,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                 backgroundColor: "white",
                 borderRadius: "12px",
                 height: "41px",
+                minWidth: "100px",
               }}
             >
               Cancel
@@ -564,9 +848,9 @@ export function CustomerDetailsForm(): React.JSX.Element {
               bgColor={colors.blue}
               hoverBackgroundColor={colors["blue.3"]}
               hoverColor="white"
-              style={{ borderRadius: "12px", height: "41px" }}
+              style={{ borderRadius: "12px", height: "41px", minWidth: "100px" }}
             >
-              Send
+              Submit
             </Button>
           </CardActions>
         </Card>

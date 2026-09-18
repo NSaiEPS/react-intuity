@@ -10,6 +10,8 @@ export {
   boarderRadius,
   fileToBase64,
   formatCurrency,
+  formatUSPhone,
+  US_STATES,
 } from "./formatters";
 export { dummyCountriesList } from "./countries";
 export { getPaymentMethodType } from "./paymentHelpers";

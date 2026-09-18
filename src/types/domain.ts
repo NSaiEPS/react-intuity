@@ -69,6 +69,18 @@ export interface CompanyDetails {
   [key: string]: any;
 }
 
+export interface CompanyListItem {
+  id: number | string;
+  company_name: string;
+  [key: string]: any;
+}
+
+/** Body of `getCompanyListApi` response */
+export interface CompanyListBody {
+  company_list?: CompanyListItem[];
+  [key: string]: any;
+}
+
 /** Body of `getCompanyDetailsApi` response — stored in `state.Account.companyInfo`. */
 export interface CompanyInfoBody {
   company?: CompanyDetails;

@@ -5,6 +5,8 @@ import { ChartPie as ChartPieIcon } from '@phosphor-icons/react/dist/ssr/ChartPi
 import { Clock as ClockIcon } from '@phosphor-icons/react/dist/ssr/Clock';
 import { CurrencyDollar as CurrencyDollarIcon } from '@phosphor-icons/react/dist/ssr/CurrencyDollar';
 import { GearSix as GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
+import { Headset as HeadsetIcon } from '@phosphor-icons/react/dist/ssr/Headset';
+import { EnvelopeSimple as EnvelopeIcon } from '@phosphor-icons/react/dist/ssr/EnvelopeSimple';
 // import { BellGear as BellGearIcon } from '@phosphor-icons/react/dist/ssr/BellGear';
 import { SlidersHorizontal as SlidersHorizontalIcon } from '@phosphor-icons/react/dist/ssr/SlidersHorizontal';
 import { Swap as SwapIcon } from '@phosphor-icons/react/dist/ssr/Swap';
@@ -28,4 +30,6 @@ export const navIcons = {
   swap: SwapIcon,
   'notification-settings': BellIcon,
   'link-account': LinkSimple,
+  headset: HeadsetIcon,
+  envelope: EnvelopeIcon,
 } as Record<string, Icon>;

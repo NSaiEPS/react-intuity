@@ -16,13 +16,15 @@ import { Controller, useForm } from "react-hook-form";
 import { z as zod } from "zod";
 
 import { authClient } from "@/lib/auth/client";
+import { getCompanyListApi } from "@/api/dashboard";
+import type { CompanyListItem } from "@/types/domain";
 
 import { UpdatePasswordModal } from "../dashboard/account/update-password-modal";
 import { paths } from "@/utils/paths";
 import Button from '../CommonComponents/button-comp';
 
 import { useLocation, useSearchParams, Link } from "react-router-dom";
-import { Button as MUIButton } from "@mui/material";
+import { Button as MUIButton, MenuItem, Select, CircularProgress } from "@mui/material";
 
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -33,17 +35,24 @@ import { Lock } from "@phosphor-icons/react/dist/ssr/Lock";
 import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
+
 const schema = zod.object({
+  company: zod.union([zod.string(), zod.number()]).refine(
+    (val) => val !== "" && val !== undefined && val !== null,
+    { message: "Please select a company" }
+  ),
   email: zod.string().min(1, { message: "Account number is required" }),
 });
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: "" } satisfies Values;
+const defaultValues: Values = { company: "", email: "" };
 
 export function ForgotLoginForm(): React.JSX.Element {
   const [isPending, setIsPending] = React.useState<boolean>(false);
   const [accountFocused, setAccountFocused] = React.useState(false);
+  const [companyList, setCompanyList] = React.useState<CompanyListItem[]>([]);
+  const [companiesLoading, setCompaniesLoading] = React.useState<boolean>(false);
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
@@ -67,17 +76,50 @@ export function ForgotLoginForm(): React.JSX.Element {
   const {
     control,
     handleSubmit,
+    setValue,
     setError,
+    watch,
     formState: { errors },
   } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
   const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchCompanies = async () => {
+      setCompaniesLoading(true);
+      try {
+        const res = await getCompanyListApi({ acl_role_id: 4 });
+        if (isMounted && res?.status && Array.isArray(res?.body?.company_list)) {
+          setCompanyList(res.body.company_list);
+        }
+      } catch (err) {
+        console.error("Failed to fetch company list:", err);
+      } finally {
+        if (isMounted) {
+          setCompaniesLoading(false);
+        }
+      }
+    };
+
+    fetchCompanies();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (effectiveCompanyId && !watch("company")) {
+      setValue("company", String(effectiveCompanyId));
+    }
+  }, [effectiveCompanyId, setValue, watch]);
 
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
       const formData = new FormData();
-      if (effectiveCompanyId) {
-        formData.append("company", String(effectiveCompanyId));
+      const selectedCompanyId = values.company || effectiveCompanyId;
+      if (selectedCompanyId) {
+        formData.append("company", String(selectedCompanyId));
       }
       if (effectiveAlias) {
         formData.append("alias", effectiveAlias);
@@ -157,6 +199,56 @@ export function ForgotLoginForm(): React.JSX.Element {
         </Typography>
 
         <Stack spacing={2}>
+          {/* Company Select */}
+          <Controller
+            control={control}
+            name="company"
+            render={({ field }) => (
+              <FormControl fullWidth error={Boolean(errors.company)}>
+                <InputLabel
+                  id="company-select-label"
+                  shrink={Boolean(field.value)}
+                >
+                  Company *
+                </InputLabel>
+                <Select
+                  {...field}
+                  labelId="company-select-label"
+                  id="company-select"
+                  label="Company *"
+                  notched={Boolean(field.value)}
+                  value={field.value ? String(field.value) : ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  disabled={companiesLoading}
+                  endAdornment={
+                    companiesLoading ? (
+                      <CircularProgress size={20} sx={{ mr: 2, color: colors.blue }} />
+                    ) : null
+                  }
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxHeight: 300,
+                      },
+                    },
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select a company</em>
+                  </MenuItem>
+                  {companyList.map((company) => (
+                    <MenuItem key={company.id} value={String(company.id)}>
+                      {company.company_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.company && (
+                  <FormHelperText>{errors.company.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+
           <Controller
             control={control}
             name="email"

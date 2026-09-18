@@ -91,23 +91,15 @@ export const navItems = [
   {
     key: "customer-service",
     title: "Customer Service",
-    icon: "users",
+    icon: "headset",
     items: [
       {
         key: "service",
-        title: "Contact Us",
+        title: "Contact Us/Update Info",
         description: "Send us a message or ask a question.",
-        icon: "users",
+        icon: "envelope",
         href: paths.dashboard.service(),
         pathFun: paths.dashboard.service(),
-      },
-      {
-        key: "account",
-        title: "Update Info",
-        description: "Request changes to your account information.",
-        icon: "user",
-        href: paths.dashboard.account(),
-        pathFun: paths.dashboard.account(),
       },
       {
         key: "stop-service",
