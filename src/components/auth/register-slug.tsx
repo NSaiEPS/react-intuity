@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback, memo } from "react";
-import { getCompanyDetails } from "@/state/features/accountSlice";
+import { getCompanyDetails, setCompanyInfo } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors } from "@/utils";
 import {
@@ -237,6 +237,8 @@ const MainSection = memo(function MainSection() {
       const formData = new FormData();
       formData.append("alias", alias);
       dispatch(getCompanyDetails(formData, undefined, failureCallBack));
+    } else {
+      dispatch(setCompanyInfo(null));
     }
   }, [pathname, location.search]);
 

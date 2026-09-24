@@ -301,7 +301,7 @@ export default function InvoiceTransactionTabs({
                 >
                   <TableCell sx={{ pl: 4.5 }}>Transaction Type</TableCell>
                   <TableCell>Date</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell sx={currentTab !== "invoice" && {pl:3}}>Status</TableCell>
                   <TableCell>Amount</TableCell>
                   <TableCell>Balance</TableCell>
                 </TableRow>
@@ -490,7 +490,7 @@ export default function InvoiceTransactionTabs({
                                             {renderStatusChip(row.status)}
                                           </TableCell>
                                           <TableCell>
-                                            <Typography fontWeight={600} sx={{ pl: 2 }}>
+                                            <Typography fontWeight={600} fontSize={14}>
                                               {formatCurrency(row.amount)}
                                             </Typography>
                                           </TableCell>
@@ -502,7 +502,7 @@ export default function InvoiceTransactionTabs({
                                                 alignItems: "center",
                                               }}
                                             >
-                                              <Typography fontWeight={600}>
+                                              <Typography fontWeight={600} fontSize={14}>
                                                 {formatCurrency(row.balance_due)}
                                               </Typography>
                                               <Box sx={{ width: 105 }} />

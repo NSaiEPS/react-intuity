@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { updatePaperLessInfo } from "@/state/features/accountSlice";
 import { getNotificationList, getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors, CustomerInfo } from "@/utils";
+import { paths } from "@/utils/paths";
 import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
 import {
   CardActions,
@@ -27,6 +29,7 @@ import Header from '@/components/CommonComponents/header-common';
 
 
 const PayerTermsConditionsModal = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [payerTermsModalOpen, setPayerTermsModalOpen] = useState(false);
@@ -76,7 +79,7 @@ const PayerTermsConditionsModal = () => {
     updateLocalStorageValue(
       "intuity-customerInfo",
       "paperless",
-      isPaperLessOn ? 0 : 1
+      isPaperLessOn ? 0 || null : 1
     );
     if (roleId && userId) {
       dispatch(getDashboardInfo(roleId, userId));
@@ -191,6 +194,7 @@ const PayerTermsConditionsModal = () => {
           disabled={accountLoading}
           onClick={() => {
             setAgreeTerms(false);
+            navigate(paths.dashboard.overview());
           }}
         >
           Cancel

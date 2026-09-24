@@ -118,6 +118,7 @@ const AccountSlice = createSlice({
     },
     setPaymentMethodInfo(state, action) {
       state.paymentMethodInfoCards = action.payload;
+      state.paymentMethodInfo = action.payload;
     },
     setSelectedCardInfo(state, action) {
       state.selectedCardInfo = action.payload;

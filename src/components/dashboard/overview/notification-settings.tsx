@@ -381,7 +381,7 @@ function NotificationsSettings() {
 
         <Stack
           direction="row"
-          spacing={3}
+          spacing={2}
           alignItems="center"
           justifyContent="space-between"
           sx={{ mx: 2, my: 2, px: 2, py: 1.5, border: "1px solid #DCDFE4", borderRadius: 1 }}
@@ -393,7 +393,7 @@ function NotificationsSettings() {
           <Stack
             component="button"
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
-            sx={{ all: "unset", display: "flex" }}
+            sx={{ all: "unset", display: "flex", flexShrink: 0 }}
           >
             <IOSSwitch
               checked={clickedState}
@@ -402,29 +402,6 @@ function NotificationsSettings() {
             />
           </Stack>
         </Stack>
-
-        {/* <Typography variant="h6" fontWeight="bold" mt={3} mb={2} px={2}>
-          Select your notification preference for each type of notice
-        </Typography>
-
-        {!phoneVerified && (
-          <Box sx={{ color: (theme) => theme.palette.error.dark, m: 2, borderRadius: 1, mb: 2 }}>
-            <Typography variant="body2">
-              Text messaging is not available as an option until you first validate your mobile phone number
-              by selecting{" "}
-              <Typography
-                component="span"
-                sx={{ color: "primary.main", textDecoration: "underline", cursor: "pointer" }}
-                onClick={() => setPhoneModalOpen(true)}
-              >
-                {preferences?.phone_no && preferences?.phone_no !== "0"
-                  ? "Validate mobile phone number"
-                  : "Add mobile phone number"}
-              </Typography>
-              .
-            </Typography>
-          </Box>
-        )} */}
 
         <Box
           sx={{
@@ -440,8 +417,9 @@ function NotificationsSettings() {
             sx={{
               display: { xs: "none", sm: "flex" },
               justifyContent: "space-between",
+              alignItems: "center",
               backgroundColor: "#F8FAFC",
-              px: 3,
+              px: { xs: 2, sm: 3 },
               py: 2,
               borderBottom: "1px solid #E2E8F0",
             }}
@@ -449,7 +427,7 @@ function NotificationsSettings() {
             <Typography sx={{ fontWeight: 600, color: "#475569", fontSize: "14px" }}>
               Notification Type
             </Typography>
-            <Typography sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", width: 220 }}>
+            <Typography sx={{ fontWeight: 600, color: "#475569", fontSize: "14px", width: 220, textAlign: "left" }}>
               Notify Me Via
             </Typography>
           </Box>

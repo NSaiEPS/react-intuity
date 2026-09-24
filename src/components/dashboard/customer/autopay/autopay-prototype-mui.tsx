@@ -79,56 +79,58 @@ type MethodType = 'card' | 'bank';
 
 interface PaymentMethod {
   id: string | number;
-  type: MethodType;
-  brand: string;
-  last4: string;
-  isDefault: boolean;
+  type?: MethodType;
+  brand?: string;
+  last4?: string;
+  isDefault?: boolean;
 
-  company_id: number;
-  user_id: number;
+  company_id?: number;
+  user_id?: number;
 
-  card_token: string;
-  card_type: string;
-  card_number: string;
+  card_token?: string;
+  card_type?: string;
+  card_number?: string;
 
-  date_used: string;
+  date_used?: string;
 
-  expired: number;
-  is_icheck_card: number;
-  is_elavon_card: number;
+  expired?: number;
+  is_icheck_card?: number;
+  is_elavon_card?: number;
 
-  bank_account_number: string | null;
-  routing_number: string | null;
-  account_type: string | null;
+  bank_account_number?: string | null;
+  routing_number?: string | null;
+  account_type?: string | null;
 
-  is_bank_account: number;
-  is_worldpay_card: number;
+  is_bank_account?: number;
+  is_worldpay_card?: number;
 
-  expiration_month: string;
-  expiration_year: string;
+  expiration_month?: string;
+  expiration_year?: string;
 
-  is_nacha_ach: number;
-  is_achworks_ach: number;
+  is_nacha_ach?: number;
+  is_achworks_ach?: number;
 
-  status: number;
-  nacha_ppd_auth: number;
+  status?: number;
+  nacha_ppd_auth?: number;
 
-  deleted_at: string | null;
+  deleted_at?: string | null;
 
-  is_elavon_ach: number;
-  elavon_company_name: string | null;
+  is_elavon_ach?: number;
+  elavon_company_name?: string | null;
 
-  approval_code: string | null;
-  token_id: string | null;
+  approval_code?: string | null;
+  token_id?: string | null;
 
-  is_verified: number | null;
+  is_verified?: number | null;
 
-  date_time_add: string | null;
-  return_code_verification: string | null;
-  effective_date: string | null;
-  settlement_date: string | null;
+  date_time_add?: string | null;
+  return_code_verification?: string | null;
+  effective_date?: string | null;
+  settlement_date?: string | null;
 
-  days_diff: number;
+  days_diff?: number;
+  token?: string;
+  [key: string]: unknown;
 }
 
 type ViewName = 'dashboard' | 'enroll-choose' | 'review' | 'deactivate';
@@ -271,10 +273,21 @@ function MethodIcon({ type }: { type: MethodType }) {
   );
 }
 
-function methodLabel(method: PaymentMethod): string {
-  return method.type === 'card'
-    ? `${method.card_type} ending in ${method.last4}`
-    : `${method.brand}${method.last4 ? ' ••• ' + method.last4 : ''}`;
+function methodLabel(method: PaymentMethod | CardDetails): string {
+  const isBank = Boolean(
+    (method as any)?.is_bank_account ||
+    (method as any)?.bank_account_number ||
+    (method as any)?.type === 'bank' ||
+    (method as any)?.type === 'account' ||
+    ['checking', 'savings', 'bank', 'account'].some((term) =>
+      ((method as any)?.card_type || (method as any)?.account_type || (method as any)?.brand || '')
+        .toLowerCase()
+        .includes(term)
+    )
+  );
+  const title = (method as any)?.card_type || (method as any)?.account_type || (method as any)?.brand || (isBank ? 'Bank Account' : 'Card');
+  const last4 = getCardLast4(method as any) || (method as any)?.last4 || '';
+  return `${title} ending in ${last4}`;
 }
 
 function DefaultChip({ isDefault }: { isDefault: boolean }) {
@@ -305,13 +318,53 @@ function PaymentMethodSelector({
   selectedId: string;
   onSelect: (id: string) => void;
   onOpenManage: () => void;
-  autopayMethodInfo?: CardDetails;
+  autopayMethodInfo?: CardDetails | null;
 }) {
+  const hasSaved = Array.isArray(methods) && methods.length > 0;
+  const currentMethod =
+    (autopayMethodInfo &&
+      methods.find(
+        (m) =>
+          String(m.id) === String(autopayMethodInfo.id) ||
+          (m.card_token && autopayMethodInfo.card_token && String(m.card_token) === String(autopayMethodInfo.card_token))
+      )) ||
+    (hasSaved ? methods.find((m) => m.isDefault) || methods[0] : null) ||
+    (hasSaved ? autopayMethodInfo : null);
+
+  const showSavedBox = Boolean(
+    hasSaved &&
+      currentMethod &&
+      (currentMethod.id ||
+        currentMethod.card_token ||
+        (currentMethod as any)?.token ||
+        currentMethod.bank_account_number ||
+        currentMethod.card_number ||
+        (currentMethod as any)?.last4)
+  );
+
+  const isBank = Boolean(
+    currentMethod?.is_bank_account ||
+      currentMethod?.bank_account_number ||
+      (currentMethod as any)?.type === 'bank' ||
+      (currentMethod as any)?.type === 'account' ||
+      ['checking', 'savings', 'bank', 'account'].some((term) =>
+        (currentMethod?.card_type || currentMethod?.account_type || (currentMethod as any)?.brand || '')
+          .toLowerCase()
+          .includes(term)
+      )
+  );
+
+  const methodTitle =
+    currentMethod?.card_type ||
+    currentMethod?.account_type ||
+    (currentMethod as any)?.brand ||
+    (isBank ? 'Bank Account' : 'Card');
+
+  const last4 = getCardLast4(currentMethod as any) || (currentMethod as any)?.last4 || '';
+
   return (
     <Box sx={{
-      // border: '1.5px solid #2A72B9',
       borderRadius: '16px',
-      // py: 2,
       mb: 3,
       backgroundColor: '#ffffff',
     }}>
@@ -320,36 +373,31 @@ function PaymentMethodSelector({
       </Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
-
         {/* Saved payment details box */}
-        {
-          (autopayMethodInfo?.id || (autopayMethodInfo as any)?.card_token || (autopayMethodInfo as any)?.last4) && (
-            <Box
-              // onClick={() => {
-              //   setPaymentType('saved');
-              // }}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                border: '1px solid #D6DBDF',
-                borderRadius: '8px',
-                p: '6px 12px',
-                backgroundColor: '#ffffff',
-                cursor: 'pointer',
-                '&:hover': {
-                  borderColor: '#A6ACAF',
-                },
-                gap: 1.5,
-              }}
-            >
-              {renderCardBrand(autopayMethodInfo?.card_type ?? autopayMethodInfo?.account_type ?? (autopayMethodInfo as any)?.brand)}
+        {showSavedBox && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #D6DBDF',
+              borderRadius: '8px',
+              p: '6px 12px',
+              backgroundColor: '#ffffff',
+              cursor: 'pointer',
+              '&:hover': {
+                borderColor: '#A6ACAF',
+              },
+              gap: 1.5,
+            }}
+          >
+            {renderCardBrand(currentMethod?.card_type ?? currentMethod?.account_type ?? (currentMethod as any)?.brand)}
 
-              <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-                {autopayMethodInfo?.card_type || autopayMethodInfo?.account_type || (autopayMethodInfo as any)?.brand || 'Card'} ending in{' '}
-                {getCardLast4(autopayMethodInfo as any) || (autopayMethodInfo as any)?.last4 || ''}
-              </Typography>
+            <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
+              {methodTitle} ending in {last4}
+            </Typography>
 
-              {/* Default Badge */}
+            {/* Default Badge */}
+            {(currentMethod?.isDefault || methods.length === 1) && (
               <Box
                 sx={{
                   backgroundColor: '#E8F8F5',
@@ -363,10 +411,11 @@ function PaymentMethodSelector({
               >
                 Default
               </Box>
-            </Box>
-          )
-        }
-        {/* Add/Edit Button */}
+            )}
+          </Box>
+        )}
+
+        {/* Add/Remove Button */}
         <Button
           variant="contained"
           size="small"
@@ -379,14 +428,14 @@ function PaymentMethodSelector({
             fontSize: '13px',
             padding: '4px 16px',
             borderRadius: '4px',
-            marginLeft: '8px',
+            marginLeft: showSavedBox ? '8px' : '0px',
           }}
           onClick={(e: any) => {
             e.stopPropagation();
             onOpenManage();
           }}
         >
-          Add/Remove
+          {showSavedBox ? 'Add/Remove' : 'Add Payment Method'}
         </Button>
       </Box>
     </Box>
@@ -528,8 +577,8 @@ function ReviewConfirm({
   setisAutoPay: React.Dispatch<React.SetStateAction<boolean>>;
   isAutoPay: boolean;
   accountLoading: boolean;
-  autopayMethodInfo: CardDetails | null;
-  setAutopayMethodInfo: React.Dispatch<React.SetStateAction<CardDetails | null>>;
+  autopayMethodInfo: CardDetails | PaymentMethod | null;
+  setAutopayMethodInfo: React.Dispatch<React.SetStateAction<CardDetails | PaymentMethod | null>>;
   openPaymentModal: boolean;
   setOpenPaymentModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -549,6 +598,9 @@ function ReviewConfirm({
       'Company'
     );
   }, [dashBoardInfo, paymentDetailsInfo, companyParam]);
+
+  const hasSavedPaymentMethod = Array.isArray(methods) && methods.length > 0 && Boolean(autopayMethodInfo);
+
   return (
     <Box sx={{ maxWidth: 560, mx: 'auto' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
@@ -584,7 +636,7 @@ function ReviewConfirm({
               <Checkbox
                 checked={authChecked}
                 onChange={(e) => setAuthChecked(e.target.checked)}
-
+                disabled={!hasSavedPaymentMethod}
               />
             }
             label={
@@ -618,7 +670,7 @@ function ReviewConfirm({
             disabled={
               !authChecked ||
               accountLoading ||
-              !autopayMethodInfo
+              !hasSavedPaymentMethod
             }
             loading={accountLoading}
             onClick={handleEnrollSave}
@@ -669,7 +721,7 @@ function EnrollChoose({
   setBankModalOpen: (value: boolean) => void;
   setPaymentType: (type: 'saved' | 'no-save' | '') => void;
   paymentType: 'saved' | 'no-save' | '';
-  autopayMethodInfo: CardDetails;
+  autopayMethodInfo: CardDetails | null;
   newCardSelected: boolean;
   onContinueExisting: (id: string) => void;
   onNewMethodContinue: (method: PaymentMethod) => void;
@@ -678,45 +730,37 @@ function EnrollChoose({
   amountDue: string;
   dueDate: string;
 }) {
-  const hasSaved = methods.length > 0;
+  const hasSaved = Array.isArray(methods) && methods.length > 0;
+
+  const selectedMethod = methods.find(
+    (m) =>
+      (autopayMethodInfo?.id && String(m.id) === String(autopayMethodInfo.id)) ||
+      (autopayMethodInfo?.card_token && m.card_token && String(m.card_token) === String(autopayMethodInfo.card_token))
+  );
   const defaultMethod = methods.find((m) => m.isDefault) || methods[0];
+  const displayCard = selectedMethod || defaultMethod || null;
 
-  const [pickedExistingId, setPickedExistingId] = useState<string | number>(
-    defaultMethod ? defaultMethod.id : null
-  );
-
-  const hasSavedCard = Boolean(
-    autopayMethodInfo?.id ||
-    autopayMethodInfo?.card_token ||
-    autopayMethodInfo?.token ||
-    autopayMethodInfo?.card_number ||
-    autopayMethodInfo?.bank_account_number ||
-    autopayMethodInfo?.account_type ||
-    autopayMethodInfo?.card_type ||
-    (methods && methods.length > 0)
-  );
-
-  const displayCard = (
-    autopayMethodInfo?.id ||
-    autopayMethodInfo?.card_token ||
-    autopayMethodInfo?.token ||
-    autopayMethodInfo?.card_number ||
-    autopayMethodInfo?.bank_account_number ||
-    autopayMethodInfo?.account_type ||
-    autopayMethodInfo?.card_type
-  ) ? autopayMethodInfo : defaultMethod;
+  const hasSavedCard = Boolean(hasSaved && displayCard);
 
   const isBank = Boolean(
     displayCard?.is_bank_account ||
     displayCard?.bank_account_number ||
-    displayCard?.account_type ||
     (displayCard as any)?.type === 'bank' ||
+    (displayCard as any)?.type === 'account' ||
     ['checking', 'savings', 'bank', 'account'].some((term) =>
       (displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || '')
         .toLowerCase()
         .includes(term)
     )
   );
+
+  const methodTitle =
+    displayCard?.card_type ||
+    displayCard?.account_type ||
+    (displayCard as any)?.brand ||
+    (isBank ? 'Bank Account' : 'Card');
+
+  const last4 = getCardLast4(displayCard as any) || (displayCard as any)?.last4 || '';
 
   React.useEffect(() => {
     if (hasSavedCard && (paymentType === '' || !newCardSelected)) {
@@ -730,7 +774,7 @@ function EnrollChoose({
     paymentType === 'saved'
       ? hasSavedCard
       : paymentType === 'no-save'
-        ? newCardSelected || hasSavedCard
+        ? newCardSelected
         : false;
 
   return (
@@ -768,7 +812,7 @@ function EnrollChoose({
         <AccountBanner accountNo={accountNo} amountDue={amountDue} dueDate={dueDate} />
         <StepRail step={1} />
       </Box>
-      < Box
+      <Box
         sx={{
           border: '1.5px solid #2A72B9',
           borderRadius: '16px',
@@ -788,7 +832,7 @@ function EnrollChoose({
             setPaymentType(val);
           }}
         >
-          {/* Option 1: Saved Payment Method - Only rendered if saved card exists */}
+          {/* Option 1: Saved Payment Method - Only rendered if saved payment method exists */}
           {hasSavedCard && (
             <Box
               sx={{
@@ -874,7 +918,7 @@ function EnrollChoose({
                         flexShrink: 1,
                       }}
                     >
-                      {displayCard?.card_type || displayCard?.account_type || (displayCard as any)?.brand || 'Card'}
+                      {methodTitle}
                     </Typography>
 
                     {isBank ? (
@@ -931,26 +975,28 @@ function EnrollChoose({
                         flexShrink: 0,
                       }}
                     >
-                      {getCardLast4(displayCard as any) || (displayCard as any)?.last4 || ''}
+                      {last4}
                     </Typography>
                   </Box>
 
                   {/* Default Badge */}
-                  <Box
-                    sx={{
-                      backgroundColor: '#E8F8F5',
-                      color: '#117A65',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      px: 1,
-                      py: 0.2,
-                      borderRadius: '4px',
-                      flexShrink: 0,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Default
-                  </Box>
+                  {(displayCard?.isDefault || methods.length === 1) && (
+                    <Box
+                      sx={{
+                        backgroundColor: '#E8F8F5',
+                        color: '#117A65',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        px: 1,
+                        py: 0.2,
+                        borderRadius: '4px',
+                        flexShrink: 0,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Default
+                    </Box>
+                  )}
                 </Box>
 
                 {/* Add/Remove Button */}
@@ -979,7 +1025,7 @@ function EnrollChoose({
             </Box>
           )}
 
-          {/* Option 2: Pay this bill only */}
+          {/* Option 2: Add a new payment method */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormControlLabel
               value="no-save"
@@ -1010,8 +1056,6 @@ function EnrollChoose({
             sx={{ px: 4 }}>
             <RadioGroup
               row
-            // value={debitType}
-            // onChange={(e) => setDebitType(e.target.value as 'card' | 'bank_account')}
             >
               <FormControlLabel value="card" control={<Radio />} label="Credit Card" onClick={() => setCardModalOpen(true)} />
               <FormControlLabel
@@ -1023,12 +1067,11 @@ function EnrollChoose({
             </RadioGroup>
           </Box>
         )}
-      </Box >
+      </Box>
 
       <Stack direction="row" spacing={1.5} justifyContent={"space-between"} sx={{ mt: 2 }}>
         <Button
           variant="outlined"
-          // fullWidth
           textTransform="none"
           onClick={onCancel}
           style={{
@@ -1048,19 +1091,22 @@ function EnrollChoose({
           bgColor={colors.blue}
           hoverBackgroundColor={colors['blue.3']}
           hoverColor="white"
-          // fullWidth
           style={{
             borderRadius: '12px',
             height: '41px',
             padding: "0 24px",
           }}
           disabled={!canContinue}
-          onClick={() => onContinueExisting(String(displayCard?.id ?? pickedExistingId ?? ''))}
+          onClick={() => {
+            if (displayCard?.id) {
+              onContinueExisting(String(displayCard.id));
+            }
+          }}
         >
           Continue
         </Button>
       </Stack>
-    </Box >
+    </Box>
   );
 }
 
@@ -1478,6 +1524,7 @@ export default function AutoPayPrototype() {
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
   // const userInfo: IntuityUser = getLocalStorage('intuity-customerInfo') as IntuityUser;
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
+  const paymentMethodInfoCards = useSelector((state: RootState) => state?.Account?.paymentMethodInfoCards);
   const paymentMethodInfo = useSelector((state: RootState) => state?.Account?.paymentMethodInfo);
 
   const userInfo: CustomerInfo = getLocalStorage('intuity-customerInfo') as CustomerInfo;
@@ -1544,54 +1591,11 @@ export default function AutoPayPrototype() {
     }
   }, [userInfo, stored, dispatch]);
 
-  // seed data toggles — flip these to try different starting scenarios
-  const [methods, setMethods] = useState<PaymentMethod[]>([
-    // {
-    //   id: 6700,
-    //   company_id: 2,
-    //   user_id: 469,
-    //   card_token: "6a7eab3df8f94411a0f41a062abddbf9",
-    //   card_type: "Visa",
-    //   card_number: "************1111",
-    //   date_used: "2025-10-10 06:33:04",
-    //   expired: 0,
-    //   is_icheck_card: 1,
-    //   is_elavon_card: 0,
-    //   bank_account_number: null,
-    //   routing_number: null,
-    //   account_type: null,
-    //   is_bank_account: 0,
-    //   is_worldpay_card: 0,
-    //   expiration_month: "11",
-    //   expiration_year: "34",
-    //   is_nacha_ach: 0,
-    //   is_achworks_ach: 0,
-    //   status: 1,
-    //   nacha_ppd_auth: 0,
-    //   deleted_at: null,
-    //   is_elavon_ach: 0,
-    //   elavon_company_name: null,
-    //   approval_code: null,
-    //   token_id: null,
-    //   is_verified: null,
-    //   date_time_add: null,
-    //   return_code_verification: null,
-    //   effective_date: null,
-    //   settlement_date: null,
-    //   days_diff: 0,
-    //   type: 'card',
-    //   brand: '',
-    //   last4: '',
-    //   isDefault: false
-    // }
-    // start with ZERO saved methods to exercise Scenario 1.
-    // Try seeding one method below to exercise Scenarios 2 & 3 instead:
-    // { id: "seed1", type: "card", brand: "Visa", last4: "1111", isDefault: true },
-  ]);
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [paymentType, setPaymentType] = useState<'saved' | 'no-save' | ''>('');
   const [autopayEnabled, setAutopayEnabled] = useState(() => isInitialAutopayOn());
   const [everEnrolled, setEverEnrolled] = useState(false);
-  const [autopayMethodInfo, setAutopayMethodInfo] = useState(dashBoardInfo?.body?.autopay_card || null)
+  const [autopayMethodInfo, setAutopayMethodInfo] = useState<CardDetails | PaymentMethod | null>(dashBoardInfo?.body?.autopay_card || null);
   const [autopayMethodId, setAutopayMethodId] = useState<string | number | null>(dashBoardInfo?.body?.autopay_card?.id || null);
   const [pendingMethodInfo, setPendingMethodInfo] = useState<CardDetails | PaymentMethod | null>(null);
   const [pendingMethodId, setPendingMethodId] = useState<string | number | null>(null);
@@ -1676,27 +1680,76 @@ export default function AutoPayPrototype() {
   const [newCardSelected, setNewCardSelected] = useState(false);
 
   const myCards = useMemo(() => {
-    if (Array.isArray(paymentMethodInfo) && paymentMethodInfo.length > 0) {
-      return paymentMethodInfo;
+    const extractCards = (data: any): PaymentMethod[] => {
+      if (!data) return [];
+      if (Array.isArray(data)) return data;
+      if (typeof data === 'object') {
+        return Object.values(data).filter(
+          (item: any) =>
+            item &&
+            typeof item === 'object' &&
+            (item.id || item.card_token || item.bank_account_number || item.card_number || item.account_type || item.card_type)
+        ) as PaymentMethod[];
+      }
+      return [];
+    };
+
+    if (paymentDetailsInfo && Object.keys(paymentDetailsInfo).length > 0) {
+      const directMyCards = paymentDetailsInfo.mycards ?? paymentDetailsInfo.customer?.mycards;
+      if (directMyCards !== undefined && directMyCards !== null) {
+        return extractCards(directMyCards);
+      }
     }
-    if (Array.isArray(paymentDetailsInfo?.customer?.mycards) && paymentDetailsInfo.customer.mycards.length > 0) {
-      return paymentDetailsInfo.customer.mycards;
+
+    if (paymentMethodInfoCards !== undefined && paymentMethodInfoCards !== null) {
+      const extracted = extractCards(paymentMethodInfoCards);
+      if (extracted.length > 0 || Array.isArray(paymentMethodInfoCards)) {
+        return extracted;
+      }
     }
-    if (Array.isArray(paymentDetailsInfo?.mycards) && paymentDetailsInfo.mycards.length > 0) {
-      return paymentDetailsInfo.mycards;
+
+    if (paymentMethodInfo !== undefined && paymentMethodInfo !== null) {
+      const extracted = extractCards(paymentMethodInfo);
+      if (extracted.length > 0 || Array.isArray(paymentMethodInfo)) {
+        return extracted;
+      }
     }
-    if (Array.isArray((dashBoardInfo?.body?.customer as any)?.mycards) && (dashBoardInfo?.body?.customer as any).mycards.length > 0) {
-      return (dashBoardInfo?.body?.customer as any).mycards;
+
+    const dashCards = (dashBoardInfo?.body?.customer as any)?.mycards ?? (dashBoardInfo?.body as any)?.mycards;
+    if (dashCards) {
+      return extractCards(dashCards);
     }
-    if (Array.isArray((dashBoardInfo?.body as any)?.mycards) && (dashBoardInfo?.body as any).mycards.length > 0) {
-      return (dashBoardInfo?.body as any).mycards;
-    }
+
     return [];
-  }, [paymentMethodInfo, paymentDetailsInfo, dashBoardInfo]);
+  }, [paymentDetailsInfo, paymentMethodInfoCards, paymentMethodInfo, dashBoardInfo]);
 
   React.useEffect(() => {
-    if (Array.isArray(myCards) && myCards.length > 0) {
+    if (Array.isArray(myCards)) {
       setMethods(myCards);
+
+      if (myCards.length === 0) {
+        setAutopayMethodInfo(null);
+        setAutopayMethodId(null);
+        setPaymentType('no-save');
+        setNewCardSelected(false);
+      } else {
+        const currentId = autopayMethodInfo?.id;
+        const currentToken = autopayMethodInfo?.card_token || (autopayMethodInfo as any)?.token;
+        const matchingMethod = myCards.find(
+          (m: any) =>
+            (currentId && String(m.id) === String(currentId)) ||
+            (currentToken && m.card_token && String(m.card_token) === String(currentToken))
+        );
+
+        if (matchingMethod) {
+          setAutopayMethodInfo(matchingMethod);
+          if (matchingMethod.id) setAutopayMethodId(matchingMethod.id);
+        } else {
+          const defaultMethod = myCards.find((m: any) => m.isDefault) || myCards[0];
+          setAutopayMethodInfo(defaultMethod);
+          if (defaultMethod?.id) setAutopayMethodId(defaultMethod.id);
+        }
+      }
     }
   }, [myCards]);
 
@@ -1705,7 +1758,7 @@ export default function AutoPayPrototype() {
     const cardFromHome = dashBoardInfo?.body?.autopay_card;
     const autopayStatusFromHome = dashBoardInfo?.body?.customer?.autopay;
 
-    if (cardFromHome) {
+    if (cardFromHome && Object.keys(cardFromHome).length > 0 && (cardFromHome.id || cardFromHome.card_token)) {
       setAutopayMethodInfo(cardFromHome);
       if (cardFromHome?.id) {
         setAutopayMethodId(cardFromHome.id);
@@ -1726,19 +1779,9 @@ export default function AutoPayPrototype() {
   function handleToggle() {
     if (!autopayEnabled) {
       // OFF -> ON : Redirect to Step 1 Enroll in AutoPay
-      const hasSavedCard = Boolean(
-        autopayMethodInfo?.id ||
-        autopayMethodInfo?.card_token ||
-        autopayMethodInfo?.token ||
-        autopayMethodInfo?.card_number ||
-        autopayMethodInfo?.bank_account_number ||
-        autopayMethodInfo?.card_type ||
-        autopayMethodInfo?.account_type ||
-        (methods && methods.length > 0) ||
-        (myCards && myCards.length > 0)
-      );
+      const hasSavedMethods = Array.isArray(methods) && methods.length > 0;
       setNewCardSelected(false);
-      setPaymentType(hasSavedCard ? 'saved' : 'no-save');
+      setPaymentType(hasSavedMethods ? 'saved' : 'no-save');
       setView('enroll-choose');
     } else {
       // ON -> OFF : Redirect to Deactivate Page
@@ -1751,8 +1794,8 @@ export default function AutoPayPrototype() {
     const selectedMethod = methods.find((m) => String(m.id) === String(methodId)) || (methods && methods.length > 0 ? methods[0] : null);
     if (selectedMethod) {
       setAutopayMethodInfo(selectedMethod as any);
+      setAutopayMethodId(selectedMethod.id);
     }
-    setAutopayMethodId(methodId);
     setAuthChecked(false);
     setView('review');
   }
@@ -1932,14 +1975,8 @@ export default function AutoPayPrototype() {
   function handleChangeMethod() {
     setAuthChecked(false);
     setNewCardSelected(false);
-    const hasSavedAutopayCard = Boolean(
-      autopayMethodInfo?.id ||
-      autopayMethodInfo?.card_token ||
-      autopayMethodInfo?.token ||
-      autopayMethodInfo?.card_number ||
-      autopayMethodInfo?.bank_account_number
-    );
-    setPaymentType(hasSavedAutopayCard ? 'saved' : '');
+    const hasSavedMethods = Array.isArray(methods) && methods.length > 0;
+    setPaymentType(hasSavedMethods ? 'saved' : 'no-save');
     setView('enroll-choose');
   }
 
@@ -1963,7 +2000,7 @@ export default function AutoPayPrototype() {
     formData.append('customer_id', userId);
 
     dispatch(updatePaperLessInfo(formData, 'autopay', (data: any) => {
-      if (data) {
+      if (data && (data.id || data.card_token || data.bank_account_number)) {
         setAutopayMethodInfo(data);
         if (data?.id) setAutopayMethodId(data.id);
       }
@@ -2153,7 +2190,8 @@ export default function AutoPayPrototype() {
             onChangeMethod={() => setOpenPaymentModal(true)}
             onDeactivate={() => setView('deactivate')}
             onSetUp={() => {
-              setPaymentType('');
+              const hasSavedMethods = Array.isArray(methods) && methods.length > 0;
+              setPaymentType(hasSavedMethods ? 'saved' : 'no-save');
               setNewCardSelected(false);
               setView('enroll-choose');
             }}

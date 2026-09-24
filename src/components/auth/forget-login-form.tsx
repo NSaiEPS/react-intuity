@@ -36,7 +36,7 @@ import { PaperPlaneTilt } from "@phosphor-icons/react/dist/ssr/PaperPlaneTilt";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { CreditCard } from "@phosphor-icons/react/dist/ssr/CreditCard";
 
-const schema = zod.object({
+const genericSchema = zod.object({
   company: zod.union([zod.string(), zod.number()]).refine(
     (val) => val !== "" && val !== undefined && val !== null,
     { message: "Please select a company" }
@@ -44,7 +44,15 @@ const schema = zod.object({
   email: zod.string().min(1, { message: "Account number is required" }),
 });
 
-type Values = zod.infer<typeof schema>;
+const companySpecificSchema = zod.object({
+  company: zod.union([zod.string(), zod.number()]).optional(),
+  email: zod.string().min(1, { message: "Account number is required" }),
+});
+
+type Values = {
+  company?: string | number;
+  email: string;
+};
 
 const defaultValues: Values = { company: "", email: "" };
 
@@ -67,11 +75,27 @@ export function ForgotLoginForm(): React.JSX.Element {
     : rawSlug?.startsWith("forgot-") && rawSlug !== "forgot-login"
     ? rawSlug.replace("forgot-", "")
     : null;
+
+  const isCompanySpecific = Boolean(
+    rawSlug?.startsWith("forgot-login-") ||
+    (rawSlug?.startsWith("forgot-") && rawSlug !== "forgot-login") ||
+    queryAlias
+  );
+
   const storedAlias = (getLocalStorage("alias-details") as { alias?: string; id?: string | number } | null)?.alias;
   const storedCompanyId = (getLocalStorage("alias-details") as { alias?: string; id?: string | number } | null)?.id;
 
-  const effectiveAlias = companyInfo?.company?.alias || slugAlias || queryAlias || storedAlias || "";
-  const effectiveCompanyId = companyInfo?.company?.id || storedCompanyId || "";
+  const effectiveAlias = isCompanySpecific
+    ? (companyInfo?.company?.alias || slugAlias || queryAlias || storedAlias || "")
+    : "";
+  const effectiveCompanyId = isCompanySpecific
+    ? (companyInfo?.company?.id || storedCompanyId || "")
+    : "";
+
+  const schema = React.useMemo(
+    () => (isCompanySpecific ? companySpecificSchema : genericSchema),
+    [isCompanySpecific]
+  );
 
   const {
     control,
@@ -84,6 +108,8 @@ export function ForgotLoginForm(): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
+    if (isCompanySpecific) return;
+
     let isMounted = true;
     const fetchCompanies = async () => {
       setCompaniesLoading(true);
@@ -105,19 +131,21 @@ export function ForgotLoginForm(): React.JSX.Element {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isCompanySpecific]);
 
   React.useEffect(() => {
-    if (effectiveCompanyId && !watch("company")) {
+    if (isCompanySpecific && effectiveCompanyId && !watch("company")) {
       setValue("company", String(effectiveCompanyId));
     }
-  }, [effectiveCompanyId, setValue, watch]);
+  }, [isCompanySpecific, effectiveCompanyId, setValue, watch]);
 
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
       setIsPending(true);
       const formData = new FormData();
-      const selectedCompanyId = values.company || effectiveCompanyId;
+      const selectedCompanyId = isCompanySpecific
+        ? (effectiveCompanyId || values.company)
+        : values.company;
       if (selectedCompanyId) {
         formData.append("company", String(selectedCompanyId));
       }
@@ -138,7 +166,7 @@ export function ForgotLoginForm(): React.JSX.Element {
 
       setIsPending(false);
     },
-    [setError, effectiveCompanyId, effectiveAlias]
+    [setError, effectiveCompanyId, effectiveAlias, isCompanySpecific]
   );
   return (
     <Stack spacing={4}>
@@ -200,54 +228,56 @@ export function ForgotLoginForm(): React.JSX.Element {
 
         <Stack spacing={2}>
           {/* Company Select */}
-          <Controller
-            control={control}
-            name="company"
-            render={({ field }) => (
-              <FormControl fullWidth error={Boolean(errors.company)}>
-                <InputLabel
-                  id="company-select-label"
-                  shrink={Boolean(field.value)}
-                >
-                  Company *
-                </InputLabel>
-                <Select
-                  {...field}
-                  labelId="company-select-label"
-                  id="company-select"
-                  label="Company *"
-                  notched={Boolean(field.value)}
-                  value={field.value ? String(field.value) : ""}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  disabled={companiesLoading}
-                  endAdornment={
-                    companiesLoading ? (
-                      <CircularProgress size={20} sx={{ mr: 2, color: colors.blue }} />
-                    ) : null
-                  }
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 300,
+          {!isCompanySpecific && (
+            <Controller
+              control={control}
+              name="company"
+              render={({ field }) => (
+                <FormControl fullWidth error={Boolean(errors.company)}>
+                  <InputLabel
+                    id="company-select-label"
+                    shrink={Boolean(field.value)}
+                  >
+                    Company *
+                  </InputLabel>
+                  <Select
+                    {...field}
+                    labelId="company-select-label"
+                    id="company-select"
+                    label="Company *"
+                    notched={Boolean(field.value)}
+                    value={field.value ? String(field.value) : ""}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    disabled={companiesLoading}
+                    endAdornment={
+                      companiesLoading ? (
+                        <CircularProgress size={20} sx={{ mr: 2, color: colors.blue }} />
+                      ) : null
+                    }
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: 300,
+                        },
                       },
-                    },
-                  }}
-                >
-                  <MenuItem value="" disabled>
-                    <em>Select a company</em>
-                  </MenuItem>
-                  {companyList.map((company) => (
-                    <MenuItem key={company.id} value={String(company.id)}>
-                      {company.company_name}
+                    }}
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Select a company</em>
                     </MenuItem>
-                  ))}
-                </Select>
-                {errors.company && (
-                  <FormHelperText>{errors.company.message}</FormHelperText>
-                )}
-              </FormControl>
-            )}
-          />
+                    {companyList.map((company) => (
+                      <MenuItem key={company.id} value={String(company.id)}>
+                        {company.company_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.company && (
+                    <FormHelperText>{errors.company.message}</FormHelperText>
+                  )}
+                </FormControl>
+              )}
+            />
+          )}
 
           <Controller
             control={control}

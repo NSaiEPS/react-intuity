@@ -76,36 +76,36 @@ export function NotificationPreferenceRow({
         alignItems: { xs: "stretch", sm: "center" },
         justifyContent: "space-between",
         gap: { xs: 1.5, sm: 2 },
-        px: { xs: 1.5, md: 3 },
-        py: { xs: 1.5, md: 2.5 },
+        px: { xs: 2, sm: 3 },
+        py: { xs: 2, sm: 2.25 },
         borderBottom: isLast ? "none" : "1px solid #E2E8F0",
       }}
     >
       {/* Left: icon + label + badge + description */}
-      <Box display="flex" alignItems="start" sx={{ minWidth: 0, flex: 1 }}>
+      <Box display="flex" alignItems="center" sx={{ minWidth: 0, flex: 1 }}>
         <Box
           sx={{
-            width: { xs: 35, sm: 40 },
-            height: { xs: 35, sm: 40 },
+            width: 40,
+            height: 40,
             borderRadius: "50%",
             backgroundColor: iconBgColor,
             color: iconColor,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            marginRight: { xs: 1, md: 2 },
+            marginRight: 2,
             flexShrink: 0,
 
             "& svg": {
-              width: { xs: 18, sm: 20 },
-              height: { xs: 18, sm: 20 },
+              width: 20,
+              height: 20,
             },
           }}
         >
           {icon}
         </Box>
         <Box sx={{ minWidth: 0 }}>
-          <Box display="flex" alignItems="center" gap={{ xs: .6, md: 1 }} flexWrap="wrap">
+          <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
             <Typography sx={{ fontWeight: 600, color: "#1E293B", fontSize: "15px" }}>
               {label}
             </Typography>
@@ -114,7 +114,7 @@ export function NotificationPreferenceRow({
                 sx={{
                   backgroundColor: badge === "Required" ? "#E6F0FD" : "#E6F4EA",
                   color: badge === "Required" ? "#0B57D0" : "#137333",
-                  fontSize: { xs: "9px", sm: "11px" },
+                  fontSize: { xs: "10px", sm: "11px" },
                   fontWeight: 600,
                   px: 1,
                   py: 0.25,
@@ -139,16 +139,11 @@ export function NotificationPreferenceRow({
         </Box>
       </Box>
 
-      {/* Right: dropdown, full width on mobile, fixed width on desktop */}
-      {/* <Tooltip
-        title={hasDisabledOption ? disabledTooltip : ""}
-        arrow
-        componentsProps={tooltipSlotProps}
-      > */}
+      {/* Right: dropdown, full width on mobile, fixed width on tablet/desktop */}
       <FormControl
         size="small"
         sx={{
-          width: { xs: "100%", sm: "30%" },
+          width: { xs: "100%", sm: 220 },
           flexShrink: 0,
         }}
       >
@@ -168,7 +163,6 @@ export function NotificationPreferenceRow({
           ))}
         </Select>
       </FormControl>
-      {/* </Tooltip> */}
     </Box>
   );
 }

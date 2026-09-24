@@ -492,7 +492,7 @@ export function CustomerDetailsForm(): React.JSX.Element {
                   lineHeight: 1.5,
                 }}
               >
-                Only complete the fields you want to update. You may also use the message box to ask a question or leave a comment.
+                <strong>Only complete the fields you want to update</strong>. You may also use the message box to ask a question or leave a comment.
                 <br />
                 Changes will be sent to your utility provider for review and will appear after your next bill is posted.
               </Typography>
