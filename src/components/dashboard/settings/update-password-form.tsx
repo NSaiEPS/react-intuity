@@ -91,7 +91,16 @@ export function UpdatePasswordForm(): React.JSX.Element {
     formData.append("repassword", data?.repassword);
     formData.append("password", data?.password);
     setPasswordLoading(true);
-    dispatch(updateAccountInfo(formData, true, successCallBack));
+    dispatch(
+      updateAccountInfo(
+        formData,
+        true,
+        successCallBack,
+        undefined,
+        false,
+        setPasswordLoading
+      )
+    );
   };
 
   const successCallBack = () => {

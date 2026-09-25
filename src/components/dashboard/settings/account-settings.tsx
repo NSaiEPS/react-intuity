@@ -78,7 +78,16 @@ export function AccountSettingsForm(): React.JSX.Element {
     formData.append("is_form", "1");
     setAccountLoading(true);
 
-    dispatch(updateAccountInfo(formData, true, successCallBack));
+    dispatch(
+      updateAccountInfo(
+        formData,
+        true,
+        successCallBack,
+        undefined,
+        false,
+        setAccountLoading
+      )
+    );
   };
 
   const successCallBack = () => {

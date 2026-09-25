@@ -333,25 +333,25 @@ function PaymentMethodSelector({
 
   const showSavedBox = Boolean(
     hasSaved &&
-      currentMethod &&
-      (currentMethod.id ||
-        currentMethod.card_token ||
-        (currentMethod as any)?.token ||
-        currentMethod.bank_account_number ||
-        currentMethod.card_number ||
-        (currentMethod as any)?.last4)
+    currentMethod &&
+    (currentMethod.id ||
+      currentMethod.card_token ||
+      (currentMethod as any)?.token ||
+      currentMethod.bank_account_number ||
+      currentMethod.card_number ||
+      (currentMethod as any)?.last4)
   );
 
   const isBank = Boolean(
     currentMethod?.is_bank_account ||
-      currentMethod?.bank_account_number ||
-      (currentMethod as any)?.type === 'bank' ||
-      (currentMethod as any)?.type === 'account' ||
-      ['checking', 'savings', 'bank', 'account'].some((term) =>
-        (currentMethod?.card_type || currentMethod?.account_type || (currentMethod as any)?.brand || '')
-          .toLowerCase()
-          .includes(term)
-      )
+    currentMethod?.bank_account_number ||
+    (currentMethod as any)?.type === 'bank' ||
+    (currentMethod as any)?.type === 'account' ||
+    ['checking', 'savings', 'bank', 'account'].some((term) =>
+      (currentMethod?.card_type || currentMethod?.account_type || (currentMethod as any)?.brand || '')
+        .toLowerCase()
+        .includes(term)
+    )
   );
 
   const methodTitle =
@@ -640,7 +640,13 @@ function ReviewConfirm({
               />
             }
             label={
-              <Typography variant="body2" sx={{ fontSize: 12.5, lineHeight: 1.55 }}>
+              <Typography variant="body2" sx={{
+                fontSize: {
+                  xs: 12.5,
+                  sm: 14,
+                },
+                lineHeight: 1.55,
+              }}>
                 I authorize {companyName} to automatically charge my selected payment method for the total amount
                 due for my utility account each billing period. Payment will be processed on the due date displayed
                 on my utility portal. This authorization will remain in effect until I cancel my AutoPay enrollment.
@@ -1209,7 +1215,12 @@ function DeactivatePage({
           sx={{ alignItems: 'flex-start', mb: 1, mx: 0 }}
           control={<Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />}
           label={
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{
+              fontSize: {
+                xs: 12.5,
+                sm: 14,
+              },
+            }}>
               I understand that AutoPay will be deactivated and I will need to make payments manually.
             </Typography>
           }

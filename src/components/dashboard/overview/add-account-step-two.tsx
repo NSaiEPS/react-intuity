@@ -1,85 +1,158 @@
 import * as React from "react";
-import { Box, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import { Controller, type Control, type FieldErrors } from "react-hook-form";
-import Button from '@/components/CommonComponents/button-comp';
+import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
+import { Question } from "@phosphor-icons/react";
+import { tooltipSx } from "@/utils/config";
 
-import { colors } from "@/utils";
-import { FeeDisclaimerNote } from "./fee-disclaimer-note";
-
+// ─── Props ─────────────────────────────────────────────────────────────────────
 interface AddAccountStepTwoProps {
   control: Control<any>;
   errors: FieldErrors<any>;
-  loading: boolean;
-  onBack: () => void;
-  onNext: () => void;
+  showError: (err: unknown) => unknown;
+  accountDetails?: {
+    account_no?: string;
+    acctnum?: string;
+    customer_name?: string;
+    name?: string;
+  };
+  accountNumber?: string;
 }
 
-export function AddAccountStepTwo({ control, errors, loading, onBack, onNext }: AddAccountStepTwoProps): React.JSX.Element {
+// ─── Component ─────────────────────────────────────────────────────────────────
+export function AddAccountStepTwo({
+  control,
+  errors,
+  showError,
+  accountDetails,
+  accountNumber,
+}: AddAccountStepTwoProps): React.JSX.Element {
+  const [notifEmailFocused, setNotifEmailFocused] = React.useState(false);
+  const [confirmNotifEmailFocused, setConfirmNotifEmailFocused] = React.useState(false);
+
+  const displayAccountNo =
+    accountDetails?.account_no || accountDetails?.acctnum || accountNumber || "";
+  const displayCustomerName =
+    accountDetails?.customer_name || accountDetails?.name || "";
+
   return (
     <>
-      <Typography variant="h5" fontWeight="bold" color="textSecondary">
-        NOTIFICATION EMAIL
-      </Typography>
+      {/* Account summary */}
+      {(displayAccountNo || displayCustomerName) ? (
+        <Box
+          sx={{
+            backgroundColor: "#f8fafc",
+            border: "1px solid #eaecf0",
+            borderRadius: "10px",
+            px: 2,
+            py: 1.5,
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.5,
+          }}
+        >
+          {displayAccountNo && (
+            <Typography variant="body2">
+              <strong>Account Number:</strong> {displayAccountNo}
+            </Typography>
+          )}
+          {displayCustomerName && (
+            <Typography variant="body2">
+              <strong>Customer Name:</strong> {displayCustomerName}
+            </Typography>
+          )}
+        </Box>
+      ) : null}
 
+      {/* Notification Email */}
       <Controller
         name="notificationEmail"
         control={control}
-        defaultValue=""
         render={({ field }) => (
-          <TextField
-            {...field}
-            label="Notification Email *"
-            variant="outlined"
-            fullWidth
-            error={!!errors.notificationEmail}
-            helperText={
-              typeof errors.notificationEmail?.message === "string" ? errors.notificationEmail?.message : ""
-            }
-          />
+          <FormControl fullWidth error={!!showError(errors.notificationEmail)}>
+            <InputLabel
+              shrink={notifEmailFocused || Boolean(field.value)}
+              sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+            >
+              Notification Email *
+            </InputLabel>
+            <OutlinedInput
+              {...field}
+              notched={notifEmailFocused || Boolean(field.value)}
+              label="Notification Email *"
+              onFocus={() => setNotifEmailFocused(true)}
+              onBlur={() => {
+                field.onBlur();
+                setNotifEmailFocused(false);
+              }}
+              startAdornment={
+                <EnvelopeSimple size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+              }
+              endAdornment={
+                <InputAdornment position="end">
+                  <Tooltip
+                    title="This email is where you will receive notifications and may be the same as a username."
+                    placement="top"
+                    arrow
+                    enterTouchDelay={0}
+                    leaveTouchDelay={3000}
+                    componentsProps={{ tooltip: { sx: tooltipSx } }}
+                  >
+                    <IconButton size="small" edge="end">
+                      <Question size={20} color="#90caf9" weight="fill" />
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              }
+            />
+            {showError(errors.notificationEmail) && (
+              <FormHelperText>{errors.notificationEmail?.message as string}</FormHelperText>
+            )}
+          </FormControl>
         )}
       />
 
+      {/* Confirm Notification Email */}
       <Controller
-        name="confirmEmail"
+        name="confirmNotificationEmail"
         control={control}
-        defaultValue=""
         render={({ field }) => (
-          <TextField
-            {...field}
-            label="Confirm Notification Email *"
-            variant="outlined"
-            fullWidth
-            error={!!errors.confirmEmail}
-            helperText={typeof errors.confirmEmail?.message == "string" ? errors.confirmEmail?.message : ""}
-          />
+          <FormControl fullWidth error={!!showError(errors.confirmNotificationEmail)}>
+            <InputLabel
+              shrink={confirmNotifEmailFocused || Boolean(field.value)}
+              sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+            >
+              Confirm Notification Email *
+            </InputLabel>
+            <OutlinedInput
+              {...field}
+              notched={confirmNotifEmailFocused || Boolean(field.value)}
+              label="Confirm Notification Email *"
+              onFocus={() => setConfirmNotifEmailFocused(true)}
+              onBlur={() => {
+                field.onBlur();
+                setConfirmNotifEmailFocused(false);
+              }}
+              startAdornment={
+                <EnvelopeSimple size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+              }
+            />
+            {showError(errors.confirmNotificationEmail) && (
+              <FormHelperText>{errors.confirmNotificationEmail?.message as string}</FormHelperText>
+            )}
+          </FormControl>
         )}
       />
-
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-        <Button
-          onClick={onBack}
-          variant="outlined"
-          textTransform="none"
-          style={{ color: colors.blue, borderColor: colors.blue, borderRadius: "12px", height: "41px" }}
-        >
-          BACK
-        </Button>
-        <Button
-          disabled={loading}
-          loading={loading}
-          variant="contained"
-          textTransform="none"
-          bgColor={colors.blue}
-          hoverBackgroundColor={colors["blue.3"]}
-          hoverColor="white"
-          style={{ borderRadius: "12px", height: "41px" }}
-          onClick={onNext}
-        >
-          NEXT
-        </Button>
-      </Box>
-
-      <FeeDisclaimerNote />
     </>
   );
 }

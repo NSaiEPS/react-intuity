@@ -434,20 +434,24 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
               Forgot password?
             </Link>
 
-            <Typography variant="body2" color="text.secondary">
-              |
-            </Typography>
+            {alias && alias !== "login" && (
+              <>
+                <Typography variant="body2" color="text.secondary">
+                  |
+                </Typography>
 
-            <Link
-              to={paths.auth.forgotLogin(effectiveAlias || undefined)}
-              style={{
-                color: colors.blue,
-                textDecoration: "none",
-                fontSize: "0.875rem",
-              }}
-            >
-              Forgot login username?
-            </Link>
+                <Link
+                  to={paths.auth.forgotLogin(effectiveAlias || undefined)}
+                  style={{
+                    color: colors.blue,
+                    textDecoration: "none",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Forgot login username?
+                </Link>
+              </>
+            )}
           </Box>
 
           {/* Login button + links row */}
@@ -511,16 +515,18 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
                 Forgot password?
               </Link>
 
-              <Link
-                to={paths.auth.forgotLogin(effectiveAlias || undefined)}
-                style={{
-                  color: colors.blue,
-                  textDecoration: "none",
-                  fontSize: "0.875rem",
-                }}
-              >
-                Forgot login username?
-              </Link>
+              {alias && alias !== "login" && (
+                <Link
+                  to={paths.auth.forgotLogin(effectiveAlias || undefined)}
+                  style={{
+                    color: colors.blue,
+                    textDecoration: "none",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Forgot login username?
+                </Link>
+              )}
             </Box>
 
 

@@ -620,12 +620,17 @@ export const linkAnotherAccount = (
       if (successCallBack) successCallBack(res?.body);
     } else {
       navigateTo("/login", { replace: true }, res?.message);
+      const msg = res?.message
+        ? typeof res?.message === "string"
+          ? res?.message
+          : res?.message[0]
+        : "Something went wrong!";
       toast.error(
-        res?.message
-          ? typeof res?.message === "string"
-            ? res?.message
-            : res?.message[0]
-          : "Something went wrong!"
+        "",
+        msg ===
+          "Oops! We're sorry, we did not find a match with the authentication information you provided. Please try again or try a different authentication method to match."
+          ? " Oops! We’re sorry, your verification answer did not match the selected question. Please try again or use a different verification question."
+          : msg
       );
     }
   } catch (e: any) {

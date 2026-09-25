@@ -78,7 +78,13 @@ export function CustomStepIcon(props: {
 }
 
 // ─── Full stepper ──────────────────────────────────────────────────────────────
-export const CustomStepper = ({ activeStep }: { activeStep: number }) => {
+export const CustomStepper = ({
+  activeStep,
+  steps: stepList = steps,
+}: {
+  activeStep: number;
+  steps?: string[];
+}) => {
   return (
     <Box display="flex" justifyContent="center" width="100%">
       <Stepper
@@ -105,7 +111,7 @@ export const CustomStepper = ({ activeStep }: { activeStep: number }) => {
           },
         }}
       >
-        {steps.map((label) => (
+        {stepList.map((label) => (
           <Step key={label}>
             <StepLabel StepIconComponent={CustomStepIcon}>{label}</StepLabel>
           </Step>
