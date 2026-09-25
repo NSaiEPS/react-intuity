@@ -3,6 +3,7 @@ import { contactCustomerService } from "@/state/features/accountSlice";
 import { RootState } from "@/state/store";
 import { colors, fileToBase64, formatUSPhone, US_STATES } from "@/utils";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
+import { toast } from "@/lib/custom-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Avatar,
@@ -131,6 +132,25 @@ export function CustomerDetailsForm(): React.JSX.Element {
   const customer_id = stored?.body?.customer_id;
 
   const onSubmit = async (data: FormValues) => {
+    const hasAnyField =
+      Boolean(data.accountName?.trim()) ||
+      Boolean(data.primaryPhone?.trim()) ||
+      Boolean(data.altPhone?.trim()) ||
+      Boolean(data.preferredOwnerMethod?.trim()) ||
+      Boolean(data.billingAddress1?.trim()) ||
+      Boolean(data.billingAddress2?.trim()) ||
+      Boolean(data.billingCity?.trim()) ||
+      Boolean(data.billingState?.trim()) ||
+      Boolean(data.billingZip?.trim()) ||
+      Boolean(data.question?.trim()) ||
+      Boolean(data.preferredContactMethod?.trim()) ||
+      Boolean(data.files && (Array.isArray(data.files) ? data.files.length > 0 : (data.files as FileList).length > 0));
+
+    if (!hasAnyField) {
+      toast.error("Please complete at least one field to submit changes or ask a question.");
+      return;
+    }
+
     const files: File[] = data.files ? Array.from(data.files) : [];
 
     const base64Files = await Promise.all(

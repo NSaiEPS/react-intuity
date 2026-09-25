@@ -68,6 +68,10 @@ export function UserPopover({
             width: isMobile ? "90vw" : type === "email" ? "350px" : "500px",
             marginLeft: isMobile ? 0 : type === "email" ? "0px" : "-200px",
             maxWidth: "100%",
+            maxHeight: "calc(100vh - 60px)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
             outline: "none",
             boxShadow: (theme) => theme.shadows[3],
             "&:focus": { outline: "none" },
@@ -76,7 +80,7 @@ export function UserPopover({
         },
       }}
     >
-      <Box display="flex" justifyContent="flex-end" alignItems="center" sx={{ p: 1, pb: 0 }}>
+      <Box display="flex" justifyContent="flex-end" alignItems="center" sx={{ p: 1, pb: 0, flexShrink: 0 }}>
         <IconButton onClick={onClose} size="small">
           <X size={18} />
         </IconButton>

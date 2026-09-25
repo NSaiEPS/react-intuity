@@ -4,17 +4,18 @@ import {
   sendInvoiceEmailAPI,
   SendInvoiceEmailPayload,
 } from "@/api/dashboard";
+import { api } from "@/api/axios";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { toast } from "@/lib/custom-toast";
 import * as pdfjsLib from "pdfjs-dist";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.js?url";
 
-// Configure worker for PDF.js
+// Configure worker for PDF.js (works across Vite dev, staging, and production builds)
 if (typeof window !== "undefined") {
   try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-      "pdfjs-dist/build/pdf.worker.min.js",
-      import.meta.url
-    ).toString();
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      pdfWorkerUrl ||
+      `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || "3.11.174"}/pdf.worker.min.js`;
   } catch (e) {
     // Fallback if URL resolution fails
   }
@@ -287,7 +288,24 @@ export async function handlePdfResponse(data: any): Promise<PdfResponseResult> {
       trimmed.startsWith("/") ||
       trimmed.startsWith("blob:")
     ) {
-      return { url: trimmed, isBlobUrl: trimmed.startsWith("blob:") };
+      if (trimmed.startsWith("blob:")) {
+        return { url: trimmed, isBlobUrl: true };
+      }
+
+      // If it's a remote URL, try to fetch as Blob to create a same-origin Blob URL
+      try {
+        const fileRes = await api.get(trimmed, { responseType: "blob" });
+        if (fileRes.data && fileRes.data.size > 0) {
+          const blob = fileRes.data.type ? fileRes.data : new Blob([fileRes.data], { type: "application/pdf" });
+          const blobUrl = URL.createObjectURL(blob);
+          return { url: blobUrl, blob, isBlobUrl: true };
+        }
+      } catch (fetchErr) {
+        // Fallback to direct URL if fetch failed
+        console.warn("Could not fetch remote PDF as Blob, using direct URL:", fetchErr);
+      }
+
+      return { url: trimmed, isBlobUrl: false };
     }
 
     // Check if it's a data URI (PDF or image)
@@ -497,7 +515,63 @@ export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
   if (!pdfUrl) return;
 
   try {
-    const loadingTask = pdfjsLib.getDocument(pdfUrl);
+    let pdfData: Uint8Array | null = null;
+
+    // Resolve PDF data into Uint8Array to prevent any CORS or fetch issues in worker/PDF.js
+    if (pdfUrl.startsWith("blob:")) {
+      try {
+        const response = await fetch(pdfUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        pdfData = new Uint8Array(arrayBuffer);
+      } catch (e) {
+        console.warn("Could not read blob URL as arrayBuffer:", e);
+      }
+    } else if (pdfUrl.startsWith("data:")) {
+      try {
+        const blob = base64ToBlob(pdfUrl);
+        const arrayBuffer = await blob.arrayBuffer();
+        pdfData = new Uint8Array(arrayBuffer);
+      } catch (e) {
+        console.warn("Could not read data URI as arrayBuffer:", e);
+      }
+    } else if (isBase64String(pdfUrl) || pdfUrl.startsWith("JVBERi0")) {
+      try {
+        const blob = base64ToBlob(pdfUrl, "application/pdf");
+        const arrayBuffer = await blob.arrayBuffer();
+        pdfData = new Uint8Array(arrayBuffer);
+      } catch (e) {
+        console.warn("Could not decode base64 string to arrayBuffer:", e);
+      }
+    } else if (pdfUrl.startsWith("http://") || pdfUrl.startsWith("https://") || pdfUrl.startsWith("/")) {
+      try {
+        const res = await api.get(pdfUrl, { responseType: "arraybuffer" });
+        if (res.data) {
+          pdfData = new Uint8Array(res.data);
+        }
+      } catch {
+        try {
+          const res = await fetch(pdfUrl);
+          const arrayBuffer = await res.arrayBuffer();
+          pdfData = new Uint8Array(arrayBuffer);
+        } catch (fetchErr) {
+          console.warn("Could not fetch remote PDF URL for printing:", fetchErr);
+        }
+      }
+    }
+
+    // Configure loadingTask: if we have raw bytes, pass data directly (zero network calls)
+    const loadingTask = pdfData
+      ? pdfjsLib.getDocument({
+          data: pdfData,
+          useWorkerFetch: false,
+          isEvalSupported: false,
+          useSystemFonts: true,
+        })
+      : pdfjsLib.getDocument({
+          url: pdfUrl,
+          withCredentials: true,
+        });
+
     const pdf = await loadingTask.promise;
     const numPages = pdf.numPages;
 
@@ -511,7 +585,7 @@ export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
       const canvas = document.createElement("canvas");
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
       if (ctx) {
         await page.render({
@@ -536,91 +610,123 @@ export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
     const printIframe = document.createElement("iframe");
     printIframe.id = "pdf-direct-print-iframe";
     printIframe.style.position = "fixed";
-    printIframe.style.top = "0";
-    printIframe.style.left = "0";
+    printIframe.style.right = "0";
+    printIframe.style.bottom = "0";
     printIframe.style.width = "0";
     printIframe.style.height = "0";
-    printIframe.style.border = "none";
-    printIframe.style.visibility = "hidden";
+    printIframe.style.border = "0";
+    printIframe.style.opacity = "0";
+    printIframe.style.pointerEvents = "none";
+    printIframe.style.zIndex = "-1";
 
     document.body.appendChild(printIframe);
 
-    const printDoc = printIframe.contentWindow?.document;
+    const printDoc = printIframe.contentDocument || printIframe.contentWindow?.document;
     if (!printDoc) {
       throw new Error("Unable to open print frame document");
     }
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Print Invoice</title>
-          <style>
-            @page {
-              size: auto;
-              margin: 0mm;
-            }
-            html, body {
-              margin: 0;
-              padding: 0;
-              background: #ffffff;
-            }
-            .page-wrapper {
-              width: 100%;
-              page-break-after: always;
-              page-break-inside: avoid;
-              display: block;
-              margin: 0;
-              padding: 0;
-            }
-            .page-wrapper:last-child {
-              page-break-after: auto;
-            }
-            img {
-              width: 100%;
-              height: auto;
-              display: block;
-              margin: 0;
-              padding: 0;
-            }
-          </style>
-        </head>
-        <body>
-          ${pageImages.map((src) => `<div class="page-wrapper"><img src="${src}" /></div>`).join("")}
-        </body>
-      </html>
-    `;
+    const html = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Print Invoice</title>
+    <style>
+      @page {
+        size: auto;
+        margin: 0mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+        width: 100%;
+      }
+      .page-wrapper {
+        width: 100%;
+        page-break-after: always;
+        page-break-inside: avoid;
+        break-after: page;
+        break-inside: avoid;
+        display: block;
+        margin: 0;
+        padding: 0;
+      }
+      .page-wrapper:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    ${pageImages.map((src) => `<div class="page-wrapper"><img src="${src}" alt="Invoice Page" /></div>`).join("")}
+  </body>
+</html>`;
 
     printDoc.open();
     printDoc.write(html);
     printDoc.close();
 
-    // Give browser a short tick to parse images into DOM, then trigger native print
-    setTimeout(() => {
-      try {
-        printIframe.contentWindow?.focus();
-        printIframe.contentWindow?.print();
-      } catch (err) {
-        console.error("Print dialog invocation failed:", err);
-      }
-    }, 200);
+    // Ensure all images are fully loaded before triggering the print dialog
+    const images = Array.from(printDoc.querySelectorAll("img"));
+    await Promise.all(
+      images.map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete && img.naturalHeight !== 0) {
+              resolve();
+            } else {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            }
+          })
+      )
+    );
+
+    // Give browser a short tick to rasterize layout
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const frameWindow = printIframe.contentWindow;
+    if (frameWindow) {
+      frameWindow.focus();
+      frameWindow.print();
+    }
   } catch (error) {
     console.error("printPdfFromUrl error:", error);
-    // Fallback: try iframe contentWindow print
+    // Fallback: try blob iframe or window print
     try {
       const fallbackIframe = document.createElement("iframe");
       fallbackIframe.style.position = "fixed";
+      fallbackIframe.style.right = "0";
+      fallbackIframe.style.bottom = "0";
       fallbackIframe.style.width = "0";
       fallbackIframe.style.height = "0";
       fallbackIframe.style.border = "none";
+      fallbackIframe.style.opacity = "0";
       fallbackIframe.src = pdfUrl;
       document.body.appendChild(fallbackIframe);
       setTimeout(() => {
-        fallbackIframe.contentWindow?.focus();
-        fallbackIframe.contentWindow?.print();
+        try {
+          fallbackIframe.contentWindow?.focus();
+          fallbackIframe.contentWindow?.print();
+        } catch (frameErr) {
+          console.warn("Fallback iframe print failed, opening PDF in window:", frameErr);
+          window.open(pdfUrl, "_blank");
+        }
       }, 500);
     } catch (e) {
       console.error("Fallback print error:", e);
+      window.open(pdfUrl, "_blank");
     }
   }
 }

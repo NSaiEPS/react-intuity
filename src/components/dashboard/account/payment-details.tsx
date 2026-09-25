@@ -218,12 +218,18 @@ export interface CardDetails {
 }
 
 export const getCardLast4 = (selectedCardDetails: CardDetails) => {
+  if (!selectedCardDetails) return '';
   const num = selectedCardDetails?.card_number
-    ? decryptFunction(selectedCardDetails.card_number)
+    ? decryptFunction(String(selectedCardDetails.card_number))
     : selectedCardDetails?.bank_account_number
-      ? decryptFunction(selectedCardDetails.bank_account_number)
-      : '';
-  return num ? num.slice(-4) : '';
+      ? decryptFunction(String(selectedCardDetails.bank_account_number))
+      : selectedCardDetails?.card_no
+        ? decryptFunction(String(selectedCardDetails.card_no))
+        : selectedCardDetails?.number
+          ? decryptFunction(String(selectedCardDetails.number))
+          : selectedCardDetails?.last4 ?? '';
+  const str = String(num || '').trim();
+  return str ? str.slice(-4) : '';
 };
 
 const PaymentForm = () => {
@@ -232,7 +238,6 @@ const PaymentForm = () => {
     control,
     formState: { errors },
     setValue,
-    // reset,
     watch,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -253,8 +258,6 @@ const PaymentForm = () => {
   const { setContextLoading } = useLoading();
   const location = useLocation();
   const { isSchedule, dueDate, customer_acknowledgement_text = '' } = location.state || {};
-  // console.log(dueDate, 'Due Date');
-  // //console.log(isSchedule, dueDate, customer_acknowledgement_text);
   const [recurringPaymentEnabled, setRecurringPaymentEnabled] = useState(false);
   const [frequency, setFrequency] = useState('1');
   const [repeatOption, setRepeatOption] = useState('repeat_indefinitely');
@@ -277,7 +280,7 @@ const PaymentForm = () => {
     );
   };
   const onSubmit = (data: FormData) => {
-    // //console.log({ ...data, paymentType });
+    // handled via handlePay / handleSaveDetails
   };
   const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const accountLoading = useSelector((state: RootState) => state?.Account.accountLoading);
@@ -297,7 +300,6 @@ const PaymentForm = () => {
       setValue('amount', paymentDetailsInfo?.customer?.balance);
     }
   }, [paymentDetailsInfo]);
-  // const [maxPaymentModal, setMaxPaymentModal] = useState<any>(false);
 
   const [myCustomerDetails, setCustomerDetails] = useState<{
     allow_overpayments: number;
@@ -330,6 +332,7 @@ const PaymentForm = () => {
       setValue('name', CustomerInfo?.customer_name);
       setValue('email', CustomerInfo?.email);
       setValue('amount', '0.00');
+      setHasUserChangedPaymentType(false);
     }
     if (CustomerInfo?.company_id) {
       const formdata = new FormData();
@@ -341,35 +344,6 @@ const PaymentForm = () => {
 
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-
-  // const encryptedId = searchParams.get("id");
-  // const id = encryptedId
-  // ? decodeURIComponent(atob(decodeURIComponent(encryptedId)))
-  // : "";
-
-  // const { id: encryptedId } = useParams();
-
-  // let id = "";
-
-  // try {
-  //   if (!encryptedId) {
-  //     throw new Error("Missing id");
-  //   }
-
-  //   id = decodeURIComponent(
-  //     atob(decodeURIComponent(encryptedId))
-  //   );
-  // } catch (err) {
-  //   navigate("/errors/not-found", {
-  //     replace: true,
-  //     state: {
-  //       title: "Invalid URL",
-  //       description: "Please use a valid payment link.",
-  //     },
-  //   });
-  //   return;
-  // }
-
 
   const { id: encryptedId } = useParams();
 
@@ -392,31 +366,161 @@ const PaymentForm = () => {
     return;
   }
   const transId = searchParams.get('transId');
-  // //console.log(transId, id, "transId");
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
+  const [cardBankDetails, setCardBankDetails] = useState<any>(null);
 
-  // useEffect(() => {
+  // Extract saved cards list
+  const extractCards = React.useCallback((data: any): CardDetails[] => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (typeof data === 'object') {
+      return Object.values(data).filter(
+        (item: any) =>
+          item &&
+          typeof item === 'object' &&
+          (item.id || item.card_token || item.bank_account_number || item.card_number || item.account_type || item.card_type)
+      ) as CardDetails[];
+    }
+    return [];
+  }, []);
 
-  //   if (paymentType === "no-save") {
-  //     // Skip loading script if saved payment method is selected
-  //     const script = document.createElement("script");
-  //     script.src = "https://cdn.icheckgateway.com/Scripts/iefixes.min.js";
-  //     script.async = true;
-  //     document.body.appendChild(script);
+  const savedCardsList: CardDetails[] = React.useMemo(() => {
+    let cards: CardDetails[] = [];
+    if (paymentDetailsInfo && Object.keys(paymentDetailsInfo).length > 0) {
+      const directMyCards = paymentDetailsInfo.mycards ?? paymentDetailsInfo.customer?.mycards;
+      if (directMyCards !== undefined && directMyCards !== null) {
+        cards = extractCards(directMyCards);
+      }
+    }
+    if (cards.length === 0 && myCard && Object.keys(myCard).length > 0) {
+      cards = extractCards(myCard);
+    }
+    if (cards.length === 0 && dashBoardInfo?.body?.customer?.mycards) {
+      cards = extractCards(dashBoardInfo.body.customer.mycards);
+    }
+    return cards;
+  }, [paymentDetailsInfo, myCard, dashBoardInfo, extractCards]);
 
-  //     return () => {
-  //       // Clean up when component unmounts
-  //       document.body.removeChild(script);
-  //     };
-  //   }
-  // }, [paymentType]);
-  const [cardBankDetails, setCardBankDetails] = useState(null);
-  const handleSaveDetails = (data, debitType) => {
+  const hasSavedPaymentMethods = savedCardsList.length > 0;
+
+  const getCardKey = React.useCallback((card: CardDetails | null | undefined): string => {
+    if (!card) return '';
+    return String(card.id ?? card.card_token ?? card.card_id ?? card.card_number ?? card.bank_account_number ?? '');
+  }, []);
+
+  const formatPaymentMethodLabel = React.useCallback((method: CardDetails | null | undefined): string => {
+    if (!method) return 'Saved Payment Method';
+    const isBank = Boolean(
+      method?.bank_account_number ||
+      method?.account_type ||
+      method?.isBank ||
+      (method?.type && String(method.type).toLowerCase() === 'account')
+    );
+    const type = method?.card_type || method?.account_type || (isBank ? 'Bank Account' : 'Card');
+    const last4 = getCardLast4(method);
+    return `${type}${last4 ? ` ending in ${last4}` : ''}`;
+  }, []);
+
+  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
+  const [hasUserChangedPaymentType, setHasUserChangedPaymentType] = useState(false);
+
+  // Synchronize selectedCardDetails with savedCardsList / default selection
+  useEffect(() => {
+    if (hasSavedPaymentMethods) {
+      if (!hasUserChangedPaymentType) {
+        setPaymentType('saved');
+      }
+      const currentKey = getCardKey(selectedCardDetails);
+      const exists = savedCardsList.some((c) => getCardKey(c) === currentKey);
+      if (!currentKey || !exists) {
+        const defaultCard =
+          savedCardsList.find(
+            (c: any) =>
+              c.is_default === 1 ||
+              c.is_default === true ||
+              c.default === 1 ||
+              c.default === true ||
+              c.default_payment === 1 ||
+              c.default_payment === '1'
+          ) ||
+          (paymentMethodInfoCards && getCardKey(paymentMethodInfoCards) ? paymentMethodInfoCards : null) ||
+          savedCardsList[0];
+
+        if (defaultCard) {
+          setSelectedCardDetails(defaultCard);
+        }
+      }
+    } else {
+      setSelectedCardDetails({});
+      if (!hasUserChangedPaymentType) {
+        setPaymentType('no-save');
+      }
+    }
+  }, [hasSavedPaymentMethods, savedCardsList, paymentMethodInfoCards, getCardKey, selectedCardDetails, hasUserChangedPaymentType]);
+
+  // Handle saving details (one-time or with save checkbox)
+  const handleSaveDetails = (data: any, selectedDebitType: 'card' | 'bank_account') => {
     if (data?.error) {
       toast.error(data?.error ? data?.error : 'Try again something went wrong!');
-
       return;
+    }
+
+    // If user checked "Save payment method for future payments", save it first as default
+    if (saveThisPaymentForFuture) {
+      const saveFormdata = new FormData();
+      saveFormdata.append('acl_role_id', stored?.body?.acl_role_id);
+      saveFormdata.append('customer_id', stored?.body?.customer_id);
+      saveFormdata.append('model_open', '1');
+
+      if (selectedDebitType === 'card') {
+        if (data?.ssl_token) {
+          saveFormdata.append('token', data?.ssl_token);
+          saveFormdata.append('credit_card_number', data?.ssl_card_number);
+          saveFormdata.append('card_type', data?.ssl_card_short_description);
+          saveFormdata.append('expiration', data?.ssl_exp_date);
+          saveFormdata.append('approval_code', data?.ssl_approval_code);
+        } else if (data?.forte_response || data?.forte_token) {
+          const forteResp = data?.forte_response;
+          const forteToken = String(forteResp?.onetime_token ?? data?.forte_token ?? data?.token ?? '');
+          const last4 = String(forteResp?.last_4 ?? data?.credit_card_number ?? data?.cardNumber ?? '');
+          const cardType = String(forteResp?.card_type ?? data?.card_type ?? data?.cardType ?? '');
+          const expMonth = String(forteResp?.expire_month ?? '').padStart(2, '0');
+          const expYearRaw = String(forteResp?.expire_year ?? '');
+          const expYearFull = expYearRaw.length === 2 ? `20${expYearRaw}` : expYearRaw;
+          const expirationFormatted = expMonth && expYearFull ? `${expMonth}/${expYearFull}` : String(data?.expiration ?? '');
+
+          saveFormdata.append('token', forteToken);
+          saveFormdata.append('credit_card_number', last4);
+          saveFormdata.append('card_type', cardType);
+          saveFormdata.append('expiration', expirationFormatted);
+        } else {
+          saveFormdata.append('token', data?.token);
+          saveFormdata.append('credit_card_number', data?.cardNumber);
+          saveFormdata.append('card_type', data?.cardType);
+          saveFormdata.append('expiration', data?.cardExpDate ?? data?.expiration);
+        }
+      } else {
+        saveFormdata.append('token', data?.token ?? data?.forte_token);
+        saveFormdata.append('bank_account_number', data?.accountNumber ?? data?.bank_account_number);
+        saveFormdata.append('routing_number', data?.routingNumber ?? data?.routing_number);
+        saveFormdata.append(
+          'account_type',
+          data?.accountType === 'PC'
+            ? 'Personal Checking'
+            : data?.accountType === 'PS'
+              ? 'Personal Savings'
+              : data?.accountType === 'BC'
+                ? 'Business Checking'
+                : data?.accountType === 'BS'
+                  ? 'Business Savings'
+                  : data?.accountType === 'GL'
+                    ? 'General Ledger'
+                    : data?.accountType || ' Other'
+        );
+      }
+
+      dispatch(getPaymentDetails(saveFormdata, true));
     }
 
     const formdata = new FormData();
@@ -426,15 +530,13 @@ const PaymentForm = () => {
     formdata.append('id', id);
 
     formdata.append('pay_payment_method', 'pay_unsave_method');
-    formdata.append('payment_method_id_radio', debitType);
-    formdata.append('is_card', debitType === 'card' ? '1' : '0');
+    formdata.append('payment_method_id_radio', selectedDebitType);
+    formdata.append('is_card', selectedDebitType === 'card' ? '1' : '0');
 
-    //for card
-    if (debitType === 'card') {
+    // for card
+    if (selectedDebitType === 'card') {
       if (data?.ssl_token) {
-        // formdata.append("salestax", data?.ssl_token);
         formdata.append('salestax', '0');
-
         formdata.append('credit_card_number', data?.ssl_card_number);
         formdata.append('card_type', data?.ssl_card_short_description);
         formdata.append('expiration', data?.ssl_exp_date);
@@ -467,14 +569,13 @@ const PaymentForm = () => {
         formdata.append('is_card_one_time', '1');
       }
     }
-    if (debitType == 'bank_account') {
+    if (selectedDebitType === 'bank_account') {
       if ('expiration' in data) {
         formdata.append('expiration', '');
       }
 
       formdata.append('bank_account_number', data?.accountNumber);
       formdata.append('routing_number', data?.routingNumber);
-      // formdata.append('account_type', data?.accountType);
       formdata.append(
         'account_type',
         data?.accountType === 'PC'
@@ -500,54 +601,13 @@ const PaymentForm = () => {
       }
     }
     formdata.append('token', data?.ssl_token ?? data?.forte_token ?? data?.token);
-
-    // formdata.append(
-    //   "convenienceFee",
-    //   String(
-    //     watch("convenienceFee") == 0 ? "0.00" : watch("convenienceFee") || 0.0
-    //   )
-    // );
-
     formdata.append('payment_method', '0');
-    // formdata.append("price", String(watch("amount") || 0));
     formdata.append('price', Number(watch('amount') || 0).toFixed(2));
-
     formdata.append('convenienceFee', Number(watch('convenienceFee') || 0).toFixed(2));
-
-    // "id:26286
-    // acl_role_id:4
-    // customer_id:810
-    // is_one_time:1
-    // pay_payment_method:pay_unsave_method
-    // payment_method_id_radio:card
-    // is_card:1
-    // credit_card_number:1111
-    // is_card_one_time:1
-    // card_type:Visa
-    // expiration:1129
-    // token:a2697ab75ae347218993e7b0c77f4aa0
-    // convenienceFee:0.07
-    // payment_method:0
-    // price:2.00"
-
-    //     "id:26286
-    // acl_role_id:4
-    // customer_id:810
-    // is_one_time:1
-    // pay_payment_method:pay_unsave_method
-    // payment_method_id_radio:bank_account
-    // is_card:0
-    // bank_account_number:0000
-    // is_card_one_time:1
-    // account_type:Personal Savings
-    // token:ec00452005c045ac89051e8de884da19
-    // convenienceFee:2.95
-    // payment_method:0
-    // price:3.00"
 
     dispatch(
       paymentWithoutSavingDetails(formdata, true, () => {
-        navigate(paths.dashboard.payNow());
+        navigate(paths.dashboard.lastBill());
       })
     );
   };
@@ -565,29 +625,24 @@ const PaymentForm = () => {
         setOpenPaymentModal(false);
         setOpenConfirm(false);
         paymentDetails();
-        //console.log("Payment details saved successfully!"); // Handle success
-        // navigate(paths.dashboard.payNow());
       })
     );
   };
   const [openConfirm, setOpenConfirm] = useState(false);
-
-
-  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
-  useEffect(() => {
-    setSelectedCardDetails(paymentMethodInfoCards);
-  }, [paymentMethodInfoCards]);
 
   const amount = watch('amount');
   const [debouncedAmount, setDebouncedAmount] = useState(amount);
 
   // Update debounced amount when user stops typing (600ms delay)
   useEffect(() => {
+    if (amount !== debouncedAmount) {
+      setIsFeeLoading(true);
+    }
     const handler = setTimeout(() => {
       setDebouncedAmount(amount);
     }, 600);
     return () => clearTimeout(handler);
-  }, [amount]);
+  }, [amount, debouncedAmount]);
 
   const extractFeeFromResponse = (resData: any): number => {
     if (typeof resData === 'number') return resData;
@@ -605,6 +660,7 @@ const PaymentForm = () => {
       const numericAmount = parseFloat(targetAmount || '0');
       if (numericAmount <= 0) {
         setValue('convenienceFee', 0);
+        setIsFeeLoading(false);
         return;
       }
 
@@ -612,13 +668,13 @@ const PaymentForm = () => {
       const customerId = stored?.body?.customer_id ? Number(stored.body.customer_id) : 0;
 
       const isBankAccount =
-        paymentType === 'saved'
-          ? Boolean(selectedCardDetails?.bank_account_number)
+        paymentType === 'saved' && hasSavedPaymentMethods
+          ? Boolean(selectedCardDetails?.bank_account_number || selectedCardDetails?.account_type || selectedCardDetails?.isBank)
           : debitType === 'bank_account';
 
       const cardTypeOrBrand =
-        paymentType === 'saved'
-          ? (selectedCardDetails?.card_type || selectedCardDetails?.brand)
+        paymentType === 'saved' && hasSavedPaymentMethods
+          ? (selectedCardDetails?.card_type || selectedCardDetails?.brand || selectedCardDetails?.account_type)
           : undefined;
 
       const paymentMethodType = getPaymentMethodType({
@@ -652,13 +708,14 @@ const PaymentForm = () => {
         setIsFeeLoading(false);
       }
     },
-    [watch, stored?.body?.acl_role_id, stored?.body?.customer_id, paymentType, selectedCardDetails?.bank_account_number, selectedCardDetails?.card_type, selectedCardDetails?.brand, debitType, dispatch, setValue]
+    [watch, stored?.body?.acl_role_id, stored?.body?.customer_id, paymentType, hasSavedPaymentMethods, selectedCardDetails?.bank_account_number, selectedCardDetails?.card_type, selectedCardDetails?.brand, selectedCardDetails?.account_type, selectedCardDetails?.isBank, debitType, dispatch, setValue]
   );
 
-  // Trigger fee API call when debounced amount changes (user stops typing) or payment method changes
+  // Trigger fee API call when debounced amount changes or payment method changes
   useEffect(() => {
     fetchConvenienceFee(debouncedAmount);
   }, [debouncedAmount, fetchConvenienceFee]);
+
   useEffect(() => {
     if (
       myCustomerDetails?.allow_overpayments == 0 &&
@@ -669,18 +726,14 @@ const PaymentForm = () => {
       toast.warn("Please don't pay more than you owe!");
     }
   }, [amount, myCustomerDetails, setValue]);
-  // useEffect(() => {
-  //   if (transId && transId !== "0") {
-  //     toast.success("Card Added Successfully");
-  //   }
-  // }, [transId]);
+
   const cardConvenienceFee = searchParams.get('convenience_fee');
   const cardAmount = searchParams.get('amount');
   const cardTransId = searchParams.get('transId');
   const card_no = searchParams.get('card_no');
   const card_type = searchParams.get('card_type');
   const expiration = searchParams.get('expiration');
-  // //console.log(cardAmount, "cardAmount");
+
   useEffect(() => {
     if (cardAmount && cardConvenienceFee && cardTransId) {
       setShowPaymentSummary(true);
@@ -698,37 +751,15 @@ const PaymentForm = () => {
 
     if (isSchedule) {
       formdata.append('is_one_time', '0');
-
-      // formdata.append(
-      //   "payment_method_id_radio",
-      //   selectedCardDetails?.card_number ? "card" : "bank_account"
-      // );
-      // formdata.append("is_card", selectedCardDetails?.card_number ? "1" : "0");
       formdata.append('payment_method_id_radio', 'card');
       formdata.append('is_card', '0');
-
       formdata.append('is_card_one_time', '0');
       formdata.append('convenienceFee', String(watch('convenienceFee') || 0));
       formdata.append('payment_method', '1');
-
       formdata.append('price', Number(watch('amount') || 0).toFixed(2));
-
       formdata.append('payment_method_id_form', selectedCardDetails?.card_token);
       formdata.append('schedule_date', dayjs(watch('duedate')).format('MM/DD/YY'));
       formdata.append('pay_now_hidden', '1');
-
-      // is_one_time:0
-      // payment_method_id_radio:card
-      // is_card:0
-      // is_card_one_time:0
-      // convenienceFee:0.04
-      // payment_method:1
-      // price:1.00
-      // payment_method_id_form:ca56b25436154679aa30c9e9a911c1c1
-      // schedule_date:08/14/2025
-      // pay_now_hidden:1"
-
-      //recurring
 
       if (recurringPaymentEnabled) {
         formdata.append('make_recurring_pay', '1');
@@ -737,14 +768,9 @@ const PaymentForm = () => {
         formdata.append('repeat_an_additional_times', String(repeatTimes));
       }
 
-      // make_recurring_pay:1
-      // recurring_pay_opt:1
-      // select_repeat_options:repeat_an_additional
-      // repeat_an_additional_times:2"
-
       dispatch(
         schedulePayment(formdata, () => {
-          navigate(paths.dashboard.payNow());
+          navigate(paths.dashboard.lastBill());
         })
       );
     } else {
@@ -755,86 +781,40 @@ const PaymentForm = () => {
       if (selectedCardDetails?.bank_account_number) {
         formdata.append('is_bank_account_payment_method_form', '1');
       }
-      //for bank
-      // is_bank_account_payment_method_form:1"
 
       formdata.append('payment_method_id_form', selectedCardDetails?.card_token);
-
       formdata.append('convenienceFee', String(watch('convenienceFee') || 0));
       formdata.append('payment_method', '0');
-      // formdata.append("price", String(watch("amount") || 0));
       formdata.append('price', Number(watch('amount') || 0).toFixed(2));
 
-      // if (cardConvenienceFee) {
-      //   const formdata = new FormData();
-
-      //   formdata.append("acl_role_id", stored?.body?.acl_role_id);
-      //   formdata.append("customer_id", stored?.body?.customer_id);
-      //   formdata.append("is_one_time", "1");
-      //   formdata.append("id", id);
-      //   // formdata.append("pay_payment_method", "pay_save_method");
-      //   formdata.append("pay_payment_method", "pay_unsave_method");
-      //   formdata.append("payment_method_id_radio", "card");
-      //   formdata.append("is_card", "1");
-      //   formdata.append("is_card_one_time", "1");
-      //   // formdata.append("payment_method_id_form", cardTransId);
-      //   formdata.append("token", cardTransId);
-
-      //   formdata.append(
-      //     "convenienceFee",
-      //     Number(cardConvenienceFee || 0).toFixed(2)
-      //   );
-      //   formdata.append("payment_method", "0");
-      //   formdata.append("price", Number(cardAmount || 0).toFixed(2));
-
-      //   // formdata.append("price", Number(watch("amount") || 0).toFixed(2));
-
-      //   dispatch(
-      //     paymentWithoutSavingDetails(
-      //       stored?.body?.token,
-      //       formdata,
-      //       true,
-      //       () => {
-      //         navigate(paths.dashboard.payNow());
-      //       }
-      //     )
-      //   );
-      //   return;
-      // }
       if (cardConvenienceFee) {
-        const formdata = new FormData();
-
-        formdata.append('acl_role_id', stored?.body?.acl_role_id);
-        formdata.append('customer_id', stored?.body?.customer_id);
-        formdata.append('is_one_time', '1');
-        formdata.append('id', id);
-        // formdata.append("pay_payment_method", "pay_save_method");
-        formdata.append('pay_payment_method', 'pay_unsave_method');
-        formdata.append('payment_method_id_radio', 'card');
-        formdata.append('is_card', '1');
-        formdata.append('is_card_one_time', '1');
-        // formdata.append("payment_method_id_form", cardTransId);
-        formdata.append('token', cardTransId);
-        formdata.append('credit_card_number', card_no);
-        formdata.append('card_type', card_type);
-        formdata.append('expiration', expiration);
-
-        formdata.append('convenienceFee', Number(cardConvenienceFee || 0).toFixed(2));
-        formdata.append('payment_method', '0');
-        formdata.append('price', Number(cardAmount || 0).toFixed(2));
-
-        // formdata.append("price", Number(watch("amount") || 0).toFixed(2));
+        const urlFormdata = new FormData();
+        urlFormdata.append('acl_role_id', stored?.body?.acl_role_id);
+        urlFormdata.append('customer_id', stored?.body?.customer_id);
+        urlFormdata.append('is_one_time', '1');
+        urlFormdata.append('id', id);
+        urlFormdata.append('pay_payment_method', 'pay_unsave_method');
+        urlFormdata.append('payment_method_id_radio', 'card');
+        urlFormdata.append('is_card', '1');
+        urlFormdata.append('is_card_one_time', '1');
+        urlFormdata.append('token', cardTransId);
+        urlFormdata.append('credit_card_number', card_no);
+        urlFormdata.append('card_type', card_type);
+        urlFormdata.append('expiration', expiration);
+        urlFormdata.append('convenienceFee', Number(cardConvenienceFee || 0).toFixed(2));
+        urlFormdata.append('payment_method', '0');
+        urlFormdata.append('price', Number(cardAmount || 0).toFixed(2));
 
         dispatch(
-          paymentWithoutSavingDetails(formdata, true, () => {
-            navigate(paths.dashboard.payNow());
+          paymentWithoutSavingDetails(urlFormdata, true, () => {
+            navigate(paths.dashboard.lastBill());
           })
         );
         return;
       }
       dispatch(
         paymentWithoutSavingDetails(formdata, true, () => {
-          navigate(paths.dashboard.payNow());
+          navigate(paths.dashboard.lastBill());
         })
       );
     }
@@ -848,7 +828,6 @@ const PaymentForm = () => {
     ADD_ATTR: ['target', 'rel'],
   });
 
-  // force links to open in new tab
   const finalHTML = sanitizedHTML.replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ');
   const billAmountDueValue =
     paymentDetailsInfo?.customer?.balance ?? myCustomerDetails?.balance ?? CustomerInfo?.balance ?? 0;
@@ -874,17 +853,25 @@ const PaymentForm = () => {
     paymentDetailsInfo?.customer?.account_number ??
     '-';
 
+  const isAutopayEnabled =
+    Number(CustomerInfo?.autopay) === 1 ||
+    Number(dashBoardInfo?.body?.customer?.autopay) === 1 ||
+    Number(dashBoardInfo?.customer?.autopay) === 1 ||
+    Number(paymentDetailsInfo?.customer?.autopay) === 1;
+
+  const totalCalculatedAmount = (Number(watch('amount')) || 0) + (Number(watch('convenienceFee')) || 0);
 
   return (
     <SkeletonWrapper>
       <Box sx={{ maxWidth: 720, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Page Header */}
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
               gap: 1.5,
-              marginBottom: 2,
+              marginBottom: 2.5,
             }}
           >
             <Box
@@ -912,55 +899,73 @@ const PaymentForm = () => {
               Payment Details
             </Typography>
           </Box>
+
+          {/* Billing Information Section */}
           <Box
             sx={{
               backgroundColor: '#EAF6FF',
-              boxShadow: '0 4px 14px rgba(23, 45, 86, 0.16)',
-              borderRadius: 1,
-              p: { xs: 2, sm: 3 },
-              mb: 2,
+              boxShadow: '0 4px 14px rgba(23, 45, 86, 0.12)',
+              borderRadius: 2,
+              p: { xs: 2.5, sm: 3 },
+              mb: 2.5,
+              border: '1px solid #D2E7F9',
             }}
           >
-            <Stack spacing={1}>
+            <Stack spacing={1.5}>
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography fontWeight={500} color="black">
+                <Typography fontWeight={500} color="text.secondary">
                   Account No.:
                 </Typography>
-
-                <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
+                <Typography fontWeight={600} color="text.primary" sx={{ textAlign: 'right' }}>
                   {accountNumber}
                 </Typography>
               </Stack>
 
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography fontWeight={500} color="black">
-                  Bill Amount Due:
+                <Typography fontWeight={500} color="text.secondary">
+                  Amount Due:
                 </Typography>
-
-                <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
+                <Typography fontWeight={600} color="text.primary" sx={{ textAlign: 'right' }}>
                   {billAmountDue}
                 </Typography>
               </Stack>
 
               <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography fontWeight={500} color="black">
-                  Due Date
+                <Typography fontWeight={500} color="text.secondary">
+                  Due Date:
                 </Typography>
-
-                <Typography fontWeight={500} color="black" sx={{ textAlign: 'right' }}>
+                <Typography fontWeight={600} color="text.primary" sx={{ textAlign: 'right' }}>
                   {formattedBillDueDate}
                 </Typography>
               </Stack>
+
+              <Box sx={{ borderTop: '1px solid rgba(47, 102, 179, 0.2)', pt: 1.5, mt: 0.5 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle1" fontWeight={700} color="#172D56">
+                    Total Payment Amount:
+                  </Typography>
+                  {isFeeLoading ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={18} sx={{ color: '#2A72B9' }} /> Updating...
+                    </Box>
+                  ) : (
+                    <Typography variant="h6" fontWeight={800} color="#2F66B3" sx={{ textAlign: 'right' }}>
+                      {formatCurrency(totalCalculatedAmount)}
+                    </Typography>
+                  )}
+                </Stack>
+              </Box>
             </Stack>
           </Box>
 
+          {/* Action Buttons: AutoPay & Paperless */}
           <Box
             sx={{
               display: 'flex',
               flexDirection: { xs: 'column', sm: 'row' },
               justifyContent: 'flex-end',
               gap: 2,
-              mb: 2,
+              mb: 2.5,
             }}
           >
             {myCustomerDetails.paperless === 0 && (
@@ -991,9 +996,7 @@ const PaymentForm = () => {
               </Button>
             )}
 
-            {CustomerInfo?.autopay === 0 && (
-
-
+            {!isAutopayEnabled && (
               <Button
                 variant="contained"
                 onClick={() => navigate(paths.dashboard.autoPay())}
@@ -1008,13 +1011,12 @@ const PaymentForm = () => {
                 }}
               >
                 Enroll in AutoPay
-
               </Button>
             )}
           </Box>
 
-          {/* Name & Email */}
-          <Box sx={{}}>
+          {/* Name & Email for Receipt */}
+          <Box sx={{ mb: 1.5 }}>
             <Box flex={1}>
               <Typography fontWeight={600}>Name for Payment Receipt</Typography>
               <Controller
@@ -1032,7 +1034,7 @@ const PaymentForm = () => {
               />
             </Box>
 
-            <Box flex={1} sx={{ mt: 1 }}>
+            <Box flex={1} sx={{ mt: 1.5 }}>
               <Typography fontWeight={600}>Email for Payment Receipt</Typography>
               <Controller
                 name="email"
@@ -1050,8 +1052,8 @@ const PaymentForm = () => {
             </Box>
           </Box>
 
-          {/* Amount */}
-          <Box sx={{ mb: 1, mt: 1 }}>
+          {/* Amount to Pay */}
+          <Box sx={{ mb: 2, mt: 1 }}>
             <Typography fontWeight={600}>Amount to pay</Typography>
             <Controller
               name="amount"
@@ -1069,11 +1071,7 @@ const PaymentForm = () => {
                       : paymentDetailsInfo?.customer?.is_payments_blocked == 1
                         ? paymentDetailsInfo?.block_individual_customer_pay_text ??
                         'Payments are not allowed at this time.'
-                        : // : paymentDetailsInfo?.company?.allow_overpayments == 0
-                        // ? "Over payments are not allowed at this time."
-                        // : paymentDetailsInfo?.company?.allow_partial_payments == 0
-                        // ? "Partial payments are not allowed"
-                        ''
+                        : ''
                   }
                   componentsProps={{
                     tooltip: {
@@ -1081,9 +1079,8 @@ const PaymentForm = () => {
                         backgroundColor: '#E7E6E6',
                         color: '#000000',
                         border: '1px solid #d0cfcf',
-                        fontSize: '14px', // 👈 updated
+                        fontSize: '14px',
                         lineHeight: 1.4,
-                        // fontSize: '0.8rem',
                         '& .MuiTooltip-arrow': {
                           color: '#E7E6E6',
                           '&::before': {
@@ -1118,8 +1115,8 @@ const PaymentForm = () => {
                     value={
                       field.value
                         ? isAmountFocused
-                          ? `$${field.value}` // raw, editable while typing
-                          : formatCurrency(field.value) // pretty once user leaves the field
+                          ? `$${field.value}`
+                          : formatCurrency(field.value)
                         : ''
                     }
                     placeholder="$0.00"
@@ -1130,7 +1127,6 @@ const PaymentForm = () => {
                     }
                     onFocus={(e) => {
                       setIsAmountFocused(true);
-                      // put cursor at the end so they don't land in the middle of "$3.40"
                       requestAnimationFrame(() => {
                         const len = e.target.value.length;
                         e.target.setSelectionRange(len, len);
@@ -1138,13 +1134,12 @@ const PaymentForm = () => {
                     }}
                     onBlur={() => {
                       setIsAmountFocused(false);
-                      field.onBlur(); // keep RHF's blur/touched tracking intact
+                      field.onBlur();
                     }}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^\d.]/g, '');
                       const sanitizedValue = value.replace(/(\..*)\./g, '$1').replace(/^(\d+\.?\d{0,2}).*$/, '$1');
 
-                      // Prevent empty or 0
                       if (Number(sanitizedValue) < 0) {
                         toast.warn('Amount should be more than 0');
                         return;
@@ -1167,13 +1162,6 @@ const PaymentForm = () => {
 
                       field.onChange(sanitizedValue);
                     }}
-
-                  // onBlur={(e) => {
-                  //   // Also enforce on blur (in case user clears and leaves field)
-                  //   if (!e.target.value || Number(e.target.value) <= 0) {
-                  //     field.onChange("1");
-                  //   }
-                  // }}
                   />
                 </Tooltip>
               )}
@@ -1200,7 +1188,9 @@ const PaymentForm = () => {
                 }}
               >
                 {isFeeLoading ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CircularProgress size={18} sx={{ color: '#2A72B9' }} /> Updating...</Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={18} sx={{ color: '#2A72B9' }} /> Updating...
+                  </Box>
                 ) : (
                   <Typography
                     sx={{
@@ -1224,26 +1214,41 @@ const PaymentForm = () => {
               <Typography fontWeight={700} color="black" mb={1}>
                 Total Payment
               </Typography>
-              <Typography
+              <Box
                 sx={{
-                  fontWeight: 800,
-                  color: 'black',
-                  textAlign: 'right',
-                  minWidth: 0,
-                  overflowWrap: 'anywhere',
-                  pr: "14px",
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  pr: '14px',
+                  minHeight: '24px',
+                  mb: 1,
                 }}
               >
-                {formatCurrency(((Number(watch('amount')) || 0) + (watch('convenienceFee') || 0)))}
-              </Typography>
+                {isFeeLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={18} sx={{ color: '#2A72B9' }} /> Updating...
+                  </Box>
+                ) : (
+                  <Typography
+                    sx={{
+                      fontWeight: 800,
+                      color: 'black',
+                      textAlign: 'right',
+                      minWidth: 0,
+                      overflowWrap: 'anywhere',
+                    }}
+                  >
+                    {formatCurrency(totalCalculatedAmount)}
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </Box>
 
-          {/* Payment Method Option */}
+          {/* Schedule / Recurring Options */}
           {isSchedule && (
             <Box sx={{ mb: 2 }}>
               <Grid container spacing={2} alignItems="center">
-                {/* Left side: Date */}
                 <Grid item xs={12} md={6}>
                   <LocalizationProvider>
                     <Controller
@@ -1275,264 +1280,12 @@ const PaymentForm = () => {
                     />
                   </LocalizationProvider>
                 </Grid>
-
-                {/* Right side: Texts */}
-                {/* <Grid item xs={12} md={6}>
-                  <Box display="flex" flexDirection="column" alignItems={"start"} justifyContent={"flex-start"}>
-                    <Typography fontWeight={600}>Due Date</Typography>
-                    <Typography fontWeight={600}>{dueDate}</Typography>
-                  </Box>
-                </Grid> */}
               </Grid>
             </Box>
           )}
 
-          <Box
-            sx={{
-              border: '1.5px solid #2A72B9',
-              borderRadius: '16px',
-              p: { xs: 2, sm: 3 },
-              mb: 3,
-              backgroundColor: '#ffffff',
-            }}
-          >
-            <Typography sx={{ fontWeight: 'bold', fontSize: '18px', color: '#172D56', mb: 2 }}>
-              Payment Method
-            </Typography>
-
-            <RadioGroup
-              value={paymentType}
-              onChange={(e) => {
-                const val = e.target.value as 'saved' | 'no-save';
-                if (val === 'no-save') {
-                  if (Number(watch('amount')) === 0) {
-                    toast.warn('Amount should be more than 0');
-                    return;
-                  }
-                }
-                setPaymentType(val);
-              }}
-            >
-              {/* Option 1: Saved Payment Method */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  mb: 2.5,
-                }}
-              >
-                <FormControlLabel
-                  value="saved"
-                  control={
-                    <Radio
-                      color="primary"
-                      sx={{
-                        p: '9px',
-                        mt: { xs: '-2px', sm: '2px' },
-                      }}
-                    />
-                  }
-                  label=""
-                  sx={{
-                    mr: 0.5,
-                    m: 0,
-                    alignSelf: { xs: 'flex-start', sm: 'center' },
-                  }}
-                />
-
-                {/* Content to the right of the radio button */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    alignItems: { xs: 'flex-start', sm: 'center' },
-                    gap: { xs: 1.25, sm: 2 },
-                    flex: 1,
-                    minWidth: 0,
-                  }}
-                >
-                  {/* Saved payment details box */}
-                  <Box
-                    onClick={() => {
-                      setPaymentType('saved');
-                    }}
-                    sx={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      border: '1px solid #D6DBDF',
-                      borderRadius: '8px',
-                      p: { xs: '6px 10px', sm: '6px 12px' },
-                      backgroundColor: '#ffffff',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        borderColor: '#A6ACAF',
-                      },
-                      gap: { xs: 1, sm: 1.5 },
-                      maxWidth: '100%',
-                      boxSizing: 'border-box',
-                      minWidth: 0,
-                    }}
-                  >
-                    <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                      {renderCardBrand(selectedCardDetails?.card_type ?? selectedCardDetails?.account_type)}
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        minWidth: 0,
-                        flex: '1 1 auto',
-                        overflow: 'hidden',
-                        gap: 0.5,
-                      }}
-                    >
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: '14px',
-                          color: '#2C3E50',
-                          fontWeight: 500,
-                          minWidth: 0,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 1,
-                        }}
-                      >
-                        {selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Card'}
-                      </Typography>
-
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: '14px',
-                          color: '#2C3E50',
-                          fontWeight: 500,
-                          whiteSpace: 'nowrap',
-                          flexShrink: 2,
-                          display: { xs: 'none', sm: 'inline' },
-                        }}
-                      >
-                        ending in
-                      </Typography>
-
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: '14px',
-                          color: '#2C3E50',
-                          fontWeight: 500,
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
-                          display: { xs: 'inline', sm: 'none' },
-                        }}
-                      >
-                        ...
-                      </Typography>
-
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: '14px',
-                          color: '#2C3E50',
-                          fontWeight: 500,
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
-                        }}
-                      >
-                        {getCardLast4(selectedCardDetails)}
-                      </Typography>
-                    </Box>
-
-                    {/* Default Badge */}
-                    <Box
-                      sx={{
-                        backgroundColor: '#E8F8F5',
-                        color: '#117A65',
-                        fontSize: '11px',
-                        fontWeight: 'bold',
-                        px: 1,
-                        py: 0.2,
-                        borderRadius: '4px',
-                        flexShrink: 0,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Default
-                    </Box>
-                  </Box>
-
-                  {/* Add/Remove Button */}
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenPaymentModal(true);
-                    }}
-                    sx={{
-                      textTransform: 'none',
-                      color: '#ffffff',
-                      fontWeight: 700,
-                      fontSize: '13px',
-                      px: 2,
-                      py: 0.5,
-                      borderRadius: '4px',
-                      backgroundColor: colors.blue,
-                      '&:hover': {
-                        backgroundColor: colors['blue.3'],
-                      },
-                      alignSelf: { xs: 'flex-start', sm: 'center' },
-                    }}
-                  >
-                    Add/Remove
-                  </Button>
-                </Box>
-              </Box>
-
-              {/* Option 2: Pay this bill only */}
-              {!isSchedule && (
-                <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <FormControlLabel
-                    value="no-save"
-                    control={
-                      <Radio
-                        color="primary"
-                        sx={{
-                          p: '9px',
-                          mt: '-2px',
-                        }}
-                      />
-                    }
-                    label={
-                      <Box sx={{ ml: 0.5, mt: -0.25 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography sx={{ fontWeight: 'bold', fontSize: '15px', color: '#E67E22' }}>
-                            Pay this bill only &ndash; don't save payment method
-                          </Typography>
-                        </Box>
-                        <Typography sx={{ fontSize: '13px', color: '#7F8C8D', mt: 0.5 }}>
-                          Enter payment details for this transaction only.
-                        </Typography>
-                      </Box>
-                    }
-                    sx={{
-                      alignItems: 'flex-start',
-                      m: 0,
-                      mr: 0,
-                    }}
-                  />
-                </Box>
-              )}
-            </RadioGroup>
-          </Box>
-
-
-
           {isSchedule && (
-            <Box display="flex" flexDirection="column" gap={2} mb={2}>
-              {/* Checkbox */}
+            <Box display="flex" flexDirection="column" gap={2} mb={2.5}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -1552,7 +1305,6 @@ const PaymentForm = () => {
 
               {recurringPaymentEnabled && (
                 <>
-                  {/* Frequency Select */}
                   <FormControl sx={{ minWidth: 200 }}>
                     <InputLabel>Frequency</InputLabel>
                     <Select value={frequency} onChange={(e) => setFrequency(e.target.value)} label="Frequency">
@@ -1567,20 +1319,15 @@ const PaymentForm = () => {
                     </FormHelperText>
                   </FormControl>
 
-                  {/* Repeat options */}
                   <FormControl>
                     <RadioGroup value={repeatOption} onChange={(e) => setRepeatOption(e.target.value)}>
-                      {/* First Option */}
                       <FormControlLabel
                         value="repeat_indefinitely"
                         control={<Radio />}
                         label="Repeat indefinitely"
-                        sx={{
-                          width: '220px',
-                        }}
+                        sx={{ width: '220px' }}
                       />
 
-                      {/* Second Option (Radio + Select + Text Inline) */}
                       <FormControlLabel
                         value="repeat_an_additional"
                         control={<Radio />}
@@ -1611,71 +1358,294 @@ const PaymentForm = () => {
             </Box>
           )}
 
-          {/* Saved Card Info Block (only show if saved method selected) */}
-          {paymentType === 'saved' ? (
-            paymentDetailsInfo?.company?.allow_payments == 0 ? (
-              <Box
-                className="instructions-html"
-                sx={{
-                  '& a': {
-                    color: 'red !important', // this WILL override MUI tabs
-                    textDecoration: 'none',
-                  },
-                }}
-                dangerouslySetInnerHTML={{ __html: finalHTML }}
-              />
-            ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
-              <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-                {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
-              </Typography>
-            ) : selectedCardDetails?.id ? (
-              <Box sx={{ display: 'flex', flexDirection: 'space-between', mt: 3 }}>
-                <Button
-                  onClick={() => navigate(-1)}
-                  variant="outlined"
-                  sx={{ color: colors.blue, borderColor: colors.blue, mb: 1, px: 4 }}
-                >
-                  {' Back'}
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (Number(watch('amount')) <= 0) {
-                      toast.warn('Amount should be more than 0');
-                      return;
-                    }
-                    setShowPaymentSummary(true);
-                  }}
-                  variant="contained"
-                  sx={{
-                    mb: 1,
-                    px: 4,
-                    fontWeight: 'bold',
+          {/* Payment Method Selection Card */}
+          <Box
+            sx={{
+              border: '1.5px solid #2A72B9',
+              borderRadius: '16px',
+              p: { xs: 2, sm: 3 },
+              mb: 3,
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <Typography sx={{ fontWeight: 'bold', fontSize: '18px', color: '#172D56', mb: 2 }}>
+              {hasSavedPaymentMethods ? 'Payment Method' : 'Payment Information'}
+            </Typography>
 
-                    backgroundColor: colors.blue,
-                    '&:hover': {
-                      backgroundColor: colors['blue.3'], // or any other hover color
-                    },
-                  }}
-                  style={{
-                    marginLeft: 'auto',
+            {/* SCENARIO B: Customer HAS Saved Payment Method(s) */}
+            {hasSavedPaymentMethods ? (
+              <Box>
+                <RadioGroup
+                  value={paymentType}
+                  onChange={(e) => {
+                    const val = e.target.value as 'saved' | 'no-save';
+                    setHasUserChangedPaymentType(true);
+                    setPaymentType(val);
                   }}
                 >
-                  {isSchedule ? 'Schedule a Payment' : ' CONFIRM PAYMENT'}
-                </Button>
+                  {/* Option 1: Use a Saved Payment Method */}
+                  <Box sx={{ mb: 2 }}>
+                    <FormControlLabel
+                      value="saved"
+                      control={<Radio color="primary" sx={{ p: '9px' }} />}
+                      label={
+                        <Typography sx={{ fontWeight: 700, fontSize: '15px', color: '#172D56' }}>
+                          Use a Saved Payment Method
+                        </Typography>
+                      }
+                      sx={{ m: 0, mr: 0, alignItems: 'center' }}
+                    />
+
+                    {/* Saved Payment Method Dropdown + Add/Edit Button */}
+                    {paymentType === 'saved' && (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: { xs: 'column', sm: 'row' },
+                          alignItems: { xs: 'stretch', sm: 'center' },
+                          gap: 1.5,
+                          mt: 1.5,
+                          ml: { xs: 0, sm: 4 },
+                          width: { xs: '100%', sm: 'calc(100% - 32px)' },
+                        }}
+                      >
+                        <FormControl size="small" sx={{ flex: 1, minWidth: { xs: '100%', sm: 280 } }}>
+                          <InputLabel id="saved-payment-method-select-label">Saved Payment Method</InputLabel>
+                          <Select
+                            labelId="saved-payment-method-select-label"
+                            id="saved-payment-method-select"
+                            label="Saved Payment Method"
+                            value={getCardKey(selectedCardDetails)}
+                            onChange={(e) => {
+                              const chosen = savedCardsList.find((c) => getCardKey(c) === e.target.value);
+                              if (chosen) {
+                                setSelectedCardDetails(chosen);
+                              }
+                            }}
+                            renderValue={(selectedKey) => {
+                              const chosen =
+                                savedCardsList.find((c) => getCardKey(c) === selectedKey) || selectedCardDetails;
+                              const isDefault = Boolean(
+                                chosen?.is_default === 1 ||
+                                chosen?.is_default === true ||
+                                chosen?.default === 1 ||
+                                chosen?.default === true ||
+                                chosen?.default_payment === 1 ||
+                                chosen?.default_payment === '1'
+                              );
+                              return (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+                                  <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                                    {renderCardBrand(chosen?.card_type ?? chosen?.account_type)}
+                                  </Box>
+                                  <Typography
+                                    sx={{
+                                      fontSize: '14px',
+                                      color: '#2C3E50',
+                                      fontWeight: 500,
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                    }}
+                                  >
+                                    {formatPaymentMethodLabel(chosen)}
+                                  </Typography>
+                                  {isDefault && (
+                                    <Box
+                                      sx={{
+                                        backgroundColor: '#E8F8F5',
+                                        color: '#117A65',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        px: 1,
+                                        py: 0.2,
+                                        borderRadius: '4px',
+                                        flexShrink: 0,
+                                        whiteSpace: 'nowrap',
+                                        ml: 'auto',
+                                      }}
+                                    >
+                                      Default
+                                    </Box>
+                                  )}
+                                </Box>
+                              );
+                            }}
+                            sx={{
+                              backgroundColor: '#ffffff',
+                              borderRadius: '8px',
+                              '& .MuiSelect-select': {
+                                display: 'flex',
+                                alignItems: 'center',
+                                py: '8.5px',
+                              },
+                            }}
+                          >
+                            {savedCardsList.map((card) => {
+                              const key = getCardKey(card);
+                              const isDefault = Boolean(
+                                card?.is_default === 1 ||
+                                card?.is_default === true ||
+                                card?.default === 1 ||
+                                card?.default === true ||
+                                card?.default_payment === 1 ||
+                                card?.default_payment === '1'
+                              );
+                              return (
+                                <MenuItem key={key} value={key} sx={{ py: 1 }}>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                                    <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                                      {renderCardBrand(card?.card_type ?? card?.account_type)}
+                                    </Box>
+                                    <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500, flex: 1 }}>
+                                      {formatPaymentMethodLabel(card)}
+                                    </Typography>
+                                    {isDefault && (
+                                      <Box
+                                        sx={{
+                                          backgroundColor: '#E8F8F5',
+                                          color: '#117A65',
+                                          fontSize: '11px',
+                                          fontWeight: 'bold',
+                                          px: 1,
+                                          py: 0.2,
+                                          borderRadius: '4px',
+                                          flexShrink: 0,
+                                          whiteSpace: 'nowrap',
+                                        }}
+                                      >
+                                        Default
+                                      </Box>
+                                    )}
+                                  </Box>
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+
+                        {/* Add/Edit Button */}
+                        <Button
+                          variant="contained"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenPaymentModal(true);
+                          }}
+                          sx={{
+                            textTransform: 'none',
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: '13px',
+                            px: 2.5,
+                            height: '40px',
+                            borderRadius: '8px',
+                            backgroundColor: colors.blue,
+                            '&:hover': {
+                              backgroundColor: colors['blue.3'],
+                            },
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
+                          }}
+                        >
+                          Add/Edit
+                        </Button>
+                      </Box>
+                    )}
+                  </Box>
+
+                  {/* Option 2: Pay This Bill Only (Do Not Save Payment Method) */}
+                  {!isSchedule && (
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1 }}>
+                      <FormControlLabel
+                        value="no-save"
+                        control={<Radio color="primary" sx={{ p: '9px', mt: '-2px' }} />}
+                        label={
+                          <Box sx={{ ml: 0.5, mt: -0.25 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '15px', color: '#172D56' }}>
+                              Pay This Bill Only (Do Not Save Payment Method)
+                            </Typography>
+                            <Typography sx={{ fontSize: '13px', color: '#7F8C8D', mt: 0.5 }}>
+                              Enter payment details for this transaction only.
+                            </Typography>
+                          </Box>
+                        }
+                        sx={{
+                          alignItems: 'flex-start',
+                          m: 0,
+                          mr: 0,
+                        }}
+                      />
+                    </Box>
+                  )}
+                </RadioGroup>
+
+                {/* Scenario B - Use a Saved Payment Method Actions */}
+                {paymentType === 'saved' && (
+                  paymentDetailsInfo?.company?.allow_payments == 0 ? (
+                    <Box
+                      className="instructions-html"
+                      sx={{
+                        mt: 2,
+                        '& a': {
+                          color: 'red !important',
+                          textDecoration: 'none',
+                        },
+                      }}
+                      dangerouslySetInnerHTML={{ __html: finalHTML }}
+                    />
+                  ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
+                    <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+                      {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
+                    </Typography>
+                  ) : (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, pt: 1 }}>
+                      <Button
+                        onClick={() => navigate(-1)}
+                        variant="outlined"
+                        sx={{ color: colors.blue, borderColor: colors.blue, px: 4, height: '41px', borderRadius: '8px' }}
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (Number(watch('amount')) <= 0) {
+                            toast.warn('Amount should be more than 0');
+                            return;
+                          }
+                          setShowPaymentSummary(true);
+                        }}
+                        variant="contained"
+                        sx={{
+                          px: 4,
+                          height: '41px',
+                          borderRadius: '8px',
+                          fontWeight: 'bold',
+                          backgroundColor: colors.blue,
+                          '&:hover': {
+                            backgroundColor: colors['blue.3'],
+                          },
+                        }}
+                      >
+                        {isSchedule ? 'Schedule a Payment' : 'CONFIRM PAYMENT'}
+                      </Button>
+                    </Box>
+                  )
+                )}
               </Box>
             ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>
+              /* SCENARIO A: Customer Has NO Saved Payment Methods */
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <FormControlLabel
                   control={
                     <Checkbox
                       color="primary"
+                      checked={saveThisPaymentForFuture}
                       onChange={(e) => setSaveThisPaymentForFuture(e.target.checked)}
-                      value={saveThisPaymentForFuture}
                     />
                   }
                   label={
                     <Box>
-                      <Typography sx={{ color: 'text.primary', fontSize: '15px' }}>
+                      <Typography sx={{ color: 'text.primary', fontSize: '15px', fontWeight: 600 }}>
                         Save payment method for future payments
                       </Typography>
                       <Typography
@@ -1691,10 +1661,11 @@ const PaymentForm = () => {
                   }
                   sx={{
                     mb: 2,
+                    alignItems: 'flex-start',
                   }}
                 />
 
-                <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
+                <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2, borderRadius: '8px' }}>
                   <RadioGroup
                     row
                     value={debitType}
@@ -1716,19 +1687,15 @@ const PaymentForm = () => {
                               top: 3,
                             }}
                           >
-                            {/* Question Icon */}
                             <Question size={20} color="#5dade2" weight="fill" />
-
-                            {/* Image popup */}
                             {hovered && (
                               <Box
                                 component="img"
-                                // src="/public/assets/bankaccount-help.png"
                                 src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
                                 alt="Help"
                                 sx={{
                                   position: 'absolute',
-                                  top: '30px', // below icon
+                                  top: '30px',
                                   left: '50%',
                                   transform: 'translateX(-50%)',
                                   width: 350,
@@ -1745,224 +1712,219 @@ const PaymentForm = () => {
                     />
                   </RadioGroup>
                 </Box>
-                <PaymentIframe
-                  type={debitType == 'card' ? 'card' : 'account'}
-                  onSuccess={(data: CardDetails) => setCardBankDetails(data)}
-                  invoiceId={id}
-                  convenience_fee={String(watch('convenienceFee') || 0)}
-                  amount={(Number(watch('amount')) || 0).toFixed(2)}
-                  amountRequired={true}
-                />
               </Box>
-            )
-          ) : (
-            <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2 }}>
-              <RadioGroup
-                row
-                value={debitType}
-                onChange={(e) => setDebitType(e.target.value as 'card' | 'bank_account')}
-              >
-                <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
-                <FormControlLabel
-                  value="bank_account"
-                  control={<Radio />}
-                  label={
-                    <Box display="flex" alignItems="center" gap={1} position="relative">
-                      Bank Account
-                      <Box
-                        onMouseEnter={() => setHovered(true)}
-                        onMouseLeave={() => setHovered(false)}
-                        sx={{
-                          position: 'relative',
-                          display: 'inline-block',
-                          top: 3,
-                        }}
-                      >
-                        {/* Question Icon */}
-                        <Question size={20} color="#5dade2" weight="fill" />
+            )}
 
-                        {/* Image popup */}
-                        {hovered && (
-                          <Box
-                            component="img"
-                            // src="/public/assets/bankaccount-help.png"
-                            src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
-                            alt="Help"
-                            sx={{
-                              position: 'absolute',
-                              top: '30px', // below icon
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              width: 350,
-                              height: 350,
-                              borderRadius: 2,
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                              zIndex: 999,
-                            }}
-                          />
-                        )}
+            {/* If Option 2 (no-save in Scenario B), render debitType selector */}
+            {hasSavedPaymentMethods && paymentType === 'no-save' && (
+              <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2, mt: 2, borderRadius: '8px' }}>
+                <RadioGroup
+                  row
+                  value={debitType}
+                  onChange={(e) => setDebitType(e.target.value as 'card' | 'bank_account')}
+                >
+                  <FormControlLabel value="card" control={<Radio />} label="Credit Card" />
+                  <FormControlLabel
+                    value="bank_account"
+                    control={<Radio />}
+                    label={
+                      <Box display="flex" alignItems="center" gap={1} position="relative">
+                        Bank Account
+                        <Box
+                          onMouseEnter={() => setHovered(true)}
+                          onMouseLeave={() => setHovered(false)}
+                          sx={{
+                            position: 'relative',
+                            display: 'inline-block',
+                            top: 3,
+                          }}
+                        >
+                          <Question size={20} color="#5dade2" weight="fill" />
+                          {hovered && (
+                            <Box
+                              component="img"
+                              src={`${BASE_URL}/resources/front/images/bankaccount-help.png`}
+                              alt="Help"
+                              sx={{
+                                position: 'absolute',
+                                top: '30px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                width: 350,
+                                height: 350,
+                                borderRadius: 2,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                zIndex: 999,
+                              }}
+                            />
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  }
-                />
-              </RadioGroup>
-            </Box>
-          )}
+                    }
+                  />
+                </RadioGroup>
+              </Box>
+            )}
+          </Box>
         </form>
 
-        {
-          paymentType === 'no-save' ? (
-            paymentDetailsInfo?.company?.allow_payments == 0 ? (
-              <Box
-                className="instructions-html"
-                sx={{
-                  '& a': {
-                    color: 'red !important', // this WILL override MUI tabs
-                    textDecoration: 'none',
-                  },
-                }}
-                dangerouslySetInnerHTML={{ __html: finalHTML }}
-              />
-            ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
-              <Typography variant="body2" mt={2} color="red" fontWeight="bold">
-                {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
-              </Typography>
-            ) : Number(watch('amount')) <= 0 ? (
-              <Typography color="error" textAlign={'center'}>
-                Amount must be greater than 0 to proceed for the payment{' '}
-              </Typography>
-            ) : (
-              <PaymentIframe
-                type={debitType == 'card' ? 'card' : 'account'}
-                onSuccess={(data: CardDetails) => setCardBankDetails(data)}
-                invoiceId={id}
-                convenience_fee={String(watch('convenienceFee') || 0)}
-                amount={(Number(watch('amount')) || 0).toFixed(2)}
-                amountRequired={true}
-              />
-            )
-          ) : null
-        }
-
-        {
-          openPaymentModal && (
-            <Dialog
-              open={openPaymentModal}
-              scroll="paper"
-              fullWidth
-              maxWidth={false} // ✅ disable preset sizes
-              PaperProps={{
-                sx: {
-                  maxHeight: '90vh',
-                  width: Object.keys(myCard || {}).length ? '830px' : '800px', // ✅ custom fixed width
-                  borderRadius: '12px',
+        {/* Payment Entry Iframe Container for Scenario A or Scenario B (one-time) */}
+        {(!hasSavedPaymentMethods || paymentType === 'no-save') && (
+          paymentDetailsInfo?.company?.allow_payments == 0 ? (
+            <Box
+              className="instructions-html"
+              sx={{
+                '& a': {
+                  color: 'red !important',
+                  textDecoration: 'none',
                 },
               }}
-            >
-              <PaymentMethods
-                onClose={() => {
-                  setOpenPaymentModal(false);
-                }}
-                isModal={true}
-                count={10}
-                page={1}
-                rows={[]}
-                rowsPerPage={10}
-                onSaveCardDetails={(data: any) => {
-                  try {
-                    setSelectedCardDetails(data);
-                    setOpenConfirm(true);
-                  } catch {
-                    console.error('Failed to parse card details');
-                  }
-                }}
-                paymentDetailsPage={true}
-              />
-            </Dialog>
-          )
-        }
-        {
-          (showPaymentSummary || cardBankDetails) && (
-            <PaymentSummaryModal
-              open={showPaymentSummary || cardBankDetails}
-              onClose={() => {
-                if (cardBankDetails) {
-                  setCardBankDetails(null);
-                }
-                if (showPaymentSummary) setShowPaymentSummary(false);
-              }}
-              onPay={() => {
-                if (cardBankDetails) {
-                  setCardBankDetails(null);
-                  handleSaveDetails(cardBankDetails, debitType);
-                } else {
-                  handlePay();
-                }
-              }}
-              payText={isSchedule ? 'Schedule Payment' : 'Pay Now'}
-              amount={cardAmount ? Number(cardAmount) : Number(amount || cardAmount || 0)}
-              fee={cardConvenienceFee ? Number(cardConvenienceFee) : Number(watch('convenienceFee') || 0)}
-              cardType={
-                cardConvenienceFee && cardAmount && cardTransId
-                  ? 'card'
-                  : cardBankDetails
-                    ? cardBankDetails?.cardType ?? cardBankDetails?.ssl_card_short_description ?? 'Bank Account'
-                    : selectedCardDetails?.card_type || 'Bank Account'
-              }
-              cardLast4={
-                cardConvenienceFee && cardAmount && cardTransId
-                  ? maskValue(cardTransId)
-                  : cardBankDetails
-                    ? cardBankDetails?.cardNumber ?? cardBankDetails?.ssl_card_number ?? cardBankDetails?.accountNumber
-                    : selectedCardDetails?.card_number ?? selectedCardDetails?.bank_account_number
-              }
-              dueDate={isSchedule ? watch('duedate') : null}
-              Recurring={recurringPaymentEnabled ? frequency : null}
-              Payment={
-                recurringPaymentEnabled
-                  ? repeatOption == 'repeat_indefinitely'
-                    ? 'Thereafter'
-                    : String(repeatTimes)
-                  : null
-              }
+              dangerouslySetInnerHTML={{ __html: finalHTML }}
+            />
+          ) : paymentDetailsInfo?.customer?.is_payments_blocked == 1 ? (
+            <Typography variant="body2" mt={2} color="red" fontWeight="bold">
+              {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
+            </Typography>
+          ) : Number(watch('amount')) <= 0 ? (
+            <Typography color="error" textAlign={'center'}>
+              Amount must be greater than 0 to proceed for the payment{' '}
+            </Typography>
+          ) : (
+            <PaymentIframe
+              type={debitType === 'card' ? 'card' : 'account'}
+              onSuccess={(data: CardDetails) => setCardBankDetails(data)}
+              invoiceId={id}
+              convenience_fee={String(watch('convenienceFee') || 0)}
+              amount={(Number(watch('amount')) || 0).toFixed(2)}
+              amountRequired={true}
             />
           )
-        }
-        {
-          openConfirm && (
-            <ConfirmDialog
-              open={openConfirm}
-              title={'Default payment method?'}
-              message={`Do you want to save this as your default payment method?
-`}
-              confirmLabel="Yes, Confirm"
-              cancelLabel="No"
-              onConfirm={onSaveCardDetails}
-              onCancel={() => {
-                setOpenConfirm(false);
+        )}
+
+        {/* Payment Methods Management Modal */}
+        {openPaymentModal && (
+          <Dialog
+            open={openPaymentModal}
+            scroll="paper"
+            fullWidth
+            maxWidth={false}
+            PaperProps={{
+              sx: {
+                maxHeight: '90vh',
+                width: Object.keys(myCard || {}).length ? '830px' : '800px',
+                borderRadius: '12px',
+              },
+            }}
+          >
+            <PaymentMethods
+              onClose={() => {
                 setOpenPaymentModal(false);
               }}
-              loader={accountLoading}
-            />
-          )
-        }
-        {
-          recurringAckownledgeModal && (
-            <ConfirmDialog
-              open={recurringAckownledgeModal}
-              title={'Customer Acknowledgement'}
-              message={customer_acknowledgement_text}
-              confirmLabel="Ok"
-              cancelLabel="Cancel"
-              onConfirm={onCustomerAckowledge}
-              onCancel={() => {
-                setRecurringAckownledgeModal(false);
+              isModal={true}
+              count={10}
+              page={1}
+              rows={[]}
+              rowsPerPage={10}
+              onSaveCardDetails={(data: any) => {
+                try {
+                  setSelectedCardDetails(data);
+                  setOpenConfirm(true);
+                } catch {
+                  console.error('Failed to parse card details');
+                }
               }}
-              loader={accountLoading}
-              checkBox={true}
+              autoPayDetails={(details) => {
+                if (details && typeof details === 'object') {
+                  setSelectedCardDetails(details as CardDetails);
+                }
+              }}
+              paymentDetailsPage={true}
             />
-          )
-        }
+          </Dialog>
+        )}
+
+        {/* Payment Summary Modal */}
+        {(showPaymentSummary || cardBankDetails) && (
+          <PaymentSummaryModal
+            open={Boolean(showPaymentSummary || cardBankDetails)}
+            onClose={() => {
+              if (cardBankDetails) {
+                setCardBankDetails(null);
+              }
+              if (showPaymentSummary) setShowPaymentSummary(false);
+            }}
+            onPay={() => {
+              if (cardBankDetails) {
+                const details = cardBankDetails;
+                setCardBankDetails(null);
+                handleSaveDetails(details, debitType);
+              } else {
+                handlePay();
+              }
+            }}
+            payText={isSchedule ? 'Schedule Payment' : 'Pay Now'}
+            amount={cardAmount ? Number(cardAmount) : Number(amount || cardAmount || 0)}
+            fee={cardConvenienceFee ? Number(cardConvenienceFee) : Number(watch('convenienceFee') || 0)}
+            cardType={
+              cardConvenienceFee && cardAmount && cardTransId
+                ? 'card'
+                : cardBankDetails
+                  ? cardBankDetails?.cardType ?? cardBankDetails?.ssl_card_short_description ?? (debitType === 'card' ? 'Credit Card' : 'Bank Account')
+                  : selectedCardDetails?.card_type || selectedCardDetails?.account_type || 'Bank Account'
+            }
+            cardLast4={
+              cardConvenienceFee && cardAmount && cardTransId
+                ? maskValue(cardTransId)
+                : cardBankDetails
+                  ? cardBankDetails?.cardNumber ?? cardBankDetails?.ssl_card_number ?? cardBankDetails?.accountNumber ?? cardBankDetails?.last_4 ?? ''
+                  : getCardLast4(selectedCardDetails)
+            }
+            dueDate={isSchedule ? watch('duedate') : null}
+            Recurring={recurringPaymentEnabled ? frequency : null}
+            Payment={
+              recurringPaymentEnabled
+                ? repeatOption == 'repeat_indefinitely'
+                  ? 'Thereafter'
+                  : String(repeatTimes)
+                : null
+            }
+          />
+        )}
+
+        {/* Confirm Default Payment Dialog */}
+        {openConfirm && (
+          <ConfirmDialog
+            open={openConfirm}
+            title={'Default payment method?'}
+            message={`Do you want to save this as your default payment method?`}
+            confirmLabel="Yes, Confirm"
+            cancelLabel="No"
+            onConfirm={onSaveCardDetails}
+            onCancel={() => {
+              setOpenConfirm(false);
+              setOpenPaymentModal(false);
+            }}
+            loader={accountLoading}
+          />
+        )}
+
+        {/* Recurring Acknowledge Dialog */}
+        {recurringAckownledgeModal && (
+          <ConfirmDialog
+            open={recurringAckownledgeModal}
+            title={'Customer Acknowledgement'}
+            message={customer_acknowledgement_text}
+            confirmLabel="Ok"
+            cancelLabel="Cancel"
+            onConfirm={onCustomerAckowledge}
+            onCancel={() => {
+              setRecurringAckownledgeModal(false);
+            }}
+            loader={accountLoading}
+            checkBox={true}
+          />
+        )}
+
         {isFeeLoading && (
           <Box
             sx={{
@@ -1983,11 +1945,12 @@ const PaymentForm = () => {
             }}
           />
         )}
+
         <CustomBackdrop open={accountLoading} style={{ zIndex: 1300, color: '#fff' }}>
           <Loader />
         </CustomBackdrop>
-      </Box >
-    </SkeletonWrapper >
+      </Box>
+    </SkeletonWrapper>
   );
 };
 

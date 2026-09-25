@@ -496,8 +496,9 @@ export const contactCustomerService = (
       if (successCallBack) successCallBack(res?.body);
       if (showMessage) toast.success(res?.message ? res?.message : "Message Sent!");
     } else {
-      navigateTo("/login", { replace: true }, res?.message);
-      if (res?.message !== "You are not authorised to use this api") {
+      if (res?.message === "You are not authorised to use this api") {
+        navigateTo("/login", { replace: true }, res?.message);
+      } else {
         toast.error(res?.message ?? "Something went wrong!");
       }
     }

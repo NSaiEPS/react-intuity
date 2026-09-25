@@ -154,7 +154,18 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
 
   return (
     <>
-      <MenuList disablePadding sx={{ p: "8px", "& .MuiMenuItem-root": { borderRadius: 1 } }}>
+      <MenuList
+        disablePadding
+        sx={{
+          p: "8px",
+          pb: "24px",
+          maxHeight: isMobile ? "calc(100vh - 120px)" : "calc(80vh - 50px)",
+          overflowY: "auto",
+          overflowX: "hidden",
+          flex: "1 1 auto",
+          "& .MuiMenuItem-root": { borderRadius: 1 },
+        }}
+      >
         {linkedAccounts.map((account) => (
           <MenuItem
             key={account?.link_customer_id}

@@ -20,7 +20,22 @@ document.getElementById("init-loader")?.remove();
 isLoggedIn
   ? import("./pages/dashboard/page")
   : import("./components/auth/sign-in-page");
+if (typeof window !== "undefined") {
+  try {
+    (window as any).devToolsReportSoftNavs = false;
+  } catch {}
+}
+
 window.addEventListener("error", (e) => {
+  // Handle Chrome DevTools internal soft-navigation / Web Vitals instrumentation bug
+  if (
+    e.message?.includes("reading 'startTime'") &&
+    (e.filename?.includes("VM") || !e.filename || e.error?.stack?.includes("reportAllChanges"))
+  ) {
+    e.preventDefault();
+    return;
+  }
+
   if (e.message?.includes("Failed to fetch dynamically imported module")) {
     const reloadCount = parseInt(sessionStorage.getItem("chunk-reload-count") ?? "0", 10);
     if (reloadCount >= 3) {
@@ -29,6 +44,15 @@ window.addEventListener("error", (e) => {
     }
     sessionStorage.setItem("chunk-reload-count", String(reloadCount + 1));
     window.location.reload();
+  }
+});
+
+window.addEventListener("unhandledrejection", (e) => {
+  if (
+    e.reason?.message?.includes("reading 'startTime'") &&
+    (e.reason?.stack?.includes("reportAllChanges") || !e.reason?.fileName)
+  ) {
+    e.preventDefault();
   }
 });
 

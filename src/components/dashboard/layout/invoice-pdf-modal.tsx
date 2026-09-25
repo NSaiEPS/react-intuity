@@ -67,6 +67,7 @@ export default function CustomModal({
   const [pdfLoading, setPdfLoading] = React.useState<boolean>(false);
   const [pdfError, setPdfError] = React.useState<string | null>(null);
   const [isSendingEmail, setIsSendingEmail] = React.useState<boolean>(false);
+  const [isPrinting, setIsPrinting] = React.useState<boolean>(false);
   const lastFetchedKeyRef = React.useRef<string>("");
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
@@ -255,11 +256,14 @@ export default function CustomModal({
   };
 
   const handlePrint = async () => {
-    if (!pdfUrl) return;
+    if (!pdfUrl || isPrinting) return;
+    setIsPrinting(true);
     try {
       await printPdfFromUrl(pdfUrl);
     } catch (err) {
       console.error("Print error:", err);
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -410,22 +414,29 @@ export default function CustomModal({
                   </button>
                   <button
                     onClick={handlePrint}
+                    disabled={isPrinting}
                     style={{
-                      backgroundColor: "#0284c7",
+                      backgroundColor: isPrinting ? "#94a3b8" : "#0284c7",
                       color: "#fff",
                       border: "none",
                       borderRadius: "6px",
                       padding: "6px 14px",
                       fontSize: "13px",
                       fontWeight: 600,
-                      cursor: "pointer",
+                      cursor: isPrinting ? "not-allowed" : "pointer",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
+                      opacity: isPrinting ? 0.8 : 1,
+                      transition: "background-color 0.2s ease, opacity 0.2s ease",
                     }}
                   >
-                    <Printer size={16} weight="bold" />
-                    Print
+                    {isPrinting ? (
+                      <CircularProgress size={16} sx={{ color: "#fff" }} />
+                    ) : (
+                      <Printer size={16} weight="bold" />
+                    )}
+                    {isPrinting ? "Preparing..." : "Print"}
                   </button>
                   <button
                     onClick={handleDownload}
