@@ -1598,11 +1598,28 @@ const PaymentForm = () => {
                       {paymentDetailsInfo?.block_individual_customer_pay_text ?? 'Payments are not allowed at this time.'}
                     </Typography>
                   ) : (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, pt: 1 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: { xs: 1.5, sm: 0 },
+                        mt: 3,
+                        pt: 1,
+                      }}
+                    >
                       <Button
                         onClick={() => navigate(-1)}
                         variant="outlined"
-                        sx={{ color: colors.blue, borderColor: colors.blue, px: 4, height: '41px', borderRadius: '8px' }}
+                        sx={{
+                          color: colors.blue,
+                          borderColor: colors.blue,
+                          px: 4,
+                          height: '41px',
+                          borderRadius: '8px',
+                          width: { xs: '100%', sm: 'auto' },
+                        }}
                       >
                         Back
                       </Button>
@@ -1624,6 +1641,7 @@ const PaymentForm = () => {
                           '&:hover': {
                             backgroundColor: colors['blue.3'],
                           },
+                          width: { xs: '100%', sm: 'auto' },
                         }}
                       >
                         {isSchedule ? 'Schedule a Payment' : 'CONFIRM PAYMENT'}
@@ -1717,7 +1735,18 @@ const PaymentForm = () => {
 
             {/* If Option 2 (no-save in Scenario B), render debitType selector */}
             {hasSavedPaymentMethods && paymentType === 'no-save' && (
-              <Box component={Paper} variant="outlined" sx={{ p: 2, mb: 2, mt: 2, borderRadius: '8px' }}>
+              <Box
+                component={Paper}
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  mt: 2,
+                  borderRadius: '8px',
+                  ml: { xs: 0, sm: 4 },
+                  width: { xs: '100%', sm: 'calc(100% - 32px)' },
+                }}
+              >
                 <RadioGroup
                   row
                   value={debitType}
