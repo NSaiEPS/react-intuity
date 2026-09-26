@@ -265,6 +265,8 @@ const PaymentForm = () => {
   const [recurringAckownledgeModal, setRecurringAckownledgeModal] = useState(false);
 
   const [saveThisPaymentForFuture, setSaveThisPaymentForFuture] = useState(false);
+  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
+  const [hasUserChangedPaymentType, setHasUserChangedPaymentType] = useState(false);
 
   const onCustomerAckowledge = () => {
     const formdata = new FormData();
@@ -347,24 +349,28 @@ const PaymentForm = () => {
 
   const { id: encryptedId } = useParams();
 
-  let id = "";
+  const getDecryptedId = React.useCallback(
+    (rawEncryptedId?: string): string => {
+      try {
+        if (!rawEncryptedId || typeof rawEncryptedId !== 'string') {
+          throw new Error('Missing id');
+        }
+        return decrypt(rawEncryptedId);
+      } catch (_err) {
+        navigate('/errors/not-found', {
+          replace: true,
+          state: {
+            title: 'Invalid URL',
+            description: 'Please use a valid payment link.',
+          },
+        });
+        return '';
+      }
+    },
+    [navigate]
+  );
 
-  try {
-    if (!encryptedId || typeof encryptedId !== "string") {
-      throw new Error("Missing id");
-    }
-
-    id = decrypt(encryptedId);
-  } catch (err) {
-    navigate("/errors/not-found", {
-      replace: true,
-      state: {
-        title: "Invalid URL",
-        description: "Please use a valid payment link.",
-      },
-    });
-    return;
-  }
+  const id = React.useMemo(() => getDecryptedId(encryptedId), [encryptedId, getDecryptedId]);
   const transId = searchParams.get('transId');
 
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
@@ -422,18 +428,16 @@ const PaymentForm = () => {
     return `${type}${last4 ? ` ending in ${last4}` : ''}`;
   }, []);
 
-  const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
-  const [hasUserChangedPaymentType, setHasUserChangedPaymentType] = useState(false);
+  const selectedCardKey = getCardKey(selectedCardDetails);
 
   // Synchronize selectedCardDetails with savedCardsList / default selection
   useEffect(() => {
     if (hasSavedPaymentMethods) {
       if (!hasUserChangedPaymentType) {
-        setPaymentType('saved');
+        setPaymentType((prev) => (prev === 'saved' ? prev : 'saved'));
       }
-      const currentKey = getCardKey(selectedCardDetails);
-      const exists = savedCardsList.some((c) => getCardKey(c) === currentKey);
-      if (!currentKey || !exists) {
+      const exists = savedCardsList.some((c) => getCardKey(c) === selectedCardKey);
+      if (!selectedCardKey || !exists) {
         const defaultCard =
           savedCardsList.find(
             (c: any) =>
@@ -452,12 +456,21 @@ const PaymentForm = () => {
         }
       }
     } else {
-      setSelectedCardDetails({});
+      if (selectedCardKey) {
+        setSelectedCardDetails({});
+      }
       if (!hasUserChangedPaymentType) {
-        setPaymentType('no-save');
+        setPaymentType((prev) => (prev === 'no-save' ? prev : 'no-save'));
       }
     }
-  }, [hasSavedPaymentMethods, savedCardsList, paymentMethodInfoCards, getCardKey, selectedCardDetails, hasUserChangedPaymentType]);
+  }, [
+    hasSavedPaymentMethods,
+    savedCardsList,
+    paymentMethodInfoCards,
+    getCardKey,
+    selectedCardKey,
+    hasUserChangedPaymentType,
+  ]);
 
   // Handle saving details (one-time or with save checkbox)
   const handleSaveDetails = (data: any, selectedDebitType: 'card' | 'bank_account') => {
