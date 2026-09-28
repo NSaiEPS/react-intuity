@@ -430,13 +430,15 @@ export async function fetchInvoicePdfBlobUrl(
       (Array.isArray(responseData?.body?.errors)
         ? responseData.body.errors.join(", ")
         : typeof responseData?.body?.errors === "string"
-        ? responseData.body.errors
-        : null) ||
+          ? responseData.body.errors
+          : null) ||
       error?.message ||
       "Request failed with status code " + (status || 500);
 
     console.group("❌ [Invoice PDF API Debug Info]");
-    console.error("Endpoint:", "POST https://test-intuity.waterbill.com/get-invoice-pdf");
+    // console.error("Endpoint:", "POST https://test-intuity.waterbill.com/get-invoice-pdf");
+    console.error("Endpoint:", "POST https://junctional-eugena-squirrellike.ngrok-free.dev/get-invoice-pdf");
+
     console.error("Payload:", payload);
     console.error("HTTP Status:", status || "Network / Redirect Error");
     console.error("Response Data:", responseData || error?.response || error);
@@ -562,15 +564,15 @@ export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
     // Configure loadingTask: if we have raw bytes, pass data directly (zero network calls)
     const loadingTask = pdfData
       ? pdfjsLib.getDocument({
-          data: pdfData,
-          useWorkerFetch: false,
-          isEvalSupported: false,
-          useSystemFonts: true,
-        })
+        data: pdfData,
+        useWorkerFetch: false,
+        isEvalSupported: false,
+        useSystemFonts: true,
+      })
       : pdfjsLib.getDocument({
-          url: pdfUrl,
-          withCredentials: true,
-        });
+        url: pdfUrl,
+        withCredentials: true,
+      });
 
     const pdf = await loadingTask.promise;
     const numPages = pdf.numPages;
@@ -875,8 +877,8 @@ export async function sendInvoiceEmail(
         (Array.isArray(response?.body?.errors)
           ? response.body.errors.join(", ")
           : typeof response?.body?.errors === "string"
-          ? response.body.errors
-          : "") ||
+            ? response.body.errors
+            : "") ||
         "Failed to send invoice email.";
       toast.error(errorMsg);
       throw new Error(errorMsg);
@@ -891,8 +893,8 @@ export async function sendInvoiceEmail(
       (Array.isArray(error?.response?.data?.body?.errors)
         ? error.response.data.body.errors.join(", ")
         : typeof error?.response?.data?.body?.errors === "string"
-        ? error.response.data.body.errors
-        : null) ||
+          ? error.response.data.body.errors
+          : null) ||
       error?.message ||
       "Failed to send invoice email. Please try again.";
 

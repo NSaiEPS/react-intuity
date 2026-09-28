@@ -94,7 +94,17 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
     : null;
   const storedAlias = (getLocalStorage("alias-details") as { alias?: string } | null)?.alias;
 
-  const effectiveAlias = companyInfo?.company?.alias || slugAlias || queryAlias || (rawSlug !== "login" ? storedAlias : undefined);
+  const isCompanySpecificLogin = Boolean(
+    (rawSlug?.startsWith("login-") && rawSlug !== "login") ||
+    queryAlias ||
+    (pathname !== "/login" && companyInfo?.company?.alias)
+  );
+
+  const effectiveCompanyAlias = isCompanySpecificLogin
+    ? (companyInfo?.company?.alias || slugAlias || queryAlias || (rawSlug !== "login" ? storedAlias : undefined) || "").trim()
+    : undefined;
+
+  const effectiveAlias = effectiveCompanyAlias || (rawSlug !== "login" ? storedAlias : undefined);
   const alias = effectiveAlias || "";
 
   const hasShownActivationToastRef = React.useRef(false);
@@ -156,8 +166,16 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
       setIsPending(true);
 
       try {
+        const loginPayload: { email: string; password: string; company_alias?: string } = {
+          email: values.email,
+          password: values.password,
+        };
+        if (isCompanySpecificLogin && effectiveCompanyAlias) {
+          loginPayload.company_alias = effectiveCompanyAlias;
+        }
+
         const { error } = await authClient.signInWithPassword(
-          values,
+          loginPayload,
           (res) => successCallBack(res, companyInfo)
         );
 
@@ -179,7 +197,7 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
         setIsPending(false);
       }
     },
-    [checkSession, setError, companyInfo]
+    [checkSession, setError, companyInfo, isCompanySpecificLogin, effectiveCompanyAlias]
   );
 
   const dispatch = useDispatch();

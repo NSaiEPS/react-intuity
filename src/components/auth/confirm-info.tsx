@@ -72,7 +72,6 @@ export function ConfirmInfoDetails(): React.JSX.Element {
   ] = useReducer(reducer, initialState);
   const location = useLocation();
 
-  console.log(twoFAModalVisible, 'twoFAModalVisible');
 
 
   const two_fa_status = location.state?.two_fa_status ?? false;

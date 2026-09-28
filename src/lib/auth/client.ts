@@ -27,6 +27,7 @@ export interface SignInWithOAuthParams {
 export interface SignInWithPasswordParams {
   email: string;
   password: string;
+  company_alias?: string;
 }
 
 export interface ResetPasswordParams {
@@ -50,40 +51,77 @@ class AuthClient {
   }
 
   async signInWithPassword(
-    params: { email: string; password: string },
-    successCallBack
+    params: SignInWithPasswordParams,
+    successCallBack?: (data: any) => void
   ): Promise<{ error?: string }> {
-    const { email, password } = params;
+    const { email, password, company_alias } = params;
     const formData = new FormData();
 
     formData.append("email", email);
     formData.append("password", password);
-    const res = await fetch(`${BASE_URL}login`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
-      body: formData,
-    });
-
-    const data = await res.json();
-
-
-    if (!res.ok ||  data?.body?.errors?.[0]) {
-      return { error:  typeof data?.body?.errors === "string" ? data?.body?.errors : data?.body?.errors?.[0] || "Login failed" };
+    if (company_alias && typeof company_alias === "string" && company_alias.trim() !== "") {
+      formData.append("company_alias", company_alias.trim());
     }
-    data.body.email = email;
-    secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
-    secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
-    secureLocalStorage.setItem("intuity-is-logged-in", "true")
-    secureLocalStorage.setItem(
-      "intuity-companyId",
-      data?.body?.alias || "intuityfe"
-    );
-    if (successCallBack && data?.body?.token) {
-      successCallBack(data);
+
+    try {
+      const res = await fetch(`${BASE_URL}login`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
+      }
+
+      // Check for failure cases:
+      // 1. HTTP error (!res.ok)
+      // 2. Explicit status: false
+      // 3. Missing/null body or token
+      // 4. Presence of errors in body
+      const isFailed =
+        !res.ok ||
+        data?.status === false ||
+        !data?.body ||
+        !data?.body?.token ||
+        Boolean(data?.body?.errors);
+
+      if (isFailed) {
+        const errorMsg =
+          (typeof data?.message === "string" && data.message.trim() !== "" ? data.message : null) ||
+          (Array.isArray(data?.message) && data.message.length > 0 ? data.message[0] : null) ||
+          (typeof data?.body?.errors === "string" ? data.body.errors : null) ||
+          (Array.isArray(data?.body?.errors) && data.body.errors.length > 0 ? data.body.errors[0] : null) ||
+          (typeof data?.error === "string" ? data.error : null) ||
+          (!res.ok ? "Login failed. Please try again." : "Login failed");
+
+        return { error: errorMsg };
+      }
+
+      data.body.email = email;
+      secureLocalStorage.setItem("intuity-user", data); // no need to JSON.stringify
+      secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
+      secureLocalStorage.setItem("intuity-is-logged-in", "true");
+      secureLocalStorage.setItem(
+        "intuity-companyId",
+        data?.body?.alias || "intuityfe"
+      );
+      if (successCallBack && data?.body?.token) {
+        successCallBack(data);
+      }
+      return {};
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Network error. Please try again.";
+      return { error: message };
     }
-    return {};
   }
 
   async resetPassword(

@@ -1629,7 +1629,6 @@ export default function AutoPayPrototype() {
     const targetMethod = pendingMethodInfo || autopayMethodInfo;
     if (!targetMethod) return;
 
-    console.log(targetMethod, 'targetMethod')
 
     const formData = new FormData();
     formData.append('acl_role_id', roleId);

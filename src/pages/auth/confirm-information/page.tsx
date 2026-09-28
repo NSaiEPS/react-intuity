@@ -7,13 +7,14 @@ import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { decryptFromPHP } from "@/utils/decryptHelper";
 import { Box } from "@mui/material";
 import { useDispatch } from "@/hooks/redux";
-import { useLocation } from "react-router";
+import { useLocation, useParams } from "react-router";
 
 import { ConfirmInfoDetails } from "@/components/auth/confirm-info";
 import { useLoading } from "@/components/core/skeleton-context";
 import { ConfirmInfoSkeleton } from "@/components/dashboard/skeletons";
 
 export default function ConfirmInformation() {
+  const { company } = useParams();
   const { search } = useLocation();
 
   // ✅ Extract token safely
@@ -53,27 +54,6 @@ export default function ConfirmInformation() {
   const stored: IntuityUser | null =
     typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   React.useEffect(() => {
-    //   const role_id = stored?.body?.acl_role_id;
-    //   const user_id = stored?.body?.customer_id;
-    //   const token = stored?.body?.token;
-    //   const formData = new FormData();
-    // const params = new URLSearchParams(search);
-
-    // const token = params.get("token");
-    // const aclRoleId = params.get("acl_role_id");
-    // const customerId = params.get("customer_id");
-    //   formData.append("acl_role_id", "4");
-    //   formData.append("customer_id", "810");
-
-    //   dispatch(
-    //     getConfirmInfo(
-    //       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NjksImV4cCI6MTc2MjI2MzI2N30=.jMKhTD0/C5Mh6VLFs8hCzzcyIJgDSn3ZGzXk6/uoAwQ=",
-    //       formData,
-    //       undefined,
-    //       setContextLoading
-    //     )
-    //   );
-
     if (search) {
       //console.log(search, "fromsearch");
       const formData = new FormData();
@@ -81,8 +61,19 @@ export default function ConfirmInformation() {
 
       const aclRoleId = params.get("acl_role_id");
       const customerId = params.get("customer_id");
-      formData.append("acl_role_id", aclRoleId);
-      formData.append("customer_id", customerId);
+      if (aclRoleId) formData.append("acl_role_id", aclRoleId);
+      if (customerId) formData.append("customer_id", customerId);
+
+      const queryAlias = params.get("company_alias") || params.get("alias") || params.get("company");
+      const isCompanySpecific = (company && company !== "intuityfe") || Boolean(queryAlias);
+      const effectiveCompanyAlias = isCompanySpecific
+        ? ((company && company !== "intuityfe" ? company : queryAlias) || "").trim()
+        : undefined;
+
+      if (effectiveCompanyAlias) {
+        formData.append("company_alias", effectiveCompanyAlias);
+      }
+
       const token = decrypted;
       dispatch(
         getUserInfoByToken(
@@ -97,19 +88,31 @@ export default function ConfirmInformation() {
       const user_id = stored?.body?.customer_id;
       const formData = new FormData();
 
-      formData.append("acl_role_id", role_id);
-      formData.append("customer_id", user_id);
+      if (role_id) formData.append("acl_role_id", role_id);
+      if (user_id) formData.append("customer_id", user_id);
       dispatch(getConfirmInfo(formData, undefined, setContextLoading));
     }
-  }, [search]);
+  }, [search, company]);
+
   const getUserDetailsSuccess = () => {
     const formData = new FormData();
     const params = new URLSearchParams(search);
 
     const aclRoleId = params.get("acl_role_id");
     const customerId = params.get("customer_id");
-    formData.append("acl_role_id", aclRoleId);
-    formData.append("customer_id", customerId);
+    if (aclRoleId) formData.append("acl_role_id", aclRoleId);
+    if (customerId) formData.append("customer_id", customerId);
+
+    const queryAlias = params.get("company_alias") || params.get("alias") || params.get("company");
+    const isCompanySpecific = (company && company !== "intuityfe") || Boolean(queryAlias);
+    const effectiveCompanyAlias = isCompanySpecific
+      ? ((company && company !== "intuityfe" ? company : queryAlias) || "").trim()
+      : undefined;
+
+    if (effectiveCompanyAlias) {
+      formData.append("company_alias", effectiveCompanyAlias);
+    }
+
     dispatch(getConfirmInfo(formData, undefined, setContextLoading));
   };
   return (

@@ -367,7 +367,6 @@ const CardRow = React.memo(function CardRow({
   onDelete: (row: CardDetails) => void;
 }) {
 
-  console.log(isSelected, "gvjhjghjhjbghbn")
   const isCard = !!row.card_type;
   const decryptedNumber = decryptFunction(row.number);
   const last4 = String(decryptedNumber).slice(-4);
@@ -429,7 +428,7 @@ const CardRow = React.memo(function CardRow({
   const statusChipColor = isExpired ? '#B91C1C' : '#92400E';
 
   return (
-    
+
     <TableRow
       hover={!isExpired}
       key={row.id}

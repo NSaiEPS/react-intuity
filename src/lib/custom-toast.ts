@@ -42,6 +42,10 @@ export const toast = {
   warning(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
     _emit({ type: "warning", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });
   },
+  /** Alias — some code uses toast.info() */
+  info(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
+    _emit({ type: "warning", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });
+  },
   /** Alias — some code uses toast.warn() */
   warn(message?: string, subMessage?: string, onOk?: () => void, noAutoClose?: boolean) {
     _emit({ type: "warning", message: message ?? "", subMessage, onOk, noAutoClose, id: ++_idCounter });

@@ -62,8 +62,19 @@ export default function CompanyRouteGuard() {
 
       const aclRoleId = params.get("acl_role_id");
       const customerId = params.get("customer_id");
-      formData.append("acl_role_id", aclRoleId);
-      formData.append("customer_id", customerId);
+      if (aclRoleId) formData.append("acl_role_id", aclRoleId);
+      if (customerId) formData.append("customer_id", customerId);
+
+      const queryAlias = params.get("company_alias") || params.get("alias") || params.get("company");
+      const isCompanySpecific = (company && company !== "intuityfe") || Boolean(queryAlias);
+      const effectiveAlias = isCompanySpecific
+        ? ((company && company !== "intuityfe" ? company : queryAlias || aliasUser?.alias) || "").trim()
+        : undefined;
+
+      if (effectiveAlias) {
+        formData.append("company_alias", effectiveAlias);
+      }
+
       dispatch(getConfirmInfo(formData, undefined, setContextLoading));
     };
     if (search) {
@@ -73,8 +84,19 @@ export default function CompanyRouteGuard() {
 
       const aclRoleId = params.get("acl_role_id");
       const customerId = params.get("customer_id");
-      formData.append("acl_role_id", aclRoleId);
-      formData.append("customer_id", customerId);
+      if (aclRoleId) formData.append("acl_role_id", aclRoleId);
+      if (customerId) formData.append("customer_id", customerId);
+
+      const queryAlias = params.get("company_alias") || params.get("alias") || params.get("company");
+      const isCompanySpecific = (company && company !== "intuityfe") || Boolean(queryAlias);
+      const effectiveAlias = isCompanySpecific
+        ? ((company && company !== "intuityfe" ? company : queryAlias || aliasUser?.alias) || "").trim()
+        : undefined;
+
+      if (effectiveAlias) {
+        formData.append("company_alias", effectiveAlias);
+      }
+
       const token = decrypted();
       dispatch(
         getUserInfoByToken(

@@ -122,7 +122,6 @@ export function SendBillDetailsForm(): React.JSX.Element {
       files.map((file) => fileToBase64(file))
     );
 
-    // //console.log(data, 'hhhhhhh');
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", customer_id);
@@ -147,7 +146,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
     //   formData.append('upload_file', '');
     // }
 
-    dispatch(stopTransferService(formData, false, successCallBack,null,true));
+    dispatch(stopTransferService(formData, false, successCallBack, null, true));
   };
   const successCallBack = () => {
     reset();
@@ -260,7 +259,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Controller
                   name="requestedStopDate"
-                  
+
                   control={control}
                   render={({ field }) => (
                     <DatePicker
@@ -276,7 +275,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
                           {...params}
                           fullWidth
-                        size="small"
+                          size="small"
                           required
                           error={!!errors.requestedStopDate}
                           helperText={errors.requestedStopDate?.message}
@@ -300,7 +299,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
                   type="number"
                   inputProps={{ min: 0 }}
                   label="Final Meter Reading"
-   {...register("reading", { valueAsNumber: true })}
+                  {...register("reading", { valueAsNumber: true })}
                 />
                 {errors.reading && (
                   <FormHelperText>{errors.reading.message}</FormHelperText>
@@ -368,7 +367,7 @@ export function SendBillDetailsForm(): React.JSX.Element {
               </FormControl>
             </Grid> */}
 
-  {/* <Grid md={6} xs={12}>
+            {/* <Grid md={6} xs={12}>
     <FormControl fullWidth error={!!errors.applicableField}>
       <InputLabel shrink>
         If applicable, enter the closing attorney's contact details (name,
@@ -389,50 +388,50 @@ export function SendBillDetailsForm(): React.JSX.Element {
     </FormControl>
   </Grid> */}
 
-  <Grid
-    md={6}
-    xs={12}
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      paddingLeft: "20px"
-    }}
-  >
-    <Stack
-      direction="row"
-      spacing={2}
-      alignItems="center"
-      flexWrap="wrap"
-    >
-      <Typography
-        variant="subtitle1"
-        whiteSpace="nowrap"
-      >
-        New Resident *
-      </Typography>
+            <Grid
+              md={6}
+              xs={12}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                paddingLeft: "20px"
+              }}
+            >
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                flexWrap="wrap"
+              >
+                <Typography
+                  variant="subtitle1"
+                  whiteSpace="nowrap"
+                >
+                  New Resident *
+                </Typography>
 
-      <Controller
-        name="preferredOwnerMethod"
-        control={control}
-        render={({ field }) => (
-          <RadioGroup row {...field}>
-            <FormControlLabel
-              value="Owner"
-              control={<Radio />}
-              label="Owner"
-            />
-            <FormControlLabel
-              value="Tenant"
-              control={<Radio />}
-              label="Tenant"
-            />
-          </RadioGroup>
-        )}
-      />
-    </Stack>
-  </Grid>
+                <Controller
+                  name="preferredOwnerMethod"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup row {...field}>
+                      <FormControlLabel
+                        value="Owner"
+                        control={<Radio />}
+                        label="Owner"
+                      />
+                      <FormControlLabel
+                        value="Tenant"
+                        control={<Radio />}
+                        label="Tenant"
+                      />
+                    </RadioGroup>
+                  )}
+                />
+              </Stack>
+            </Grid>
 
-  {/* <Grid xs={12}>
+            {/* <Grid xs={12}>
     <FormControl fullWidth required error={!!errors.comment}>
       <InputLabel>Comment</InputLabel>
 
@@ -451,9 +450,9 @@ export function SendBillDetailsForm(): React.JSX.Element {
 
           </Grid>
 
-     
 
-           <Grid md={12} xs={12} p={0} pt={3}>
+
+          <Grid md={12} xs={12} p={0} pt={3}>
             <FormControl fullWidth error={!!errors.files}>
               <Typography variant="body1" mb={1}>
                 Please upload any supporting documents or photos:
@@ -485,12 +484,12 @@ export function SendBillDetailsForm(): React.JSX.Element {
                 ))}
               </Grid>
             )}
-          </Grid> 
+          </Grid>
         </CardContent>
 
         <Divider />
 
-        <CardActions sx={{ justifyContent: "flex-end",px: 3.2, py: 2 }}>
+        <CardActions sx={{ justifyContent: "flex-end", px: 3.2, py: 2 }}>
           <Button
             onClick={() => reset()}
             variant="outlined"

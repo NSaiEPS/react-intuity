@@ -64,7 +64,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
     (state: RootState) => state.Account.oneTimePaymentInfo
   );
 
-  //console.log(oneTimeData);
 
   const [formData, setFormData] = useState({
     accountNo: "",
@@ -105,7 +104,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
     if (field === "email") {
       try {
         sessionStorage.setItem("guest-confirmation-email", e.target.value);
-      } catch {}
+      } catch { }
     }
   };
 
@@ -268,10 +267,8 @@ export default function OneTimePaymentModal({ open, onClose }) {
         paymentData,
         companyInfo?.company?.alias,
         (res) => {
-          // //console.log(res, "companyInfo");
           setCustomerDetails(res);
           // if (res?.balance) {
-          //   //console.log(res?.balance, "res?.balance");
           //   // handleChange("amountToPay")(String(res?.balance));
           //   setFormData({ ...formData, amountToPay: String(res?.balance) });
           // }
@@ -290,7 +287,7 @@ export default function OneTimePaymentModal({ open, onClose }) {
           if (res?.email) {
             try {
               sessionStorage.setItem("guest-confirmation-email", res.email);
-            } catch {}
+            } catch { }
           }
           handleNext();
         },
@@ -328,7 +325,6 @@ export default function OneTimePaymentModal({ open, onClose }) {
 
       return;
     }
-    // //console.log(companyInfo, "companyInfo");
     const debitType = data?.cardNumber
       ? "card"
       : data?.ssl_card_number
