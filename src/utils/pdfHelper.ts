@@ -436,8 +436,8 @@ export async function fetchInvoicePdfBlobUrl(
       "Request failed with status code " + (status || 500);
 
     console.group("❌ [Invoice PDF API Debug Info]");
-    // console.error("Endpoint:", "POST https://test-intuity.waterbill.com/get-invoice-pdf");
-    console.error("Endpoint:", "POST https://junctional-eugena-squirrellike.ngrok-free.dev/get-invoice-pdf");
+    console.error("Endpoint:", "POST https://test-intuity.waterbill.com/get-invoice-pdf");
+    // console.error("Endpoint:", "POST https://junctional-eugena-squirrellike.ngrok-free.dev/get-invoice-pdf");
 
     console.error("Payload:", payload);
     console.error("HTTP Status:", status || "Network / Redirect Error");

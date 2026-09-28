@@ -82,14 +82,20 @@ class AuthClient {
       // Check for failure cases:
       // 1. HTTP error (!res.ok)
       // 2. Explicit status: false
-      // 3. Missing/null body or token
-      // 4. Presence of errors in body
+      // 3. Explicit body status: error
+      // 4. Missing/null body or token
+      // 5. Non-empty errors array or string
+      const hasErrors =
+        (Array.isArray(data?.body?.errors) && data.body.errors.length > 0) ||
+        (typeof data?.body?.errors === "string" && data.body.errors.trim() !== "");
+
       const isFailed =
         !res.ok ||
         data?.status === false ||
+        data?.body?.status === "error" ||
         !data?.body ||
         !data?.body?.token ||
-        Boolean(data?.body?.errors);
+        hasErrors;
 
       if (isFailed) {
         const errorMsg =
