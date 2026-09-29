@@ -25,7 +25,10 @@ import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import Tooltip from '@mui/material/Tooltip';
 import CardHeader from '@mui/material/CardHeader';
-import Grid from '@mui/material/Grid';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MuiButton from '@mui/material/Button';
 import { Button } from 'nsaicomponents';
 import { toast } from '@/lib/custom-toast';
 
@@ -65,7 +68,7 @@ import { boarderRadius, colors, CustomerInfo } from '@/utils';
 import dayjs, { Dayjs } from 'dayjs';
 import { tooltipSx } from '@/utils/config';
 import { PaymentMethods } from '../payment-methods';
-import { getCardLast4, renderCardBrand } from '../../account/payment-details';
+import { getCardKey, formatPaymentMethodLabel, getCardLast4, renderCardBrand } from '../../account/payment-details';
 import Header from '@/components/CommonComponents/header-common';
 import { formatCurrency } from '@/utils/formatters';
 import { useLoading } from '@/components/core/skeleton-context';
@@ -305,6 +308,206 @@ function DefaultChip({ isDefault }: { isDefault: boolean }) {
 }
 
 /* ------------------------------------------------------------------ *
+ *  Reusable Saved Payment Method Dropdown + Add/Edit Button
+ * ------------------------------------------------------------------ */
+interface SavedPaymentMethodDropdownProps {
+  methods: (PaymentMethod | CardDetails)[];
+  selectedMethod: PaymentMethod | CardDetails | null | undefined;
+  onSelectMethod: (method: PaymentMethod | CardDetails) => void;
+  onOpenManage: () => void;
+  hasPendingChanges?: boolean;
+  labelId?: string;
+  selectId?: string;
+  minWidth?: number | string | Record<string, unknown>;
+  maxWidth?: number | string | Record<string, unknown>;
+}
+
+function SavedPaymentMethodDropdown({
+  methods,
+  selectedMethod,
+  onSelectMethod,
+  onOpenManage,
+  hasPendingChanges,
+  labelId = 'saved-payment-method-select-label',
+  selectId = 'saved-payment-method-select',
+  minWidth = { xs: '100%', sm: 280 },
+  maxWidth,
+}: SavedPaymentMethodDropdownProps) {
+  const availableMethods = methods.length > 0 ? methods : selectedMethod ? [selectedMethod] : [];
+  const currentKey = getCardKey(selectedMethod);
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: { xs: 'stretch', sm: 'center' },
+        gap: 1.5,
+        width: '100%',
+        maxWidth,
+      }}
+    >
+      <FormControl size="small" sx={{ flex: 1, minWidth }}>
+        <InputLabel id={labelId}>Saved Payment Method</InputLabel>
+        <Select
+          labelId={labelId}
+          id={selectId}
+          label="Saved Payment Method"
+          value={currentKey}
+          onChange={(e) => {
+            const chosen = availableMethods.find((c) => getCardKey(c) === e.target.value);
+            if (chosen) {
+              onSelectMethod(chosen);
+            }
+          }}
+          renderValue={(selectedKey) => {
+            const chosen = availableMethods.find((c) => getCardKey(c) === selectedKey) || selectedMethod;
+            const isDefault = Boolean(
+              (chosen as any)?.isDefault ||
+              (chosen as any)?.is_default === 1 ||
+              (chosen as any)?.is_default === true ||
+              (chosen as any)?.default === 1 ||
+              (chosen as any)?.default === true ||
+              (chosen as any)?.default_payment === 1 ||
+              (chosen as any)?.default_payment === '1'
+            );
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+                <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  {renderCardBrand(chosen?.card_type ?? (chosen as any)?.account_type ?? (chosen as any)?.brand)}
+                </Box>
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    color: '#2C3E50',
+                    fontWeight: 500,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {formatPaymentMethodLabel(chosen)}
+                </Typography>
+                {hasPendingChanges && (
+                  <Chip
+                    label="Pending Save"
+                    size="small"
+                    sx={{
+                      bgcolor: '#EAF3FB',
+                      color: '#1868A8',
+                      fontWeight: 700,
+                      fontSize: '11px',
+                      height: '20px',
+                      flexShrink: 0,
+                      ml: 'auto',
+                    }}
+                  />
+                )}
+                {isDefault && !hasPendingChanges && (
+                  <Box
+                    sx={{
+                      backgroundColor: '#E8F8F5',
+                      color: '#117A65',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      px: 1,
+                      py: 0.2,
+                      borderRadius: '4px',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap',
+                      ml: 'auto',
+                    }}
+                  >
+                    Default
+                  </Box>
+                )}
+              </Box>
+            );
+          }}
+          sx={{
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            '& .MuiSelect-select': {
+              display: 'flex',
+              alignItems: 'center',
+              py: '8.5px',
+            },
+          }}
+        >
+          {availableMethods.map((card) => {
+            const key = getCardKey(card);
+            const isDefault = Boolean(
+              (card as any)?.isDefault ||
+              (card as any)?.is_default === 1 ||
+              (card as any)?.is_default === true ||
+              (card as any)?.default === 1 ||
+              (card as any)?.default === true ||
+              (card as any)?.default_payment === 1 ||
+              (card as any)?.default_payment === '1'
+            );
+            return (
+              <MenuItem key={key} value={key} sx={{ py: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                  <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    {renderCardBrand(card?.card_type ?? (card as any)?.account_type ?? (card as any)?.brand)}
+                  </Box>
+                  <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500, flex: 1 }}>
+                    {formatPaymentMethodLabel(card)}
+                  </Typography>
+                  {isDefault && (
+                    <Box
+                      sx={{
+                        backgroundColor: '#E8F8F5',
+                        color: '#117A65',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        px: 1,
+                        py: 0.2,
+                        borderRadius: '4px',
+                        flexShrink: 0,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Default
+                    </Box>
+                  )}
+                </Box>
+              </MenuItem>
+            );
+          })}
+        </Select>
+      </FormControl>
+
+      {/* Add/Edit Button */}
+      <MuiButton
+        variant="contained"
+        onClick={(e: any) => {
+          e.stopPropagation();
+          onOpenManage();
+        }}
+        sx={{
+          textTransform: 'none',
+          color: '#ffffff',
+          fontWeight: 700,
+          fontSize: '13px',
+          px: 2.5,
+          height: '40px',
+          borderRadius: '8px',
+          backgroundColor: colors.blue,
+          '&:hover': {
+            backgroundColor: colors['blue.3'],
+          },
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+        }}
+      >
+        Add/Edit
+      </MuiButton>
+    </Box>
+  );
+}
+
+/* ------------------------------------------------------------------ *
  *  Payment method row (used in Review & Confirm)
  * ------------------------------------------------------------------ */
 function PaymentMethodSelector({
@@ -313,12 +516,14 @@ function PaymentMethodSelector({
   onSelect,
   onOpenManage,
   autopayMethodInfo,
+  onSelectMethod,
 }: {
   methods: PaymentMethod[];
   selectedId: string;
   onSelect: (id: string) => void;
   onOpenManage: () => void;
   autopayMethodInfo?: CardDetails | null;
+  onSelectMethod?: (method: PaymentMethod | CardDetails) => void;
 }) {
   const hasSaved = Array.isArray(methods) && methods.length > 0;
   const currentMethod =
@@ -331,113 +536,35 @@ function PaymentMethodSelector({
     (hasSaved ? methods.find((m) => m.isDefault) || methods[0] : null) ||
     (hasSaved ? autopayMethodInfo : null);
 
-  const showSavedBox = Boolean(
-    hasSaved &&
-    currentMethod &&
-    (currentMethod.id ||
-      currentMethod.card_token ||
-      (currentMethod as any)?.token ||
-      currentMethod.bank_account_number ||
-      currentMethod.card_number ||
-      (currentMethod as any)?.last4)
-  );
-
-  const isBank = Boolean(
-    currentMethod?.is_bank_account ||
-    currentMethod?.bank_account_number ||
-    (currentMethod as any)?.type === 'bank' ||
-    (currentMethod as any)?.type === 'account' ||
-    ['checking', 'savings', 'bank', 'account'].some((term) =>
-      (currentMethod?.card_type || currentMethod?.account_type || (currentMethod as any)?.brand || '')
-        .toLowerCase()
-        .includes(term)
-    )
-  );
-
-  const methodTitle =
-    currentMethod?.card_type ||
-    currentMethod?.account_type ||
-    (currentMethod as any)?.brand ||
-    (isBank ? 'Bank Account' : 'Card');
-
-  const last4 = getCardLast4(currentMethod as any) || (currentMethod as any)?.last4 || '';
+  const availableMethods = methods.length > 0 ? methods : currentMethod ? [currentMethod] : [];
 
   return (
-    <Box sx={{
-      borderRadius: '16px',
-      mb: 3,
-      backgroundColor: '#ffffff',
-    }}>
+    <Box
+      sx={{
+        borderRadius: '16px',
+        mb: 3,
+        backgroundColor: '#ffffff',
+      }}
+    >
       <Typography sx={{ fontWeight: 'bold', fontSize: '18px', color: '#172D56', mb: 2 }}>
         Payment Method
       </Typography>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
-        {/* Saved payment details box */}
-        {showSavedBox && (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #D6DBDF',
-              borderRadius: '8px',
-              p: '6px 12px',
-              backgroundColor: '#ffffff',
-              cursor: 'pointer',
-              '&:hover': {
-                borderColor: '#A6ACAF',
-              },
-              gap: 1.5,
-            }}
-          >
-            {renderCardBrand(currentMethod?.card_type ?? currentMethod?.account_type ?? (currentMethod as any)?.brand)}
-
-            <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 500 }}>
-              {methodTitle} ending in {last4}
-            </Typography>
-
-            {/* Default Badge */}
-            {(currentMethod?.isDefault || methods.length === 1) && (
-              <Box
-                sx={{
-                  backgroundColor: '#E8F8F5',
-                  color: '#117A65',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
-                  px: 1,
-                  py: 0.2,
-                  borderRadius: '4px',
-                }}
-              >
-                Default
-              </Box>
-            )}
-          </Box>
-        )}
-
-        {/* Add/Remove Button */}
-        <Button
-          variant="contained"
-          size="small"
-          textTransform="none"
-          bgColor={colors.blue}
-          hoverBackgroundColor={colors['blue.3']}
-          hoverColor="white"
-          style={{
-            fontWeight: 500,
-            fontSize: '13px',
-            padding: '4px 16px',
-            borderRadius: '4px',
-            marginLeft: showSavedBox ? '8px' : '0px',
+      {availableMethods.length > 0 && (
+        <SavedPaymentMethodDropdown
+          methods={availableMethods}
+          selectedMethod={currentMethod}
+          onSelectMethod={(method) => {
+            onSelect(String(method.id));
+            if (onSelectMethod) {
+              onSelectMethod(method);
+            }
           }}
-          onClick={(e: any) => {
-            e.stopPropagation();
-            onOpenManage();
-          }}
-        >
-          {showSavedBox ? 'Add/Remove' : 'Add Payment Method'}
-        </Button>
-      </Box>
+          onOpenManage={onOpenManage}
+          labelId="review-confirm-payment-method-select-label"
+          selectId="review-confirm-payment-method-select"
+        />
+      )}
     </Box>
   );
 }
@@ -624,7 +751,17 @@ function ReviewConfirm({
         <PaymentMethodSelector
           methods={methods}
           selectedId={autopayMethodId}
-          onSelect={setAutopayMethodId}
+          onSelect={(id) => {
+            setAutopayMethodId(id);
+            const found = methods.find((m) => String(m.id) === String(id));
+            if (found) {
+              setAutopayMethodInfo(found as any);
+            }
+          }}
+          onSelectMethod={(m) => {
+            setAutopayMethodInfo(m as any);
+            if (m?.id) setAutopayMethodId(String(m.id));
+          }}
           autopayMethodInfo={autopayMethodInfo}
           onOpenManage={() => setOpenPaymentModal(true)}
         />
@@ -716,6 +853,7 @@ function EnrollChoose({
   newCardSelected,
   onContinueExisting,
   onNewMethodContinue,
+  onSelectMethod,
   onCancel,
   accountNo,
   amountDue,
@@ -731,6 +869,7 @@ function EnrollChoose({
   newCardSelected: boolean;
   onContinueExisting: (id: string) => void;
   onNewMethodContinue: (method: PaymentMethod) => void;
+  onSelectMethod?: (method: PaymentMethod | CardDetails) => void;
   onCancel: () => void;
   accountNo: string;
   amountDue: string;
@@ -840,194 +979,34 @@ function EnrollChoose({
         >
           {/* Option 1: Saved Payment Method - Only rendered if saved payment method exists */}
           {hasSavedCard && (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mb: 2.5,
-              }}
-            >
+            <Box sx={{ mb: 2 }}>
               <FormControlLabel
                 value="saved"
-                control={
-                  <Radio
-                    color="primary"
-                    sx={{
-                      p: '9px',
-                    }}
-                  />
+                control={<Radio color="primary" sx={{ p: '9px' }} />}
+                label={
+                  <Typography sx={{ fontWeight: 700, fontSize: '15px', color: '#172D56' }}>
+                    Use a Saved Payment Method
+                  </Typography>
                 }
-                label=""
-                sx={{
-                  mr: 0.5,
-                  m: 0,
-                }}
+                sx={{ m: 0, mr: 0, alignItems: 'center' }}
               />
 
-              {/* Content to the right of the radio button */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  alignItems: { xs: 'flex-start', sm: 'center' },
-                  gap: { xs: 1.25, sm: 2 },
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
-                {/* Saved payment details box */}
-                <Box
-                  onClick={() => {
-                    setPaymentType('saved');
-                  }}
-                  sx={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    border: '1px solid #D6DBDF',
-                    borderRadius: '8px',
-                    p: { xs: '6px 10px', sm: '6px 12px' },
-                    backgroundColor: '#ffffff',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      borderColor: '#A6ACAF',
-                    },
-                    gap: { xs: 1, sm: 1.5 },
-                    maxWidth: '100%',
-                    boxSizing: 'border-box',
-                    minWidth: 0,
-                  }}
-                >
-                  <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                    {renderCardBrand(displayCard?.card_type ?? displayCard?.account_type ?? (displayCard as any)?.brand)}
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      minWidth: 0,
-                      flex: '1 1 auto',
-                      overflow: 'hidden',
-                      gap: 0.5,
+              {paymentType === 'saved' && (
+                <Box sx={{ mt: 1.5, ml: { xs: 0, sm: 4 }, width: { xs: '100%', sm: 'calc(100% - 32px)' } }}>
+                  <SavedPaymentMethodDropdown
+                    methods={methods}
+                    selectedMethod={selectedMethod || displayCard}
+                    onSelectMethod={(method) => {
+                      if (onSelectMethod) {
+                        onSelectMethod(method as PaymentMethod);
+                      }
                     }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: '14px',
-                        color: '#2C3E50',
-                        fontWeight: 500,
-                        minWidth: 0,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 1,
-                      }}
-                    >
-                      {methodTitle}
-                    </Typography>
-
-                    {isBank ? (
-                      <Typography
-                        component="span"
-                        sx={{
-                          fontSize: '14px',
-                          color: '#2C3E50',
-                          fontWeight: 500,
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0,
-                        }}
-                      >
-                        ...
-                      </Typography>
-                    ) : (
-                      <>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontSize: '14px',
-                            color: '#2C3E50',
-                            fontWeight: 500,
-                            whiteSpace: 'nowrap',
-                            flexShrink: 2,
-                            display: { xs: 'none', sm: 'inline' },
-                          }}
-                        >
-                          ending in
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontSize: '14px',
-                            color: '#2C3E50',
-                            fontWeight: 500,
-                            whiteSpace: 'nowrap',
-                            flexShrink: 0,
-                            display: { xs: 'inline', sm: 'none' },
-                          }}
-                        >
-                          ...
-                        </Typography>
-                      </>
-                    )}
-
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: '14px',
-                        color: '#2C3E50',
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {last4}
-                    </Typography>
-                  </Box>
-
-                  {/* Default Badge */}
-                  {(displayCard?.isDefault || methods.length === 1) && (
-                    <Box
-                      sx={{
-                        backgroundColor: '#E8F8F5',
-                        color: '#117A65',
-                        fontSize: '11px',
-                        fontWeight: 'bold',
-                        px: 1,
-                        py: 0.2,
-                        borderRadius: '4px',
-                        flexShrink: 0,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Default
-                    </Box>
-                  )}
+                    onOpenManage={() => setOpenPaymentModal(true)}
+                    labelId="enroll-saved-payment-method-select-label"
+                    selectId="enroll-saved-payment-method-select"
+                  />
                 </Box>
-
-                {/* Add/Remove Button */}
-                <Button
-                  variant="contained"
-                  size="small"
-                  textTransform="none"
-                  bgColor={colors.blue}
-                  hoverBackgroundColor={colors['blue.3']}
-                  hoverColor="white"
-                  style={{
-                    fontWeight: 500,
-                    fontSize: '13px',
-                    padding: '4px 16px',
-                    borderRadius: '4px',
-                    flexShrink: 0,
-                  }}
-                  onClick={(e: any) => {
-                    e.stopPropagation();
-                    setOpenPaymentModal(true);
-                  }}
-                >
-                  Add/Remove
-                </Button>
-              </Box>
+              )}
             </Box>
           )}
 
@@ -1044,7 +1023,7 @@ function EnrollChoose({
                 />
               }
               label={
-                <Typography sx={{ fontWeight: 'bold', fontSize: '15px', color: '#172D56', ml: 0.5 }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '15px', color: '#172D56', ml: 0.5 }}>
                   Add a new payment method
                 </Typography>
               }
@@ -1269,6 +1248,8 @@ function Dashboard({
   autopayEnabled,
   autopayMethodInfo,
   pendingMethodInfo,
+  methods = [],
+  onSelectMethod,
   onToggle,
   onChangeMethod,
   onDeactivate,
@@ -1283,6 +1264,8 @@ function Dashboard({
   autopayEnabled: boolean;
   autopayMethodInfo: CardDetails | PaymentMethod | null;
   pendingMethodInfo?: CardDetails | PaymentMethod | null;
+  methods?: (PaymentMethod | CardDetails)[];
+  onSelectMethod?: (method: PaymentMethod | CardDetails) => void;
   onToggle: () => void;
   onChangeMethod: () => void;
   onDeactivate: () => void;
@@ -1348,62 +1331,20 @@ function Dashboard({
                 </Typography>
 
                 {displayMethodInfo && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mb: 1.5 }}>
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        border: hasPendingChanges ? '1.5px solid #1868A8' : '1px solid #D6DBDF',
-                        borderRadius: '8px',
-                        px: 2,
-                        py: 1,
-                        backgroundColor: '#ffffff',
-                        gap: 1.5,
-                      }}
-                    >
-                      {renderCardBrand(displayMethodInfo?.card_type ?? displayMethodInfo?.account_type)}
-                      <Typography sx={{ fontSize: '14px', color: '#2C3E50', fontWeight: 600 }}>
-                        {displayMethodInfo?.card_type || displayMethodInfo?.account_type || 'Card'} ending in{' '}
-                        {getCardLast4(displayMethodInfo as any)}
-                      </Typography>
-                      {hasPendingChanges && (
-                        <Chip
-                          label="Pending Save"
-                          size="small"
-                          sx={{
-                            bgcolor: '#EAF3FB',
-                            color: '#1868A8',
-                            fontWeight: 700,
-                            fontSize: '11px',
-                            height: '22px',
-                          }}
-                        />
-                      )}
-                    </Box>
-
-                    {/* Add/Remove Button */}
-                    <Button
-                      variant="contained"
-                      size="small"
-                      textTransform="none"
-                      bgColor={colors.blue}
-                      hoverBackgroundColor={colors['blue.3']}
-                      hoverColor="white"
-                      style={{
-                        fontWeight: 500,
-                        fontSize: '13px',
-                        padding: '4px 16px',
-                        borderRadius: '4px',
-                        marginLeft: '8px',
-                      }}
-                      onClick={(e: any) => {
-                        e.stopPropagation();
-                        onChangeMethod();
-                      }}
-                    >
-                      Add/Remove
-                    </Button>
-                  </Box>
+                  <SavedPaymentMethodDropdown
+                    methods={methods.length > 0 ? methods : [displayMethodInfo]}
+                    selectedMethod={displayMethodInfo}
+                    onSelectMethod={(method) => {
+                      if (onSelectMethod) {
+                        onSelectMethod(method);
+                      }
+                    }}
+                    onOpenManage={onChangeMethod}
+                    hasPendingChanges={hasPendingChanges}
+                    labelId="manage-saved-payment-method-select-label"
+                    selectId="manage-saved-payment-method-select"
+                    maxWidth={560}
+                  />
                 )}
               </Box>
 
@@ -2196,6 +2137,11 @@ export default function AutoPayPrototype() {
             autopayEnabled={autopayEnabled}
             autopayMethodInfo={autopayMethodInfo}
             pendingMethodInfo={pendingMethodInfo}
+            methods={methods}
+            onSelectMethod={(method) => {
+              setPendingMethodInfo(method);
+              if (method.id) setPendingMethodId(method.id);
+            }}
             onToggle={handleToggle}
             onChangeMethod={() => setOpenPaymentModal(true)}
             onDeactivate={() => setView('deactivate')}
@@ -2224,6 +2170,10 @@ export default function AutoPayPrototype() {
             setPaymentType={setPaymentType}
             onContinueExisting={handleContinueExisting}
             onNewMethodContinue={handleNewMethodFromEnroll}
+            onSelectMethod={(method) => {
+              setAutopayMethodInfo(method as any);
+              if (method.id) setAutopayMethodId(method.id);
+            }}
             autopayMethodInfo={autopayMethodInfo}
             newCardSelected={newCardSelected}
             onCancel={() => navigate(paths.dashboard.overview())}

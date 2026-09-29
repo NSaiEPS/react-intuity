@@ -59,7 +59,6 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
   const location = useLocation();
   const pathname = location.pathname;
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
-  console.log(companyInfo, 'successCallBack')
   const [showPassword, setShowPassword] = React.useState<boolean>();
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
@@ -84,14 +83,14 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
   const slugAlias = rawSlug?.startsWith("login-")
     ? rawSlug.replace("login-", "")
     : rawSlug?.startsWith("register-")
-    ? rawSlug.replace("register-", "")
-    : rawSlug?.startsWith("reset-password-")
-    ? rawSlug.replace("reset-password-", "")
-    : rawSlug?.startsWith("forgot-login-")
-    ? rawSlug.replace("forgot-login-", "")
-    : rawSlug?.startsWith("onetime-payment-")
-    ? rawSlug.replace("onetime-payment-", "")
-    : null;
+      ? rawSlug.replace("register-", "")
+      : rawSlug?.startsWith("reset-password-")
+        ? rawSlug.replace("reset-password-", "")
+        : rawSlug?.startsWith("forgot-login-")
+          ? rawSlug.replace("forgot-login-", "")
+          : rawSlug?.startsWith("onetime-payment-")
+            ? rawSlug.replace("onetime-payment-", "")
+            : null;
   const storedAlias = (getLocalStorage("alias-details") as { alias?: string } | null)?.alias;
 
   const isCompanySpecificLogin = Boolean(
@@ -212,7 +211,6 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
   };
 
   const successCallBack = async (res: AuthResponse, companyInfo: CompanyInfoBody | null) => {
-    console.log(pathname, res, companyInfo, 'successCallBack')
     dispatch(resetDashboardStore());
     dispatch(resetPaymentStore());
     dispatch(setUserInfo(res));

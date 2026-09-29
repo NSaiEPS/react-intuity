@@ -66,7 +66,7 @@ const NotFound = React.lazy(() => import("./pages/not-found"));
 
 import { LoaderFallback } from "@/components/core/protectedRoute";
 
-console.log("version 1.1.58")
+console.log("version 1.1.60")
 
 const withSuspense = (element: React.ReactNode) => {
   return (

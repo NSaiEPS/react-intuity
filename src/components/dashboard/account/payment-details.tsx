@@ -232,6 +232,30 @@ export const getCardLast4 = (selectedCardDetails: CardDetails) => {
   return str ? str.slice(-4) : '';
 };
 
+export const getCardKey = (card: CardDetails | any | null | undefined): string => {
+  if (!card) return '';
+  return String(card.id ?? card.card_token ?? card.card_id ?? card.card_number ?? card.bank_account_number ?? '');
+};
+
+export const formatPaymentMethodLabel = (method: CardDetails | any | null | undefined): string => {
+  if (!method) return 'Saved Payment Method';
+  const isBank = Boolean(
+    method?.bank_account_number ||
+    method?.account_type ||
+    method?.isBank ||
+    method?.is_bank_account ||
+    (method?.type && (String(method.type).toLowerCase() === 'account' || String(method.type).toLowerCase() === 'bank')) ||
+    ['checking', 'savings', 'bank', 'account'].some((term) =>
+      (method?.card_type || method?.account_type || method?.brand || '')
+        .toLowerCase()
+        .includes(term)
+    )
+  );
+  const type = method?.card_type || method?.account_type || method?.brand || (isBank ? 'Bank Account' : 'Card');
+  const last4 = getCardLast4(method) || method?.last4 || '';
+  return `${type}${last4 ? ` ending in ${last4}` : ''}`;
+};
+
 const PaymentForm = () => {
   const {
     handleSubmit,
@@ -298,10 +322,12 @@ const PaymentForm = () => {
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
 
   useEffect(() => {
-    if (paymentDetailsInfo?.customer?.balance) {
-      setValue('amount', paymentDetailsInfo?.customer?.balance);
+    if (paymentDetailsInfo?.customer?.balance !== undefined && paymentDetailsInfo?.customer?.balance !== null) {
+      const balanceNum = Number(paymentDetailsInfo.customer.balance);
+      const initialAmount = balanceNum < 0 ? '0.00' : String(paymentDetailsInfo.customer.balance);
+      setValue('amount', initialAmount);
     }
-  }, [paymentDetailsInfo]);
+  }, [paymentDetailsInfo, setValue]);
 
   const [myCustomerDetails, setCustomerDetails] = useState<{
     allow_overpayments: number;
@@ -333,7 +359,15 @@ const PaymentForm = () => {
     if (CustomerInfo?.acctnum) {
       setValue('name', CustomerInfo?.customer_name);
       setValue('email', CustomerInfo?.email);
-      setValue('amount', '0.00');
+      const balanceNum =
+        CustomerInfo?.balance !== undefined && CustomerInfo?.balance !== null ? Number(CustomerInfo.balance) : 0;
+      const initialAmount =
+        balanceNum < 0
+          ? '0.00'
+          : CustomerInfo?.balance !== undefined && CustomerInfo?.balance !== null
+            ? String(CustomerInfo.balance)
+            : '0.00';
+      setValue('amount', initialAmount);
       setHasUserChangedPaymentType(false);
     }
     if (CustomerInfo?.company_id) {
@@ -409,24 +443,6 @@ const PaymentForm = () => {
   }, [paymentDetailsInfo, myCard, dashBoardInfo, extractCards]);
 
   const hasSavedPaymentMethods = savedCardsList.length > 0;
-
-  const getCardKey = React.useCallback((card: CardDetails | null | undefined): string => {
-    if (!card) return '';
-    return String(card.id ?? card.card_token ?? card.card_id ?? card.card_number ?? card.bank_account_number ?? '');
-  }, []);
-
-  const formatPaymentMethodLabel = React.useCallback((method: CardDetails | null | undefined): string => {
-    if (!method) return 'Saved Payment Method';
-    const isBank = Boolean(
-      method?.bank_account_number ||
-      method?.account_type ||
-      method?.isBank ||
-      (method?.type && String(method.type).toLowerCase() === 'account')
-    );
-    const type = method?.card_type || method?.account_type || (isBank ? 'Bank Account' : 'Card');
-    const last4 = getCardLast4(method);
-    return `${type}${last4 ? ` ending in ${last4}` : ''}`;
-  }, []);
 
   const selectedCardKey = getCardKey(selectedCardDetails);
 
@@ -732,6 +748,7 @@ const PaymentForm = () => {
   useEffect(() => {
     if (
       myCustomerDetails?.allow_overpayments == 0 &&
+      Number(myCustomerDetails?.balance || 0) > 0 &&
       Number(amount) > Number(myCustomerDetails?.balance || 0) &&
       myCustomerDetails?.id
     ) {
@@ -936,7 +953,7 @@ const PaymentForm = () => {
 
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Typography fontWeight={500} color="text.secondary">
-                  Amount Due:
+                  Total Balance Due:
                 </Typography>
                 <Typography fontWeight={600} color="text.primary" sx={{ textAlign: 'right' }}>
                   {billAmountDue}
@@ -951,23 +968,6 @@ const PaymentForm = () => {
                   {formattedBillDueDate}
                 </Typography>
               </Stack>
-
-              <Box sx={{ borderTop: '1px solid rgba(47, 102, 179, 0.2)', pt: 1.5, mt: 0.5 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography variant="subtitle1" fontWeight={700} color="#172D56">
-                    Total Payment Amount:
-                  </Typography>
-                  {isFeeLoading ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <CircularProgress size={18} sx={{ color: '#2A72B9' }} /> Updating...
-                    </Box>
-                  ) : (
-                    <Typography variant="h6" fontWeight={800} color="#2F66B3" sx={{ textAlign: 'right' }}>
-                      {formatCurrency(totalCalculatedAmount)}
-                    </Typography>
-                  )}
-                </Stack>
-              </Box>
             </Stack>
           </Box>
 
@@ -1159,7 +1159,8 @@ const PaymentForm = () => {
                       }
                       if (
                         paymentDetailsInfo?.company?.allow_overpayments == 0 &&
-                        Number(sanitizedValue) > paymentDetailsInfo?.customer?.balance
+                        Number(paymentDetailsInfo?.customer?.balance || 0) > 0 &&
+                        Number(sanitizedValue) > Number(paymentDetailsInfo?.customer?.balance || 0)
                       ) {
                         toast.warn('Over payments are not allowed at this time.');
                         return;
@@ -1167,7 +1168,8 @@ const PaymentForm = () => {
 
                       if (
                         paymentDetailsInfo?.company?.allow_partial_payments == 0 &&
-                        Number(sanitizedValue) < paymentDetailsInfo?.customer?.balance
+                        Number(paymentDetailsInfo?.customer?.balance || 0) > 0 &&
+                        Number(sanitizedValue) < Number(paymentDetailsInfo?.customer?.balance || 0)
                       ) {
                         toast.warn('Partial payments are not allowed at this time.');
                         return;
