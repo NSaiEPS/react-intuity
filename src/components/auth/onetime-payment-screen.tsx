@@ -313,8 +313,12 @@ export default function OneTimePaymentScreen() {
       guestPaymentRequest(
         paymentData,
         companyInfo?.company?.alias,
-        (res) => {
+        (res, body) => {
           setCustomerDetails(res);
+          const rawAmountToPay =
+            body?.amount_to_pay !== undefined && body?.amount_to_pay !== null
+              ? body.amount_to_pay
+              : (res?.balance ?? 0);
           setFormData((prev) => ({
             ...prev,
             name: res?.customer_name,
@@ -322,7 +326,7 @@ export default function OneTimePaymentScreen() {
             convenienceFee: "0",
             totalPayment: "0",
             street: res?.service_address,
-            amountToPay: String(res?.balance ?? 0),
+            amountToPay: String(rawAmountToPay),
           }));
           if (res?.email) {
             try {

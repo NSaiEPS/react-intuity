@@ -266,23 +266,21 @@ export default function OneTimePaymentModal({ open, onClose }) {
       guestPaymentRequest(
         paymentData,
         companyInfo?.company?.alias,
-        (res) => {
+        (res, body) => {
           setCustomerDetails(res);
-          // if (res?.balance) {
-          //   // handleChange("amountToPay")(String(res?.balance));
-          //   setFormData({ ...formData, amountToPay: String(res?.balance) });
-          // }
+          const rawAmountToPay =
+            body?.amount_to_pay !== undefined && body?.amount_to_pay !== null
+              ? body.amount_to_pay
+              : (res?.balance ?? 0);
           setFormData((prev) => ({
             ...prev,
 
             name: res?.customer_name,
             email: res?.email,
-            // amountToPay: "0",
             convenienceFee: "0",
             totalPayment: "0",
             street: res?.service_address,
-            amountToPay: String(res?.balance ?? 0),
-            // balance: String(res?.balance ?? 0),
+            amountToPay: String(rawAmountToPay),
           }));
           if (res?.email) {
             try {

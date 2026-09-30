@@ -131,6 +131,7 @@ export interface PaymentDetailsBody {
 // ─── One-Time / Guest Payment ────────────────────────────────────────────────
 
 export interface OneTimePaymentBody {
+  amount_to_pay?: number | string;
   customer?: CustomerAccount;
   is_payments_blocked?: boolean;
   /** Invoice fields — present when guest-payment API returns billing info */

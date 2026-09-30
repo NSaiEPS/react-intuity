@@ -13,13 +13,18 @@ import {
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 
 interface BillingItem {
-  id: string | number;
-  product_id: string;
-  amount: string | number;
-  consumption?: number;
+  id?: string | number;
+  product_id?: string | null;
+  amount?: string | number | null;
+  consumption?: number | null;
+  [key: string]: any;
 }
 
-export default function UtilityList({ data }) {
+interface UtilityListProps {
+  data?: Record<string, BillingItem[]> | null;
+}
+
+export default function UtilityList({ data }: UtilityListProps) {
   // Set so multiple sections can be open at the same time
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
@@ -35,7 +40,7 @@ export default function UtilityList({ data }) {
     });
   };
 
-  const entries = Object.entries(data as Record<string, BillingItem[]>);
+  const entries = Object.entries((data ?? {}) as Record<string, BillingItem[]>);
 
   return (
     <Box>
@@ -67,28 +72,19 @@ export default function UtilityList({ data }) {
 
       {/* ── One row per utility group ── */}
       {entries.map(([key, items]) => {
-        // const [utilityName,  meterNumber, ...addressParts] = key.split(';');
-        // const serviceAddress = addressParts.join(';');
         const parts = key.split(";");
 
         const utilityName = parts[0];
         const meterNumber = parts[1];
         const serviceAddress = parts.slice(2).filter(Boolean).join(" ");
 
+        const lineItems = items ?? [];
 
-        // Suppression: skip items with null/blank description or null amount
-        const visibleItems = items?.filter(
-          (item) =>
-            item?.product_id != null &&
-            String(item.product_id).trim() !== '' &&
-            item?.amount != null
-        );
-
-        const totalAmount = visibleItems?.reduce(
-          (sum, item) => sum + Number(item.amount),
+        const totalAmount = lineItems.reduce(
+          (sum, item) => sum + (item?.amount != null && !isNaN(Number(item.amount)) ? Number(item.amount) : 0),
           0
         );
-        const totalUnits = items[0]?.consumption || 0;
+        const totalUnits = items?.[0]?.consumption || 0;
         const isExpanded = expandedKeys.has(key);
 
         return (
@@ -141,19 +137,21 @@ export default function UtilityList({ data }) {
             {/* Expandable line items */}
             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
               <List disablePadding sx={{ bgcolor: '#fafbfc' }}>
-                {visibleItems.map((item) => (
-                  <React.Fragment key={item.id}>
+                {lineItems.map((item, index) => (
+                  <React.Fragment key={item?.id ?? index}>
                     <ListItem
                       disableGutters
                       sx={{ px: 5, py: 0.75 }}
                       secondaryAction={
-                        <Typography variant="body2" fontWeight="medium" sx={{ pr: 1 }}>
-                          ${Number(item.amount).toFixed(2)}
-                        </Typography>
+                        item?.amount != null && !isNaN(Number(item.amount)) ? (
+                          <Typography variant="body2" fontWeight="medium" sx={{ pr: 1 }}>
+                            ${Number(item.amount).toFixed(2)}
+                          </Typography>
+                        ) : null
                       }
                     >
                       <ListItemText
-                        primary={item.product_id}
+                        primary={item?.product_id && String(item.product_id).trim() ? item.product_id : '\u00A0'}
                         primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
                       />
                     </ListItem>

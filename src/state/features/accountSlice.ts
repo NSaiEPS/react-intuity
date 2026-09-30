@@ -788,7 +788,7 @@ export const schedulePayment = (
 export const guestPaymentRequest = (
   formData: FormData,
   alias: string,
-  successCallBack?: (customer: any) => void,
+  successCallBack?: (customer: any, body?: any) => void,
   failureCallBack?: (isBlocked?: boolean, hasError?: true) => void
 ) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setAccountLoading(true));
@@ -804,7 +804,7 @@ export const guestPaymentRequest = (
           } catch {}
         }
         dispatch(setOneTimePaymentInfo(res?.body));
-        if (successCallBack) successCallBack(res?.body?.customer);
+        if (successCallBack) successCallBack(res?.body?.customer, res?.body);
       }
     } else {
       if (res?.message !== "You are not authorised to use this api") {
