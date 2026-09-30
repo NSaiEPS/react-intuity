@@ -118,6 +118,7 @@ export interface PaymentCard {
 }
 
 export interface PaymentDetailsBody {
+  amount_to_pay?: number | string;
   mycards?: PaymentCard[];
   selected_card?: PaymentCard | null;
   worldpay_transaction_set_up_id?: string;

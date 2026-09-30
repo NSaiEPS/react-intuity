@@ -292,6 +292,12 @@ const PaymentForm = () => {
   const [selectedCardDetails, setSelectedCardDetails] = useState<CardDetails>({});
   const [hasUserChangedPaymentType, setHasUserChangedPaymentType] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
+  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
+
   const onCustomerAckowledge = () => {
     const formdata = new FormData();
     formdata.append('acl_role_id', stored?.body?.acl_role_id);
@@ -308,26 +314,18 @@ const PaymentForm = () => {
   const onSubmit = (data: FormData) => {
     // handled via handlePay / handleSaveDetails
   };
-  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
   const accountLoading = useSelector((state: RootState) => state?.Account.accountLoading);
   const convenienceFee = useSelector((state: RootState) => state?.Account.convenienceFee);
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
-
-  const raw = userInfo?.body ? userInfo : getLocalStorage('intuity-user');
-
-  const stored: IntuityUser | null = typeof raw === 'object' && raw !== null ? (raw as IntuityUser) : null;
-  const navigate = useNavigate();
   const myCard = useSelector((state: RootState) => state?.Account?.paymentMethodInfoCards);
   const paymentMethodInfoCards = useSelector((state: RootState) => state?.Account?.selectedCardInfo);
   const paymentDetailsInfo = useSelector((state: RootState) => state?.Account?.paymentDetailsInfo);
 
   useEffect(() => {
-    if (paymentDetailsInfo?.customer?.balance !== undefined && paymentDetailsInfo?.customer?.balance !== null) {
-      const balanceNum = Number(paymentDetailsInfo.customer.balance);
-      const initialAmount = balanceNum < 0 ? '0.00' : String(paymentDetailsInfo.customer.balance);
-      setValue('amount', initialAmount);
+    if (paymentDetailsInfo?.amount_to_pay !== undefined && paymentDetailsInfo?.amount_to_pay !== null) {
+      setValue('amount', String(paymentDetailsInfo.amount_to_pay));
     }
-  }, [paymentDetailsInfo, setValue]);
+  }, [paymentDetailsInfo?.amount_to_pay, setValue]);
 
   const [myCustomerDetails, setCustomerDetails] = useState<{
     allow_overpayments: number;
@@ -359,15 +357,6 @@ const PaymentForm = () => {
     if (CustomerInfo?.acctnum) {
       setValue('name', CustomerInfo?.customer_name);
       setValue('email', CustomerInfo?.email);
-      const balanceNum =
-        CustomerInfo?.balance !== undefined && CustomerInfo?.balance !== null ? Number(CustomerInfo.balance) : 0;
-      const initialAmount =
-        balanceNum < 0
-          ? '0.00'
-          : CustomerInfo?.balance !== undefined && CustomerInfo?.balance !== null
-            ? String(CustomerInfo.balance)
-            : '0.00';
-      setValue('amount', initialAmount);
       setHasUserChangedPaymentType(false);
     }
     if (CustomerInfo?.company_id) {
@@ -376,9 +365,8 @@ const PaymentForm = () => {
       formdata.append('company_id', CustomerInfo?.company_id);
       dispatch(getPaymentProcessorDetails(formdata, false));
     }
-  }, [CustomerInfo]);
+  }, [CustomerInfo, setValue, stored?.body?.acl_role_id, dispatch]);
 
-  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
 
   const { id: encryptedId } = useParams();
@@ -744,18 +732,6 @@ const PaymentForm = () => {
   useEffect(() => {
     fetchConvenienceFee(debouncedAmount);
   }, [debouncedAmount, fetchConvenienceFee]);
-
-  useEffect(() => {
-    if (
-      myCustomerDetails?.allow_overpayments == 0 &&
-      Number(myCustomerDetails?.balance || 0) > 0 &&
-      Number(amount) > Number(myCustomerDetails?.balance || 0) &&
-      myCustomerDetails?.id
-    ) {
-      setValue('amount', `${myCustomerDetails?.balance ?? 0}`);
-      toast.warn("Please don't pay more than you owe!");
-    }
-  }, [amount, myCustomerDetails, setValue]);
 
   const cardConvenienceFee = searchParams.get('convenience_fee');
   const cardAmount = searchParams.get('amount');
@@ -1126,7 +1102,7 @@ const PaymentForm = () => {
                       },
                     }}
                     value={
-                      field.value
+                      field.value !== undefined && field.value !== null && field.value !== ''
                         ? isAmountFocused
                           ? `$${field.value}`
                           : formatCurrency(field.value)
