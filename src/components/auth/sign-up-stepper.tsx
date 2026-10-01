@@ -85,28 +85,48 @@ export const CustomStepper = ({
   activeStep: number;
   steps?: string[];
 }) => {
+  const isTwoStep = stepList.length <= 2;
+
   return (
     <Box display="flex" justifyContent="center" width="100%">
       <Stepper
         activeStep={activeStep}
         alternativeLabel
-        connector={<CustomConnector topOffset={14} />}
+        connector={<CustomConnector topOffset={15} />}
         sx={{
           mb: 4,
           width: "100%",
+          maxWidth: isTwoStep ? { xs: "100%", sm: "360px", md: "380px" } : "100%",
           px: { xs: 0.5, sm: 1 },
 
           "& .MuiStep-root": {
             px: { xs: 0.2, sm: 1 },
           },
 
+          "& .MuiStepLabel-root": {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          },
+
+          "& .MuiStepLabel-labelContainer": {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            textAlign: "center",
+          },
+
           "& .MuiStepLabel-label": {
             mt: 1,
             fontSize: { xs: "0.72rem", sm: "0.85rem" },
             lineHeight: 1.25,
-            whiteSpace: "normal",
+            whiteSpace: { xs: "normal", sm: "nowrap" },
             textAlign: "center",
-            maxWidth: { xs: "70px", sm: "120px" },
+            display: "block",
+            mx: "auto",
+            maxWidth: { xs: "80px", sm: "none" },
             wordBreak: "break-word",
           },
         }}

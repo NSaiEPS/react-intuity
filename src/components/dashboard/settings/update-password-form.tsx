@@ -16,6 +16,7 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
+  LinearProgress,
   OutlinedInput,
   Stack,
   Tooltip,
@@ -30,6 +31,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { z } from "zod";
 import { setRouteChecker } from "@/state/features/dashBoardSlice";
+import { getPasswordStrength } from "@/components/auth/sign-up-schema";
 
 const passwordSchema = z
   .string()
@@ -64,6 +66,7 @@ export function UpdatePasswordForm(): React.JSX.Element {
     register,
     reset,
     handleSubmit,
+    watch,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -73,6 +76,9 @@ export function UpdatePasswordForm(): React.JSX.Element {
       repassword: "",
     },
   });
+
+  const newPasswordValue = watch("new_password", "");
+  const strength = getPasswordStrength(newPasswordValue);
 
   const dispatch = useDispatch();
 
@@ -254,6 +260,29 @@ export function UpdatePasswordForm(): React.JSX.Element {
                   </InputAdornment>
                 }
               />
+              {strength && (
+                <Box sx={{ mt: 0.75, px: 0.25 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={strength.pct}
+                    sx={{
+                      height: 4,
+                      borderRadius: 2,
+                      bgcolor: "action.hover",
+                      "& .MuiLinearProgress-bar": {
+                        bgcolor: strength.color,
+                        transition: "width 0.35s ease, background-color 0.35s ease",
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{ color: strength.color, fontWeight: 600, mt: 0.25, display: "block" }}
+                  >
+                    {strength.label}
+                  </Typography>
+                </Box>
+              )}
               {errors.new_password && (
                 <FormHelperText>{errors.new_password.message}</FormHelperText>
               )}

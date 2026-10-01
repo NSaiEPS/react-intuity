@@ -66,7 +66,7 @@ const NotFound = React.lazy(() => import("./pages/not-found"));
 
 import { LoaderFallback } from "@/components/core/protectedRoute";
 
-console.log("version 1.1.61")
+console.log("version 1.1.62")
 
 const withSuspense = (element: React.ReactNode) => {
   return (
@@ -285,7 +285,7 @@ export const router = createBrowserRouter([
           {
             path: "settings",
             element: withSuspense(
-              <ProtectedRoute title="Settings">
+              <ProtectedRoute title="Profile">
                 <SettingsPage />
               </ProtectedRoute>
             ),
