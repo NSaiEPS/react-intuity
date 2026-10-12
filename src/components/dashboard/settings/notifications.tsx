@@ -3,6 +3,7 @@ import {
   updateAccountInfo,
   updateVoicePreference,
 } from "@/state/features/accountSlice";
+import { getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { boarderRadius, colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
@@ -160,7 +161,14 @@ export function Notifications(): React.JSX.Element {
     setPhoneUpdated(true);
   }, [watchPhone]);
   const dispatch = useDispatch();
-  const [clickedState, setClickedState] = React.useState(false);
+  const [pendingVoiceState, setPendingVoiceState] = React.useState<boolean | null>(null);
+  const [clickedState, setClickedState] = React.useState<boolean>(() => {
+    const rawLocal = getLocalStorage("intuity-customerInfo") as CustomerInfo | null;
+    if (rawLocal && (Number(rawLocal.is_voice_optout) === 1 || String(rawLocal.is_voice_optout) === "1")) {
+      return false;
+    }
+    return true;
+  });
 
   // const userInfo = getLocalStorage("intuity-customerInfo");
 
@@ -168,13 +176,24 @@ export function Notifications(): React.JSX.Element {
     (state: RootState) => state?.DashBoard?.dashBoardInfo
   );
   const userInfo: CustomerInfo = React.useMemo(
-    () => dashBoardInfo?.customer ?? (getLocalStorage("intuity-customerInfo") as CustomerInfo),
-    [dashBoardInfo?.customer]
+    () =>
+      dashBoardInfo?.body?.customer ??
+      dashBoardInfo?.customer ??
+      (getLocalStorage("intuity-customerInfo") as CustomerInfo),
+    [dashBoardInfo]
   );
 
   React.useEffect(() => {
     if (userInfo) {
-      setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
+      if (userInfo.is_voice_optout !== undefined && userInfo.is_voice_optout !== null) {
+        if (Number(userInfo.is_voice_optout) === 1 || String(userInfo.is_voice_optout) === "1") {
+          setClickedState(false);
+        } else {
+          setClickedState(true);
+        }
+      } else {
+        setClickedState(true);
+      }
 
       reset((prev) => ({
         ...prev,
@@ -275,25 +294,33 @@ export function Notifications(): React.JSX.Element {
   const [openConfirm, setOpenConfirm] = React.useState(false);
 
   const handleConfirm = () => {
-    const formData = new FormData();
+    let roleId = stored?.body?.acl_role_id;
+    let userId = stored?.body?.customer_id;
 
+    const nextState = pendingVoiceState !== null ? pendingVoiceState : !clickedState;
+    const optoutValue = nextState ? 0 : 1;
+
+    setClickedState(nextState);
+    setOpenConfirm(false);
+    setPendingVoiceState(null);
+
+    const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-
-    // logic for destructive action
-
-    formData.append("is_voice_optout", clickedState ? "1" : "0");
+    formData.append("is_voice_optout", String(optoutValue));
 
     dispatch(
-      updateVoicePreference(formData, () => successCallBack("voice"))
+      updateVoicePreference(formData, () => {
+        updateLocalStorageValue("intuity-customerInfo", "is_voice_optout", optoutValue);
+        if (roleId && userId) {
+          dispatch(getDashboardInfo(roleId, userId));
+        }
+      })
     );
-
-    setOpenConfirm(false);
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // setChecked();
-
-    setClickedState(event.target.checked);
+    const nextState = event.target.checked;
+    setPendingVoiceState(nextState);
     setOpenConfirm(true);
   };
 
@@ -495,13 +522,17 @@ export function Notifications(): React.JSX.Element {
         <ConfirmDialog
           open={openConfirm}
           title={"Voice Call"}
-          message={`Are you sure want to ${clickedState ? "ON" : "OFF"} it`}
+          message={
+            (pendingVoiceState !== null ? !pendingVoiceState : clickedState)
+              ? "Are you sure that you do not want to receive voice calls from your utility provider regarding utility services?"
+              : "Are you sure that you want to receive voice calls from your utility provider regarding utility services?"
+          }
           confirmLabel="Yes, Confirm"
           cancelLabel="Cancel"
           onConfirm={handleConfirm}
           onCancel={() => {
             setOpenConfirm(false);
-            setClickedState((prev) => !prev);
+            setPendingVoiceState(null);
           }}
         />
       )}

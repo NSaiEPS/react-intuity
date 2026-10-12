@@ -155,24 +155,20 @@ export function SignUpForm() {
       authType: "last_name",
       authAnswer: "",
       notificationEmail: initialGuestEmail,
-      confirmNotificationEmail: initialGuestEmail,
+      confirmNotificationEmail: "",
       phone: "",
       countryCode: "1",
     },
   });
 
-  // Auto-fill notification emails from available sources if fields haven't been manually modified
+  // Auto-fill notification email from available sources if field hasn't been manually modified
   React.useEffect(() => {
     const portalUser = getValues("email");
     const emailToSet = getAvailableEmail(companyResponse, oneTimePaymentInfo, portalUser);
     if (emailToSet) {
       const currentNotif = getValues("notificationEmail");
-      const currentConfirm = getValues("confirmNotificationEmail");
       if (!currentNotif || currentNotif === lastAutoFilledEmailRef.current) {
         setValue("notificationEmail", emailToSet, { shouldDirty: false, shouldValidate: false });
-      }
-      if (!currentConfirm || currentConfirm === lastAutoFilledEmailRef.current) {
-        setValue("confirmNotificationEmail", emailToSet, { shouldDirty: false, shouldValidate: false });
       }
       lastAutoFilledEmailRef.current = emailToSet;
     }
@@ -256,12 +252,8 @@ export function SignUpForm() {
     const emailFromData = getAvailableEmail(data, oneTimePaymentInfo, portalUser);
     if (emailFromData) {
       const currentNotif = getValues("notificationEmail");
-      const currentConfirm = getValues("confirmNotificationEmail");
       if (!currentNotif || currentNotif === lastAutoFilledEmailRef.current) {
         setValue("notificationEmail", emailFromData, { shouldDirty: false, shouldValidate: false });
-      }
-      if (!currentConfirm || currentConfirm === lastAutoFilledEmailRef.current) {
-        setValue("confirmNotificationEmail", emailFromData, { shouldDirty: false, shouldValidate: false });
       }
       lastAutoFilledEmailRef.current = emailFromData;
     }

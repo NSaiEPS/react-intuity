@@ -468,7 +468,11 @@ export const updateVoicePreference = (
   try {
     const res = await updateVoicePreferenceAPi({ formData });
     if (res.status) {
-      toast.success(res?.message ? res?.message : "Updated Voice Preference");
+      const isVoiceOptout = formData.get("is_voice_optout") === "1";
+      const successMessage = isVoiceOptout
+        ? (res?.message ? res?.message : "Voice optout setting updated successfully")
+        : "Voice call preference updated successfully";
+      toast.success(successMessage);
       if (successCallBack) successCallBack();
     } else {
       navigateTo("/login", { replace: true }, res?.message);

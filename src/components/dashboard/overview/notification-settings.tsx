@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { updateAccountInfo, updateVoicePreference } from "@/state/features/accountSlice";
+import { getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { RootState } from "@/state/store";
 import { colors, CustomerInfo } from "@/utils";
 import { getLocalStorage, updateLocalStorageValue, IntuityUser } from "@/utils/auth";
@@ -112,7 +113,14 @@ function NotificationsSettings() {
   const dispatch = useDispatch();
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openVoiceConfirm, setOpenVoiceConfirm] = useState(false);
-  const [clickedState, setClickedState] = useState(false);
+  const [pendingVoiceState, setPendingVoiceState] = useState<boolean | null>(null);
+  const [clickedState, setClickedState] = useState<boolean>(() => {
+    const rawLocal = getLocalStorage("intuity-customerInfo") as CustomerInfo | null;
+    if (rawLocal && (Number(rawLocal.is_voice_optout) === 1 || String(rawLocal.is_voice_optout) === "1")) {
+      return false;
+    }
+    return true;
+  });
 
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
   const hasOptionalInstructions = useMemo(() => {
@@ -135,8 +143,11 @@ function NotificationsSettings() {
     return Boolean(isPaymentDisabled && hasInstructionsText);
   }, [dashBoardInfo]);
   const userInfo: CustomerInfo = useMemo(
-    () => dashBoardInfo?.customer ?? (getLocalStorage("intuity-customerInfo") as CustomerInfo),
-    [dashBoardInfo?.customer]
+    () =>
+      dashBoardInfo?.body?.customer ??
+      dashBoardInfo?.customer ??
+      (getLocalStorage("intuity-customerInfo") as CustomerInfo),
+    [dashBoardInfo]
   );
 
   React.useLayoutEffect(() => {
@@ -217,27 +228,46 @@ function NotificationsSettings() {
   }, [notificationPreferenceDetails]);
 
   useEffect(() => {
-    if (userInfo) {
-      setClickedState(userInfo?.is_voice_optout == 0 ? false : true);
+    if (userInfo && userInfo.is_voice_optout !== undefined && userInfo.is_voice_optout !== null) {
+      if (Number(userInfo.is_voice_optout) === 1 || String(userInfo.is_voice_optout) === "1") {
+        setClickedState(false);
+      } else {
+        setClickedState(true);
+      }
     }
   }, [userInfo]);
 
   const handleVoiceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setClickedState(event.target.checked);
+    const nextState = event.target.checked;
+    setPendingVoiceState(nextState);
     setOpenVoiceConfirm(true);
   };
 
+  const handleVoiceCancel = () => {
+    setOpenVoiceConfirm(false);
+    setPendingVoiceState(null);
+  };
+
   const handleVoiceConfirm = () => {
+    const nextState = pendingVoiceState !== null ? pendingVoiceState : !clickedState;
+    const optoutValue = nextState ? 0 : 1;
+
+    setClickedState(nextState);
+    setOpenVoiceConfirm(false);
+    setPendingVoiceState(null);
+
     const formData = new FormData();
     formData.append("acl_role_id", roleId);
     formData.append("customer_id", userId);
-    formData.append("is_voice_optout", clickedState ? "1" : "0");
+    formData.append("is_voice_optout", String(optoutValue));
     dispatch(
       updateVoicePreference(formData, () => {
-        updateLocalStorageValue("intuity-customerInfo", "is_voice_optout", clickedState ? 1 : 0);
+        updateLocalStorageValue("intuity-customerInfo", "is_voice_optout", optoutValue);
+        if (roleId && userId) {
+          dispatch(getDashboardInfo(roleId, userId));
+        }
       })
     );
-    setOpenVoiceConfirm(false);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -388,7 +418,7 @@ function NotificationsSettings() {
         >
           <Typography variant="h6" fontWeight={500} fontSize={16} >
             {/* Enable Emergency Calls to My Phone */}
-            Receive voice calls from your utility provider regarding utility sevices
+            Receive voice calls from your utility provider regarding utility services
           </Typography>
           <Stack
             component="button"
@@ -535,14 +565,15 @@ function NotificationsSettings() {
         <ConfirmDialog
           open={openVoiceConfirm}
           title="Voice Call"
-          message={`Are you sure want to ${clickedState ? "ON" : "OFF"} it`}
+          message={
+            (pendingVoiceState !== null ? !pendingVoiceState : clickedState)
+              ? "Are you sure that you do not want to receive voice calls from your utility provider regarding utility services?"
+              : "Are you sure that you want to receive voice calls from your utility provider regarding utility services?"
+          }
           confirmLabel="Yes, Confirm"
           cancelLabel="Cancel"
           onConfirm={handleVoiceConfirm}
-          onCancel={() => {
-            setOpenVoiceConfirm(false);
-            setClickedState((prev) => !prev);
-          }}
+          onCancel={handleVoiceCancel}
         />
       )}
       <ConfirmDialog

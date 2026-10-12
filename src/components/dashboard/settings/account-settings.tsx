@@ -29,9 +29,9 @@ const schema = z.object({
   new_username: z
     .string()
     .min(1, "New username is required")
-    .min(8, "Must be at least 8 characters. No spaces allowed.")
+    .min(6, "Must be at least 6 characters. No spaces allowed.")
     .refine((val) => !/\s/.test(val), {
-      message: "Must be at least 8 characters. No spaces allowed.",
+      message: "Must be at least 6 characters. No spaces allowed.",
     }),
 });
 
@@ -200,7 +200,7 @@ export function AccountSettingsForm(): React.JSX.Element {
                 {...register("new_username")}
               />
               <FormHelperText error={!!errors.new_username}>
-                {errors.new_username?.message || "Must be at least 8 characters. No spaces allowed."}
+                {errors.new_username?.message || "Must be at least 6 characters. No spaces allowed."}
               </FormHelperText>
             </FormControl>
 
