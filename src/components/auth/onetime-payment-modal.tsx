@@ -751,10 +751,10 @@ export default function OneTimePaymentModal({ open, onClose }) {
                 ${Number(formData.convenienceFee).toFixed(2)}
               </Typography>
 
-              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }} fontWeight="bold">
+              <Typography sx={{ pr: 1, whiteSpace: "nowrap" }} fontWeight="bold" color="black">
                 Total Payment:
               </Typography>
-              <Typography fontWeight="bold" sx={{ wordBreak: "break-word" }}>
+              <Typography fontWeight="bold" color="black" sx={{ wordBreak: "break-word" }}>
                 ${Number(formData.totalPayment).toFixed(2)}
               </Typography>
             </Box>

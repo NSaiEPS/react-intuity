@@ -168,7 +168,7 @@ export default function OneTimePaymentScreen() {
     if (field === "email") {
       try {
         sessionStorage.setItem("guest-confirmation-email", e.target.value);
-      } catch {}
+      } catch { }
     }
   };
 
@@ -331,7 +331,7 @@ export default function OneTimePaymentScreen() {
           if (res?.email) {
             try {
               sessionStorage.setItem("guest-confirmation-email", res.email);
-            } catch {}
+            } catch { }
           }
           handleNext();
         },
@@ -937,8 +937,10 @@ export default function OneTimePaymentScreen() {
                   justifyContent: "space-between",
                 }}
               >
-                <Typography variant="body2" fontWeight={700}>Total Payment</Typography>
-                <Typography variant="body2" fontWeight={700} color={colors.blue}>
+                <Typography variant="body2" fontWeight={700} color="black">
+                  Total Payment
+                </Typography>
+                <Typography variant="body2" fontWeight={700} color="black">
                   ${Number(formData.totalPayment).toFixed(2)}
                 </Typography>
               </Box>

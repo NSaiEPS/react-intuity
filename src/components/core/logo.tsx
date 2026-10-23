@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useColorScheme } from "@mui/material/styles";
+import { useTransparentLogo } from "@/utils/transparentLogo";
 
 const HEIGHT = 60;
 const WIDTH = 60;
@@ -31,12 +32,14 @@ export function Logo({
     url = color === "light" ? "/assets/logo-white.png" : "/assets/logo rgb.jpg";
   }
 
+  const cleanSrc = useTransparentLogo(src ?? url);
+
   return (
     <img
       alt="logo"
       height={height}
       width={src ? undefined : width}
-      src={src ?? url}
+      src={cleanSrc ?? src ?? url}
       loading="eager"           // ✅ load immediately
       fetchPriority="high"
       style={{

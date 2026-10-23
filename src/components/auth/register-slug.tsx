@@ -16,6 +16,7 @@ import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { Info } from "@phosphor-icons/react";
 import { Logo } from "../core/logo";
 import Button from '../CommonComponents/button-comp';
+import { useTransparentLogo } from "@/utils/transparentLogo";
 
 
 // ── Eager imports (small chunks, instantly adjacent to login page) ───────────
@@ -152,6 +153,7 @@ const MainSection = memo(function MainSection() {
   const [oneTimePaymentModalOpen, setOneTimePaymentModalOpen] = useState(false);
 
   const { companyInfo } = useSelector((state: RootState) => state?.Account);
+  const cleanCompanyLogo = useTransparentLogo(companyInfo?.company?.logo);
   const routeChecker = useSelector((state: RootState) => state?.DashBoard?.routeChecker);
   const location = useLocation();
   const pathname = location.pathname;
@@ -339,7 +341,7 @@ const MainSection = memo(function MainSection() {
                   companyInfo.company.logo ? (
                     <Box
                       component="img"
-                      src={companyInfo.company.logo}
+                      src={cleanCompanyLogo ?? companyInfo.company.logo}
                       alt={companyInfo.company.company_name || "Company Logo"}
                       sx={{
                         height: { xs: 56, sm: 70, md: 80 },
