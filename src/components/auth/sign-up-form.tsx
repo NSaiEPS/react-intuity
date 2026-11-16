@@ -1,6 +1,8 @@
 import * as React from "react";
 
 import { registerApiRequest } from "@/state/features/accountSlice";
+import { registerApi } from "@/api/dashboard";
+import { toast } from "@/lib/custom-toast";
 import { colors } from "@/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Stack, Typography } from "@mui/material";
@@ -24,6 +26,8 @@ import { getLocalStorage } from "@/utils/auth";
 
 // Re-export stepper pieces so existing imports from this file keep working
 export { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
+
+export type Step1SubState = "LOOKUP_STATE" | "VERIFICATION_STATE";
 
 const isValidEmailFormat = (email: unknown): boolean => {
   if (typeof email !== "string") return false;
@@ -116,6 +120,19 @@ function getAvailableEmail(
 
 export function SignUpForm() {
   const [activeStep, setActiveStep] = React.useState(0);
+  const [step1SubState, setStep1SubState] = React.useState<Step1SubState>("LOOKUP_STATE");
+  const [lookupState, setLookupState] = React.useState<{
+    accountNumber: string;
+    isCashpower: 0 | 1 | null;
+    lookupError: string | null;
+    isLoading: boolean;
+  }>({
+    accountNumber: "",
+    isCashpower: null,
+    lookupError: null,
+    isLoading: false,
+  });
+
   const [stepSubmitAttempted, setStepSubmitAttempted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [companyResponse, setCompanyResponse] = React.useState<any>({});
@@ -154,6 +171,8 @@ export function SignUpForm() {
       confirmPassword: "",
       authType: "last_name",
       authAnswer: "",
+      meterNumber: "",
+      isCashpower: null,
       notificationEmail: initialGuestEmail,
       confirmNotificationEmail: "",
       phone: "",
@@ -180,14 +199,103 @@ export function SignUpForm() {
 
   const getFieldsForStep = (step: number): (keyof RegisterFormData)[] => {
     switch (step) {
-      case 0: return ["accountNumber", "authType", "authAnswer"];
-      case 1: return ["email", "password", "confirmPassword"];
-      case 2: return ["notificationEmail", "confirmNotificationEmail", "phone", "countryCode"];
-      default: return [];
+      case 0:
+        if (step1SubState === "LOOKUP_STATE") {
+          return ["accountNumber"];
+        }
+        return lookupState.isCashpower === 1
+          ? ["meterNumber"]
+          : ["authType", "authAnswer"];
+      case 1:
+        return ["email", "password", "confirmPassword"];
+      case 2:
+        return ["notificationEmail", "confirmNotificationEmail", "phone", "countryCode"];
+      default:
+        return [];
+    }
+  };
+
+  const handleAccountLookup = async () => {
+    setStepSubmitAttempted(true);
+    const valid = await trigger(["accountNumber"]);
+    const accNo = (getValues("accountNumber") || "").trim();
+    if (!valid || !accNo) return;
+
+    setLookupState((prev) => ({ ...prev, isLoading: true, lookupError: null }));
+
+    try {
+      const alias = companyInfo?.company?.alias || slugMatch || "";
+      const companyId = companyInfo?.company?.id;
+
+      const formData = new FormData();
+      formData.append("step", "lookup");
+      formData.append("account_no", accNo);
+      if (companyId) {
+        formData.append("company_id", String(companyId));
+      }
+
+      const res: any = await registerApi({ formData, alias });
+
+      if (res?.status) {
+        const rawCp =
+          res?.body?.is_cashpower ??
+          res?.body?.isCashpower ??
+          res?.is_cashpower ??
+          res?.isCashpower ??
+          res?.data?.is_cashpower ??
+          res?.data?.isCashpower;
+
+        const isCp: 0 | 1 =
+          rawCp === 1 || rawCp === "1" || rawCp === true ? 1 : 0;
+
+        setLookupState({
+          accountNumber: accNo,
+          isCashpower: isCp,
+          lookupError: null,
+          isLoading: false,
+        });
+        setValue("isCashpower", isCp);
+
+        if (res?.body) {
+          setCompanyResponse((prev: any) => ({ ...prev, ...res.body }));
+          if (res.body.customer_name && !getValues("name")) {
+            setValue("name", res.body.customer_name, { shouldDirty: false });
+          }
+        }
+
+        setStep1SubState("VERIFICATION_STATE");
+        setStepSubmitAttempted(false);
+      } else {
+        const msg =
+          (typeof res?.message === "string" ? res.message : res?.message?.[0]) ||
+          "Unable to find account. Please verify your account number and try again.";
+        setLookupState((prev) => ({
+          ...prev,
+          isLoading: false,
+          lookupError: msg,
+        }));
+        toast.error(msg);
+      }
+    } catch (err: any) {
+      const errMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Account lookup failed. Please try again.";
+      setLookupState((prev) => ({
+        ...prev,
+        isLoading: false,
+        lookupError: errMsg,
+      }));
+      toast.error(errMsg);
     }
   };
 
   const handleNext = async () => {
+    if (activeStep === 0 && step1SubState === "LOOKUP_STATE") {
+      await handleAccountLookup();
+      return;
+    }
+
     setStepSubmitAttempted(true);
     const valid = await trigger(getFieldsForStep(activeStep));
     if (valid) apiCall();
@@ -198,27 +306,45 @@ export function SignUpForm() {
     const formData = new FormData();
 
     if (activeStep === 0) {
-      formData.append("account_no", getValues("accountNumber"));
-      formData.append("authentication", getValues("authType"));
-      formData.append("authentication_field", getValues("authAnswer"));
+      formData.append("account_no", getValues("accountNumber").trim());
+      if (lookupState.isCashpower === 1) {
+        const meter = getValues("meterNumber")?.trim() || "";
+        formData.append("meter_number", meter);
+        formData.append("authentication", "meter_number");
+        formData.append("authentication_field", meter);
+        formData.append("is_cashpower", "1");
+      } else {
+        formData.append("authentication", getValues("authType"));
+        formData.append("authentication_field", getValues("authAnswer"));
+        formData.append("is_cashpower", "0");
+      }
     }
     if (activeStep === 1) {
       formData.append("user_id", getValues("email"));
       formData.append("password", getValues("password"));
       formData.append("confirm_password", getValues("confirmPassword"));
-      formData.append("company_alias", companyInfo?.company?.alias);
+      formData.append("company_alias", companyInfo?.company?.alias || slugMatch || "");
       formData.append("customer_id", companyResponse?.customer_id);
       formData.append("acl_role_id", "4");
     }
     if (activeStep === 2) {
       formData.append("name", getValues("name") || companyResponse?.customer_name || "");
-      formData.append("account_no", getValues("accountNumber"));
-      formData.append("authentication", getValues("authType"));
-      formData.append("authentication_field", getValues("authAnswer"));
+      formData.append("account_no", getValues("accountNumber").trim());
+      if (lookupState.isCashpower === 1) {
+        const meter = getValues("meterNumber")?.trim() || "";
+        formData.append("meter_number", meter);
+        formData.append("authentication", "meter_number");
+        formData.append("authentication_field", meter);
+        formData.append("is_cashpower", "1");
+      } else {
+        formData.append("authentication", getValues("authType"));
+        formData.append("authentication_field", getValues("authAnswer"));
+        formData.append("is_cashpower", "0");
+      }
       formData.append("user_id", getValues("email"));
       formData.append("password", getValues("password"));
       formData.append("confirm_password", getValues("confirmPassword"));
-      formData.append("company_alias", companyInfo?.company?.alias);
+      formData.append("company_alias", companyInfo?.company?.alias || slugMatch || "");
       formData.append("email", getValues("notificationEmail"));
       formData.append("confirm_email", getValues("confirmNotificationEmail"));
       formData.append("country_code", getValues("countryCode"));
@@ -231,7 +357,7 @@ export function SignUpForm() {
     formData.append("step", String(activeStep + 1));
     formData.append("page", "1");
 
-    const alias = companyInfo?.company?.alias;
+    const alias = companyInfo?.company?.alias || slugMatch;
     dispatch(registerApiRequest(formData, successCallBack, setLoading, alias, activeStep));
   };
 
@@ -239,7 +365,7 @@ export function SignUpForm() {
     if (activeStep === 2) {
       try {
         sessionStorage.removeItem("guest-confirmation-email");
-      } catch {}
+      } catch { }
       reset(getValues()); // clear isDirty so beforeunload doesn't fire
       setActiveStep((prev) => prev + 1);
       return;
@@ -266,6 +392,11 @@ export function SignUpForm() {
 
   const handleBack = () => {
     if (activeStep === 0) {
+      if (step1SubState === "VERIFICATION_STATE") {
+        setStep1SubState("LOOKUP_STATE");
+        setStepSubmitAttempted(false);
+        return;
+      }
       navigate(slugMatch ? paths.auth.newLogin(slugMatch) : paths.auth.newLogin());
       return;
     }
@@ -306,20 +437,40 @@ export function SignUpForm() {
 
       {/* Step header — hidden on success screen */}
       {activeStep !== 3 && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mb: 4 }}>
           <Box
             sx={{
-              width: 72, height: 72, borderRadius: "50%",
-              backgroundColor: "#e8f0fb", display: "flex",
-              alignItems: "center", justifyContent: "center", flexShrink: 0,
+              width: 72,
+              height: 72,
+              borderRadius: "50%",
+              backgroundColor: "#e8f0fb",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
             <User size={36} color={colors.blue} weight="regular" />
           </Box>
           <Box>
-            <Typography variant="h5" fontWeight={700} mb={0.5} sx={{ color: colors.blue }}>
+            <Typography variant="h5" fontWeight={700} sx={{ color: colors.blue }}>
               {steps[activeStep]}
             </Typography>
+
+            {activeStep === 0 && step1SubState === "LOOKUP_STATE" && (
+              <Typography variant="body2" sx={{ color: "#555", mt: 0.5 }}>
+                Enter your account number to get started.
+              </Typography>
+            )}
+
+            {activeStep === 0 && step1SubState === "VERIFICATION_STATE" && (
+              <Typography
+                variant="body1"
+                sx={{ color: "#222", fontWeight: 700, mt: 0.5 }}
+              >
+                Account Number: {lookupState.accountNumber || getValues("accountNumber")}
+              </Typography>
+            )}
           </Box>
         </Box>
       )}
@@ -328,7 +479,19 @@ export function SignUpForm() {
         <Stack spacing={2}>
 
           {activeStep === 0 && (
-            <StepAccountInfo control={control} errors={errors} showError={showError} />
+            <StepAccountInfo
+              control={control}
+              errors={errors}
+              showError={showError}
+              subState={step1SubState}
+              isCashpower={lookupState.isCashpower}
+              lookupError={lookupState.lookupError}
+              onClearLookupError={() => {
+                if (lookupState.lookupError) {
+                  setLookupState((prev) => ({ ...prev, lookupError: null }));
+                }
+              }}
+            />
           )}
           {activeStep === 1 && (
             <StepPortalRegistration control={control} errors={errors} showError={showError} />
@@ -347,38 +510,75 @@ export function SignUpForm() {
 
           {/* Back / Next navigation */}
           {activeStep !== 3 && (
-            <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
               <Button
                 onClick={handleBack}
                 variant="outlined"
                 textTransform="none"
-                disabled={loading}
+                disabled={loading || lookupState.isLoading}
                 style={{
                   color: colors.blue,
                   borderColor: colors.blue,
                   borderRadius: "12px",
                   height: "44px",
-                  width: activeStep === 0 ? "auto" : "110px",
+                  width:
+                    activeStep === 0
+                      ? step1SubState === "LOOKUP_STATE"
+                        ? "auto"
+                        : lookupState.isCashpower === 1
+                          ? "110px"
+                          : "auto"
+                      : "110px",
                   backgroundColor: "white",
                   fontWeight: 600,
+                  paddingLeft: "16px",
+                  paddingRight: "16px",
                 }}
               >
-                {activeStep === 0 ? `← Back to Login` : `← Back`}
+                {activeStep === 0
+                  ? step1SubState === "LOOKUP_STATE"
+                    ? `← Back to Login`
+                    : lookupState.isCashpower === 1
+                      ? `← Back`
+                      : `— Back to Login`
+                  : `← Back`}
               </Button>
 
               {activeStep < steps.length && (
                 <Button
                   type="submit"
-                  disabled={loading}
-                  loading={loading}
+                  disabled={loading || lookupState.isLoading}
+                  loading={
+                    activeStep === 0 && step1SubState === "LOOKUP_STATE"
+                      ? lookupState.isLoading
+                      : loading
+                  }
                   variant="contained"
                   textTransform="none"
                   bgColor={colors.blue}
                   hoverBackgroundColor={colors["blue.3"]}
                   hoverColor="white"
-                  style={{ borderRadius: "12px", height: "44px", width: "110px", fontWeight: 600 }}
+                  style={{
+                    borderRadius: "12px",
+                    height: "44px",
+                    width:
+                      activeStep === 0 && step1SubState === "LOOKUP_STATE"
+                        ? "auto"
+                        : "110px",
+                    minWidth:
+                      activeStep === 0 && step1SubState === "LOOKUP_STATE"
+                        ? "160px"
+                        : "110px",
+                    paddingLeft: "20px",
+                    paddingRight: "20px",
+                    fontWeight: 600,
+                  }}
                 >
-                  {activeStep === 2 ? "Submit" : "Next"}{` →`}
+                  {activeStep === 0 && step1SubState === "LOOKUP_STATE"
+                    ? "Lookup Account →"
+                    : activeStep === 2
+                      ? "Submit →"
+                      : "Next →"}
                 </Button>
               )}
             </Stack>

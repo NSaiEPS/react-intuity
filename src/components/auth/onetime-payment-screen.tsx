@@ -28,7 +28,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Question } from "@phosphor-icons/react";
+import { Gauge, Lightning, Question } from "@phosphor-icons/react";
 import { Button } from "nsaicomponents";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
@@ -52,16 +52,19 @@ import { Info } from "@phosphor-icons/react/dist/ssr/Info";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { Receipt } from "@phosphor-icons/react/dist/ssr/Receipt";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { BASE_URL } from "@/api/axios";
-const steps = ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
+import { api, BASE_URL } from "@/api/axios";
 
 const SESSION_KEY = "guest-payment-state";
 
 type PersistedState = {
   activeStep: number;
+  step1Phase?: "LOOKUP_PHASE" | "VERIFICATION_PHASE";
+  isCashpower?: 0 | 1 | null;
+  minimumAmount?: number | string;
   formData: {
     accountNo: string;
     invoiceAmount: string;
+    meterNumber?: string;
     name: string;
     email: string;
     amountToPay: string;
@@ -93,6 +96,37 @@ export default function OneTimePaymentScreen() {
     const saved = snapshot.current?.activeStep ?? 0;
     return saved === 2 ? 0 : saved;
   });
+
+  type Step1Phase = "LOOKUP_PHASE" | "VERIFICATION_PHASE";
+  const [step1Phase, setStep1Phase] = useState<Step1Phase>(() => {
+    return snapshot.current?.step1Phase ?? (snapshot.current?.formData?.accountNo ? "VERIFICATION_PHASE" : "LOOKUP_PHASE");
+  });
+
+  const [isCashpower, setIsCashpower] = useState<0 | 1 | null>(() => {
+    return snapshot.current?.isCashpower ?? null;
+  });
+
+  const [minimumAmount, setMinimumAmount] = useState<number | string>(() => {
+    return snapshot.current?.minimumAmount ?? "";
+  });
+
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
+
+  const steps = React.useMemo(() => {
+    if (isCashpower === 1) {
+      return ["Confirm CashPower Meter", "Confirm Amount", "Enter Payment Method"];
+    }
+    return ["Retrieve Bill", "Confirm Amount", "Enter Payment Method"];
+  }, [isCashpower]);
+
+  const headerSubtitle = React.useMemo(() => {
+    if (isCashpower === 1) {
+      return "Securely purchase electricity credit without saving your payment method.";
+    }
+    return "Pay your bill securely in just a few simple steps.";
+  }, [isCashpower]);
+
   const dispatch = useDispatch();
 
   const companyInfo = useSelector(
@@ -110,6 +144,7 @@ export default function OneTimePaymentScreen() {
       snapshot.current?.formData ?? {
         accountNo: "",
         invoiceAmount: "",
+        meterNumber: "",
         name: "",
         email: "",
         amountToPay: "",
@@ -137,22 +172,37 @@ export default function OneTimePaymentScreen() {
     try {
       sessionStorage.setItem(
         SESSION_KEY,
-        JSON.stringify({ activeStep, formData, customerDetails, oneTimeData })
+        JSON.stringify({
+          activeStep,
+          step1Phase,
+          isCashpower,
+          minimumAmount,
+          formData,
+          customerDetails,
+          oneTimeData,
+        })
       );
     } catch {
       // sessionStorage quota exceeded — ignore
     }
-  }, [activeStep, formData, customerDetails, oneTimeData]);
+  }, [activeStep, step1Phase, isCashpower, minimumAmount, formData, customerDetails, oneTimeData]);
 
   type FormErrors = {
     accountNo?: string;
     invoiceAmount?: string;
+    meterNumber?: string;
     amountToPay?: string;
     paymentType?: string;
     [key: string]: string | undefined;
   };
 
   const [errors, setErrors] = useState<FormErrors>({});
+
+  const [accountNoFocused, setAccountNoFocused] = useState(false);
+  const [invoiceFocused, setInvoiceFocused] = useState(false);
+  const [meterFocused, setMeterFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [amountFocused, setAmountFocused] = useState(false);
 
   const confirmIfDirty = () => {
     if (!isDirty) return true;
@@ -243,35 +293,55 @@ export default function OneTimePaymentScreen() {
   const validateStep = () => {
     const newErrors: Record<string, string> = {};
     if (activeStep === 0) {
-      if (!formData.accountNo)
-        newErrors.accountNo = "Account No. is required";
-      if (!formData.invoiceAmount)
-        newErrors.invoiceAmount = "Invoice Amount is required";
-      // else if (!/^\d+(\.\d+)?$/.test(formData.invoiceAmount))
-      else if (!/^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/.test(formData.invoiceAmount))
-        newErrors.invoiceAmount = "Only numbers or decimals allowed";
+      if (step1Phase === "LOOKUP_PHASE") {
+        if (!formData.accountNo) {
+          newErrors.accountNo = "Account No. is required";
+        } else if (formData.accountNo.length > 9) {
+          newErrors.accountNo = "Account No. must be up to 9 characters";
+        }
+      } else {
+        if (isCashpower === 1) {
+          if (!formData.meterNumber) {
+            newErrors.meterNumber = "CashPower Meter Number is required";
+          }
+        } else {
+          if (!formData.invoiceAmount) {
+            newErrors.invoiceAmount = "Invoice Amount is required";
+          } else if (!/^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/.test(formData.invoiceAmount)) {
+            newErrors.invoiceAmount = "Only numbers or decimals allowed";
+          }
+        }
+      }
     }
     if (activeStep === 1) {
       const amountVal = Number(formData.amountToPay);
       if (!formData.amountToPay || isNaN(amountVal) || amountVal <= 0) {
         toast.warn("Amount should be more than 0");
         newErrors.amountToPay = "Amount should be more than 0";
-      } else if (
-        companyInfo?.company?.allow_overpayments == 0 &&
-        amountVal > customerDetails.balance
-      ) {
-        toast.warn("Over payments are not allowed at this time.");
-        newErrors.amountToPay = "Over payments are not allowed at this time.";
-      } else if (
-        companyInfo?.company?.allow_partial_payments == 0 &&
-        amountVal < customerDetails.balance
-      ) {
-        toast.warn("Partial payments are not allowed at this time.");
-        newErrors.amountToPay = "Partial payments are not allowed at this time.";
+      } else if (isCashpower === 1) {
+        if (minimumAmount && amountVal < Number(minimumAmount)) {
+          const minMsg = `Minimum payment amount is $${Number(minimumAmount).toFixed(2)}`;
+          toast.warn(minMsg);
+          newErrors.amountToPay = minMsg;
+        }
+      } else {
+        if (
+          companyInfo?.company?.allow_overpayments == 0 &&
+          amountVal > customerDetails.balance
+        ) {
+          toast.warn("Over payments are not allowed at this time.");
+          newErrors.amountToPay = "Over payments are not allowed at this time.";
+        } else if (
+          companyInfo?.company?.allow_partial_payments == 0 &&
+          amountVal < customerDetails.balance
+        ) {
+          toast.warn("Partial payments are not allowed at this time.");
+          newErrors.amountToPay = "Partial payments are not allowed at this time.";
+        }
       }
       if (!formData.name) newErrors.name = "Name is required";
       if (!formData.email) newErrors.email = "Email is required";
-      const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       if (!isValidEmail(formData.email))
         newErrors.email = "Enter a valid email address";
     }
@@ -287,7 +357,216 @@ export default function OneTimePaymentScreen() {
     if (validateStep()) setActiveStep((prev) => prev + 1);
   };
 
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const handleBack = () => {
+    if (activeStep === 0) {
+      if (step1Phase === "VERIFICATION_PHASE") {
+        setStep1Phase("LOOKUP_PHASE");
+        return;
+      }
+      handleBackToLogin();
+      return;
+    }
+    setActiveStep((prev) => prev - 1);
+  };
+
+  const handleAccountLookup = async () => {
+    const accNo = (formData.accountNo || "").trim();
+    if (!accNo) {
+      setErrors((prev) => ({ ...prev, accountNo: "Account No. is required" }));
+      return;
+    }
+    if (accNo.length > 9) {
+      setErrors((prev) => ({ ...prev, accountNo: "Account No. must be up to 9 characters" }));
+      return;
+    }
+
+    setLookupLoading(true);
+    setErrors((prev) => ({ ...prev, accountNo: "" }));
+
+    const pathAlias =
+      window.location.pathname.split("/").find((s) => s.startsWith("onetime-payment-"))?.replace("onetime-payment-", "") ||
+      "";
+    const resolvedAlias =
+      companyInfo?.company?.alias ||
+      (companyInfo as any)?.alias ||
+      pathAlias ||
+      "";
+
+    const payload = {
+      company_alias: resolvedAlias,
+      step: "lookup",
+      account_number: accNo,
+    };
+
+    try {
+      const res = await api.post(`pay-as-guest-${resolvedAlias}`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = res?.data;
+
+      if (data?.status) {
+        const rawCp =
+          data?.body?.is_cashpower ??
+          data?.body?.isCashpower ??
+          data?.is_cashpower ??
+          data?.isCashpower ??
+          data?.data?.is_cashpower;
+        const isCp: 0 | 1 = (rawCp === 1 || rawCp === "1" || rawCp === true) ? 1 : 0;
+
+        const minAmt =
+          data?.body?.minimum_amount ??
+          data?.minimum_amount ??
+          data?.body?.minimumAmount ??
+          data?.minimumAmount ??
+          data?.data?.minimum_amount ??
+          "";
+
+        const cust =
+          data?.body?.customer ??
+          data?.customer ??
+          data?.data?.customer ??
+          data?.body ??
+          {};
+
+        const rawMeter =
+          data?.body?.meter_number ??
+          data?.meter_number ??
+          cust?.meter_number ??
+          cust?.meternumber ??
+          "";
+
+        const rawName = cust?.customer_name || cust?.name || "";
+        const formattedName = rawName.slice(0, 10);
+        const custEmail = cust?.email || data?.body?.email || data?.email || "";
+
+        setIsCashpower(isCp);
+        setMinimumAmount(minAmt);
+        if (cust && Object.keys(cust).length > 0) {
+          setCustomerDetails((prev: any) => ({ ...prev, ...cust, customer_name: formattedName }));
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          accountNo: accNo,
+          meterNumber: rawMeter ? String(rawMeter) : prev.meterNumber,
+          name: formattedName || prev.name,
+          email: custEmail || prev.email,
+          amountToPay: isCp && minAmt ? String(minAmt) : prev.amountToPay,
+        }));
+
+        setStep1Phase("VERIFICATION_PHASE");
+        setLookupLoading(false);
+      } else {
+        const msg =
+          (typeof data?.message === "string" ? data.message : data?.message?.[0]) ||
+          "Unable to find account. Please verify your account number.";
+        setErrors((prev) => ({ ...prev, accountNo: msg }));
+        toast.error(msg);
+        setLookupLoading(false);
+      }
+    } catch (err: any) {
+      const errMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Account lookup failed. Please try again.";
+      setErrors((prev) => ({ ...prev, accountNo: errMsg }));
+      toast.error(errMsg);
+      setLookupLoading(false);
+    }
+  };
+
+  const handleVerifyCashpower = async () => {
+    const meter = (formData.meterNumber || "").trim();
+    if (!meter) {
+      setErrors((prev) => ({ ...prev, meterNumber: "CashPower Meter Number is required" }));
+      return;
+    }
+
+    setVerifyLoading(true);
+    setErrors((prev) => ({ ...prev, meterNumber: "" }));
+
+    const pathAlias =
+      window.location.pathname.split("/").find((s) => s.startsWith("onetime-payment-"))?.replace("onetime-payment-", "") ||
+      "";
+    const resolvedAlias =
+      companyInfo?.company?.alias ||
+      (companyInfo as any)?.alias ||
+      pathAlias ||
+      "";
+
+    const payload = {
+      company_alias: resolvedAlias,
+      step: "1",
+      account_number: formData.accountNo,
+      meter_number: meter,
+      is_cashpower: 1,
+    };
+
+    try {
+      const res = await api.post(`pay-as-guest-${resolvedAlias}`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = res?.data;
+
+      if (data?.status) {
+        const cust =
+          data?.body?.customer ??
+          data?.customer ??
+          data?.data?.customer ??
+          data?.body ??
+          {};
+
+        const rawName = cust?.customer_name || cust?.name || "";
+        const formattedName = rawName.slice(0, 10);
+        const custEmail = cust?.email || data?.body?.email || data?.email || "";
+
+        const minAmt =
+          data?.body?.minimum_amount ??
+          data?.minimum_amount ??
+          minimumAmount ??
+          "";
+
+        setCustomerDetails((prev: any) => ({
+          ...prev,
+          ...cust,
+          customer_name: formattedName || prev?.customer_name,
+        }));
+
+        setFormData((prev) => ({
+          ...prev,
+          name: formattedName || prev.name,
+          email: custEmail || prev.email,
+          amountToPay: minAmt ? String(minAmt) : prev.amountToPay || "20",
+          convenienceFee: "0",
+          totalPayment: "0",
+        }));
+
+        if (custEmail) {
+          try {
+            sessionStorage.setItem("guest-confirmation-email", custEmail);
+          } catch { }
+        }
+
+        setVerifyLoading(false);
+        setActiveStep(1);
+      } else {
+        const msg =
+          (typeof data?.message === "string" ? data.message : data?.message?.[0]) ||
+          "Invalid CashPower meter number. Please verify and try again.";
+        setErrors((prev) => ({ ...prev, meterNumber: msg }));
+        toast.error(msg);
+        setVerifyLoading(false);
+      }
+    } catch (err: any) {
+      const errMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Meter verification failed. Please try again.";
+      setErrors((prev) => ({ ...prev, meterNumber: errMsg }));
+      toast.error(errMsg);
+      setVerifyLoading(false);
+    }
+  };
 
   const handleRetrieveBill = () => {
     if (!formData.accountNo) {
@@ -308,6 +587,7 @@ export default function OneTimePaymentScreen() {
     paymentData.append("success_authenticate", "0");
     paymentData.append("company_id", companyInfo?.company?.id);
     paymentData.append("company_alias", companyInfo?.company?.alias);
+    paymentData.append("is_cashpower", "0");
 
     dispatch(
       guestPaymentRequest(
@@ -319,9 +599,10 @@ export default function OneTimePaymentScreen() {
             body?.amount_to_pay !== undefined && body?.amount_to_pay !== null
               ? body.amount_to_pay
               : (res?.balance ?? 0);
+          const formattedName = (res?.customer_name || "").slice(0, 10);
           setFormData((prev) => ({
             ...prev,
-            name: res?.customer_name,
+            name: formattedName,
             email: res?.email,
             convenienceFee: "0",
             totalPayment: "0",
@@ -333,7 +614,7 @@ export default function OneTimePaymentScreen() {
               sessionStorage.setItem("guest-confirmation-email", res.email);
             } catch { }
           }
-          handleNext();
+          setActiveStep(1);
         },
         handleFailure
       )
@@ -382,6 +663,10 @@ export default function OneTimePaymentScreen() {
     paymentData.append("is_one_time", "1");
     paymentData.append("amount", Number(formData.amountToPay).toFixed(2));
     paymentData.append("convenienceFee", Number(formData.convenienceFee).toFixed(2));
+    paymentData.append("is_cashpower", isCashpower === 1 ? "1" : "0");
+    if (isCashpower === 1 && formData.meterNumber) {
+      paymentData.append("meter_number", formData.meterNumber);
+    }
 
     if (debitType === "card") {
       if (data?.ssl_card_number) {
@@ -423,9 +708,13 @@ export default function OneTimePaymentScreen() {
     sessionStorage.removeItem(SESSION_KEY);
     setIsDirty(false);
     setActiveStep(0);
+    setStep1Phase("LOOKUP_PHASE");
+    setIsCashpower(null);
+    setMinimumAmount("");
     setFormData({
       accountNo: "",
       invoiceAmount: "",
+      meterNumber: "",
       name: "",
       email: "",
       amountToPay: "",
@@ -455,9 +744,13 @@ export default function OneTimePaymentScreen() {
     sessionStorage.removeItem(SESSION_KEY);
     setIsDirty(false);
     setActiveStep(0);
+    setStep1Phase("LOOKUP_PHASE");
+    setIsCashpower(null);
+    setMinimumAmount("");
     setFormData({
       accountNo: "",
       invoiceAmount: "",
+      meterNumber: "",
       name: "",
       email: "",
       amountToPay: "",
@@ -503,61 +796,285 @@ export default function OneTimePaymentScreen() {
   const renderStepContent = (step) => {
     switch (step) {
       case 0:
+        if (step1Phase === "LOOKUP_PHASE") {
+          return (
+            <>
+              {/* Account Number */}
+              <Box mb={2}>
+                <FormControl fullWidth error={!!errors.accountNo}>
+                  <InputLabel
+                    shrink={accountNoFocused || Boolean(formData.accountNo)}
+                    sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+                  >
+                    Account Number *
+                  </InputLabel>
+                  <OutlinedInput
+                    notched={accountNoFocused || Boolean(formData.accountNo)}
+                    label="Account Number *"
+                    value={formData.accountNo}
+                    inputProps={{ maxLength: 9 }}
+                    onChange={handleChange("accountNo")}
+                    onFocus={() => setAccountNoFocused(true)}
+                    onBlur={() => setAccountNoFocused(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAccountLookup();
+                      }
+                    }}
+                    startAdornment={
+                      <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+                    }
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <Tooltip
+                          title={
+                            <span style={{ fontSize: "14px", lineHeight: 1.4 }}>
+                              Please locate your account number on your statement. If you received a “Utility Bill Ready”
+                              email notification, your account number can be found at the top of the email content.
+                            </span>
+                          }
+                          placement="top"
+                          arrow
+                          enterTouchDelay={0}
+                          leaveTouchDelay={3000}
+                          {...tooltipSx}
+                        >
+                          <IconButton size="small">
+                            <Question size={20} color="#90caf9" weight="fill" />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    }
+                  />
+                  {errors.accountNo && (
+                    <FormHelperText>{errors.accountNo}</FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
+
+              {/* Buttons */}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                sx={{
+                  flexWrap: { xs: "wrap", sm: "nowrap" },
+                  gap: 1.5,
+                  mt: 3,
+                }}
+              >
+                <MUIButton
+                  variant="outlined"
+                  onClick={handleBackToLogin}
+                  startIcon={<ArrowLeft size={18} />}
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "12px",
+                    height: "44px",
+                    px: 3,
+                    color: colors.blue,
+                    borderColor: colors.blue,
+                    backgroundColor: "#fff",
+                    fontWeight: 600,
+                  }}
+                >
+                  Back to Login
+                </MUIButton>
+
+                <Button
+                  type="button"
+                  variant="contained"
+                  onClick={handleAccountLookup}
+                  loading={lookupLoading}
+                  disabled={lookupLoading}
+                  textTransform="none"
+                  style={{
+                    borderRadius: "12px",
+                    height: "44px",
+                    paddingLeft: "24px",
+                    paddingRight: "24px",
+                    backgroundColor: colors.blue,
+                    fontWeight: 600,
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
+                >
+                  Lookup Account &rarr;
+                </Button>
+              </Box>
+            </>
+          );
+        }
+
+        // VERIFICATION_PHASE: CashPower Flow (Image #2)
+        if (isCashpower === 1) {
+          return (
+            <>
+              {/* Header Badge */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: "50%",
+                    backgroundColor: "#e8f0fb",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Lightning size={28} color={colors.blue} weight="bold" />
+                </Box>
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  sx={{ color: "#0f172a", fontSize: { xs: "1.1rem", sm: "1.25rem" } }}
+                >
+                  Confirm CashPower Meter for Account: {formData.accountNo}
+                </Typography>
+              </Box>
+
+              {/* CashPower Meter Number Input */}
+              <Box mb={2.5}>
+                <FormControl fullWidth error={!!errors.meterNumber}>
+                  <InputLabel
+                    shrink={meterFocused || Boolean(formData.meterNumber)}
+                    sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
+                  >
+                    CashPower Meter Number *
+                  </InputLabel>
+                  <OutlinedInput
+                    notched={meterFocused || Boolean(formData.meterNumber)}
+                    label="CashPower Meter Number *"
+                    placeholder="Enter CashPower meter number"
+                    value={formData.meterNumber || ""}
+                    onChange={handleChange("meterNumber")}
+                    onFocus={() => setMeterFocused(true)}
+                    onBlur={() => setMeterFocused(false)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleVerifyCashpower();
+                      }
+                    }}
+                    startAdornment={
+                      <Gauge size={20} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
+                    }
+                  />
+                  {errors.meterNumber && (
+                    <FormHelperText>{errors.meterNumber}</FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
+
+              {/* Info box */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1.5,
+                  backgroundColor: "#eff6ff",
+                  border: "1px solid #dbeafe",
+                  borderRadius: "10px",
+                  px: 2,
+                  py: 1.5,
+                  mb: 3,
+                }}
+              >
+                <Info
+                  size={20}
+                  color={colors.blue}
+                  weight="fill"
+                  style={{ flexShrink: 0, marginTop: 2 }}
+                />
+                <Typography variant="body2" color="text.primary">
+                  Enter the CashPower meter number you wish to purchase power for.
+                </Typography>
+              </Box>
+
+              {/* Buttons */}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                sx={{
+                  flexWrap: { xs: "wrap", sm: "nowrap" },
+                  gap: 1.5,
+                }}
+              >
+                <MUIButton
+                  variant="outlined"
+                  onClick={handleBack}
+                  startIcon={<ArrowLeft size={18} />}
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "12px",
+                    height: "44px",
+                    px: 3,
+                    color: colors.blue,
+                    borderColor: colors.blue,
+                    backgroundColor: "#fff",
+                    fontWeight: 600,
+                  }}
+                >
+                  Back
+                </MUIButton>
+
+                <Button
+                  type="button"
+                  variant="contained"
+                  onClick={handleVerifyCashpower}
+                  loading={verifyLoading}
+                  disabled={verifyLoading}
+                  textTransform="none"
+                  style={{
+                    borderRadius: "12px",
+                    height: "44px",
+                    paddingLeft: "24px",
+                    paddingRight: "24px",
+                    backgroundColor: colors.blue,
+                    fontWeight: 600,
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = colors["blue.3"])}
+                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = colors.blue)}
+                >
+                  Next &rarr;
+                </Button>
+              </Box>
+            </>
+          );
+        }
+
+        // VERIFICATION_PHASE: Invoice Flow (Image #5)
         return (
           <>
-            {/* Account Number */}
-            <Box mb={2}>
-
-              <FormControl fullWidth error={!!errors.accountNo}>
-                <InputLabel
-                  shrink={accountNoFocused || Boolean(formData.accountNo)}
-                  sx={{ "&:not(.MuiInputLabel-shrink)": { left: "36px" } }}
-                >
-                  Account Number *
-
-                </InputLabel>
-                <OutlinedInput
-                  notched={accountNoFocused || Boolean(formData.accountNo)}
-                  label="Account Number *"
-                  value={formData.accountNo}
-                  onChange={handleChange("accountNo")}
-                  onFocus={() => setAccountNoFocused(true)}
-                  onBlur={() => setAccountNoFocused(false)}
-                  startAdornment={
-                    <User size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
-                  }
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <Tooltip
-                        title={
-                          <span style={{ fontSize: '14px', lineHeight: 1.4 }}>
-                            Please locate your account number on your statement. If you received a “Utility Bill Ready”
-                            email notification, your account number can be found at the top of the email content.
-                          </span>
-                        }
-                        placement="top"
-                        arrow
-                        enterTouchDelay={0}
-                        leaveTouchDelay={3000}
-                        {...tooltipSx}
-                      >
-                        <IconButton size="small">
-                          <Question size={20} color="#90caf9" weight="fill" />
-                        </IconButton>
-                      </Tooltip>
-                    </InputAdornment>
-                  }
-
-                />
-                {errors.accountNo && (
-                  <FormHelperText>{errors.accountNo}</FormHelperText>
-                )}
-              </FormControl>
+            {/* Header Badge */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+              <Box
+                sx={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: "50%",
+                  backgroundColor: "#e8f0fb",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Receipt size={28} color={colors.blue} weight="bold" />
+              </Box>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                sx={{ color: "#0f172a", fontSize: { xs: "1.1rem", sm: "1.25rem" } }}
+              >
+                Retrieve Bill for Account: {formData.accountNo}
+              </Typography>
             </Box>
 
             {/* Original Invoice Amount */}
-            <Box mb={2}>
-
+            <Box mb={2.5}>
               <FormControl fullWidth error={!!errors.invoiceAmount}>
                 <InputLabel
                   shrink={invoiceFocused || Boolean(formData.invoiceAmount)}
@@ -572,7 +1089,12 @@ export default function OneTimePaymentScreen() {
                   onChange={handleChange("invoiceAmount")}
                   onFocus={() => setInvoiceFocused(true)}
                   onBlur={() => setInvoiceFocused(false)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleRetrieveBill(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleRetrieveBill();
+                    }
+                  }}
                   startAdornment={
                     <CurrencyDollar size={18} color="#9aa5b4" weight="regular" style={{ marginRight: 8 }} />
                   }
@@ -618,33 +1140,21 @@ export default function OneTimePaymentScreen() {
                 mb: 3,
               }}
             >
-              <Box
-                sx={{
-                  //   width: 32,
-                  //   height: 32,
-                  //   borderRadius: "50%",
-                  //   backgroundColor: colors.blue,
-                  display: "flex",
-                  alignItems: "center",
-                  //   justifyContent: "center",
-                  //   flexShrink: 0,
-                }}
-              >
-                {/* <Info size={18} color="#fff" weight="fill" /> */}
-                <Info
-                  size={20}
-                  color={colors.blue}
-                  weight="regular"
-                  style={{ flexShrink: 0, marginTop: 4 }}
-                />
-              </Box>
+              <Info
+                size={20}
+                color={colors.blue}
+                weight="regular"
+                style={{ flexShrink: 0, marginTop: 2 }}
+              />
               <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
                 Please enter the original invoice amount exactly as shown on your bill.
               </Typography>
             </Box>
 
             {/* Buttons */}
-            <Box display="flex" justifyContent="space-between"
+            <Box
+              display="flex"
+              justifyContent="space-between"
               sx={{
                 flexWrap: { xs: "wrap", sm: "nowrap" },
                 gap: 1.5,
@@ -652,7 +1162,7 @@ export default function OneTimePaymentScreen() {
             >
               <MUIButton
                 variant="outlined"
-                onClick={handleBackToLogin}
+                onClick={handleBack}
                 startIcon={<ArrowLeft size={18} />}
                 sx={{
                   textTransform: "none",
@@ -665,7 +1175,7 @@ export default function OneTimePaymentScreen() {
                   fontWeight: 600,
                 }}
               >
-                Back to Login
+                Back
               </MUIButton>
 
               <Button
@@ -673,6 +1183,7 @@ export default function OneTimePaymentScreen() {
                 variant="contained"
                 onClick={handleRetrieveBill}
                 loading={accountLoading}
+                disabled={accountLoading}
                 textTransform="none"
                 style={{
                   borderRadius: "12px",
@@ -725,6 +1236,16 @@ export default function OneTimePaymentScreen() {
               <Typography sx={{ wordBreak: "break-word" }}>
                 {formData.name}
               </Typography>
+              {isCashpower === 1 && formData.meterNumber && (
+                <>
+                  <Typography sx={{ pr: 2, fontWeight: 600, whiteSpace: "nowrap" }}>
+                    Meter No:
+                  </Typography>
+                  <Typography sx={{ wordBreak: "break-word" }}>
+                    {formData.meterNumber}
+                  </Typography>
+                </>
+              )}
             </Box>
 
             {/* Email */}
@@ -753,32 +1274,49 @@ export default function OneTimePaymentScreen() {
               </FormControl>
             </Box>
 
-            {/* Due Amount + Preview Invoice */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <Typography variant="body2" fontWeight={600}>
-                Due Amount: <span style={{ color: colors.blue }}>
-                  $
-                  {/* {customerDetails.balance} */}
-                  {Number(customerDetails.balance).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </span>
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ textDecoration: "underline", cursor: "pointer", color: colors.blue }}
-                onClick={handlePreviewInvoice}
-              >
-                PREVIEW INVOICE
-              </Typography>
-            </Box>
+            {/* Due Amount + Preview Invoice OR Minimum Amount */}
+            {isCashpower === 1 ? (
+              minimumAmount ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                  <Typography variant="body2" fontWeight={600}>
+                    Minimum Amount:{" "}
+                    <span style={{ color: colors.blue }}>
+                      ${Number(minimumAmount).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </Typography>
+                </Box>
+              ) : null
+            ) : (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Typography variant="body2" fontWeight={600}>
+                  Due Amount:{" "}
+                  <span style={{ color: colors.blue }}>
+                    $
+                    {Number(customerDetails?.balance || 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ textDecoration: "underline", cursor: "pointer", color: colors.blue }}
+                  onClick={handlePreviewInvoice}
+                >
+                  PREVIEW INVOICE
+                </Typography>
+              </Box>
+            )}
 
             {/* Amount To Pay */}
             <Box mb={3}>
               <Tooltip
                 title={
-                  companyInfo?.company?.allow_partial_payments == 0 &&
+                  isCashpower !== 1 &&
+                    companyInfo?.company?.allow_partial_payments == 0 &&
                     companyInfo?.company?.allow_overpayments == 0
                     ? "Over payments are not allowed at this time. And also Partial payments are not allowed"
                     : companyInfo?.customer?.is_payments_blocked == 1
@@ -799,23 +1337,28 @@ export default function OneTimePaymentScreen() {
                   <OutlinedInput
                     notched={amountFocused || Boolean(formData.amountToPay)}
                     label="Amount To Pay *"
-                    // value={formData.amountToPay}
                     value={
                       amountFocused
                         ? formData.amountToPay
                         : formData.amountToPay
-                          ? Number(formData.amountToPay).toLocaleString('en-US', {
+                          ? Number(formData.amountToPay).toLocaleString("en-US", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })
-                          : ''
+                          : ""
                     }
                     onFocus={() => setAmountFocused(true)}
                     onBlur={() => setAmountFocused(false)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleNext();
+                      }
+                    }}
                     disabled={
-                      companyInfo?.company?.allow_partial_payments == 0 ||
-                      companyInfo?.company?.allow_overpayments == 0
+                      isCashpower !== 1 &&
+                      (companyInfo?.company?.allow_partial_payments == 0 ||
+                        companyInfo?.company?.allow_overpayments == 0)
                     }
                     onChange={handleChange("amountToPay")}
                     startAdornment={
@@ -1121,11 +1664,6 @@ export default function OneTimePaymentScreen() {
     setPdfPreviewInvocie(true);
   };
 
-  const [accountNoFocused, setAccountNoFocused] = React.useState(false);
-  const [invoiceFocused, setInvoiceFocused] = React.useState(false);
-
-  const [emailFocused, setEmailFocused] = React.useState(false);
-  const [amountFocused, setAmountFocused] = React.useState(false);
   return (
     // ── Full-page screen wrapper ──────────────────────────────────────────────
     <Box >
@@ -1174,7 +1712,7 @@ export default function OneTimePaymentScreen() {
               Pay as Guest
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Pay your bill securely in just a few simple steps.
+              {headerSubtitle}
             </Typography>
           </Box>
         </Box>
@@ -1270,6 +1808,7 @@ export default function OneTimePaymentScreen() {
           }}
           payText="Pay Now"
           amount={Number(formData.amountToPay || 0)}
+          amountLabel={isCashpower === 1 ? "Payment Amount" : "Invoice Amount"}
           fee={Number(formData.convenienceFee || 0)}
           cardType={
             cardBankDetails?.cardType ??

@@ -15,7 +15,9 @@ export const schema = z
       ),
     confirmPassword: z.string().min(6, "Minimum 6 characters"),
     authType: z.string().min(1, "Authentication is required"),
-    authAnswer: z.string().min(1, "Answer is required"),
+    authAnswer: z.string().optional(),
+    meterNumber: z.string().optional(),
+    isCashpower: z.union([z.literal(0), z.literal(1)]).nullable().optional(),
     notificationEmail: z.string().email("Enter a valid Email"),
     confirmNotificationEmail: z.string().email("Emails must match"),
     phone: z
@@ -23,6 +25,25 @@ export const schema = z
       .min(14, "Phone number must be at least 10 digits.")
       .or(z.literal("")),
     countryCode: z.string().min(1, "Select a country code"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.isCashpower === 1) {
+      if (!data.meterNumber || !data.meterNumber.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Enter CashPower meter number",
+          path: ["meterNumber"],
+        });
+      }
+    } else {
+      if (!data.authAnswer || !data.authAnswer.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Answer is required",
+          path: ["authAnswer"],
+        });
+      }
+    }
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

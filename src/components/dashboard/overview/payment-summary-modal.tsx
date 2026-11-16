@@ -29,6 +29,7 @@ interface PaymentSummaryModalProps {
   dueDate?: string | null | Date;
   Recurring?: string | null;
   Payment?: string | null;
+  amountLabel?: string;
 }
 
 export default function PaymentSummaryModal({
@@ -43,6 +44,7 @@ export default function PaymentSummaryModal({
   dueDate,
   Recurring = null,
   Payment = null,
+  amountLabel = "Invoice Amount",
 }: PaymentSummaryModalProps) {
   const total = (Number(amount) || 0) + (Number(fee) || 0);
   const recurrenceMap = {
@@ -116,7 +118,7 @@ export default function PaymentSummaryModal({
         <Divider sx={{ mb: 2 }} />
 
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-          <Typography>Invoice Amount</Typography>
+          <Typography>{amountLabel || "Invoice Amount"}</Typography>
           <Typography>{formatCurrency(amount)}</Typography>
         </Stack>
 
