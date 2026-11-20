@@ -1,4 +1,5 @@
 import { clearLocalStorage } from "./auth";
+import { clearCsrfToken } from "@/lib/auth/csrf";
 
 /** Minimal interface matching the router object returned by createBrowserRouter. */
 interface RouterInstance {
@@ -38,6 +39,7 @@ export const navigateTo = (
     isUnauthorizedMessage(message)
   ) {
     clearLocalStorage();
+    clearCsrfToken();
   }
   if (routerInstance) {
     routerInstance.navigate(path, options);

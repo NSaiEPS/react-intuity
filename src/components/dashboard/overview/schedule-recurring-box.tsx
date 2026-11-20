@@ -48,7 +48,6 @@ export function ScheduleRecurringBox({ isSmallScreen = false }) {
 
     const roleId = stored?.body?.acl_role_id;
     const userId = stored?.body?.customer_id;
-    const token = stored?.body?.token;
     const formData = new FormData();
 
     formData.append("acl_role_id", roleId);

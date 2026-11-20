@@ -21,7 +21,7 @@ export function AuthGuard({
   // const router = useRouter();
   const navigate = useNavigate();
 
-  const { user, error, isLoading } = useUser();
+  const { user, error, isLoading, isServiceUnavailable } = useUser();
 
   // If the user is already in localStorage, render immediately — no blank flash.
   // The async session check still runs in the background via useEffect.
@@ -29,6 +29,11 @@ export function AuthGuard({
 
   const checkPermissions = async (): Promise<void> => {
     if (isLoading) {
+      return;
+    }
+
+    if (isServiceUnavailable) {
+      setIsChecking(false);
       return;
     }
 

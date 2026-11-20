@@ -29,7 +29,19 @@ export type SetLoadingFn = (loading: boolean) => void;
 export interface CustomerAccount {
   customer_id?: string;
   acl_role_id?: string;
-  token?: string;
+  csrf_token?: string;
+  auth?: {
+    authenticated?: boolean;
+    method?: string;
+    issued_at?: string;
+    expires_at?: string;
+    expires_in?: number;
+    two_fa_required?: boolean;
+    two_fa_completed?: boolean;
+    must_complete_two_fa?: boolean;
+    must_confirm_information?: boolean;
+    [key: string]: unknown;
+  };
   email?: string;
   alias?: string;
   is_verified?: number;

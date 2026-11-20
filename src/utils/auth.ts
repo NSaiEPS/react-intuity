@@ -22,7 +22,6 @@ export const clearLocalStorage = () => {
   removeLocalStorage("intuity-companyId");
   removeLocalStorage("intuity-company");
   removeLocalStorage("intuity-customerInfo");
-  removeLocalStorage("intuity-customerInfo");
   removeLocalStorage("is_skipped");
 };
 
@@ -52,10 +51,35 @@ export const updateLocalStorageValue = (
 };
 
 export type IntuityUser = {
+  status?: boolean;
+  message?: string;
   body?: {
+    id?: number | string;
     acl_role_id?: string;
     customer_id?: string;
-    token?: string;
+    company_id?: string | number;
+    company_name?: string;
+    alias?: string;
     email?: string;
+    customer_name?: string;
+    acctnum?: string;
+    is_verified?: number;
+    is_two_fa_required?: boolean;
+    number_of_days_for_confirmation?: number;
+    csrf_token?: string;
+    auth?: {
+      authenticated?: boolean;
+      method?: string;
+      issued_at?: string;
+      expires_at?: string;
+      expires_in?: number;
+      two_fa_required?: boolean;
+      two_fa_completed?: boolean;
+      must_complete_two_fa?: boolean;
+      must_confirm_information?: boolean;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
   };
+  [key: string]: unknown;
 };

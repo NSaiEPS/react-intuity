@@ -136,7 +136,7 @@ export const {
 export default DashBoardSlice.reducer;
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
-// Token is no longer accepted as a parameter — the axios interceptor injects it.
+// Authentication is handled via HttpOnly cookies sent automatically with credentials.
 
 export const getDashboardInfo = (
   role_id: string,
@@ -190,8 +190,6 @@ export const getAccountInfo = (
   }
 };
 
-// Previously used localStorage.getItem("token") which was always empty.
-// The axios interceptor now reads the correct token from secureLocalStorage.
 export const setPaperLessSettings = (data: FormData) => async (dispatch: AppDispatch): Promise<void> => {
   dispatch(setDashboardLoader(true));
   try {

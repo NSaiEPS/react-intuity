@@ -190,8 +190,7 @@ export const {
 export default AccountSlice.reducer;
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
-// Token is no longer accepted as a parameter — the axios interceptor in
-// src/api/axios.ts reads it from secureLocalStorage automatically.
+// Authentication is handled via HttpOnly cookies sent withCredentials automatically.
 
 export const getAccountInfo = (
   role_id: string,
@@ -927,9 +926,8 @@ export const getWorldPlayPaymentDetails = (
   }
 };
 
-// Special: token here is a one-time URL login token, not the stored auth token.
 export const getUserInfoByToken = (
-  token: string,
+  token: string | undefined,
   formData: FormData,
   successCallBack?: (body: any) => void,
   setContextLoading?: SetLoadingFn

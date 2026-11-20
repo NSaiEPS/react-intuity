@@ -175,7 +175,6 @@ function UsageFilter() {
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
   useEffect(() => {
     if (!roleId || !userId || !utilityType) return;
     const formData = new FormData();

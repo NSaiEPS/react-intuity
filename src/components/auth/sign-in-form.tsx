@@ -29,6 +29,7 @@ import { z as zod } from "zod";
 import { authClient } from "@/lib/auth/client";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "@/lib/custom-toast";
+import { setCsrfToken } from "@/lib/auth/csrf";
 
 import Button from '../CommonComponents/button-comp';
 
@@ -206,11 +207,15 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
       alias?: string;
       is_verified?: number;
       is_two_fa_required?: boolean;
-      number_of_days_for_confirmation?: number
+      number_of_days_for_confirmation?: number;
+      csrf_token?: string;
     };
   };
 
   const successCallBack = async (res: AuthResponse, companyInfo: CompanyInfoBody | null) => {
+    if (res?.body?.csrf_token) {
+      setCsrfToken(res.body.csrf_token);
+    }
     dispatch(resetDashboardStore());
     dispatch(resetPaymentStore());
     dispatch(setUserInfo(res));

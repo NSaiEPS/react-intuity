@@ -1,11 +1,12 @@
 import React from 'react';
 import { getLocalStorage } from '@/utils/auth';
-import { Box, Paper, Skeleton, Stack } from '@mui/material';
-import { Navigate, useLocation, useNavigate, useParams  } from 'react-router-dom';
+import { Box, Paper, Skeleton, Stack, Typography } from '@mui/material';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { usePreloadDashboardRoutes } from '@/hooks/usePreloadDashboardRoutes';
 import { useDispatch } from '@/hooks/redux';
 import { check2FAStatus } from '@/state/features/accountSlice';
+import { useUser } from '@/hooks/use-user';
 
 // DashboardLayout is eager — it's the persistent shell (sidebar + topnav) every
 // logged-in user sees immediately. Lazy-loading it only added a skeleton flash.
@@ -17,7 +18,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
-  const user = getLocalStorage('intuity-user');
+  const { user, auth, isLoading, isServiceUnavailable, retrySession } = useUser();
+
   interface AliasUser {
     alias: string;
   }
@@ -34,13 +36,44 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
   React.useEffect(() => {
     if (!user) return;
     dispatch(check2FAStatus(company ?? 'intuityfe', navigate));
-  }, []);
+  }, [user, company, dispatch, navigate]);
+
+  if (isLoading) {
+    return <LoginSkeleton />;
+  }
+
+  if (isServiceUnavailable) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', p: 3, textAlign: 'center' }}>
+        <Typography variant="h5" fontWeight={600} mb={1}>
+          Service Temporarily Unavailable
+        </Typography>
+        <Typography variant="body2" color="text.secondary" mb={3}>
+          We are temporarily unable to validate your session. Please retry.
+        </Typography>
+        <button
+          onClick={() => retrySession?.()}
+          style={{ padding: '8px 20px', backgroundColor: '#1976d2', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+        >
+          Retry
+        </button>
+      </Box>
+    );
+  }
 
   if (!user) {
     return <Navigate to={aliasUser ? `/login-${aliasUser?.alias}` : `/login`} replace />;
   }
 
+  const targetCompany = company || (getLocalStorage('intuity-companyId') as string) || aliasUser?.alias || 'intuityfe';
 
+  if (auth?.must_complete_two_fa) {
+    return <Navigate to={`/${targetCompany}/confirm-information`} replace state={{ two_fa_status: false }} />;
+  }
+
+  if (auth?.must_confirm_information) {
+    return <Navigate to={`/${targetCompany}/confirm-information`} replace state={{ two_fa_status: true }} />;
+  }
 
   return (
     <div style={{ marginTop: '17px' }}>
@@ -50,8 +83,15 @@ const ProtectedRoute = ({ children, title }: ProtectedRouteProps) => {
 };
 
 export default ProtectedRoute;
-export const Authorization = ({ children }) => {
-  if (getLocalStorage('intuity-user')) {
+
+export const Authorization = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useUser();
+
+  if (isLoading) {
+    return <LoginSkeleton />;
+  }
+
+  if (user) {
     return <Navigate to="/" replace />;
   }
 
@@ -61,7 +101,6 @@ export const Authorization = ({ children }) => {
 export function LoaderFallback() {
   return null;
 }
-
 
 export const DashboardLayoutWithSuspense = () => {
   usePreloadDashboardRoutes();

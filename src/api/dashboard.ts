@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import api from "./axios";
 
 // ─── Authenticated endpoints ─────────────────────────────────────────────────
-// Token is injected automatically by the axios request interceptor in axios.ts.
+// Authentication is handled via HttpOnly cookies sent automatically by the browser with credentials.
 // No function here needs to accept or forward a token.
 
 export async function check2FAStatusApi() {
@@ -171,16 +171,10 @@ export async function getWorldPlayPaymentDetailsAPI({ formData }: { formData: Fo
 }
 
 // ─── Special: login-with-token ────────────────────────────────────────────────
-// The `token` here is a one-time URL-based login token (NOT the stored auth
-// token).  The user is not yet logged in, so the interceptor has nothing to
-// inject — we must set the Authorization header explicitly here.
-export async function getUserDetailsByToken({ token, formData }: { token: string; formData: FormData }) {
-  const res = await api.post("login-with-token", formData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export async function getUserDetailsByToken({ formData }: { token?: string; formData: FormData }) {
+  const res = await api.post("login-with-token", formData);
   const data = res.data;
   secureLocalStorage.setItem("intuity-user", data);
-  secureLocalStorage.setItem("custom-auth-token", data?.body?.token);
   secureLocalStorage.setItem("intuity-companyId", data?.body?.alias || "intuityfe");
   navigateTo(`/${data?.body?.alias}/dashboard`, { replace: true });
   return data;

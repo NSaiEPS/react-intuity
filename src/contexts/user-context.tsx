@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import type { User } from "@/types/user";
-import { authClient } from "@/lib/auth/client";
+import { authClient, type UserAuthDetails } from "@/lib/auth/client";
 import { logger } from "@/lib/default-logger";
 import { getLocalStorage, type IntuityUser } from "@/utils/auth";
 import { toast } from "@/lib/custom-toast";
@@ -18,10 +18,13 @@ const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
 ];
 
 export interface UserContextValue {
-  user: User | null;
+  user: any | null;
+  auth: UserAuthDetails | null;
   error: string | null;
   isLoading: boolean;
+  isServiceUnavailable?: boolean;
   checkSession?: () => Promise<void>;
+  retrySession?: () => Promise<void>;
 }
 
 export const UserContext = React.createContext<UserContextValue | undefined>(
@@ -36,56 +39,77 @@ export function UserProvider({
   children,
 }: UserProviderProps): React.JSX.Element {
   const [state, setState] = React.useState<{
-    user: User | null;
+    user: any | null;
+    auth: UserAuthDetails | null;
     error: string | null;
     isLoading: boolean;
+    isServiceUnavailable: boolean;
   }>({
     user: null,
+    auth: null,
     error: null,
     isLoading: true,
+    isServiceUnavailable: false,
   });
 
   const checkSession = React.useCallback(async (): Promise<void> => {
     try {
-      const { data, error } = await authClient.getUser();
+      const { data, auth, error, isServiceUnavailable } = await authClient.getUser();
 
-      if (error) {
-        logger.error(error);
+      if (isServiceUnavailable) {
         setState((prev) => ({
           ...prev,
-          user: null,
-          error: "Something went wrong",
+          user: data ?? prev.user,
+          auth: auth ?? null,
+          error: error ?? "Session validation service is temporarily unavailable.",
           isLoading: false,
+          isServiceUnavailable: true,
         }));
         return;
       }
 
-      setState((prev) => ({
-        ...prev,
+      if (error) {
+        setState({
+          user: null,
+          auth: null,
+          error,
+          isLoading: false,
+          isServiceUnavailable: false,
+        });
+        return;
+      }
+
+      setState({
         user: data ?? null,
+        auth: auth ?? null,
         error: null,
         isLoading: false,
-      }));
-    } catch (err) {
-      logger.error(err);
-      setState((prev) => ({
-        ...prev,
+        isServiceUnavailable: false,
+      });
+    } catch (err: any) {
+      logger.error("Session check error", err);
+      setState({
         user: null,
+        auth: null,
         error: "Something went wrong",
         isLoading: false,
-      }));
+        isServiceUnavailable: false,
+      });
     }
   }, []);
 
+  const retrySession = React.useCallback(async (): Promise<void> => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null, isServiceUnavailable: false }));
+    await checkSession();
+  }, [checkSession]);
+
   React.useEffect(() => {
     checkSession().catch((err: unknown) => {
-      logger.error(err);
-      // noop
+      logger.error("Initial session check failed", err);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
-  }, []);
+  }, [checkSession]);
 
-  const isAuthenticated = Boolean(state.user || getLocalStorage("intuity-user"));
+  const isAuthenticated = Boolean(state.user);
 
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = React.useRef<number>(0);
@@ -103,14 +127,13 @@ export function UserProvider({
       const roleId = stored?.body?.acl_role_id;
       const loginUserEmail = stored?.body?.email;
       const userId = stored?.body?.customer_id;
-      const token = stored?.body?.token;
 
       const formData = new FormData();
-      if (loginUserEmail) formData.append("email", loginUserEmail);
-      if (roleId) formData.append("acl_role_id", roleId);
-      if (userId) formData.append("customer_id", userId);
+      if (loginUserEmail) formData.append("email", String(loginUserEmail));
+      if (roleId) formData.append("acl_role_id", String(roleId));
+      if (userId) formData.append("customer_id", String(userId));
 
-      await authClient.signOut(token ?? "", formData);
+      await authClient.signOut(formData);
       await checkSession();
 
       toast.warning(
@@ -171,11 +194,10 @@ export function UserProvider({
   }, [isAuthenticated, handleIdleLogout]);
 
   return (
-    <UserContext.Provider value={{ ...state, checkSession }}>
+    <UserContext.Provider value={{ ...state, checkSession, retrySession }}>
       {children}
     </UserContext.Provider>
   );
 }
 
 export const UserConsumer = UserContext.Consumer;
-

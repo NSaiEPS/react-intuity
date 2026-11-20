@@ -1,27 +1,23 @@
 // CompanyRouteGuard.tsx
 import React, { useEffect } from "react";
-import {
-  getConfirmInfo,
-  getUserInfoByToken,
-} from "@/state/features/accountSlice";
 import { fetchSideNavPermissions } from "@/state/features/sideNavSlice";
 import { getLocalStorage } from "@/utils/auth";
-import { decryptFromPHP } from "@/utils/decryptHelper";
 import { useDispatch } from "@/hooks/redux";
 import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
-
-import { useLoading } from "./skeleton-context";
+import { useUser } from "@/hooks/use-user";
+import { LoginSkeleton } from "./protectedRoute";
+import { Box, Typography } from "@mui/material";
 
 export default function CompanyRouteGuard() {
-  const user = getLocalStorage("intuity-user");
+  const { user, auth, isLoading, isServiceUnavailable, retrySession } = useUser();
+
   const storedCompanyId = secureLocalStorage.getItem("intuity-companyId");
   interface AliasUser {
-  alias: string;
-}
+    alias: string;
+  }
   const aliasUser: AliasUser | null = getLocalStorage("alias-details") as AliasUser | null;
   const dispatch = useDispatch();
-  const { setContextLoading } = useLoading();
 
   const { company } = useParams();
   const { pathname } = useLocation();
@@ -31,84 +27,27 @@ export default function CompanyRouteGuard() {
     dispatch(fetchSideNavPermissions());
   }, [pathname, dispatch]);
 
-  const { search } = useLocation();
-  if (search.includes("token=")) {
-    const token = () => {
-      const match = search.match(/[?&]token=([^&]*)/);
-      //console.log(search, match);
-      if (!match) return null;
-      // Preserve '+' (used in AES base64)
-      const raw = match[1].replace(/\+/g, "%2B");
-      try {
-        return decodeURIComponent(raw);
-      } catch {
-        return raw;
-      }
-    };
+  if (isLoading) {
+    return <LoginSkeleton />;
+  }
 
-    const decrypted = () => {
-      if (!token()) return null;
-      try {
-        // return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0NjksImV4cCI6MTc2Mjg3NDYxN30=.cWyvBciB5ggrRwjQ/9PbKFxZL0JIIRH8yG/5iKMZY/A=";
-        return decryptFromPHP(token());
-      } catch (err) {
-        console.error("Decryption error:", err);
-        return null;
-      }
-    };
-    const getUserDetailsSuccess = () => {
-      const formData = new FormData();
-      const params = new URLSearchParams(search);
-
-      const aclRoleId = params.get("acl_role_id");
-      const customerId = params.get("customer_id");
-      if (aclRoleId) formData.append("acl_role_id", aclRoleId);
-      if (customerId) formData.append("customer_id", customerId);
-
-      const queryAlias = params.get("company_alias") || params.get("alias") || params.get("company");
-      const isCompanySpecific = (company && company !== "intuityfe") || Boolean(queryAlias);
-      const effectiveAlias = isCompanySpecific
-        ? ((company && company !== "intuityfe" ? company : queryAlias || aliasUser?.alias) || "").trim()
-        : undefined;
-
-      if (effectiveAlias) {
-        formData.append("company_alias", effectiveAlias);
-      }
-
-      dispatch(getConfirmInfo(formData, undefined, setContextLoading));
-    };
-    if (search) {
-      //console.log(search, "fromsearch");
-      const formData = new FormData();
-      const params = new URLSearchParams(search);
-
-      const aclRoleId = params.get("acl_role_id");
-      const customerId = params.get("customer_id");
-      if (aclRoleId) formData.append("acl_role_id", aclRoleId);
-      if (customerId) formData.append("customer_id", customerId);
-
-      const queryAlias = params.get("company_alias") || params.get("alias") || params.get("company");
-      const isCompanySpecific = (company && company !== "intuityfe") || Boolean(queryAlias);
-      const effectiveAlias = isCompanySpecific
-        ? ((company && company !== "intuityfe" ? company : queryAlias || aliasUser?.alias) || "").trim()
-        : undefined;
-
-      if (effectiveAlias) {
-        formData.append("company_alias", effectiveAlias);
-      }
-
-      const token = decrypted();
-      dispatch(
-        getUserInfoByToken(
-          token,
-          formData,
-          getUserDetailsSuccess,
-          setContextLoading
-        )
-      );
-    }
-
-    return <Outlet />;
+  if (isServiceUnavailable) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", p: 3, textAlign: "center" }}>
+        <Typography variant="h5" fontWeight={600} mb={1}>
+          Service Temporarily Unavailable
+        </Typography>
+        <Typography variant="body2" color="text.secondary" mb={3}>
+          We are temporarily unable to validate your session. Please retry.
+        </Typography>
+        <button
+          onClick={() => retrySession?.()}
+          style={{ padding: "8px 20px", backgroundColor: "#1976d2", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer" }}
+        >
+          Retry
+        </button>
+      </Box>
+    );
   }
 
   if (!user) {
@@ -116,6 +55,28 @@ export default function CompanyRouteGuard() {
       <Navigate
         to={aliasUser ? `/login-${aliasUser?.alias}` : `/login`}
         replace
+      />
+    );
+  }
+
+  const targetCompany = company || (storedCompanyId as string) || aliasUser?.alias || "intuityfe";
+
+  if (auth?.must_complete_two_fa) {
+    return (
+      <Navigate
+        to={`/${targetCompany}/confirm-information`}
+        replace
+        state={{ two_fa_status: false }}
+      />
+    );
+  }
+
+  if (auth?.must_confirm_information) {
+    return (
+      <Navigate
+        to={`/${targetCompany}/confirm-information`}
+        replace
+        state={{ two_fa_status: true }}
       />
     );
   }

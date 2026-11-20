@@ -552,7 +552,7 @@ export async function printPdfFromUrl(pdfUrl: string): Promise<void> {
         }
       } catch {
         try {
-          const res = await fetch(pdfUrl);
+          const res = await fetch(pdfUrl, { credentials: "include" });
           const arrayBuffer = await res.arrayBuffer();
           pdfData = new Uint8Array(arrayBuffer);
         } catch (fetchErr) {

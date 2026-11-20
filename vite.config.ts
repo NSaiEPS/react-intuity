@@ -21,7 +21,19 @@ export default defineConfig({
 
   server: {
     allowedHosts: true,
-
+    ...(process.env.VITE_PROXY_TARGET
+      ? {
+          proxy: {
+            '/api': {
+              target: process.env.VITE_PROXY_TARGET,
+              changeOrigin: true,
+              secure: false,
+              rewrite: (path) => path.replace(/^\/api/, ''),
+              cookieDomainRewrite: 'localhost',
+            },
+          },
+        }
+      : {}),
   },
 
   optimizeDeps: {

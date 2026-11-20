@@ -24,6 +24,7 @@ import secureLocalStorage from "react-secure-storage";
 import { authClient } from "@/lib/auth/client";
 import { logger } from "@/lib/default-logger";
 import { useUser } from "@/hooks/use-user";
+import { setCsrfToken } from "@/lib/auth/csrf";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/utils/paths";
@@ -46,7 +47,6 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
   const roleId = stored?.body?.acl_role_id;
   const loginUserEmail = stored?.body?.email;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
 
   const routeChecker = useSelector((state: RootState) => state?.DashBoard?.routeChecker);
   const { dashBoardInfo } = useSelector((state: RootState) => state?.DashBoard);
@@ -86,7 +86,7 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
         dispatch(resetDashboardStore());
         dispatch(resetPaymentStore());
         dispatch(resetAccountStore());
-        const { error } = await authClient.signOut(token, formData);
+        const { error } = await authClient.signOut(formData);
         if (error) {
           logger.error("Sign out error", error);
           return;
@@ -116,7 +116,13 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
     dispatch(updateAccountInfo(formData, true, () => successCallBackUnlink(accountDetails?.id)));
   };
 
-  const successCallBackLinkedAccount = (data) => {
+  const successCallBackLinkedAccount = (data: any) => {
+    if (data?.csrf_token) {
+      setCsrfToken(data.csrf_token);
+    } else if (data?.body?.csrf_token) {
+      setCsrfToken(data.body.csrf_token);
+    }
+
     const storeddata = { ...stored };
     storeddata.body = { ...storeddata.body, ...data };
     dispatch(setUserInfo(storeddata));
@@ -134,6 +140,8 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
     formData.append("markRead", "0");
     formData.append("model_open", "9");
     dispatch(getNotificationList(formData));
+
+    checkSession?.();
   };
 
   const handleAccountClick = (data = accountDetails) => {

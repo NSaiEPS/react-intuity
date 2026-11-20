@@ -39,7 +39,6 @@ const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
     return cleaned;
   };
   const convenienceFee = sanitize(searchParams.get("convenience_fee"));
-  const stored: { body?: { token?: string } } | null = getLocalStorage("intuity-user") as { body?: { token?: string } } | null;
   const worldPlayDetails = getLocalStorage("worldplay-details");
   //console.log("worldPlayDetails", worldPlayDetails);
   useEffect(() => {
@@ -72,7 +71,6 @@ const CardSuccess = ({ isOneTimePayment = false, successPage = false }) => {
             paywithoutsave: "true", // add this
             type: "card",
           });
-          const token = stored?.body?.token;
           if (convenienceFee || amount) {
             const target = `/${company}/dashboard/payment-details?${query.toString()}`;
             navigate(target);

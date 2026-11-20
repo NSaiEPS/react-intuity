@@ -33,11 +33,11 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
 
   const roleId = stored?.body?.acl_role_id;
   const userId = stored?.body?.customer_id;
-  const token = stored?.body?.token;
+  const isLoggedIn = Boolean(userId);
 
   // 🔹 API endpoints
   const generateTokenUrl = `${BASE_URL}${
-    !token
+    !isLoggedIn
       ? "/default/index/elavon-generate-token-one-time-pay"
       : "settings/front/elavon-generate-token"
   }`;
@@ -88,7 +88,7 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
     setLoading(true);
     try {
       const formData = new FormData();
-      if (token) {
+      if (isLoggedIn) {
         formData.append("acl_role_id", String(roleId));
         formData.append("customer_id", String(userId));
       } else {
@@ -97,11 +97,11 @@ const ElavonAddCard: React.FC<ElavonAddCardProps> = ({ type = "card", onSuccess,
         formData.append("acl_role_id", "4");
       }
       const headers: Record<string, string> = { Accept: "application/json" };
-      if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch(generateTokenUrl, {
         method: "POST",
         headers,
         body: formData,
+        credentials: "include",
       });
 
       const data = await response.json();

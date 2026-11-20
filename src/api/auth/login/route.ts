@@ -16,11 +16,12 @@ export async function POST(req: Request) {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: "",
+    credentials: "include",
   });
 
   const data = await res.json();
 
-  if (!res.ok || !data?.body?.token) {
+  if (!res.ok) {
     return Response.json(
       { error: data?.body?.errors?.[0] || "Login failed" },
       { status: 401 }
