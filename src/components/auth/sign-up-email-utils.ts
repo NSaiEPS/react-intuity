@@ -6,6 +6,12 @@ export const isValidEmailFormat = (email: unknown): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 };
 
+export const isBasicEmailFormat = (email: unknown): boolean => {
+  if (typeof email !== "string") return false;
+  const trimmed = email.trim();
+  return /^[^\s@]+@[^\s@]+$/.test(trimmed);
+};
+
 const isPreferredEmailFlag = (item: Record<string, unknown>): boolean =>
   Boolean(
     item.is_primary === 1 ||
@@ -33,7 +39,10 @@ const isPreferredEmailFlag = (item: Record<string, unknown>): boolean =>
  * or comma/semicolon/pipe/whitespace-delimited), array of strings, or array of
  * email objects. Never concatenates multiple email addresses into a single value.
  */
-export function extractEmailsFromSource(source: unknown): string[] {
+function extractEmailsWithValidator(
+  source: unknown,
+  validator: (email: unknown) => boolean
+): string[] {
   if (!source) return [];
 
   const collected: string[] = [];
@@ -42,7 +51,7 @@ export function extractEmailsFromSource(source: unknown): string[] {
   const addIfValid = (candidate: unknown) => {
     if (typeof candidate !== "string") return;
     const trimmed = candidate.trim();
-    if (!isValidEmailFormat(trimmed)) return;
+    if (!validator(trimmed)) return;
     const normalized = trimmed.toLowerCase();
     if (!seen.has(normalized)) {
       seen.add(normalized);
@@ -76,7 +85,7 @@ export function extractEmailsFromSource(source: unknown): string[] {
 
     for (const item of [...preferredItems, ...remainingItems]) {
       if (typeof item === "string") {
-        for (const email of extractEmailsFromSource(item)) {
+        for (const email of extractEmailsWithValidator(item, validator)) {
           addIfValid(email);
         }
       } else if (item && typeof item === "object") {
@@ -87,7 +96,7 @@ export function extractEmailsFromSource(source: unknown): string[] {
           obj.address ??
           obj.notification_email ??
           obj.value;
-        for (const email of extractEmailsFromSource(raw)) {
+        for (const email of extractEmailsWithValidator(raw, validator)) {
           addIfValid(email);
         }
       }
@@ -105,10 +114,18 @@ export function extractEmailsFromSource(source: unknown): string[] {
       obj.email_address ??
       obj.notification_email ??
       obj.address;
-    return extractEmailsFromSource(raw);
+    return extractEmailsWithValidator(raw, validator);
   }
 
   return [];
+}
+
+export function extractEmailsFromSource(source: unknown): string[] {
+  const strictMatches = extractEmailsWithValidator(source, isValidEmailFormat);
+  if (strictMatches.length > 0) {
+    return strictMatches;
+  }
+  return extractEmailsWithValidator(source, isBasicEmailFormat);
 }
 
 export function selectPreferredEmail(sources: unknown[]): string {

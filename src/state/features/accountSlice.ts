@@ -621,7 +621,7 @@ export const linkAnotherAccount = (
   try {
     const res = await listAnotherAccountAPI({ formData });
     if (res?.status) {
-      toast.success(res?.message ?? "Something went wrong!");
+      // toast.success(res?.message ?? "Something went wrong!");
       if (successCallBack) successCallBack(res?.body);
     } else {
       navigateTo("/login", { replace: true }, res?.message);
@@ -805,7 +805,7 @@ export const guestPaymentRequest = (
         if (res?.body?.customer?.email) {
           try {
             sessionStorage.setItem("guest-confirmation-email", res.body.customer.email);
-          } catch {}
+          } catch { }
         }
         dispatch(setOneTimePaymentInfo(res?.body));
         if (successCallBack) successCallBack(res?.body?.customer, res?.body);
