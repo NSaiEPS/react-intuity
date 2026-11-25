@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
+import { toast } from "@/lib/custom-toast";
 import {
   Box,
   Card,
@@ -122,8 +123,8 @@ const ForteACH: FC<ForteACHProps> = ({
   };
 
   const handleTokenFailed = (error: any) => {
-    console.error("Forte ACH error:", error);
-    alert(error?.response_description || "ACH Payment failed");
+    console.error("Forte ACH tokenization failed:", error?.response_code || error?.response_description || "Unknown error");
+    toast.error(error?.response_description || "ACH tokenization failed. Please check your details and try again.");
   };
 
   useEffect(() => {
@@ -133,17 +134,17 @@ const ForteACH: FC<ForteACHProps> = ({
 
   const handleSubmit = () => {
     if (!resolvedApiLoginId) {
-      alert("Payment processor configuration is missing.");
+      toast.error("Payment processor configuration is missing.");
       return;
     }
 
     if (!window.forte) {
-      alert("Forte not loaded");
+      toast.error("Payment processor SDK is still loading. Please try again.");
       return;
     }
 
     if (!authorized) {
-      alert("Please authorize before continuing.");
+      toast.error("Please authorize before continuing.");
       return;
     }
 
@@ -151,7 +152,7 @@ const ForteACH: FC<ForteACHProps> = ({
     const routing_number = routingNumber.replace(/\s|-/g, "");
 
     if (!account_number || !routing_number) {
-      alert("Please enter the routing number and account number.");
+      toast.error("Please enter the routing number and account number.");
       return;
     }
     window.forte

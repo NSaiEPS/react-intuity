@@ -112,42 +112,84 @@ export function SignInForm({ user: _user }: { user?: boolean } = {}): React.JSX.
     if (hasShownActivationToastRef.current) return;
 
     const params = new URLSearchParams(location.search);
+    const getNormParam = (key: string) => (params.get(key) || "").trim().toLowerCase();
+
+    const failedStatuses = new Set(["0", "false", "failed", "fail", "error", "invalid", "expired"]);
+    const hasActivationError =
+      failedStatuses.has(getNormParam("activated")) ||
+      failedStatuses.has(getNormParam("account_activated")) ||
+      failedStatuses.has(getNormParam("activation")) ||
+      failedStatuses.has(getNormParam("status")) ||
+      failedStatuses.has(getNormParam("activate")) ||
+      failedStatuses.has(getNormParam("accountActivated")) ||
+      Boolean(params.get("activation_error")) ||
+      Boolean(params.get("activationError")) ||
+      Boolean(params.get("error"));
+
     const hasActivatedParam =
-      params.get("activated") === "true" ||
-      params.get("activated") === "1" ||
-      params.get("account_activated") === "true" ||
-      params.get("account_activated") === "1" ||
-      params.get("activation") === "true" ||
-      params.get("activation") === "1" ||
-      params.get("activation") === "success" ||
-      params.get("status") === "activated" ||
-      params.get("activate") === "true" ||
-      params.get("accountActivated") === "true";
+      !hasActivationError &&
+      (getNormParam("activated") === "true" ||
+        getNormParam("activated") === "1" ||
+        getNormParam("account_activated") === "true" ||
+        getNormParam("account_activated") === "1" ||
+        getNormParam("activation") === "true" ||
+        getNormParam("activation") === "1" ||
+        getNormParam("activation") === "success" ||
+        getNormParam("status") === "activated" ||
+        getNormParam("activate") === "true" ||
+        getNormParam("accountActivated") === "true");
 
-    const hasActivatedState = Boolean(
-      (location.state as any)?.accountActivated ||
-      (location.state as any)?.activated
-    );
+    if (hasActivationError) {
+      hasShownActivationToastRef.current = true;
+      const rawErrorText =
+        params.get("message") ||
+        params.get("error_message") ||
+        params.get("activation_error") ||
+        params.get("activationError") ||
+        params.get("error");
+      const errorMessage =
+        rawErrorText &&
+        !["1", "0", "true", "false"].includes(rawErrorText.trim().toLowerCase())
+          ? rawErrorText.trim()
+          : "Your account activation link is invalid or has expired. Please request a new activation link or contact support.";
 
-    if (hasActivatedState || hasActivatedParam) {
+      toast.error(errorMessage);
+      setError("root", { type: "server", message: errorMessage });
+
+      [
+        "activated",
+        "account_activated",
+        "activation",
+        "status",
+        "activate",
+        "accountActivated",
+        "activation_error",
+        "activationError",
+        "error",
+        "error_message",
+        "message",
+      ].forEach((k) => params.delete(k));
+      const newSearch = params.toString() ? `?${params.toString()}` : "";
+      navigate(`${pathname}${newSearch}`, { replace: true });
+      return;
+    }
+
+    if (hasActivatedParam) {
       hasShownActivationToastRef.current = true;
       toast.success("Thank you for activating your account. You may now log in.");
 
-      if (hasActivatedState) {
-        window.history.replaceState({}, document.title);
-      }
-      if (hasActivatedParam) {
-        params.delete("activated");
-        params.delete("account_activated");
-        params.delete("activation");
-        params.delete("status");
-        params.delete("activate");
-        params.delete("accountActivated");
-        const newSearch = params.toString() ? `?${params.toString()}` : "";
-        navigate(`${pathname}${newSearch}`, { replace: true });
-      }
+      [
+        "activated",
+        "account_activated",
+        "activation",
+        "status",
+        "activate",
+        "accountActivated",
+      ].forEach((k) => params.delete(k));
+      const newSearch = params.toString() ? `?${params.toString()}` : "";
+      navigate(`${pathname}${newSearch}`, { replace: true });
     }
-  }, [location.search, location.state, pathname, navigate]);
+  }, [location.search, pathname, navigate, setError]);
 
   const handleRegisterClick = async () => {
     if (effectiveAlias) {

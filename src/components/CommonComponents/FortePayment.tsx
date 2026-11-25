@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { useSelector } from "@/hooks/redux";
 import { RootState } from "@/state/store";
+import { toast } from "@/lib/custom-toast";
 import {
   Box,
   Card,
@@ -116,20 +117,20 @@ const FortePayment: FC<FortePaymentProps> = ({
     };
 
     window.onTokenFailed = (error: any) => {
-      console.error("Forte error:", error);
-      alert(error?.response_description || "Payment failed");
+      console.error("Forte tokenization failed:", error?.response_code || error?.response_description || "Unknown error");
+      toast.error(error?.response_description || "Card tokenization failed. Please check your details and try again.");
     };
   }, [onSuccess]);
 
   // 3️⃣ Submit Handler
   const handleSubmit = () => {
     if (!resolvedApiLoginId) {
-      alert("Payment processor configuration is missing.");
+      toast.error("Payment processor configuration is missing.");
       return;
     }
 
     if (!window.forte) {
-      alert("Forte not loaded yet");
+      toast.error("Payment processor SDK is still loading. Please try again.");
       return;
     }
 

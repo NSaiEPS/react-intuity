@@ -19,9 +19,9 @@ const RegisterSuccess = () => {
 
   const handleBackToLogin = () => {
     if (slugMatch) {
-      navigate(paths.auth.newLogin(slugMatch), { state: { accountActivated: true } });
+      navigate(paths.auth.newLogin(slugMatch));
     } else {
-      navigate(paths.auth.newLogin(), { state: { accountActivated: true } });
+      navigate(paths.auth.newLogin());
     }
   };
 

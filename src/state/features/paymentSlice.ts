@@ -42,12 +42,15 @@ export const getLastBillInfo = (
   formData: FormData,
   setContextLoading?: SetLoadingFn,
   isPost = false,
-  successCallBack?: (data: LastBillInfo) => void
+  successCallBack?: (data: LastBillInfo) => void,
+  silent = false
 ) => async (dispatch: AppDispatch): Promise<void> => {
-  if (!isPost) {
+  if (!isPost && !silent) {
     dispatch(setLastBillInfo({}));
   }
-  dispatch(setPaymentLoader(true));
+  if (!silent) {
+    dispatch(setPaymentLoader(true));
+  }
   try {
     const res: ApiResponse<LastBillInfo> = await getLastBillInfoAPI({ formData });
     if (res?.status) {
@@ -58,18 +61,24 @@ export const getLastBillInfo = (
         toast.success(res?.message ?? 'Successful!!');
       }
     } else {
-      dispatch(setLastBillInfo({}));
+      if (!silent) {
+        dispatch(setLastBillInfo({}));
+      }
       navigateTo('/login', { replace: true }, res?.message);
-      if (res?.message !== 'You are not authorised to use this api') {
+      if (!silent && res?.message !== 'You are not authorised to use this api') {
         toast.error(res?.message ?? 'Something went wrong!');
       }
     }
   } catch (e: unknown) {
-    dispatch(setLastBillInfo({}));
-    const error = e as AxiosError<{ message?: string }>;
-    toast.error(error.response?.data?.message ?? 'Error! Try again.');
+    if (!silent) {
+      dispatch(setLastBillInfo({}));
+      const error = e as AxiosError<{ message?: string }>;
+      toast.error(error.response?.data?.message ?? 'Error! Try again.');
+    }
   } finally {
-    dispatch(setPaymentLoader(false));
+    if (!silent) {
+      dispatch(setPaymentLoader(false));
+    }
     if (setContextLoading) setContextLoading(false);
   }
 };

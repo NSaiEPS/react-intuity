@@ -31,6 +31,7 @@ import Select from '@mui/material/Select';
 import MuiButton from '@mui/material/Button';
 import { Button } from 'nsaicomponents';
 import { toast } from '@/lib/custom-toast';
+import { hasOneTimePaymentToken, ONE_TIME_TOKEN_AUTOPAY_ERROR } from '@/utils/paymentTokenUtils';
 
 import {
   CreditCard,
@@ -1570,6 +1571,11 @@ export default function AutoPayPrototype() {
     const targetMethod = pendingMethodInfo || autopayMethodInfo;
     if (!targetMethod) return;
 
+    if (hasOneTimePaymentToken(targetMethod)) {
+      toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+      return;
+    }
+
 
     const formData = new FormData();
     formData.append('acl_role_id', roleId);
@@ -1744,6 +1750,10 @@ export default function AutoPayPrototype() {
   function handleContinueExisting(methodId: string) {
     const selectedMethod = methods.find((m) => String(m.id) === String(methodId)) || (methods && methods.length > 0 ? methods[0] : null);
     if (selectedMethod) {
+      if (hasOneTimePaymentToken(selectedMethod)) {
+        toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+        return;
+      }
       setAutopayMethodInfo(selectedMethod as any);
       setAutopayMethodId(selectedMethod.id);
     }
@@ -1753,6 +1763,10 @@ export default function AutoPayPrototype() {
 
   /* ---------------- Enrollment: new method added via iframe ---------------- */
   function handleNewMethodFromEnroll(method: PaymentMethod) {
+    if (hasOneTimePaymentToken(method)) {
+      toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+      return;
+    }
     const hasExistingDefault = methods.some((m) => m.isDefault);
     if (!hasExistingDefault) {
       // no default exists yet -> auto-designate as default
@@ -1830,6 +1844,11 @@ export default function AutoPayPrototype() {
   const { accountLoading } = useSelector((state: RootState) => state?.Account);
 
   const handleEnrollSave = () => {
+    if (autopayMethodInfo && hasOneTimePaymentToken(autopayMethodInfo)) {
+      toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+      return;
+    }
+
     const formData = new FormData();
 
     formData.append('acl_role_id', roleId);
@@ -1999,6 +2018,10 @@ export default function AutoPayPrototype() {
             onSaveCardDetails={(data: any) => {
               try {
                 if (data) {
+                  if (hasOneTimePaymentToken(data)) {
+                    toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+                    return;
+                  }
                   if (view === 'dashboard') {
                     setPendingMethodInfo(data);
                     if (data?.id) setPendingMethodId(data.id);
@@ -2027,9 +2050,14 @@ export default function AutoPayPrototype() {
       {bankModalOpen && (
         <AddBankAccountModal
           open={bankModalOpen}
+          isAutopay={true}
           onClose={() => setBankModalOpen(false)}
           onSuccess={(bank) => {
             if (bank) {
+              if (hasOneTimePaymentToken(bank)) {
+                toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+                return;
+              }
               if (view === 'dashboard') {
                 setPendingMethodInfo(bank);
                 if (bank?.id) setPendingMethodId(bank.id);
@@ -2054,6 +2082,10 @@ export default function AutoPayPrototype() {
               data;
 
             if (newlyAdded && typeof newlyAdded === 'object') {
+              if (hasOneTimePaymentToken(newlyAdded)) {
+                toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+                return;
+              }
               if (view === 'dashboard') {
                 setPendingMethodInfo(newlyAdded);
                 if (newlyAdded?.id) setPendingMethodId(newlyAdded.id);
@@ -2080,9 +2112,14 @@ export default function AutoPayPrototype() {
       {cardModalOpen && (
         <AddCardModal
           open={cardModalOpen}
+          isAutopay={true}
           onClose={() => setCardModalOpen(false)}
           onSuccess={(card) => {
             if (card) {
+              if (hasOneTimePaymentToken(card)) {
+                toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+                return;
+              }
               if (view === 'dashboard') {
                 setPendingMethodInfo(card);
                 if (card?.id) setPendingMethodId(card.id);
@@ -2107,6 +2144,10 @@ export default function AutoPayPrototype() {
               data;
 
             if (newlyAdded && typeof newlyAdded === 'object') {
+              if (hasOneTimePaymentToken(newlyAdded)) {
+                toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+                return;
+              }
               if (view === 'dashboard') {
                 setPendingMethodInfo(newlyAdded);
                 if (newlyAdded?.id) setPendingMethodId(newlyAdded.id);

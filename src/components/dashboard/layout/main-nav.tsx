@@ -54,8 +54,10 @@ export function MainNav(): React.JSX.Element {
   const companyLogo = apiCompany?.logo || aliasUser?.logo || localCompany?.logo || null;
   const companyName = apiCompany?.company_name || aliasUser?.company_name || localCompany?.company_name || "";
 
-  const { user_name, loginID, customer_name } =
+  const activeCustomer =
     dashBoardInfo?.body?.customer || CustomerInfo || {};
+  const { user_name, loginID, customer_name } = activeCustomer;
+  const displayName = customer_name || user_name || "";
 
   const [clickedType, setClickedType] = React.useState("");
   const getInitials = (name: string): string => {
@@ -227,7 +229,7 @@ export function MainNav(): React.JSX.Element {
                   flexShrink: 0,
                 }}
               >
-                {getInitials(customer_name || "")}
+                {getInitials(displayName)}
               </Avatar>
 
               <Box
@@ -249,7 +251,7 @@ export function MainNav(): React.JSX.Element {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {user_name}
+                  {displayName}
                 </Typography>
                 <Typography
                   variant="caption"

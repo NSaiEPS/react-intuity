@@ -10,6 +10,7 @@ import { getDashboardInfo } from '@/state/features/dashBoardSlice';
 // ✅ eager — above fold, user sees these first
 import { Budget } from '@/components/dashboard/overview/budget';
 import { TotalProfit } from '@/components/dashboard/overview/total-profit';
+import { AccountInfoCard, AccountInfoSkeleton } from '@/components/dashboard/overview/account-info-card';
 import { useLocation } from 'react-router-dom';
 
 // ✅ lazy — below fold or heavy
@@ -121,22 +122,24 @@ const DashboardSkeleton = () => {
   const isLargeUp = useMediaQuery(theme.breakpoints.up('lg'));
 
   return (
-    <Grid container spacing={2} sx={{ maxWidth: '1600px' }}>
-      {/* Row 1 — top two cards */}
-      <Grid item xs={12} lg={9}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <BudgetSkeleton />
+    <Grid container spacing={2} sx={{ width: '100%' }}>
+      {/* Row 1 — top three cards (Equal Height) */}
+      <Grid item xs={12}>
+        <Grid container spacing={2} sx={{ alignItems: 'stretch' }}>
+          <Grid item xs={12} lg={9} sx={{ display: 'flex' }}>
+            <Grid container spacing={2} sx={{ flex: 1, alignItems: 'stretch' }}>
+              <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <BudgetSkeleton />
+              </Grid>
+              <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <BillDueSkeleton />
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <BillDueSkeleton />
+          <Grid item xs={12} sm={12} lg={3} sx={{ display: 'flex', flexDirection: 'column' }}>
+            <AccountInfoSkeleton />
           </Grid>
         </Grid>
-      </Grid>
-
-      {/* Autopay card placeholder (lg=3) */}
-      <Grid item xs={12} sm={6} md={6} lg={3}>
-        <InfoCardSkeleton />
       </Grid>
 
       {/* Chart area */}
@@ -150,13 +153,16 @@ const DashboardSkeleton = () => {
       {/* Right column */}
       <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} lg={12}>
+          <Grid item xs={12} sm={6} md={6} lg={12}>
             <InfoCardSkeleton />
           </Grid>
-          <Grid item xs={12} sm={6} lg={12}>
+          <Grid item xs={12} sm={6} md={6} lg={12}>
             <InfoCardSkeleton />
           </Grid>
-          <Grid item xs={12} sm={6} lg={12}>
+          <Grid item xs={12} sm={6} md={6} lg={12}>
+            <InfoCardSkeleton />
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={12}>
             <CustomerServiceSkeleton />
           </Grid>
         </Grid>
@@ -179,28 +185,32 @@ export default function DashBoardPage(): React.JSX.Element {
   //   dispatch(getDashboardInfo(stored?.body?.acl_role_id, stored?.body?.customer_id));
   // }, []);
 
-  const isFirstVisit = React.useRef(true);
-const location = useLocation();
+  const location = useLocation();
+  const hasDashboardDataRef = React.useRef(Boolean(dashBoardInfo?.body));
+  hasDashboardDataRef.current = Boolean(dashBoardInfo?.body);
 
-React.useEffect(() => {
-  if (isFirstVisit.current) {
-    isFirstVisit.current = false;
-    return; // Skip first visit after login
-  }
+  React.useEffect(() => {
+    // On initial mount before any dashboard data is loaded, DashboardLayout fetches getDashboardInfo.
+    // Whenever navigating back to Overview after visiting other routes (e.g., making a payment), refetch fresh backend data.
+    if (!hasDashboardDataRef.current) {
+      return;
+    }
 
-  const raw = getLocalStorage("intuity-user");
-  const stored =
-    typeof raw === "object" && raw !== null
-      ? (raw as IntuityUser)
-      : null;
+    const raw = getLocalStorage("intuity-user");
+    const stored =
+      typeof raw === "object" && raw !== null
+        ? (raw as IntuityUser)
+        : null;
 
-  dispatch(
-    getDashboardInfo(
-      stored?.body?.acl_role_id,
-      stored?.body?.customer_id
-    )
-  );
-}, [location.pathname]);
+    if (stored?.body?.acl_role_id && stored?.body?.customer_id) {
+      dispatch(
+        getDashboardInfo(
+          stored.body.acl_role_id,
+          stored.body.customer_id
+        )
+      );
+    }
+  }, [location.pathname, dispatch]);
 
   // Start downloading lazy chunks immediately after first paint
   React.useEffect(() => {
@@ -226,38 +236,27 @@ React.useEffect(() => {
   }
 
   return (
-    <Grid container spacing={2} sx={{ maxWidth: '1600px' }}>
-
-      {/* ✅ First Row — eager, above fold, loads instantly */}
-      <Grid item xs={12} lg={allow_auto_payment === 1 ? 9 : 12}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Budget diff={12} trend="up" sx={{ height: '100%' }} />
+    <Grid container spacing={2} sx={{ width: '100%' }}>
+      {/* ✅ ROW 1: Top Dashboard Cards — Balance Due, Bill Due Date, Account Information (Equal Height & Aligned) */}
+      <Grid item xs={12}>
+        <Grid container spacing={2} sx={{ alignItems: 'stretch' }}>
+          <Grid item xs={12} lg={9} sx={{ display: 'flex' }}>
+            <Grid container spacing={2} sx={{ flex: 1, alignItems: 'stretch' }}>
+              <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Budget diff={12} trend="up" sx={{ height: '100%', width: '100%' }} />
+              </Grid>
+              <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column' }}>
+                <TotalProfit value="BillDue" sx={{ height: '100%', width: '100%' }} />
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TotalProfit value="BillDue" sx={{ height: '100%' }} />
+          <Grid item xs={12} sm={12} lg={3} sx={{ display: 'flex', flexDirection: 'column' }}>
+            <AccountInfoCard sx={{ height: '100%', width: '100%' }} />
           </Grid>
         </Grid>
       </Grid>
 
-      {/* ✅ lazy — not visible until scroll on mobile */}
-      {allow_auto_payment === 1 && (
-        <Grid item xs={12} sm={6} md={6} lg={3}>
-          <React.Suspense fallback={<InfoCardSkeleton />}>
-            <DashboardInfo sx={{ height: '100%' }} type="autoPay" typeofUser="customer" value="autopay" isActive />
-          </React.Suspense>
-        </Grid>
-      )}
-
-      {!isLargeUp && allow_auto_payment === 1 && (
-        <Grid item xs={12} sm={6} md={6}>
-          <React.Suspense fallback={<InfoCardSkeleton />}>
-            <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
-          </React.Suspense>
-        </Grid>
-      )}
-
-      {/* ✅ Sales chart — heaviest component, lazy */}
+      {/* ✅ ROW 2: Main Section — Billing History on left (lg=9), Action cards on right (lg=3) */}
       <Grid item xs={12} lg={9} order={{ xs: 3, lg: 1 }}>
         <Box display="flex" flexDirection="column" height="100%">
           {(isLargeUp || allow_auto_payment == 1) && (
@@ -274,31 +273,38 @@ React.useEffect(() => {
         </Box>
       </Grid>
 
-      {/* ✅ Right column — lazy */}
+      {/* Right Column: AutoPay, Paperless, Reminder, Customer Service */}
       <Grid item xs={12} lg={3} order={{ xs: 2, lg: 2 }}>
         <Grid container spacing={2}>
-          {!isLargeUp && allow_auto_payment !== 1 && (
-            <Grid item xs={12} sm={6} md={6}>
+          {/* AutoPay Card */}
+          {allow_auto_payment === 1 && (
+            <Grid item xs={12} sm={6} md={6} lg={12}>
               <React.Suspense fallback={<InfoCardSkeleton />}>
-                <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+                <DashboardInfo sx={{ height: '100%' }} type="autoPay" typeofUser="customer" value="autopay" isActive />
               </React.Suspense>
             </Grid>
           )}
-          {isLargeUp && (
-            <Grid item xs={12}>
-              <React.Suspense fallback={<InfoCardSkeleton />}>
-                <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
-              </React.Suspense>
-            </Grid>
-          )}
+
+          {/* Paperless Billing Card */}
+          <Grid item xs={12} sm={6} md={6} lg={12}>
+            <React.Suspense fallback={<InfoCardSkeleton />}>
+              <DashboardInfo sx={{ height: '100%' }} value="paperless" typeofUser="customer" type="paperLess" />
+            </React.Suspense>
+          </Grid>
+
+          {/* Bill Due Reminder Card */}
           <Grid item xs={12} sm={6} md={6} lg={12}>
             <React.Suspense fallback={<InfoCardSkeleton />}>
               <DashboardInfo sx={{ height: '100%' }} typeofUser="customer" value="notification_reminder" type="notification" apiCall />
             </React.Suspense>
           </Grid>
-          <Grid item xs={12} sm={!schedule_payment_msg && !recurring_payment_msg1 && !allow_auto_payment ? 12 : 6} md={!schedule_payment_msg && !recurring_payment_msg1 && !allow_auto_payment ? 12 : 6} lg={12}>
+
+          {/* Customer Service Card */}
+          <Grid item xs={12} sm={6} md={6} lg={12}>
             <TotalProfit value="CustomerService" sx={{ height: '100%' }} />
           </Grid>
+
+          {/* Schedule Recurring Box on small screen if payments not enabled */}
           {!isLargeUp && allow_auto_payment !== 1 && (
             <Grid item xs={12} sm={6} md={6} lg={12}>
               <React.Suspense fallback={<ScheduleSkeleton />}>

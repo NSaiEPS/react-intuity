@@ -10,6 +10,7 @@ import {
   schedulePayment,
   setConvenienceFee,
 } from '@/state/features/accountSlice';
+import { getDashboardInfo } from '@/state/features/dashBoardSlice';
 import { RootState } from '@/state/store';
 import { colors, CustomerInfo, decryptFunction, getPaymentMethodType, maskValue } from '@/utils';
 import { getLocalStorage, IntuityUser } from '@/utils/auth';
@@ -508,6 +509,13 @@ const PaymentForm = () => {
           const expirationFormatted = expMonth && expYearFull ? `${expMonth}/${expYearFull}` : String(data?.expiration ?? '');
 
           saveFormdata.append('token', forteToken);
+          saveFormdata.append('forte_token', forteToken);
+          if (forteResp) {
+            saveFormdata.append(
+              'forte_response',
+              typeof forteResp === 'string' ? forteResp : JSON.stringify(forteResp)
+            );
+          }
           saveFormdata.append('credit_card_number', last4);
           saveFormdata.append('card_type', cardType);
           saveFormdata.append('expiration', expirationFormatted);
@@ -624,6 +632,9 @@ const PaymentForm = () => {
 
     dispatch(
       paymentWithoutSavingDetails(formdata, true, () => {
+        if (stored?.body?.acl_role_id && stored?.body?.customer_id) {
+          dispatch(getDashboardInfo(stored.body.acl_role_id, stored.body.customer_id));
+        }
         navigate(paths.dashboard.lastBill());
       })
     );
@@ -776,6 +787,9 @@ const PaymentForm = () => {
 
       dispatch(
         schedulePayment(formdata, () => {
+          if (stored?.body?.acl_role_id && stored?.body?.customer_id) {
+            dispatch(getDashboardInfo(stored.body.acl_role_id, stored.body.customer_id));
+          }
           navigate(paths.dashboard.lastBill());
         })
       );
@@ -813,6 +827,9 @@ const PaymentForm = () => {
 
         dispatch(
           paymentWithoutSavingDetails(urlFormdata, true, () => {
+            if (stored?.body?.acl_role_id && stored?.body?.customer_id) {
+              dispatch(getDashboardInfo(stored.body.acl_role_id, stored.body.customer_id));
+            }
             navigate(paths.dashboard.lastBill());
           })
         );
@@ -820,6 +837,9 @@ const PaymentForm = () => {
       }
       dispatch(
         paymentWithoutSavingDetails(formdata, true, () => {
+          if (stored?.body?.acl_role_id && stored?.body?.customer_id) {
+            dispatch(getDashboardInfo(stored.body.acl_role_id, stored.body.customer_id));
+          }
           navigate(paths.dashboard.lastBill());
         })
       );

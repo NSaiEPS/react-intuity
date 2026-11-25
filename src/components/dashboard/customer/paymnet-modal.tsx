@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { colors, formatToMMDDYYYY } from "@/utils";
 import {
   Box,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,13 +15,46 @@ import {
 } from "@mui/material";
 import { paths } from "@/utils/paths";
 import { useDispatch, useSelector } from "@/hooks/redux";
-import { AppDispatch, RootState } from "@/state/store";
+import { RootState } from "@/state/store";
 import { useNavigate } from "react-router";
 import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { getLocalStorage, IntuityUser } from "@/utils/auth";
 import { getLastBillInfo } from "@/state/features/paymentSlice";
+import { getDashboardInfo } from "@/state/features/dashBoardSlice";
 import { Button } from 'nsaicomponents';
 
+const isFlagTruthy = (value: unknown): boolean => {
+  if (value === true || value === 1) return true;
+  if (typeof value === "number") return value > 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return (
+      normalized !== "" &&
+      normalized !== "0" &&
+      normalized !== "false" &&
+      normalized !== "no" &&
+      normalized !== "null" &&
+      normalized !== "undefined"
+    );
+  }
+  return false;
+};
+
+const hasNonEmptyText = (value: unknown): boolean =>
+  typeof value === "string" && value.trim().length > 0;
+
+const hasPaymentRecord = (value: unknown): boolean => {
+  if (!value) return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    if ("id" in obj) {
+      return Boolean(obj.id) && String(obj.id).trim() !== "0";
+    }
+    return Object.keys(obj).length > 0;
+  }
+  return isFlagTruthy(value);
+};
 
 interface PaymentModalProps {
   open: boolean;
@@ -35,9 +69,13 @@ export function PaymentModal({
     "payNow" | "schedule" | "autopay"
   >("payNow");
   const [confirmationOpen, setConfirmationOpen] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setPaymentOption(event.target.value as "payNow" | "schedule" | "autopay");
   };
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const lastBillInfo = useSelector(
     (state: RootState) => state?.Payment?.lastBillInfo
@@ -48,6 +86,11 @@ export function PaymentModal({
   const paymentLoader = useSelector(
     (state: RootState) => state?.Payment?.paymentLoader
   );
+  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
+
+  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
+  const stored: IntuityUser | null =
+    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
 
   const isAutopayEnabled =
     Number(lastBillInfo?.customer?.autopay) === 1 ||
@@ -56,13 +99,90 @@ export function PaymentModal({
     lastBillInfo?.customer?.autopay === true ||
     lastBillInfo?.customer?.autopay === "1";
 
-  React.useEffect(() => {
-    if (open) {
-      setPaymentOption("payNow");
-    }
-  }, [open]);
+  const dashBoardBody = dashBoardInfo?.body || dashBoardInfo || {};
+  const lastBillCustomerId = lastBillInfo?.customer?.id ?? lastBillInfo?.customer_id;
+  const dashboardCustomerId = dashBoardBody?.customer?.id ?? dashBoardBody?.customer_id;
+  const sameCustomer =
+    Boolean(lastBillCustomerId && dashboardCustomerId) &&
+    String(lastBillCustomerId) === String(dashboardCustomerId);
 
-  const navigate = useNavigate();
+  const hasSingleScheduledPayment = Boolean(
+    isFlagTruthy(lastBillInfo?.customer?.is_payment_schedule) ||
+    isFlagTruthy(lastBillInfo?.is_payment_schedule) ||
+    hasNonEmptyText(lastBillInfo?.schedule_payment_msg) ||
+    hasPaymentRecord(lastBillInfo?.schedule_payment) ||
+    hasPaymentRecord(lastBillInfo?.scheduled_payment) ||
+    hasPaymentRecord(lastBillInfo?.get_schedule_payments) ||
+    hasPaymentRecord(lastBillInfo?.get_scheduled_payments) ||
+    (sameCustomer &&
+      (isFlagTruthy(dashBoardBody?.customer?.is_payment_schedule) ||
+        hasNonEmptyText(dashBoardBody?.schedule_payment_msg) ||
+        hasPaymentRecord(dashBoardBody?.schedule_payment)))
+  );
+
+  const hasRecurringPayment = Boolean(
+    isFlagTruthy(lastBillInfo?.customer?.is_recurring_payment) ||
+    isFlagTruthy(lastBillInfo?.is_recurring_payment) ||
+    hasNonEmptyText(lastBillInfo?.recurring_payment_msg1) ||
+    hasNonEmptyText(lastBillInfo?.recurring_payment_msg2) ||
+    hasPaymentRecord(lastBillInfo?.get_recurring_payments) ||
+    hasPaymentRecord(lastBillInfo?.recurring_payment) ||
+    (sameCustomer &&
+      (isFlagTruthy(dashBoardBody?.customer?.is_recurring_payment) ||
+        hasNonEmptyText(dashBoardBody?.recurring_payment_msg1) ||
+        hasPaymentRecord(dashBoardBody?.recurring_payment)))
+  );
+
+  const hasScheduledOrRecurringPayment =
+    hasSingleScheduledPayment || hasRecurringPayment;
+
+  const scheduledPaymentMsg = hasNonEmptyText(lastBillInfo?.schedule_payment_msg)
+    ? lastBillInfo?.schedule_payment_msg
+    : sameCustomer && hasNonEmptyText(dashBoardBody?.schedule_payment_msg)
+      ? dashBoardBody?.schedule_payment_msg
+      : "";
+
+  const recurringPaymentMsg = hasNonEmptyText(lastBillInfo?.recurring_payment_msg1)
+    ? lastBillInfo?.recurring_payment_msg1
+    : sameCustomer && hasNonEmptyText(dashBoardBody?.recurring_payment_msg1)
+      ? dashBoardBody?.recurring_payment_msg1
+      : "";
+
+  const isModalLoading = Boolean(
+    paymentLoader ||
+    isRefreshing ||
+    !lastBillInfo ||
+    Object.keys(lastBillInfo).length === 0
+  );
+
+  const roleId = stored?.body?.acl_role_id;
+  const userId = stored?.body?.customer_id;
+  const paymentLoaderRef = React.useRef(paymentLoader);
+  paymentLoaderRef.current = paymentLoader;
+
+  React.useEffect(() => {
+    if (!open) return;
+    setPaymentOption("payNow");
+    setDeleteType("");
+    setConfirmationOpen(false);
+
+    if (roleId && userId && !paymentLoaderRef.current) {
+      setIsRefreshing(true);
+      const fd = new FormData();
+      fd.append("acl_role_id", String(roleId));
+      fd.append("customer_id", String(userId));
+      fd.append("id", String(userId));
+      dispatch(
+        getLastBillInfo(
+          fd,
+          () => setIsRefreshing(false),
+          false,
+          undefined,
+          true
+        )
+      );
+    }
+  }, [open, dispatch, roleId, userId]);
 
   const handleProceed = (): void => {
     // Proceed with the selected payment option
@@ -84,13 +204,6 @@ export function PaymentModal({
       },
     });
   };
-  const dispatch = useDispatch();
-  const userInfo = useSelector((state: RootState) => state?.Account?.userInfo);
-
-  const raw = userInfo?.body ? userInfo : getLocalStorage("intuity-user");
-
-  const stored: IntuityUser | null =
-    typeof raw === "object" && raw !== null ? (raw as IntuityUser) : null;
   const [deleteType, setDeleteType] = useState("");
   const handleDeleteRecurring = (type) => {
     if (!deleteType) {
@@ -107,7 +220,11 @@ export function PaymentModal({
     if (type == "schedule") {
       formData.append("scheduledId", "1");
     } else {
-      formData.append("recurringId", lastBillInfo?.get_recurring_payments?.id);
+      const recurringId =
+        lastBillInfo?.get_recurring_payments?.id ??
+        lastBillInfo?.recurring_payment?.id ??
+        (sameCustomer ? dashBoardBody?.recurring_payment?.id : "");
+      formData.append("recurringId", recurringId);
       formData.append("is_recurring_pay", "1");
       if (type == "All Recurring") {
         formData.append("all_payment", "1");
@@ -131,6 +248,9 @@ export function PaymentModal({
         getData.append("id", userId);
 
         dispatch(getLastBillInfo(getData));
+        if (roleId && userId) {
+          dispatch(getDashboardInfo(roleId, userId));
+        }
       })
     );
   };
@@ -139,185 +259,207 @@ export function PaymentModal({
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogTitle>When would you like to pay?</DialogTitle>
       <DialogContent>
-        <FormControl component="fieldset" sx={{ width: "100%" }}>
-          <RadioGroup value={paymentOption} onChange={handleChange}>
-            {(lastBillInfo?.recurring_payment_msg1 ||
-              lastBillInfo?.customer?.is_payment_schedule ||
-              lastBillInfo?.customer?.is_recurring_payment
-              ? [
-                {
-                  value: "payNow",
-                  title: "Pay Now",
-                  description:
-                    lastBillInfo?.pay_now_text ??
-                    lastBillInfo?.nacha_pay_now_text ??
-                    lastBillInfo?.achworks_pay_now_text ??
-                    // lastBillInfo?.achworks_pay_now_text ??
-                    "Payment will be processed immediately.",
-                  extraInfo: (
-                    <>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        sx={{ mt: 2 }}
-                      >
-                        •{" "}
-                        {lastBillInfo?.recurring_payment_msg1
-                          ? lastBillInfo?.recurring_payment_msg1
-                          : lastBillInfo?.customer?.is_payment_schedule
-                            ? lastBillInfo?.schedule_payment_msg
-                            : "Recurring Payment"}
-                      </Typography>
-                      {lastBillInfo?.customer?.is_payment_schedule ? (
-                        <Box sx={{ mt: 1 }}>
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            sx={{ color: "primary.main", cursor: "pointer" }}
-                            onClick={() => handleDeleteRecurring("schedule")}
-                          >
-                            Delete
-                          </Typography>{" "}
-                        </Box>
-                      ) : (
-                        <Box sx={{ mt: 1 }}>
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            sx={{ color: "primary.main", cursor: "pointer" }}
-                            onClick={() =>
-                              handleDeleteRecurring("Next Recurring")
-                            }
-                          >
-                            Remove just the next payment?
-                          </Typography>{" "}
-                          OR{" "}
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            sx={{ color: "primary.main", cursor: "pointer" }}
-                            onClick={() =>
-                              handleDeleteRecurring("All Recurring")
-                            }
-                          >
-                            Remove all remaining recurring payments?
-                          </Typography>
-                        </Box>
-                      )}
-                    </>
-                  ),
-                },
-              ]
-              : [
-                {
-                  value: "payNow",
-                  title: "Pay Now",
-                  description:
-                    lastBillInfo?.pay_now_text ??
-                    lastBillInfo?.nacha_pay_now_text ??
-                    lastBillInfo?.achworks_pay_now_text ??
-                    // lastBillInfo?.achworks_pay_now_text ??
-
-                    "Payment will be processed immediately.",
-                },
-                {
-                  value: "schedule",
-                  title: "Schedule a payment",
-                  description:
-                    lastBillInfo?.schedule_payment_text ??
-                    "Make a single scheduled payment - that's it!",
-                },
-                ...(lastBillInfo?.company?.allow_auto_payment == 1 &&
-                Number(lastBillInfo?.customer?.autopay) !== 1
+        {isModalLoading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: 160,
+            }}
+          >
+            <CircularProgress size={32} sx={{ color: colors.blue }} />
+          </Box>
+        ) : (
+          <>
+            <FormControl component="fieldset" sx={{ width: "100%" }}>
+              <RadioGroup value={paymentOption} onChange={handleChange}>
+                {(hasScheduledOrRecurringPayment
                   ? [
-                      {
-                        value: "autopay",
-                        title: "Sign up for Autopay",
-                        description:
-                          lastBillInfo?.text_autopay_billing ??
-                          "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
-                      },
-                    ]
-                  : []),
-              ]
-            ).map((option) => (
-              <FormControlLabel
-                key={option.value}
-                value={option.value}
-                control={<Radio />}
-                sx={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 2,
-                  p: 2,
-                  ml: 0,
-                  mr: 0,
-                  width: "100%",
-                  mb: 2,
-                  transition: "border-color 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    borderColor: "primary.main",
-                  },
-                }}
-                label={
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {option.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      mt={0.5}
-                    >
-                      {option.description}
-                    </Typography>
-                    {option.extraInfo}
-                  </Box>
-                }
-              />
-            ))}
-          </RadioGroup>
+                    {
+                      value: "payNow",
+                      title: "Pay Now",
+                      description:
+                        lastBillInfo?.pay_now_text ??
+                        lastBillInfo?.nacha_pay_now_text ??
+                        lastBillInfo?.achworks_pay_now_text ??
+                        // lastBillInfo?.achworks_pay_now_text ??
+                        "Payment will be processed immediately.",
+                      extraInfo: (
+                        <>
+                          <Typography
+                            variant="body2"
+                            fontWeight="bold"
+                            sx={{ mt: 2 }}
+                          >
+                            •{" "}
+                            {recurringPaymentMsg
+                              ? recurringPaymentMsg
+                              : hasSingleScheduledPayment
+                                ? (scheduledPaymentMsg || "You have an existing scheduled payment.")
+                                : "Recurring Payment"}
+                          </Typography>
+                          {hasSingleScheduledPayment && !hasRecurringPayment ? (
+                            <Box sx={{ mt: 1 }}>
+                              <Typography
+                                component="span"
+                                variant="body2"
+                                sx={{ color: "primary.main", cursor: "pointer" }}
+                                onClick={() => handleDeleteRecurring("schedule")}
+                              >
+                                Delete
+                              </Typography>{" "}
+                            </Box>
+                          ) : (
+                            <Box sx={{ mt: 1 }}>
+                              {hasSingleScheduledPayment && (
+                                <Box sx={{ mb: 0.5 }}>
+                                  <Typography
+                                    component="span"
+                                    variant="body2"
+                                    sx={{ color: "primary.main", cursor: "pointer" }}
+                                    onClick={() => handleDeleteRecurring("schedule")}
+                                  >
+                                    Delete Scheduled Payment
+                                  </Typography>
+                                </Box>
+                              )}
+                              <Typography
+                                component="span"
+                                variant="body2"
+                                sx={{ color: "primary.main", cursor: "pointer" }}
+                                onClick={() =>
+                                  handleDeleteRecurring("Next Recurring")
+                                }
+                              >
+                                Remove just the next payment?
+                              </Typography>{" "}
+                              OR{" "}
+                              <Typography
+                                component="span"
+                                variant="body2"
+                                sx={{ color: "primary.main", cursor: "pointer" }}
+                                onClick={() =>
+                                  handleDeleteRecurring("All Recurring")
+                                }
+                              >
+                                Remove all remaining recurring payments?
+                              </Typography>
+                            </Box>
+                          )}
+                        </>
+                      ),
+                    },
+                  ]
+                  : [
+                    {
+                      value: "payNow",
+                      title: "Pay Now",
+                      description:
+                        lastBillInfo?.pay_now_text ??
+                        lastBillInfo?.nacha_pay_now_text ??
+                        lastBillInfo?.achworks_pay_now_text ??
+                        // lastBillInfo?.achworks_pay_now_text ??
 
-          {!(
-            lastBillInfo?.recurring_payment_msg1 ||
-            lastBillInfo?.customer?.is_payment_schedule ||
-            lastBillInfo?.customer?.is_recurring_payment
-          ) &&
-            lastBillInfo?.company?.allow_auto_payment == 1 &&
-            Number(lastBillInfo?.customer?.autopay) === 1 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  borderRadius: 2,
-                  p: 2,
-                  ml: 0,
-                  mr: 0,
-                  width: "100%",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  variant="subtitle1"
-                  fontWeight="bold"
-                  color="text.primary"
-                >
-                  • Autopay is enabled.
+                        "Payment will be processed immediately.",
+                    },
+                    {
+                      value: "schedule",
+                      title: "Schedule a payment",
+                      description:
+                        lastBillInfo?.schedule_payment_text ??
+                        "Make a single scheduled payment - that's it!",
+                    },
+                    ...(lastBillInfo?.company?.allow_auto_payment == 1 &&
+                    Number(lastBillInfo?.customer?.autopay) !== 1 &&
+                    !hasScheduledOrRecurringPayment
+                      ? [
+                          {
+                            value: "autopay",
+                            title: "Sign up for Autopay",
+                            description:
+                              lastBillInfo?.text_autopay_billing ??
+                              "Sign up to have your regular invoices automatically paid on their collection date with every billing cycle",
+                          },
+                        ]
+                      : []),
+                  ]
+                ).map((option) => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio />}
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      p: 2,
+                      ml: 0,
+                      mr: 0,
+                      width: "100%",
+                      mb: 2,
+                      transition: "border-color 0.2s, box-shadow 0.2s",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                      },
+                    }}
+                    label={
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {option.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          mt={0.5}
+                        >
+                          {option.description}
+                        </Typography>
+                        {option.extraInfo}
+                      </Box>
+                    }
+                  />
+                ))}
+              </RadioGroup>
+
+              {!hasScheduledOrRecurringPayment &&
+                lastBillInfo?.company?.allow_auto_payment == 1 &&
+                Number(lastBillInfo?.customer?.autopay) === 1 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      p: 2,
+                      ml: 0,
+                      mr: 0,
+                      width: "100%",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      color="text.primary"
+                    >
+                      • Autopay is enabled.
+                    </Typography>
+                  </Box>
+                )}
+            </FormControl>
+
+            {lastBillInfo?.autopay_text && (
+              <Box mt={2}>
+                <Typography variant="body2">
+                  <strong>{lastBillInfo?.autopay_text}</strong>
                 </Typography>
               </Box>
             )}
-        </FormControl>
-
-        {lastBillInfo?.autopay_text && (
-          <Box mt={2}>
-            <Typography variant="body2">
-              <strong>{lastBillInfo?.autopay_text}</strong>
-            </Typography>
-          </Box>
+          </>
         )}
       </DialogContent>
 
@@ -342,14 +484,16 @@ export function PaymentModal({
           Cancel
         </Button>
         <Button
+          disabled={isModalLoading}
           onClick={() => {
+            if (isModalLoading) return;
             if (paymentOption === "payNow" && isAutopayEnabled) {
               setConfirmationOpen(true);
             } else if (
               (lastBillInfo?.pending_payment?.length > 0 &&
                 lastBillInfo?.pending_payment_text) ||
-              lastBillInfo.recurring_payment_msg1 ||
-              lastBillInfo.schedule_payment_msg
+              recurringPaymentMsg ||
+              scheduledPaymentMsg
             ) {
               setConfirmationOpen(true);
             } else {
@@ -380,11 +524,11 @@ export function PaymentModal({
             ? `Are you sure you want to remove your ${deleteType} payment?`
             : paymentOption === "payNow" && isAutopayEnabled
               ? "Autopay is enabled. Do you still want to make an additional payment?"
-              : lastBillInfo.recurring_payment_msg1
-                ? `${lastBillInfo.recurring_payment_msg1} Do you still want to make an additional payment?`
-                : lastBillInfo.schedule_payment_msg
-                  ? `${lastBillInfo.schedule_payment_msg} Do you still want to make an additional payment?`
-                  : `${lastBillInfo?.pending_payment_text}`
+              : recurringPaymentMsg
+                ? `${recurringPaymentMsg} Do you still want to make an additional payment?`
+                : scheduledPaymentMsg
+                  ? `${scheduledPaymentMsg} Do you still want to make an additional payment?`
+                  : `${lastBillInfo?.pending_payment_text ?? ""}`
         }
         confirmLabel={
           paymentOption === "payNow" && isAutopayEnabled && !deleteType

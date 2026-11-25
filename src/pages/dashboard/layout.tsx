@@ -57,7 +57,7 @@ export default function DashboardLayout(): React.JSX.Element {
           }}
         >
           <main>
-            <Container maxWidth="xl" sx={{ py: "64px", pt: "8px" }}>
+            <Container maxWidth={false} sx={{ py: "64px", pt: "8px", px: { xs: 2, sm: 3 } }}>
               {/* {children} */}
               <Outlet />
             </Container>

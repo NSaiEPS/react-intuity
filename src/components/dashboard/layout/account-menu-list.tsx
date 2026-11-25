@@ -28,6 +28,7 @@ import { ConfirmDialog } from "@/styles/theme/components/ConfirmDialog";
 import { useNavigate } from "react-router-dom";
 import { paths } from "@/utils/paths";
 import { useDispatch, useSelector } from "@/hooks/redux";
+import { toast } from "@/lib/custom-toast";
 
 interface AccountMenuListProps {
   onClose: () => void;
@@ -63,6 +64,16 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [switchConfirm, setSwitchConfirm] = React.useState(false);
   const [accountDetails, setAccountDetails] = React.useState<any>({});
+  const [isUnlinking, setIsUnlinking] = React.useState(false);
+
+  const isBusy = accountLoading || isUnlinking;
+
+  React.useEffect(() => {
+    if (!accountLoading && isUnlinking) {
+      const timer = setTimeout(() => setIsUnlinking(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [accountLoading, isUnlinking]);
 
   const confirmIfDirty = (onConfirm: () => void) => {
     if (routeChecker) {
@@ -98,37 +109,24 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
     }
   }, [checkSession, routeChecker]);
 
-  const successCallBackUnlink = (id?: string | number) => {
-    if (id) {
-      const newLinkedAccounts = linkedAccounts.filter((account) => account.id !== id);
-      setLinkedAccounts(newLinkedAccounts);
-      secureLocalStorage.setItem("linked-customerInfo", newLinkedAccounts);
-      setOpenConfirm(false);
-    }
-  };
-
-  const handleCancelLink = () => {
-    const formData = new FormData();
-    formData.append("acl_role_id", roleId);
-    formData.append("model_open", "7");
-    formData.append("customer_id", accountDetails?.link_customer_id);
-
-    dispatch(updateAccountInfo(formData, true, () => successCallBackUnlink(accountDetails?.id)));
-  };
-
-  const successCallBackLinkedAccount = (data) => {
-    const storeddata = { ...stored };
+  const successCallBackLinkedAccount = (data: any) => {
+    const rawLatest = getLocalStorage("intuity-user");
+    const currentStored =
+      typeof rawLatest === "object" && rawLatest !== null ? (rawLatest as IntuityUser) : stored;
+    const storeddata = { ...currentStored };
     storeddata.body = { ...storeddata.body, ...data };
     dispatch(setUserInfo(storeddata));
     setLocalStorage("intuity-user", storeddata);
 
     const newRoleId = storeddata?.body?.acl_role_id;
     const newUserId = storeddata?.body?.customer_id;
-    dispatch(getDashboardInfo(newRoleId, newUserId));
+    if (newRoleId && newUserId) {
+      dispatch(getDashboardInfo(newRoleId, newUserId));
+    }
 
     const formData = new FormData();
-    formData.append("acl_role_id", newRoleId);
-    formData.append("customer_id", newUserId);
+    formData.append("acl_role_id", String(newRoleId));
+    formData.append("customer_id", String(newUserId));
     formData.append("onlyread", "1");
     formData.append("page_no", "0");
     formData.append("markRead", "0");
@@ -141,15 +139,93 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
     dispatch(resetDashboardStore());
     dispatch(resetPaymentStore());
     const formData = new FormData();
-    formData.append("acl_role_id", stored?.body?.acl_role_id);
-    formData.append("login", data?.link_customer_id);
+    formData.append("acl_role_id", String(stored?.body?.acl_role_id));
+    formData.append("login", String(data?.link_customer_id ?? data?.customer_id));
 
     dispatch(linkAnotherAccount(formData, successCallBackLinkedAccount));
+  };
+
+  const handleCancelLink = () => {
+    if (isBusy) return;
+    setIsUnlinking(true);
+
+    const targetAccount = accountDetails;
+    const currentCustomerId = stored?.body?.customer_id;
+    const isCurrentAccount =
+      String(currentCustomerId) === String(targetAccount?.link_customer_id ?? targetAccount?.customer_id);
+
+    const remainingAccounts = linkedAccounts.filter(
+      (account: any) =>
+        String(account?.link_customer_id ?? account?.customer_id ?? account?.id) !==
+        String(targetAccount?.link_customer_id ?? targetAccount?.customer_id ?? targetAccount?.id)
+    );
+
+    const targetCustomerId = targetAccount?.link_customer_id ?? targetAccount?.customer_id;
+    const formData = new FormData();
+    formData.append("acl_role_id", String(roleId));
+    formData.append("model_open", "7");
+    formData.append("customer_id", String(targetCustomerId));
+
+    dispatch(
+      updateAccountInfo(formData, true, () => {
+        setIsUnlinking(false);
+        setLinkedAccounts(remainingAccounts);
+        secureLocalStorage.setItem("linked-customerInfo", remainingAccounts);
+
+        if (!isCurrentAccount) {
+          // Scenario A: Removing an account that is NOT currently selected
+          setOpenConfirm(false);
+          setAccountDetails({});
+          const currentRoleId = stored?.body?.acl_role_id;
+          if (currentRoleId && currentCustomerId) {
+            dispatch(getDashboardInfo(currentRoleId, currentCustomerId));
+          }
+        } else if (remainingAccounts.length > 0) {
+          // Scenario B: Removing the account that IS currently selected
+          setOpenConfirm(false);
+          setAccountDetails({});
+          const nextAccount = remainingAccounts[0];
+          handleAccountClick(nextAccount);
+        } else {
+          // Scenario C: No remaining linked accounts
+          setOpenConfirm(false);
+          setAccountDetails({});
+          onClose();
+          dispatch(resetDashboardStore());
+          dispatch(resetPaymentStore());
+          secureLocalStorage.removeItem("intuity-customerInfo");
+          navigate(paths.dashboard.linkAccount());
+          toast.info("Account unlinked. Please link an account to continue.");
+        }
+      })
+    ).catch(() => {
+      setIsUnlinking(false);
+    });
   };
 
   const handleClickPath = (route: string) => {
     confirmIfDirty(() => navigate(route));
     onClose();
+  };
+
+  const isTargetCurrent =
+    String(stored?.body?.customer_id) === String(accountDetails?.link_customer_id ?? accountDetails?.customer_id);
+
+  const remainingAfterUnlink = linkedAccounts.filter(
+    (account: any) =>
+      String(account?.link_customer_id ?? account?.customer_id ?? account?.id) !==
+      String(accountDetails?.link_customer_id ?? accountDetails?.customer_id ?? accountDetails?.id)
+  );
+
+  const getUnlinkDialogMessage = () => {
+    const accName = accountDetails?.name ? `"${accountDetails.name}"` : "this";
+    if (remainingAfterUnlink.length === 0) {
+      return `This is your only linked account. Unlinking ${accName} will remove your account access and redirect you to link an account.\n\nAre you sure you want to proceed?`;
+    }
+    if (isTargetCurrent) {
+      return `This is your currently active account. Unlinking ${accName} will automatically switch you to your other linked account.\n\nAre you sure you want to proceed?`;
+    }
+    return `Are you sure you want to unlink ${accName} account?`;
   };
 
   return (
@@ -183,6 +259,7 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
             }}
             onClick={(e) => {
               e?.stopPropagation();
+              if (isBusy) return;
               if (stored?.body?.customer_id != account?.link_customer_id) {
                 setAccountDetails(account);
                 confirmIfDirty(() => setSwitchConfirm(true));
@@ -227,15 +304,17 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
             </Box>
 
             <IconButton
+              disabled={isBusy}
               onClick={(e) => {
                 e?.stopPropagation();
+                if (isBusy) return;
                 setAccountDetails(account);
                 setOpenConfirm(true);
               }}
               size="small"
               sx={{ mt: 0.5 }}
             >
-              <XCircle size={18} color="red" weight="fill" />
+              <XCircle size={18} color={isBusy ? "grey" : "red"} weight="fill" />
             </IconButton>
           </MenuItem>
         ))}
@@ -272,7 +351,11 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
       <ConfirmDialog
         open={openConfirm || switchConfirm}
         title={switchConfirm ? "Switch Account" : "Unlink Account"}
-        message={`Are you sure want to ${switchConfirm ? "Switch" : "unlink"}  this ${accountDetails?.name}  Account ?`}
+        message={
+          switchConfirm
+            ? `Are you sure want to switch to ${accountDetails?.name ? `"${accountDetails.name}"` : "this"} account?`
+            : getUnlinkDialogMessage()
+        }
         confirmLabel="Yes, Confirm"
         cancelLabel="Cancel"
         onConfirm={() => {
@@ -284,10 +367,13 @@ export function AccountMenuList({ onClose, isMobile }: AccountMenuListProps): Re
           }
         }}
         onCancel={() => {
-          setOpenConfirm(false);
-          setSwitchConfirm(false);
+          if (!isBusy) {
+            setOpenConfirm(false);
+            setSwitchConfirm(false);
+            setAccountDetails({});
+          }
         }}
-        loader={accountLoading}
+        loader={isBusy}
       />
     </>
   );

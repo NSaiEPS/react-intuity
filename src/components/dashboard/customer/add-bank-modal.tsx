@@ -30,12 +30,23 @@ import { toast } from '@/lib/custom-toast';
 import PaymentIframeModal from '@/components/CommonComponents/PaymentIframeModal';
 import PaymentIframe from '@/components/CommonComponents/PaymentIframeModal';
 import { BASE_URL } from '@/api/axios';
+import {
+  extractSavedPaymentMethod,
+  hasOneTimePaymentToken,
+  ONE_TIME_TOKEN_AUTOPAY_ERROR,
+} from '@/utils/paymentTokenUtils';
+
+interface SavedBankRecord {
+  id?: string | number;
+  [key: string]: unknown;
+}
 
 interface AddBankAccountModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: (bank?: any) => void;
-  onReturnCard?: (data: any) => void;
+  onSuccess?: (bank?: SavedBankRecord) => void;
+  onReturnCard?: (data: SavedBankRecord) => void;
+  isAutopay?: boolean;
 }
 
 const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
@@ -43,6 +54,7 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
   onClose,
   onSuccess,
   onReturnCard,
+  isAutopay = false,
 }) => {
   const [routingNumber, setRoutingNumber] = useState<string>('');
   const [accountNumber, setAccountNumber] = useState<string>('');
@@ -118,7 +130,19 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
     formdata.append('acl_role_id', stored?.body?.acl_role_id);
     formdata.append('customer_id', stored?.body?.customer_id);
     formdata.append('model_open', '1');
+    if (isAutopay) {
+      formdata.append('is_autopay', '1');
+    }
     formdata.append('token', data?.token);
+    if (data?.forte_token) {
+      formdata.append('forte_token', String(data.forte_token));
+    }
+    if (data?.forte_response) {
+      formdata.append(
+        'forte_response',
+        typeof data.forte_response === 'string' ? data.forte_response : JSON.stringify(data.forte_response)
+      );
+    }
     formdata.append('bank_account_number', data?.accountNumber);
     formdata.append('routing_number', data?.routingNumber);
 
@@ -142,15 +166,22 @@ const AddBankAccountModal: FC<AddBankAccountModalProps> = ({
         formdata,
         true,
         () => {
-          const formdata = new FormData();
-          formdata.append('acl_role_id', stored?.body?.acl_role_id);
-          formdata.append('customer_id', stored?.body?.customer_id);
+          const refreshForm = new FormData();
+          refreshForm.append('acl_role_id', stored?.body?.acl_role_id);
+          refreshForm.append('customer_id', stored?.body?.customer_id);
 
-          dispatch(getPaymentDetails(formdata, false, onClose));
+          dispatch(getPaymentDetails(refreshForm, false, onClose));
           onSuccess?.();
         },
         null,
-        onReturnCard
+        (resBody) => {
+          const savedBank = extractSavedPaymentMethod(resBody);
+          if (isAutopay && hasOneTimePaymentToken(savedBank)) {
+            toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+            return;
+          }
+          onReturnCard?.(resBody);
+        }
       )
     );
 

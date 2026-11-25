@@ -4,7 +4,7 @@ import { toast } from '@/lib/custom-toast';
 import { navigateTo } from '@/utils/navigation';
 import { clearLocalStorage, getLocalStorage, setLocalStorage } from '@/utils/auth';
 
-export const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://test-intuity.waterbill.com/';
+export const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 // export const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://junctional-eugena-squirrellike.ngrok-free.dev/';
 
 

@@ -29,6 +29,7 @@ import { paths } from "@/utils/paths";
 import { colors } from "@/utils";
 import { formatCurrency } from "@/utils/formatters";
 import { downloadInvoicePdf } from "@/utils/pdfHelper";
+import { resolveTransactionStatusMeta } from "./billing-status-utils";
 
 const CustomModal = React.lazy(() => import("../layout/invoice-pdf-modal"));
 
@@ -51,6 +52,14 @@ const ASSOCIATED_ROW_BG = "rgba(25, 118, 210, 0.06)";
 // line up in the same column.
 const ROW_INDENT_PX = 32;
 
+interface InvoiceItemRecord {
+  id?: string | number;
+  invoice_number?: string;
+  customer_id?: string | number;
+  company_id?: string | number;
+  [key: string]: unknown;
+}
+
 export default function InvoiceTransactionTabs({
   dummyInvoice,
   rows,
@@ -62,10 +71,10 @@ export default function InvoiceTransactionTabs({
 }) {
   const [currentTab, setCurrentTab] = useState("invoice");
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItemRecord | null>(null);
   const navigate = useNavigate();
 
-  const handleViewInvoice = async (invoiceItem: any) => {
+  const handleViewInvoice = async (invoiceItem: InvoiceItemRecord) => {
     const isMobile =
       /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
       (typeof navigator !== "undefined" &&
@@ -97,42 +106,6 @@ export default function InvoiceTransactionTabs({
       ? (dummyInvoice?.get_invoices ?? [])
       : (dummyInvoice?.get_transactions ?? []);
 
-  // const statusMap = {
-  //   1: { label: "Success", color: colors["blue.3"], textColor: colors.white },
-  //   0: { label: "Declined", color: "#e74c3c", textColor: colors.white },
-  //   2: { label: "Pending", color: "#f39c12", textColor: colors.white },
-  //   3: { label: "Authorization", color: "#1abc9c", textColor: colors.white },
-  //   4: { label: "Reversed", color: colors["gray.5"] ?? "#9e9e9e", textColor: colors.white },
-  // };
-
-  const statusMap = {
-    1: {
-      label: "Success",
-      bg: "#DCFCE7",
-      color: "#15803D",
-    },
-    0: {
-      label: "Declined",
-      bg: "#FEE2E2",
-      color: "#B91C1C",
-    },
-    2: {
-      label: "Pending",
-      bg: "#FEF3C7",
-      color: "#B45309",
-    },
-    3: {
-      label: "Authorization",
-      bg: "#DBEAFE",
-      color: "#1D4ED8",
-    },
-    4: {
-      label: "Reversed",
-      bg: "#E5E7EB",
-      color: "#475569",
-    },
-  };
-
   // const renderStatusChip = (status) => {
   //   const meta = statusMap[status];
   //   if (!meta) return null;
@@ -156,8 +129,8 @@ export default function InvoiceTransactionTabs({
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
-  const renderStatusChip = (status) => {
-    const meta = statusMap[status];
+  const renderStatusChip = (status: unknown, row?: Record<string, unknown> | null) => {
+    const meta = resolveTransactionStatusMeta(status, row);
 
     if (!meta) return null;
 
@@ -379,7 +352,7 @@ export default function InvoiceTransactionTabs({
                           <TableCell sx={{ py: 2 }}>
                             {currentTab === "invoice"
                               ? null
-                              : renderStatusChip(item?.status)}
+                              : renderStatusChip(item?.status, item)}
                           </TableCell>
                           <TableCell sx={{ py: 2 }}>
                             <Typography fontWeight={600} fontSize={14}>
@@ -487,7 +460,7 @@ export default function InvoiceTransactionTabs({
                                             )}
                                           </TableCell>
                                           <TableCell>
-                                            {renderStatusChip(row.status)}
+                                            {renderStatusChip(row.status, row)}
                                           </TableCell>
                                           <TableCell>
                                             <Typography fontWeight={600} fontSize={14}>
@@ -741,7 +714,7 @@ export default function InvoiceTransactionTabs({
                                   >
                                     {formatType(row.type) || "Payment"}
                                   </Typography>
-                                  {renderStatusChip(row.status)}
+                                  {renderStatusChip(row.status, row)}
                                 </Stack>
                                 <Typography
                                   sx={{ fontSize: 11.5, color: "#6B7280", mt: 0.5 }}
@@ -847,7 +820,7 @@ export default function InvoiceTransactionTabs({
                       >
                         {formatType(item.type) || "Transaction"}
                       </Typography>
-                      {renderStatusChip(item.status)}
+                      {renderStatusChip(item.status, item)}
                     </Stack>
                     <Typography sx={{ fontSize: 13, color: "#6B7280" }}>
                       {dayjs

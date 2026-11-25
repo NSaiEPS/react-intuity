@@ -15,17 +15,33 @@ import { X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "@/hooks/redux";
 import { toast } from "@/lib/custom-toast";
 import { colors } from "@/utils";
-import PaymentIframeModal from "@/components/CommonComponents/PaymentIframeModal";
+import {
+  extractSavedPaymentMethod,
+  hasOneTimePaymentToken,
+  ONE_TIME_TOKEN_AUTOPAY_ERROR,
+} from "@/utils/paymentTokenUtils";
 import PaymentIframe from "@/components/CommonComponents/PaymentIframeModal";
+
+interface SavedPaymentRecord {
+  id?: string | number;
+  [key: string]: unknown;
+}
 
 interface AddCardModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: (card?: any) => void;
-  onReturnCard?: (data: any) => void;
+  onSuccess?: (card?: SavedPaymentRecord) => void;
+  onReturnCard?: (data: SavedPaymentRecord) => void;
+  isAutopay?: boolean;
 }
 
-const AddCardModal: FC<AddCardModalProps> = ({ open, onClose, onSuccess, onReturnCard }) => {
+const AddCardModal: FC<AddCardModalProps> = ({
+  open,
+  onClose,
+  onSuccess,
+  onReturnCard,
+  isAutopay = false,
+}) => {
   const [cardNumber, setCardNumber] = useState<string>("");
   const [cvv, setCvv] = useState<string>("");
   const [expiryMonth, setExpiryMonth] = useState<string>("");
@@ -90,12 +106,37 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose, onSuccess, onRetur
     formdata.append("acl_role_id", stored?.body?.acl_role_id);
     formdata.append("customer_id", stored?.body?.customer_id);
     formdata.append("model_open", "1");
+    if (isAutopay) {
+      formdata.append("is_autopay", "1");
+    }
     if (data?.ssl_token) {
       formdata.append("token", data?.ssl_token);
       formdata.append("credit_card_number", data?.ssl_card_number);
       formdata.append("card_type", data?.ssl_card_short_description);
       formdata.append("expiration", data?.ssl_exp_date);
       formdata.append("approval_code", data?.ssl_approval_code);
+    } else if (data?.forte_response || data?.forte_token) {
+      const forteResp = data?.forte_response;
+      const forteToken = String(forteResp?.onetime_token ?? data?.forte_token ?? data?.token ?? "");
+      const last4 = String(forteResp?.last_4 ?? data?.credit_card_number ?? data?.cardNumber ?? "");
+      const cardType = String(forteResp?.card_type ?? data?.card_type ?? data?.cardType ?? "");
+      const expMonth = String(forteResp?.expire_month ?? "").padStart(2, "0");
+      const expYearRaw = String(forteResp?.expire_year ?? "");
+      const expYearFull = expYearRaw.length === 2 ? `20${expYearRaw}` : expYearRaw;
+      const expirationFormatted =
+        expMonth && expYearFull ? `${expMonth}/${expYearFull}` : String(data?.expiration ?? data?.cardExpDate ?? "");
+
+      formdata.append("token", forteToken);
+      formdata.append("forte_token", forteToken);
+      if (forteResp) {
+        formdata.append(
+          "forte_response",
+          typeof forteResp === "string" ? forteResp : JSON.stringify(forteResp)
+        );
+      }
+      formdata.append("credit_card_number", last4);
+      formdata.append("card_type", cardType);
+      formdata.append("expiration", expirationFormatted);
     } else {
       formdata.append("token", data?.token);
       formdata.append("credit_card_number", data?.cardNumber);
@@ -103,29 +144,29 @@ const AddCardModal: FC<AddCardModalProps> = ({ open, onClose, onSuccess, onRetur
       formdata.append("expiration", data?.cardExpDate);
     }
     dispatch(
-      getPaymentDetails(formdata, true, () => {
-        const formdata = new FormData();
-        formdata.append("acl_role_id", stored?.body?.acl_role_id);
-        formdata.append("customer_id", stored?.body?.customer_id);
+      getPaymentDetails(
+        formdata,
+        true,
+        () => {
+          const refreshForm = new FormData();
+          refreshForm.append("acl_role_id", stored?.body?.acl_role_id);
+          refreshForm.append("customer_id", stored?.body?.customer_id);
 
-        dispatch(
-          getPaymentDetails(formdata)
-        );
-        onSuccess?.();
-        onClose();
-      },
+          dispatch(getPaymentDetails(refreshForm));
+          onSuccess?.();
+          onClose();
+        },
         null,
-        onReturnCard
+        (resBody) => {
+          const savedCard = extractSavedPaymentMethod(resBody);
+          if (isAutopay && hasOneTimePaymentToken(savedCard)) {
+            toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+            return;
+          }
+          onReturnCard?.(resBody);
+        }
       )
     );
-
-    //       acl_role_id:4
-    // customer_id:810
-    // model_open:1
-    // token:5e49a2e66b31456689174ba62e8029e4
-    // credit_card_number:1111
-    // card_type:Visa
-    // expiration:1129
   };
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>

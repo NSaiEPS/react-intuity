@@ -19,106 +19,23 @@ import { StepAccountInfo } from "./sign-up-step-account";
 import { StepPortalRegistration } from "./sign-up-step-portal";
 import { StepContactInfo } from "./sign-up-step-contact";
 import { StepCheckEmail } from "./sign-up-step-email";
-
-import { getLocalStorage } from "@/utils/auth";
+import { getAvailableEmail, mergeNonEmpty } from "./sign-up-email-utils";
 
 // Re-export stepper pieces so existing imports from this file keep working
 export { CustomConnector, CustomStepIcon } from "./sign-up-stepper";
 
-const isValidEmailFormat = (email: unknown): boolean => {
-  if (typeof email !== "string") return false;
-  const trimmed = email.trim();
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
-};
-
-function getAvailableEmail(
-  compResp?: any,
-  oneTimeInfo?: any,
-  portalUsername?: string
-): string {
-  // 1. Direct sessionStorage / localStorage key for guest confirmation email
-  try {
-    const directEmail =
-      sessionStorage.getItem("guest-confirmation-email") ||
-      sessionStorage.getItem("guest-payment-email") ||
-      localStorage.getItem("guest-confirmation-email");
-    if (isValidEmailFormat(directEmail)) {
-      return (directEmail as string).trim();
-    }
-  } catch {
-    // Ignore storage parse errors
-  }
-
-  // 2. Company response from registration step 1 / step 2 API
-  const compEmail =
-    compResp?.email ||
-    compResp?.customer?.email ||
-    compResp?.notification_email ||
-    compResp?.customer_email ||
-    compResp?.user_email ||
-    compResp?.customer_details?.email ||
-    compResp?.details?.email ||
-    compResp?.data?.email;
-  if (isValidEmailFormat(compEmail)) {
-    return (compEmail as string).trim();
-  }
-
-  // 3. Redux oneTimePaymentInfo from Pay as Guest
-  const reduxEmail =
-    oneTimeInfo?.customer?.email ||
-    oneTimeInfo?.email ||
-    oneTimeInfo?.customer_email;
-  if (isValidEmailFormat(reduxEmail)) {
-    return (reduxEmail as string).trim();
-  }
-
-  // 4. Session storage guest-payment-state snapshot
-  try {
-    const raw = sessionStorage.getItem("guest-payment-state");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const sessionEmail =
-        parsed?.formData?.email ||
-        parsed?.customerDetails?.email ||
-        parsed?.customerDetails?.customer?.email ||
-        parsed?.oneTimeData?.customer?.email ||
-        parsed?.oneTimeData?.email;
-      if (isValidEmailFormat(sessionEmail)) {
-        return (sessionEmail as string).trim();
-      }
-    }
-  } catch {
-    // Ignore storage parse errors
-  }
-
-  // 5. Existing local/secure storage user/customer information
-  try {
-    const custInfo = getLocalStorage("intuity-customerInfo") as any;
-    if (custInfo && isValidEmailFormat(custInfo?.email)) {
-      return custInfo.email.trim();
-    }
-    const intuityUser = getLocalStorage("intuity-user") as any;
-    const userEmail = intuityUser?.email || intuityUser?.body?.email;
-    if (isValidEmailFormat(userEmail)) {
-      return userEmail.trim();
-    }
-  } catch {
-    // Ignore storage parse errors
-  }
-
-  // 6. Portal Username (if the user entered an email in Step 2)
-  if (portalUsername && isValidEmailFormat(portalUsername)) {
-    return portalUsername.trim();
-  }
-
-  return "";
+interface CompanyRegisterResponse {
+  customer_id?: string;
+  customer_name?: string;
+  account_no?: string;
+  [key: string]: unknown;
 }
 
 export function SignUpForm() {
   const [activeStep, setActiveStep] = React.useState(0);
   const [stepSubmitAttempted, setStepSubmitAttempted] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [companyResponse, setCompanyResponse] = React.useState<any>({});
+  const [companyResponse, setCompanyResponse] = React.useState<CompanyRegisterResponse>({});
   const lastAutoFilledEmailRef = React.useRef<string>("");
 
   const location = useLocation();
@@ -235,21 +152,24 @@ export function SignUpForm() {
     dispatch(registerApiRequest(formData, successCallBack, setLoading, alias, activeStep));
   };
 
-  const successCallBack = (data: any) => {
+  const successCallBack = (data: Record<string, unknown>) => {
     if (activeStep === 2) {
       try {
         sessionStorage.removeItem("guest-confirmation-email");
-      } catch {}
+      } catch {
+        // Ignore storage errors
+      }
       reset(getValues()); // clear isDirty so beforeunload doesn't fire
       setActiveStep((prev) => prev + 1);
       return;
     }
     setStepSubmitAttempted(false);
     setActiveStep((prev) => prev + 1);
-    setCompanyResponse((prev: any) => ({ ...prev, ...data }));
+    const mergedData = mergeNonEmpty(companyResponse, data) as CompanyRegisterResponse;
+    setCompanyResponse(mergedData);
 
     const portalUser = getValues("email");
-    const emailFromData = getAvailableEmail(data, oneTimePaymentInfo, portalUser);
+    const emailFromData = getAvailableEmail(mergedData, oneTimePaymentInfo, portalUser);
     if (emailFromData) {
       const currentNotif = getValues("notificationEmail");
       if (!currentNotif || currentNotif === lastAutoFilledEmailRef.current) {
@@ -257,7 +177,7 @@ export function SignUpForm() {
       }
       lastAutoFilledEmailRef.current = emailFromData;
     }
-    if (data?.customer_name && !getValues("name")) {
+    if (typeof data?.customer_name === "string" && data.customer_name && !getValues("name")) {
       setValue("name", data.customer_name, { shouldDirty: false });
     }
 
@@ -275,9 +195,7 @@ export function SignUpForm() {
 
   const handleBackToLogin = () => {
     const alias = companyInfo?.company?.alias;
-    navigate(alias ? paths.auth.newLogin(alias) : paths.auth.newLogin(), {
-      state: { accountActivated: true },
-    });
+    navigate(alias ? paths.auth.newLogin(alias) : paths.auth.newLogin());
   };
 
   // Dirty-route guard

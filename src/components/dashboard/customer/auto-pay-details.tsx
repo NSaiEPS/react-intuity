@@ -19,6 +19,8 @@ import { Button } from 'nsaicomponents';
 
 import { useDispatch, useSelector } from '@/hooks/redux';
 import { SelectPaymentMethod } from '@/components/dashboard/customer/select-payment-method';
+import { toast } from '@/lib/custom-toast';
+import { hasOneTimePaymentToken, ONE_TIME_TOKEN_AUTOPAY_ERROR } from '@/utils/paymentTokenUtils';
 
 export default function AutoPayDetails(): React.JSX.Element {
   const dashBoardInfo = useSelector((state: RootState) => state?.DashBoard?.dashBoardInfo);
@@ -98,6 +100,10 @@ export default function AutoPayDetails(): React.JSX.Element {
     formData.append('customer_id', userId);
 
     if (selectedCardDetails) {
+      if (hasOneTimePaymentToken(selectedCardDetails) || hasOneTimePaymentToken(selectedCardDetails?.card)) {
+        toast.error(ONE_TIME_TOKEN_AUTOPAY_ERROR);
+        return;
+      }
       // "id_select_card:143
       // auto_pay_model_save_card:0
       // payment_method_id_model:0bd1349b300245c988edae9bdf131644
