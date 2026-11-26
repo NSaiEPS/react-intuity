@@ -73,11 +73,13 @@ export function AccountInfoCard({ sx }: AccountInfoCardProps): React.JSX.Element
   const billingAddress =
     customer?.address || customer?.billing_address || "-";
 
+  const customerSummary =
+    accountNumber !== "-" ? `${customerName} (${accountNumber})` : String(customerName);
+
   const items = [
-    { label: "Account Number", value: accountNumber },
-    { label: "Customer Name", value: customerName },
-    { label: "Service Address", value: serviceAddress },
-    { label: "Billing Address", value: billingAddress },
+    { key: "customer", label: null as string | null, value: customerSummary },
+    { key: "service-address", label: "Service Address", value: serviceAddress },
+    { key: "billing-address", label: "Billing Address", value: billingAddress },
   ];
 
   return (
@@ -110,7 +112,7 @@ export function AccountInfoCard({ sx }: AccountInfoCardProps): React.JSX.Element
             variant="h6"
             fontWeight={700}
             sx={{
-              fontSize: "0.95rem",
+              fontSize: "1.05rem",
               color: "text.primary",
               lineHeight: 1.2,
             }}
@@ -121,29 +123,31 @@ export function AccountInfoCard({ sx }: AccountInfoCardProps): React.JSX.Element
         </Box>
 
         <Stack spacing={0.75} sx={{ flex: "1 1 auto", justifyContent: "space-between" }}>
-          {items.map(({ label, value }) => (
-            <Box key={label} sx={{ minWidth: 0 }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  color: "text.secondary",
-                  fontSize: "0.6875rem",
-                  fontWeight: 500,
-                  lineHeight: 1.2,
-                  mb: 0.15,
-                }}
-              >
-                {label}
-              </Typography>
+          {items.map(({ key, label, value }) => (
+            <Box key={key} sx={{ minWidth: 0 }}>
+              {label ? (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "text.secondary",
+                    fontSize: "0.75rem",
+                    fontWeight: 500,
+                    lineHeight: 1.25,
+                    mb: 0.2,
+                  }}
+                >
+                  {label}
+                </Typography>
+              ) : null}
               <Typography
                 variant="body2"
                 noWrap
                 sx={{
                   color: "text.primary",
-                  fontSize: "0.8125rem",
+                  fontSize: "0.9375rem",
                   fontWeight: 600,
-                  lineHeight: 1.25,
+                  lineHeight: 1.3,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
